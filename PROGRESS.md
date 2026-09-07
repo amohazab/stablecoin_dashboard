@@ -3794,3 +3794,170 @@ Record: out/step3-evidence.md; src/factory/; config/. Post-pair application
      per-invocation prepend. Until then, prepending is the ruled interim.
   2. The Step-8 cron invokes `uv run python -m factory.run`; the entry
      point now exists to be invoked.
+
+## P-3.43 — The Block-1a inventory: four findings, four rulings, two queued items, the reorder
+
+- **Date:** 2026-09-07
+- **Type:** ruling + finding
+- **Confirmed by:** Amin
+- **Content:**
+  A read-only inventory was ordered before any DET-10 code was written,
+  because P-3.09 ruled DET-10 Full and P-3.40 found it never implemented.
+  **The inventory changed the shape of the work**, and the rulings below
+  replace the kickoff's Block-1 plan. Nothing here re-opens the closed pair.
+
+  **FINDING (i) — THE LOG WAS NEVER BUILT.** DET-10(a), DET-77 and DET-86
+  all chain to "the log". `det_77` (`harness.py`) is a **config-mirror
+  equality check** — `header.sheet_hash` against the TOML mirror's
+  `sheet_hash` — and **reads no log at all**. `LogEntry` (DET-60's closed
+  schema) has **no set-file-hash field** and `level: Literal[1,2,3]`, so a
+  freeze is not representable in it. `out/logs/` holds only `.gitkeep`;
+  `Logbook.write()` has **no caller**. **The P-3.28 freeze left no
+  machine-readable event.** `run.py`'s frozen-set stamp is a
+  **self-comparison** — the bundle records the hash of the file it just read
+  — and cannot detect that file being edited. **PROGRESS entries have been
+  serving as the log.**
+
+  **RULING 1 — BUILD A TYPED EVENT LOG (option C).** One append-only,
+  **committed** (not gitignored — it is the hash chain) JSONL log,
+  deterministic per O-2. **Closed entry types:** `freeze` `{type, date,
+  token, freeze_block, set_file_hash, set_file_path, source}`;
+  `intake_trigger` `{type, date, token, sheet_hash, set_file_hash,
+  source}`; `published` `{type, date, token, bundle_hash}` — reserved,
+  first written at Step 7; `quarantine` — exactly DET-60's closed schema
+  plus `type`. **DET-60's "any additional field = fail" applies to
+  `quarantine` entries only; the other types are outside its scope.** This
+  is an **interpretive extension, named in code citing P-3.43, and queued
+  for the rubric revision** (define the event log's types; scope DET-60 to
+  trigger entries; have DET-77 / DET-86 / DET-10(a) reference it by name).
+
+  **Backfill — exactly three entries, each marked `source: "backfilled
+  2026-09-07 from P-3.xx"`:** (1) `intake_trigger` 2026-09-04, sheet
+  `43a5d27b`, set file none (P-3.12 — the sheet edit preceded the freeze);
+  (2) `freeze` 2026-09-04, `freeze_block 25905210`, `set_file_hash
+  80d87407`, `config/frozen_set_crvusd.json` (P-3.28); (3) `intake_trigger`
+  2026-09-05, sheet `a6d8f12a`, set file `80d87407` unchanged (P-3.38's
+  (d2)). **Backfilled entries are recorded facts re-expressed in machine
+  form; nothing is invented, and the marking says where each came from.**
+
+  **DET-10(a) limb 2** chains to the last `freeze` / `intake_trigger`
+  entry's `set_file_hash`. **DET-77** additionally asserts `header.sheet_hash`
+  equals the last `intake_trigger` entry's `sheet_hash` — its letter,
+  alongside the mirror equality it already performs. **Consequence, stated
+  because it changes the (d) machinery: a future sheet edit without a logged
+  `intake_trigger` fails DET-77 Level 3.** That is the intended gate; doc
+  edits gain one step — append the `intake_trigger` entry with the new
+  stamps. The `run.py` self-comparison is **replaced** by the chain, not
+  kept alongside it.
+
+  **Not built now:** `Logbook.write()` for `quarantine` entries stays
+  uncalled until a trigger actually fires. P-3.40's finding stands —
+  harmless under the P-3.14 convention, relevant at Step 7 — and goes on
+  the **Step-7 opening checklist** beside the DET-86 convention's
+  retirement.
+
+  **FINDINGS (ii)-(vi) — PER-RUN DISCOVERY DOES NOT EXIST.**
+  (ii) **An ordinary run never touches a pool.** The frozen set is opened
+  only to hash its bytes and read `freeze_date`; `pools` and `excluded` are
+  never parsed. No code references `pool_count` / `pool_list` /
+  `pool_factory` — **the six pool-factory roots signed at P-3.23 sit in
+  config unread.** `freeze.py` is pure computation with no RPC import; **the
+  enumeration that produced the signed set file was never in the tracked
+  tree — the artifact has no committed producer.**
+  (iii) **The bundle has no pool table.** The only frozen-set fact it
+  carries is `header.frozen_set_hash`, which proves byte-identity and
+  enumerates nothing. The only share-shaped field, `nodes[].share_of_backing`,
+  is a different quantity. **(d)'s "last-run share" is uncomputable from a
+  prior bundle as the bundle stands.**
+  (iv) **`added_since_freeze` is a string in a set that nothing produces.**
+  It is by definition a per-run judgment and has no per-run home because no
+  per-run exclusion pass exists. DET-34 is absent from the harness; the only
+  exclusion table is freeze-time.
+  (v) **(e)'s pool-table annotations have nowhere to live.**
+  (vi) **Sizing, accepted as reported:** an ordinary run is ~2,100-2,200
+  pinned reads; the freeze took 259 over 103 pools. Route A ~ +265 reads
+  (~+12%); Route B (full factory walk) ~ +5,000-7,200 (2.5-3.5x the entire
+  current run).
+
+  **RULING 2 — BUILD PER-RUN DISCOVERY, ROUTE A.** This is not a
+  rubric-only requirement. **Memo section 5.6 rules it directly:** *"Per
+  run: read the frozen pools' state; additionally run full discovery and a
+  detector that flags (i) a new pool above the dust floor not in the frozen
+  set, (ii) a frozen pool fallen below the floor, (iii) any frozen pool with
+  TVL change > 50% since the last run."* DET-10(c)(d)(e) enforce that
+  ruling. **The P-3.03 boundary clause applies: owed output, not
+  gold-plating.**
+  - **Route A** — the freeze's own method (P-3.28 pattern: API catalog as
+    pointer, chain as verdict). **Route B rejected on cost** for an
+    every-run pass: 2,396 `pool_list` index reads plus ~2,396 `coins()`
+    reads plus valuation is 2.5-3.5x the entire current run, every week,
+    to answer a question the catalog-plus-closure route answers in ~265.
+  - **The pointer source is a scraped source and takes the hard-gate
+    treatment:** shape-validated; shape change ⇒ quarantine, never garbage.
+    Unavailability ⇒ harness error ⇒ DET-85, T-25 Level 2. **No new trigger
+    is invented.** A Curve API outage costs that week's crvUSD report —
+    the design's accepted trade, stated as such.
+  - **Valuation reuses `freeze.py`** — par-eligibility, the $500k floor, the
+    exclusion classifier. Not reimplemented; if a per-run seam is needed,
+    that seam is the change.
+  - **Disappearance ((d)'s second event):** an on-chain membership read at
+    `run_block` per frozen pool against its factory root — one to a few
+    reads per pool, **never a walk**. **API absence is DET-09 territory and
+    is not the event.**
+  - **New `pools[]` bundle table**, shaped like the `nodes[]` precedent,
+    address-sorted: frozen pools (address, paired asset, `freeze_tvl`,
+    `tvl_at_par` now, share, annotations) plus every above-floor non-F pool
+    with exactly one `exclusion_reason` — carried from the set file where it
+    exists, **`added_since_freeze` where it does not (DET-34's fifth reason,
+    finally produced)**. Below-floor non-F pools are counted, not listed.
+  - The three detector fields — `new_pool_above_floor[]`,
+    `frozen_pool_below_floor[]`, `frozen_pool_tvl_change_gt_50pct[]` —
+    compute from that table; (e)'s annotations live on its rows; (d)'s two
+    T-10 events compute from it; (f) from the header dates; (b) every
+    modeled pool in the frozen set; (a) per ruling 1.
+  - **Implementer defaults to name in code:** the "≥ 10% of frozen-set
+    coverage" denominator = the set file's `freeze_discovery_total`, so the
+    threshold is stable between refreshes; **(d)'s "last-run share" = the
+    prior bundle's `pools[]`, with the set file's `freeze_tvl` shares as the
+    named fallback — true exactly once, at the demonstration run, and
+    disclosed in the output**; the TVL-change baseline = the prior run's
+    `tvl_at_par`, same fallback.
+  - **The discovery module is committed**, becoming the producer the signed
+    set file never had. The R-a1 refresh at Step 6/7 reuses it — note only;
+    nothing about the refresh is built now.
+  - **Tests:** one synthetic fail-path test per DET-10 clause; one
+    shape-change test for the pointer source. Nothing more.
+
+  **RULING 3 — TWO ITEMS ROUTED TO QUEUES, NOT ACTED ON.** **DET-09** is
+  listed S1 in the rubric and was built freeze-time (P-3.40's audit accepted
+  it there); same class as the DET-89 listing discrepancy, so it goes to the
+  **revision-session queue** — per-run discovery now existing does not by
+  itself move DET-09 per-run. **DET-34 per-run gating** becomes ~10 lines
+  once `pools[]` exists; **not in scope this session**, noted as available.
+
+  **RULING 4 — SEQUENCING REORDERED.** The small mechanical items land
+  before the large one, and there is **one** demonstration run: (1) Block 2,
+  DET-66; (2) Block 3, the held items 3.1-3.5 — 3.1's file is
+  `config/discovery_roots.toml`, `[[lend_factory]]` commented "STATUS:
+  OWED" at l.134-136, the agent's identification confirmed; (3) Block 1b,
+  the DET-10 proposal now covering ruling 1 (event log, backfill, DET-77
+  chain), ruling 2 (discovery module, `pools[]`, detectors, T-10,
+  annotations) and `det_10` itself, **one proposal, stop for confirmation**;
+  (4) Block 4, the demonstration run, its expected-change list extended with
+  `pools[]` present, the three detector fields present, the event log read
+  with DET-10(a) and DET-77 chaining to backfilled entry 3, and the gate
+  count 20 -> 22. **Reason for the reorder: the inventory turned Block 1
+  from a harness check into a module of the freeze pass's order, and the
+  mechanical items must not queue behind it.**
+- **Artifacts:** `PROGRESS.md`. No code, config, or `docs/context/` change
+  in this entry — it records findings and rulings; implementation follows at
+  its reordered place.
+- **Follow-ups spawned:**
+  1. Rubric amendment queue, new item: define the event log's entry types;
+     scope DET-60 to trigger entries; have DET-77 / DET-86 / DET-10(a)
+     reference the log by name.
+  2. Revision-session queue, new item: DET-09's S1 listing vs. its
+     freeze-time construction (with the DET-89 item).
+  3. Step-7 opening checklist: call `Logbook.write()` for quarantine
+     entries; retire the P-3.14 `first_run` convention.
+  4. Available, not scoped: DET-34 per-run gating once `pools[]` exists.
