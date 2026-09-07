@@ -180,6 +180,33 @@ def test_run2_supply_jump_without_confirmations_is_level_3():
                              supply_confirmations={}))
 
 
+def test_det62_confirmation_legs_are_read_when_the_branch_opens():
+    """3.2: the jump branch's wiring, proved against stubbed legs.
+
+    crvUSD `totalSupply` is piecewise-constant - it moves only on a governance
+    ceiling change (P-3.40) - so this branch will essentially never open live.
+    The prior is synthetic precisely so the wiring is exercised at all.
+    """
+    calls: list[str] = []
+
+    def stub_get(url: str) -> dict:
+        calls.append(url)
+        if "etherscan" in url:
+            return {"result": "2104809"}          # both legs return raw wei
+        return {"total_supply": "2104809"}
+
+    prior = a_bundle(supply=a_bundle().supply.model_copy(
+        update={"total_supply": 1_000_000}))
+    b = a_bundle(first_run=False, first_run_literals=None)
+    out = run_harness(b, a_ctx(is_first_run=False, prior_bundle=prior,
+                               http_get=stub_get, token_address=CRVUSD))
+    # both legs read, on the v2 Etherscan base, both agreeing within 5%
+    assert len(calls) == 2
+    assert any("/v2/api?chainid=1" in u and "tokensupply" in u for u in calls)
+    assert any("blockscout" in u for u in calls)
+    assert ("T-05", 1) in out.triggers and out.worst_level == 1
+
+
 def test_run2_market_removal_is_level_2():
     prior = a_bundle(first_run=True)
     b = a_bundle(first_run=False, first_run_literals=None,

@@ -14,6 +14,7 @@ from factory.adapters.crvusd import (
     AddressReconciliation,
     DiscoveredKeeper,
     confirm_node_addresses,
+    discover_lend_markets,
     discover_mint_markets,
     discover_pegkeepers,
 )
@@ -213,7 +214,39 @@ def test_reconciliation_clean_when_sets_agree():
 # --- config loading against the real repo config -----------------------------
 
 
-def test_repo_config_loads_and_lend_is_not_configured():
+def test_lend_market_enumeration_counts_the_chain_not_the_rows():
+    """3.1b: the count is the on-chain total across both signed factories, and
+    the two factories use DIFFERENT index getters - which is why the signature
+    is per-row config. The rows' `vaults` field is provenance, never a figure.
+    """
+    f1 = "0xea6876dde9e3467564acbee1ed5bac88783205e0"
+    f2 = "0x8f6b56ec5ddf1f2691a1059f1d3cd97ac9eab0bd"
+    m = ["0x%040x" % (0xA0 + i) for i in range(3)]      # 2 under f1, 1 under f2
+    table = {
+        (f1, "market_count()", ()): (2,),
+        (f1, "vaults(uint256)", ("0",)): (m[1],),
+        (f1, "vaults(uint256)", ("1",)): (m[0],),
+        (f2, "market_count()", ()): (1,),
+        (f2, "markets(uint256)", ("0",)): (m[2],),
+    }
+    cfg = Config(
+        roots={}, labels={}, paired={}, sheet={}, wallet_registries=[],
+        reference_feeds=[], oracle_constituents={}, bridges=[],
+        lend=LendFactories(
+            LendState.POPULATED, (f1, f2),
+            ({"address": f1, "count_getter": "market_count()",
+              "market_getter": "vaults(uint256)", "vaults": 48},
+             {"address": f2, "count_getter": "market_count()",
+              "market_getter": "markets(uint256)", "vaults": 4})))
+    got = discover_lend_markets(FakeRpc(table), cfg)
+    assert len(got) == 3                       # the CHAIN total, not 2 factories
+    assert [a for a, _f, _i in got] == sorted(m)          # address-sorted
+    assert {f for _a, f, _i in got} == {f1, f2}
+    # the rows' provenance fields are never the emitted figure
+    assert sum(r["vaults"] for r in cfg.lend.rows) == 52 != len(got)
+
+
+def test_repo_config_loads_and_lend_is_populated():
     cfg = load(Path(__file__).resolve().parents[1] / "config")
     assert {"controller_factory", "pegkeeper_regulator", "price_aggregator",
             "crvusd_token"} <= set(cfg.roots)
@@ -225,7 +258,14 @@ def test_repo_config_loads_and_lend_is_not_configured():
     assert cfg.labels[weeth].lst_discount_applies is True  # A3
     tbtc = "0x18084fba666a33d37592fa2633fd49a74dd93a88"
     assert cfg.labels[tbtc].label is None  # A5: resolved per run by FR-36
-    assert cfg.lend.state is LendState.NOT_CONFIGURED
+    # P-3.39 ruling 4, applied 2026-09-07: the two lend factories are signed,
+    # so the three-state has advanced from NOT_CONFIGURED to POPULATED and
+    # DET-07's exclusion is exercisable against real rows.
+    assert cfg.lend.state is LendState.POPULATED
+    assert cfg.lend.addresses == (
+        "0xea6876dde9e3467564acbee1ed5bac88783205e0",
+        "0x8f6b56ec5ddf1f2691a1059f1d3cd97ac9eab0bd")
+    assert cfg.lend.det07_exercisable is True
     assert len(cfg.paired) == 7  # P-3.24: 7 labeled; pmUSD deliberately unlabeled
     assert cfg.paired["0xcea18a8752bb7e7817f9ae7565328fe415c0f2ca"].label == "terminal"
     assert "0xc0c17dd08263c16f6b64e772fb9b723bf1344ddf" not in cfg.paired  # pmUSD

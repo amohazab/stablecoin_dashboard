@@ -4144,3 +4144,244 @@ Record: out/step3-evidence.md; src/factory/; config/. Post-pair application
      and the DET-15(c) per-token cause-list intake edit.
   2. DET-15(a) and (d)'s sole-denominator condition join the same
      follow-up; neither is a Step-4 item.
+
+## P-3.45 — Block 3: the five held items applied, the lend enumeration built, 3.3 deferred
+
+- **Date:** 2026-09-07
+- **Type:** implementation + flag-disposition
+- **Confirmed by:** Amin
+- **Content:**
+  P-3.41's post-pair application list, worked as one atomic change set under
+  P-3.43's reorder. Four of the five held items applied; one flagged and
+  deferred; one item (3.1b) ruled in mid-block when 3.1 turned out to leave a
+  visibly wrong number behind.
+
+  **COMMIT-BOUNDARY CORRECTION — as-counted.** P-3.42's first commit was made
+  with `git add -A` and swept in the three Block-2 files, which belong to
+  P-3.44. Caught immediately, reset (unpushed) and recommitted by explicit
+  path, so the four commits of this session carry exactly their own entries'
+  files. Recorded because the ruled discipline is one commit per confirmed
+  entry, and a sweep silently defeats it. **`.gitignore`** was separately
+  renormalized to LF (224 B) after `git checkout` rewrote it CRLF at 235 B;
+  content identical, tree clean.
+
+  **3.1 — THE TWO LEND-FACTORY ROWS, APPLIED.** P-3.39 ruling 4's signed rows
+  written into `config/discovery_roots.toml`, replacing the three commented
+  `STATUS: OWED` lines. Verification date 2026-09-05 recorded in the rows; the
+  application event is today (P-3.12 date split). One hunk; the three
+  `[[bridge]]` rows, six `[[pool_factory]]` roots, three
+  `[[registry_class_record]]` rows and every `[[root]]` untouched. **Hash
+  `0538f3ca -> 1f582e7f`**, 7,425 -> 8,539 B.
+
+  **What advanced, all four confirmed by running the loader:** the P-3.17
+  three-state `NOT_CONFIGURED -> POPULATED`; `cfg.lend.addresses` the two
+  signed addresses in file order; `counts.lend_market_count` off the string
+  `"unknown - no lend exclusion data configured"`; `det07_exercisable` false
+  -> **true**, so DET-07's mint/lend exclusion runs against real rows instead
+  of being structurally unexercisable.
+
+  **3.1b — THE LEND-MARKET ENUMERATION, RULED IN AND BUILT.** 3.1 alone would
+  have emitted `lend_market_count = 2` — **the number of FACTORIES**. DET-07
+  reads "`lend` rows present in the bundle and in the disclosed lend-market
+  count" and DET-63 logs lend *counts*; the 2026-09-05 verification found
+  48 + 4 = 52 vaults, each a lending market. **2 would have been a visibly
+  wrong number in a published figure**, so the count is taken from the chain.
+
+  **The interface was READ, not recalled** — probed on-chain at blocks
+  25927386 / 25927387:
+  | factory | count | index getter | note |
+  |---|---|---|---|
+  | `0xea6876dd…` OneWayLendingFactory | `market_count()` = 48 | **`vaults(uint256)`** | `controllers(i)`, `amms(i)` also answer; not read |
+  | `0x8f6b56ec…` LlamaLend V2 Lend Factory | `market_count()` = 4 | **`markets(uint256)`** | **`vaults(i)` REVERTS here** |
+
+  **The two factories do not share an index getter.** That is why the
+  signature is a **per-row config field** established by probe rather than a
+  constant in code — the difference stays visible in the signed config, and
+  no market list is hardcoded (memo §9, "Encoded hard gates"). Adding the
+  field modified two P-3.39-signed rows and is **signed in this entry as a
+  mechanism field, not a ruling change**; it moves the config hash a second
+  time, **`1f582e7f -> c3b2129d`**, 8,539 -> 9,161 B.
+
+  **Reads added: 2 count + 52 address = 54**, pinned at `run_block` through
+  the existing multicall layer. **On-chain total 52 = 48 + 4, matching the
+  2026-09-05 verification exactly.** Had it differed it would have been
+  disclosed, not reconciled to the rows — lend counts are logged, never
+  triggered (DET-63).
+
+  **`counts.lend_market_count` is the ON-CHAIN INTEGER** — never the factory
+  count, never the rows' `vaults` field. Those fields stay provenance for why
+  each factory is non-originating (zero crvUSD ceiling, zero crvUSD held) and
+  are never emitted as a figure; the test pins the distinction by stubbing a
+  chain total that deliberately disagrees with `sum(vaults)`, so the two can
+  never be conflated silently. The three-state string remains the value when
+  the lend list is absent or explicitly empty.
+
+  **`lend_markets[]`** — `{address, factory, index, reads}`, address-sorted,
+  in the hash preimage (O-2), with `ContractRead` provenance per row naming
+  the factory, the getter signature and the index at `run_block`.
+
+  **DET-07's isolation is now A CHECK, not a sentence.** `det_07` asserts that
+  no lend-market address appears in `markets` (address, AMM or collateral),
+  `nodes`, `stabilizer` (operation or paired pool), or `supply.bridges`, and
+  that `lend_markets` holds no duplicate address. Saying "referenced by no
+  backing, supply or stress computation" is a claim; this is the enforcement.
+
+  **The DET-63 disclosure, and the consequence that was NOT invented.**
+  `Counts.lend_market_count_note` carries the one-time text *"first integer
+  lend count, no delta - prior run carried the three-state string; logged, not
+  triggered (DET-63)"* — the same class as P-3.14's first-run disclosure. The
+  agent's first build ALSO raised Level 3 if the integer appeared without the
+  note. **That raise is removed on Amin's ruling, recorded here:** it was an
+  implementer-invented consequence at a level the rubric does not assign
+  (DET-63's nearest is "wrong route = Level 2"), it gated our own emitted
+  field — a self-comparison — and it would have needed retiring after exactly
+  one run. **The note stays, ungated; the demonstration run shows it.**
+  Recorded as the standing example of the boundary: a named implementer
+  default may choose HOW a ruled thing is computed, never WHAT a failure
+  costs.
+
+  **3.1t — the test-expectation change, forced by 3.1.**
+  `test_repo_config_loads_and_lend_is_not_configured` asserted
+  `LendState.NOT_CONFIGURED` against the real repo config; that assertion
+  encoded the OWED state and signing the rows made it false by construction.
+  Renamed to `…_lend_is_populated` and extended with the state, the two
+  addresses in order, and `det07_exercisable`. A second test covers 3.1b's
+  enumeration against stubbed reads.
+
+  **3.2 — DET-62's TWO CONFIRMATION LEGS, WITH A CORRECTION THAT ONLY A LIVE
+  READ WOULD HAVE CAUGHT.** The agent's first build carried **no API key and
+  the v1 base URL**. The design layer's review caught it and named why the
+  shape was dangerous; Amin ruled the correction. The failure path
+  (`None -> T-14 Level 3`) is safe, so a leg that could never succeed would
+  have sat there indefinitely looking correct — **"exactly how a wire that
+  never carried current stays undetected."**
+
+  **Probe result, verbatim, 2026-09-07:**
+  - v1 **with** key -> `{"status":"0","message":"NOTOK","result":"You are
+    using a deprecated V1 endpoint, switch to Etherscan API V2 using
+    https://docs.etherscan.io/v2-migration"}`
+  - v1 **without** key -> the same NOTOK
+  - **v2 with key** -> `{"status":"1","message":"OK","result":
+    "2104809204981834354272443571"}`
+  The leg would have failed live in two independent ways.
+
+  **THE THREE-WAY SMOKE READ AT HEAD — informational, outside the run path,
+  never a gate.** `2026-09-07T18:52:51Z`, RPC block **25927383**:
+  | source | figure (raw wei) | ratio to RPC |
+  |---|---|---|
+  | Etherscan v2 `module=stats&action=tokensupply` | `2104809204981834354272443571` | **1.000000** |
+  | Blockscout `/api/v2/tokens` `total_supply` | `2104809204981834354272443571` | **1.000000** |
+  | RPC `crvUSD.totalSupply()` @ 25927383 | `2104809204981834354272443571` | — |
+  Exact agreement to the wei. Both legs return raw wei, directly comparable to
+  `supply.total_supply`, which is also raw wei — no decimal scaling. Blockscout
+  additionally exposes `circulating_supply`, the DefiLlama-style convention;
+  **`total_supply` is what is read**, deliberately.
+
+  **As built:** legs read through `ctx["http_get"]`, a callable injected by
+  `execute()`, so the harness imports no transport and the branch is stubbable
+  — the only way to test a branch that will essentially never open live. Reads
+  happen **only inside the `jump > 0.25` branch**, so an ordinary run makes
+  zero HTTP calls for DET-62. `requests` was already a declared dependency:
+  **no `uv add`, no lockfile delta, `uv sync --frozen` still reports no
+  changes.** The key comes from a generalised **`_env(repo, name)`** —
+  `_rpc_url` (0.5(c)) now calls it too — and is used only to build the URL:
+  it reaches no bundle, log or spot-check sheet, and a failed leg records
+  `None`, never the URL (P-3.39 binding 1). **DefiLlama appears in no leg**;
+  it survives as spot-check item 10, informational. A leg that cannot be read
+  is `None`, never a zero and never agreement -> the existing `T-14` Level 3.
+
+  **3.3 — FLAGGED, AND DEFERRED. The premise failed.** The item was to apply
+  ruling 1's reworded cause family (iv), "only the wording". **There is no
+  text to reword: the DET-15(c) named-cause decomposition has never been
+  emitted by the code.** `Supply` carries `residual: int` and no cause
+  structure; the wording appears nowhere in the tree; **DET-15 is not in
+  `CHECKS` at all.** The agent stopped rather than manufacturing an emission
+  point so a signed wording would have somewhere to live.
+
+  **RULED (A): DEFER; the wording stays signed and applies when DET-15(c) is
+  built.** Building a full-history `SetDebtCeiling` scanner now — against
+  wording that itself says *"pending perimeter re-ruling"* — would be rework:
+  the revision session's third-minting-class perimeter ruling and the
+  DET-15(c) per-token cause-list intake edit will change the families.
+  **Owner stays the crvUSD adapter** — a Step-3 follow-up sequenced AFTER
+  those two rulings, **not Step 4's**.
+
+  **THE UNTRACKED-ANALYSIS PATTERN, NAMED — this is the THIRD instance.**
+  (1) the pool enumeration that produced the signed frozen set (P-3.43
+  finding (ii)); (2) the one-liners that drove runs 1 and 2 (P-3.42); (3) the
+  named-cause decomposition printed at runs 1 and 2. **Each was real analysis
+  whose code was never committed**, which is why each looked implemented from
+  the record and was not in the tree. The pattern is the finding: an
+  analysis executed in a session is not a pipeline capability until it is
+  committed, and PROGRESS entries reporting its output read identically
+  either way. 0.5(c) closed instance 2; P-3.43 ruling 2 closes instance 1;
+  this deferral leaves instance 3 open with a named owner.
+
+  **The placement correction is `P-3.40-A1`**, appended separately: P-3.40's
+  audit line "DET-15 in `spotcheck.py`" is narrowed — only (b) and (d)'s
+  `supply_ruled` quantity have machinery, in `run.py`/`schema.py`, with (b)
+  merely displayed in `spotcheck.py`.
+
+  **3.4 — THE TWO LINT ERRORS, LOCATED BY RULE.** `ruff --select F841` and
+  `--select UP031` were used to find them rather than P-3.41's recorded line
+  numbers, since P-3.40 had edited `run.py` after those were taken (they
+  happened still to be at :254 and :264). `raw_cfg` **deleted**, not renamed
+  or underscore-prefixed — its comment described what the next line already
+  does, and the assignment was dead the moment bridges moved to the config
+  loader. The percent-format string is replaced by 3.5's helper, which is why
+  3.4 and 3.5 are one hunk. **`ruff check src tests` is now fully clean — no
+  exclusion added to `pyproject.toml`, no `noqa`, no rule disabled.**
+
+  **3.5 — THE BRIDGE DISCLOSURE, DERIVED.** The old string interpolated
+  `len(bridge_rows)` — **every** row — into the literal "lock_and_mint
+  escrow(s)". Correct today only by accident, because all three rows are
+  lock_and_mint; **the first burn_and_mint or unresolved row would have been
+  silently reported as a lock_and_mint escrow** — a mislabel in a DET-33
+  disclosure line, on a field whose whole point (C-1, P-3.06) is that bridge
+  type is never inferred. Now derived from the rows' `bridge_type` counts.
+  **Byte-identity verified against the real run-2 rows:**
+  `'bridged component assessed: 3 lock_and_mint escrow(s); burn_and_mint
+  component zero'` before and after, and the empty-rows form identical too.
+  **3.5 changes no emitted byte today and stops being wrong tomorrow.**
+
+  **VERIFICATION.** `uv run python -m pytest` -> **86 passed** (84 + the
+  DET-62 stubbed-branch test + the 3.1b enumeration test).
+  `ruff check src tests` -> **All checks passed**, no exclusions, no `noqa`.
+
+  | file | bytes | sha256[:8] |
+  |---|---:|---|
+  | `config/discovery_roots.toml` | 9,161 | `c3b2129d` |
+  | `src/factory/config.py` | 7,248 | `4bc1bb71` |
+  | `src/factory/schema.py` | 14,132 | `0e15ce71` |
+  | `src/factory/adapters/crvusd.py` | 9,484 | `5d0a15b2` |
+  | `src/factory/run.py` | 27,386 | `e9947699` |
+  | `src/factory/validate/harness.py` | 25,739 | `bb437fd9` |
+  | `tests/test_discovery.py` | 11,562 | `f749754a` |
+  | `tests/test_harness.py` | 13,738 | `39bde903` |
+
+  **DEMONSTRATION-RUN EXPECTED CHANGES ADDED BY THIS BLOCK**, beyond
+  P-3.43's: config hash **`c3b2129d`** stamped in the header's sheet/config
+  provenance; `counts.lend_market_count` string -> **52**, the on-chain
+  integer; `counts.lend_market_count_note` **present, this run only** (the
+  P-3.14-class disclosure, ungated); **`lend_markets[]` present with 52
+  rows**, address-sorted, in the preimage; **DET-07's isolation check active**
+  — it evaluates the 52 addresses against every backing-, supply- and
+  stabilizer-bearing table and must pass; the **DET-62 legs wired but the
+  branch closed** at an ordinary run, so zero HTTP calls and no confirmation
+  read; `bridge_disclosure` bytes **unchanged**; and the **gate count at 21**
+  (DET-66 evaluating), reaching 22 once DET-10 lands under P-3.43's reorder.
+- **Artifacts:** `config/discovery_roots.toml` (9,161 B, `c3b2129d`);
+  `src/factory/config.py` (7,248 B); `src/factory/schema.py` (14,132 B);
+  `src/factory/adapters/crvusd.py` (9,484 B); `src/factory/run.py`
+  (27,386 B); `src/factory/validate/harness.py` (25,739 B);
+  `tests/test_discovery.py` (11,562 B); `tests/test_harness.py` (13,738 B).
+  No `docs/context/` change. One commit for this entry, by explicit paths.
+- **Follow-ups spawned:**
+  1. **3.3, deferred with a named owner:** build DET-15(c)'s named-cause
+     emission in the crvUSD adapter and apply P-3.39 ruling 1's signed
+     wording to it — **after** the third-minting-class perimeter re-ruling
+     and the DET-15(c) per-token cause-list intake edit. Not Step 4's.
+  2. From `P-3.40-A1`: DET-15(a)'s replay and DET-15(d)'s sole-denominator
+     condition have no machinery; they join follow-up 1's scope.
+  3. Untracked-analysis pattern: instance 3 (the decomposition) remains
+     open; instances 1 and 2 are closed by P-3.43 ruling 2 and 0.5(c).

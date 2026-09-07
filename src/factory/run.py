@@ -15,6 +15,7 @@ import sys
 import time
 from decimal import Decimal
 
+from factory.adapters.crvusd import discover_lend_markets
 from factory.config import Config, load
 from factory.logbook import is_first_run, load_prior
 from factory.provenance import AbsenceRead, AnalystSupplied, ContractRead
@@ -35,6 +36,7 @@ from factory.schema import (
     FirstRunLiterals,
     GateResult,
     Header,
+    LendMarket,
     Market,
     OracleRow,
     PositionCompleteness,
@@ -151,6 +153,45 @@ def resolve_wallet_registry_label(rpc, entry: dict) -> tuple[str, ContractRead] 
                                        "activeWalletPubKeyHash()", rb)
 
 
+
+
+def _getter_of(cfg: Config, factory: str) -> str:
+    """The signed `market_getter` for a factory address (3.1b)."""
+    for row in cfg.lend.rows:
+        if row["address"].lower() == factory:
+            return row["market_getter"]
+    raise AssemblyStop(f"no signed lend row for factory {factory}")
+
+
+def _bridge_disclosure(rows: list[Bridge]) -> str:
+    """DET-33's bridged-component line, derived from the rows' `bridge_type`
+    counts rather than asserting a type the rows may not carry (3.5).
+
+    The old string hardcoded "lock_and_mint escrow(s)" while counting EVERY
+    row, so a burn_and_mint or unresolved row would have been mislabelled the
+    moment one appeared. Phrasing is byte-identical for a pure lock_and_mint
+    set, which is what today's three rows are.
+    """
+    if not rows:
+        return ("no bridge classification data configured - "
+                "bridged component unassessed")
+    counts: dict[str, int] = {}
+    for r in rows:
+        counts[r.bridge_type] = counts.get(r.bridge_type, 0) + 1
+    lock, burn = counts.get("lock_and_mint", 0), counts.get("burn_and_mint", 0)
+    unresolved = counts.get("unresolved", 0)
+    parts = []
+    if lock:
+        parts.append(f"{lock} lock_and_mint escrow(s)")
+    if burn:
+        parts.append(f"{burn} burn_and_mint bridge(s)")
+    if unresolved:
+        parts.append(f"{unresolved} unresolved")
+    tail = ("burn_and_mint component zero" if not burn
+            else f"burn_and_mint rows: {burn}")
+    return f"bridged component assessed: {'; '.join(parts)}; {tail}"
+
+
 def assemble(cfg: Config, rpc: RpcClient, repo: pathlib.Path) -> tuple[Bundle, dict]:
     rb = rpc.run_block
     cf = cfg.root("controller_factory").address
@@ -253,7 +294,6 @@ def assemble(cfg: Config, rpc: RpcClient, repo: pathlib.Path) -> tuple[Bundle, d
 
     # ---- supply + bridges (three-state) -------------------------------------
     ts = int(rpc.read([Call(CRVUSD, "totalSupply()", ("uint256",))])[0].one())
-    raw_cfg = cfg.sheet  # bridges live in discovery_roots; read via config loader below
     bridge_rows = []
     for b in getattr(cfg, "bridges", []):
         amt = int(rpc.read([Call(CRVUSD, "balanceOf(address)", ("uint256",),
@@ -263,9 +303,7 @@ def assemble(cfg: Config, rpc: RpcClient, repo: pathlib.Path) -> tuple[Bundle, d
             reads={"amount": _cr(CRVUSD, "balanceOf(address)", rb, (b["address"],)),
                    "bridge_type": AnalystSupplied(source=b["source"], date=b["date"])}))
     state = "populated" if bridge_rows else "not_configured"
-    disclosure = ("bridged component assessed: %d lock_and_mint escrow(s); "
-                  "burn_and_mint component zero" % len(bridge_rows)) if bridge_rows else \
-                 "no bridge classification data configured - bridged component unassessed"
+    disclosure = _bridge_disclosure(bridge_rows)
     burn = sum(b.amount for b in bridge_rows if b.bridge_type == "burn_and_mint")
     supply = Supply(total_supply=ts, supply_ruled=ts + burn, bridge_state=state,
                     bridge_disclosure=disclosure, bridges=bridge_rows,
@@ -357,6 +395,21 @@ def assemble(cfg: Config, rpc: RpcClient, repo: pathlib.Path) -> tuple[Bundle, d
                 provenance=AbsenceRead(contract=cf, method="selector_absence_scan",
                                        evidence="no matching selector", block=rb)))
 
+    # ---- lend markets (3.1b): enumerated ONLY to exclude, DET-07 ------------
+    lend_rows = [
+        LendMarket(address=a, factory=f, index=i,
+                   reads={"enumeration": _cr(f, _getter_of(cfg, f), rb, (i,))})
+        for a, f, i in discover_lend_markets(rpc, cfg)]
+    # P-3.14-class disclosure (3.1b): the prior run carried the three-state
+    # STRING, so no lend delta is computable this run. Stated, not triggered -
+    # DET-63's letter logs lend counts and never fires on them.
+    _prior = load_prior(repo / "out/bundles", "crvUSD", rb)
+    lend_note = None
+    if lend_rows and (_prior is None
+                      or not isinstance(_prior.counts.lend_market_count, int)):
+        lend_note = ("first integer lend count, no delta - prior run carried "
+                     "the three-state string; logged, not triggered (DET-63)")
+
     # ---- raw dump + header --------------------------------------------------
     raw = json.dumps(raw_rows, sort_keys=True, separators=(",", ":"))
     raw_hash = hashlib.sha256(raw.encode()).hexdigest()
@@ -379,16 +432,32 @@ def assemble(cfg: Config, rpc: RpcClient, repo: pathlib.Path) -> tuple[Bundle, d
             r7_capacity="n/a", r8="n/a", r9_legal_claim="no_pure_protocol",
             r10_provenance=AbsenceRead(contract=CRVUSD, method="selector_absence_scan",
                                        evidence="no holder redemption function", block=rb))],
-        admin_surface=admin,
+        admin_surface=admin, lend_markets=lend_rows,
         static_metadata=StaticMetadata(
             audits="none", bug_bounty="none", last_material_change_audited="no",
             staleness_date="2026-09-01",
             counterparties=cfg.sheet["counterparties"]),
         counts=Counts(mint_market_count=len(markets),
-                      lend_market_count=cfg.lend.market_count_field),
+                      # 3.1b: the ON-CHAIN total across the signed factories,
+                      # not the factory count and not the rows' `vaults` field.
+                      # Falls back to the three-state string when the lend list
+                      # is absent or explicitly empty (P-3.17's three states).
+                      lend_market_count=(len(lend_rows) if cfg.lend.det07_exercisable
+                                         else cfg.lend.market_count_field),
+                      lend_market_count_note=lend_note),
         attribution_method="direct",
         first_run_literals=FirstRunLiterals() if first else None)
     return bundle, {"raw": raw, "raw_hash": raw_hash, "rows": raw_rows}
+
+
+
+def _http_get_json(url: str) -> dict:
+    """Transport for DET-62's confirmation legs. `requests` is already a
+    declared dependency (pyproject), so no lockfile change is involved."""
+    import requests
+    resp = requests.get(url, timeout=20)
+    resp.raise_for_status()
+    return resp.json()
 
 
 def execute(repo: pathlib.Path, rpc_url: str) -> dict:
@@ -405,7 +474,14 @@ def execute(repo: pathlib.Path, rpc_url: str) -> dict:
            # the delta checks (DET-62/63/65) need the last successful run; it is
            # None exactly when first_run is true, which DET-86 cross-checks.
            "prior_bundle": load_prior(repo / "out/bundles", "crvUSD",
-                                      bundle.header.run_block)}
+                                      bundle.header.run_block),
+           # DET-62's two confirmation legs (P-3.19 / P-3.39). Injected rather
+           # than imported inside the harness so the branch is stubbable; the
+           # legs are read ONLY if the > 0.25 jump branch opens, so an ordinary
+           # run makes zero HTTP calls for DET-62.
+           "http_get": _http_get_json,
+           "token_address": CRVUSD,
+           "etherscan_api_key": _env(repo, "ETHERSCAN_API_KEY")}
     outcome = run_harness(bundle, ctx)            # raises => nothing below runs
 
     stamped, h = finalise(bundle)
@@ -444,16 +520,26 @@ def execute(repo: pathlib.Path, rpc_url: str) -> dict:
 # run on this repo as configured.
 
 
-def _rpc_url(repo: pathlib.Path) -> str:
-    url = os.environ.get("ETH_RPC_URL", "").strip()
-    if url:
-        return url
+def _env(repo: pathlib.Path, name: str) -> str:
+    """Environment first, then the `<name>=` line of `.env` at the repo root.
+    Generalised from `_rpc_url` (0.5(c)) when DET-62's Etherscan leg needed
+    `ETHERSCAN_API_KEY` by the same route (P-3.19). Returns "" if unset."""
+    val = os.environ.get(name, "").strip()
+    if val:
+        return val
     env = repo / ".env"
     if env.exists():
         for line in env.read_text(encoding="utf-8").splitlines():
-            if line.startswith("ETH_RPC_URL="):
+            if line.startswith(name + "="):
                 return line.split("=", 1)[1].strip()
-    raise AssemblyStop("ETH_RPC_URL not set in the environment or .env")
+    return ""
+
+
+def _rpc_url(repo: pathlib.Path) -> str:
+    url = _env(repo, "ETH_RPC_URL")
+    if not url:
+        raise AssemblyStop("ETH_RPC_URL not set in the environment or .env")
+    return url
 
 
 if __name__ == "__main__":

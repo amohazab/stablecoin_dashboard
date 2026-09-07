@@ -130,10 +130,47 @@ record = "no crvUSD pools in this class"
 checked_at_block = 25904647
 date = 2026-09-04
 
+# ---- Lend factories: SIGNED 2026-09-05, applied 2026-09-07 (P-3.39 ruling 4)
+# FR-10/FR-11 - enumerated ONLY to exclude (DET-07). These originate no crvUSD:
+# both carry a zero crvUSD debt ceiling and hold zero crvUSD, so every vault
+# under them re-lends existing supply. Deriving them from deployments.json was
+# abandoned when that endpoint died (P-3.18); the enumeration route is the
+# `vault.factory()` closure pass over the Curve-API lending catalog - the
+# catalog is the pointer, the on-chain `factory()` call is the verdict, the
+# same P-3.28 pattern used for the pool-factory roots above.
+# Verification date 2026-09-05; this application event 2026-09-07 (P-3.12 date
+# split: content dates stand as recorded, the application is dated today).
+
+[[lend_factory]]
+address = "0xea6876dde9e3467564acbee1ed5bac88783205e0"
+# Enumeration surface established by on-chain probe at block 25927386, not
+# from recall (3.1b). `vaults(i)` is this factory's market index getter;
+# `controllers(i)` and `amms(i)` also answer and are not read.
+count_getter = "market_count()"
+market_getter = "vaults(uint256)"
+name = "OneWayLendingFactory"
+vaults = 48
+crvusd_debt_ceiling = 0
+crvusd_held = 0
+source = "vault.factory() closure pass over the Curve-API lending catalog"
+date = 2026-09-05
+
+[[lend_factory]]
+address = "0x8f6b56ec5ddf1f2691a1059f1d3cd97ac9eab0bd"
+# Enumeration surface established by on-chain probe at block 25927387 (3.1b).
+# NOTE: this factory does NOT expose `vaults(i)` - its index getter is
+# `markets(i)`. The two factories differ, which is why the signature is a
+# per-row config field rather than a constant in code.
+count_getter = "market_count()"
+market_getter = "markets(uint256)"
+name = "LlamaLend V2 Lend Factory"
+vaults = 4
+crvusd_debt_ceiling = 0
+crvusd_held = 0
+source = "vault.factory() closure pass over the Curve-API lending catalog"
+date = 2026-09-05
+
 # ---- OWED (Amin, config round) -------------------------------------------
-# [[lend_factory]]  FR-10/FR-11 - enumerated ONLY to exclude (DET-07).
-#   Addresses from deployments.json /ethereum/lending. STATUS: OWED.
-#
 # [[bridge]]  FR-13 - one entry per known crvUSD bridge:
 #   address, bridge_type in {lock_and_mint, burn_and_mint}, source, date.
 #   NEVER inferred from a balance (C-1, P-3.06). Unclassified bridges take

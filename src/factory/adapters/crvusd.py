@@ -224,3 +224,26 @@ def confirm_node_addresses(
         config_not_onchain=tuple(sorted(configured - onchain)),
         onchain_not_in_config=tuple(sorted(onchain - configured)),
     )
+
+
+def discover_lend_markets(rpc, cfg: Config) -> list[tuple[str, str, int]]:
+    """3.1b: enumerate lend markets from the signed factory roots.
+
+    FR-10/FR-11 - enumerated ONLY to exclude (DET-07). Returns
+    `(market_address, factory_address, index)` triples, sorted by address.
+
+    The count comes from the chain, never from the rows' `vaults` field: that
+    field is provenance for why a factory is non-originating (zero ceiling,
+    zero held) and is never emitted as a figure. If the chain total differs
+    from the 2026-09-05 verification's 52, the chain total is what is
+    disclosed - lend counts are logged, never triggered (DET-63).
+    """
+    out: list[tuple[str, str, int]] = []
+    for row in cfg.lend.rows:
+        f = row["address"].lower()
+        n = int(rpc.read([Call(f, row["count_getter"], ("uint256",))])[0].one())
+        addrs = rpc.read([Call(f, row["market_getter"], ("address",), (i,))
+                          for i in range(n)])
+        for i, res in enumerate(addrs):
+            out.append((res.require()[0].lower(), f, i))
+    return sorted(out)

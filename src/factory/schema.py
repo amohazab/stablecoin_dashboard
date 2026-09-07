@@ -277,9 +277,26 @@ class StaticMetadata(BaseModel):
     counterparties: str                                      # ruled literal
 
 
+class LendMarket(BaseModel):
+    """One lend market, enumerated ONLY to exclude (DET-07, FR-10/FR-11).
+
+    A lend market re-lends existing crvUSD; it originates none. This table is
+    therefore a DISCLOSURE, not an input: `det_07` asserts structurally that
+    no address here appears in any backing-, supply- or stress-bearing table.
+    """
+
+    address: Address
+    factory: Address
+    index: int
+    reads: dict[str, Provenance]
+
+
 class Counts(BaseModel):
     mint_market_count: int
     lend_market_count: int | str                             # three-state (P-3.17)
+    # P-3.14-class disclosure (3.1b): set when the prior run carried the
+    # three-state STRING rather than an integer, so no delta is computable.
+    lend_market_count_note: str | None = None
     gsm_count: int = 0                                       # explicit for crvUSD
     facilitator_count: int | str = "n/a"
 
@@ -319,6 +336,7 @@ class Bundle(BaseModel):
     oracle_rows: list[OracleRow]
     redemption_paths: list[RedemptionPath]
     admin_surface: list[AdminRow]
+    lend_markets: list[LendMarket] = []
     static_metadata: StaticMetadata
     counts: Counts
     attribution_method: Literal["per_position", "protocol_level_fallback", "direct"]

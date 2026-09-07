@@ -57,6 +57,11 @@ class LendState(Enum):
 class LendFactories:
     state: LendState
     addresses: tuple[str, ...] = ()
+    # Full signed rows, in file order. `rows` carries the per-factory
+    # enumeration surface (3.1b): the two factories differ - OneWayLending
+    # exposes `vaults(i)`, the V2 factory exposes `markets(i)` - so the getter
+    # signature is config data, established by probe, never a constant in code.
+    rows: tuple[dict, ...] = ()
 
     @property
     def market_count_field(self) -> str | int:
@@ -144,9 +149,11 @@ def load(config_dir: Path) -> Config:
     if "lend_factory" not in roots_raw:
         lend = LendFactories(LendState.NOT_CONFIGURED)
     else:
-        addrs = tuple(f["address"].lower() for f in roots_raw["lend_factory"])
+        rows = tuple(roots_raw["lend_factory"])
+        addrs = tuple(f["address"].lower() for f in rows)
         lend = LendFactories(
-            LendState.EXPLICIT_EMPTY if not addrs else LendState.POPULATED, addrs
+            LendState.EXPLICIT_EMPTY if not addrs else LendState.POPULATED, addrs,
+            rows
         )
 
     paired: dict[str, PairedAsset] = {}

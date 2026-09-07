@@ -154,12 +154,37 @@ def det_04(b: Bundle, ctx) -> tuple[str, int] | None:
 
 
 def det_07(b: Bundle, ctx) -> None:
-    """Supply origination: class assigned from the factory address."""
+    """Supply origination: class assigned from the factory address.
+
+    3.1b adds the STRUCTURAL half of DET-07's letter. `lend_markets[]` is a
+    disclosure, never an input, and that is asserted rather than asserted-in-
+    prose: no lend-market address may appear in any table that feeds backing,
+    supply or stress. Saying "referenced by no computation" is not a check;
+    this is.
+    """
     for m in b.markets:
         if m.origination_class not in ("mint", "lend"):
             raise Level3(f"DET-07: bad origination_class on {m.symbol}")
     if any(m.origination_class == "lend" for m in b.markets):
         raise Level3("DET-07: lend rows must not carry backing inputs in Step 3")
+
+    lend = {r.address for r in b.lend_markets}
+    if len(lend) != len(b.lend_markets):
+        raise Level3("DET-07: duplicate address in lend_markets")
+    bearing = {
+        "markets": {m.address for m in b.markets}
+        | {m.amm_address for m in b.markets}
+        | {m.collateral_address for m in b.markets},
+        "nodes": {n.address for n in b.nodes},
+        "stabilizer": {o.operation_address for o in b.stabilizer.operations}
+        | {o.paired_pool_address for o in b.stabilizer.operations},
+        "bridges": {br.bridge_address for br in b.supply.bridges},
+    }
+    for table, addrs in bearing.items():
+        overlap = lend & addrs
+        if overlap:
+            raise Level3(f"DET-07: lend market(s) {sorted(overlap)} also in "
+                         f"{table} - a lend row is feeding backing/supply")
 
 
 def det_20(b: Bundle, ctx) -> None:
@@ -196,6 +221,13 @@ def det_63(b: Bundle, ctx) -> tuple[str, int] | None:
         if b.first_run_literals is None:
             raise Level3("DET-63: first run without its literal")
         return None
+    # 3.1b: lend counts are LOGGED, NEVER TRIGGERED (DET-63's letter). The
+    # bundle's `lend_market_count_note` carries the one-time "no delta
+    # computable" disclosure when the prior held the three-state string; it is
+    # NOT gated here. Ruled P-3.45 section 2(b): a raise would have been an
+    # implementer-invented consequence at a level the rubric does not assign
+    # (DET-63's nearest is "wrong route = Level 2"), gating our own emitted
+    # field, and retiring after exactly one run.
     prior = ctx["prior_bundle"].counts.mint_market_count
     now = b.counts.mint_market_count
     if now > prior:
@@ -203,6 +235,52 @@ def det_63(b: Bundle, ctx) -> tuple[str, int] | None:
     if now < prior:
         return ("T-12", 2)
     return None
+
+
+
+# --- DET-62 confirmation legs (P-3.19 / P-3.39) ------------------------------
+# Named implementer default: the endpoints are read through `ctx["http_get"]`,
+# a callable injected by the caller, so the harness stays free of transport and
+# the branch is testable with stubs. `execute()` supplies the real one.
+#
+# ENDPOINT VERSION, established by live probe 2026-09-07, not from recall:
+# Etherscan's v1 base (`api.etherscan.io/api`) is DEPRECATED and answers
+# `{"status":"0","message":"NOTOK","result":"You are using a deprecated V1
+# endpoint, switch to Etherscan API V2 ..."}` with or without a key. The v2
+# form below answers `{"status":"1","result":"<wei>"}`. Both legs return raw
+# wei, directly comparable to `supply.total_supply`, which is also raw wei.
+SUPPLY_CONFIRMATION_LEGS = {
+    # leg 1 - substitutes Dune (P-3.19). Keyed: P-3.19 rules it read with the
+    # ETHERSCAN_API_KEY already in `.env`. The key is used to build the URL and
+    # is never stored - not in a bundle, a log, or a spot-check sheet
+    # (P-3.39 binding 1); a failed leg records `None`, never the URL.
+    "etherscan": ("https://api.etherscan.io/v2/api?chainid=1"
+                  "&module=stats&action=tokensupply"
+                  "&contractaddress={token}&apikey={key}"),
+    # leg 2 - substitutes DefiLlama (P-3.39). Keyless as ruled.
+    "blockscout": "https://eth.blockscout.com/api/v2/tokens/{token}",
+}
+
+
+def fetch_supply_confirmations(ctx) -> dict[str, int | None]:
+    """Read both legs. A leg that cannot be read is `None`, which DET-62 then
+    treats as a missing confirmation (T-14, Level 3) - never as agreement."""
+    get = ctx.get("http_get")
+    token = ctx.get("token_address", "")
+    key = ctx.get("etherscan_api_key", "")
+    out: dict[str, int | None] = {}
+    for leg, url in SUPPLY_CONFIRMATION_LEGS.items():
+        if get is None:
+            out[leg] = None
+            continue
+        try:
+            payload = get(url.format(token=token, key=key))
+            raw = (payload.get("result") if leg == "etherscan"
+                   else payload.get("total_supply"))
+            out[leg] = int(raw)
+        except Exception:                 # unreadable leg; never a zero, and
+            out[leg] = None               # never the URL, which carries a key
+    return out
 
 
 def det_62(b: Bundle, ctx) -> tuple[str, int] | None:
@@ -215,8 +293,22 @@ def det_62(b: Bundle, ctx) -> tuple[str, int] | None:
     jump = abs(Decimal(b.supply.total_supply - prior)) / Decimal(prior)
     if jump <= Decimal("0.25"):
         return None
-    # confirmation sources: DefiLlama + Etherscan (P-3.19)
-    sources = ctx.get("supply_confirmations") or {}
+    # Confirmation legs, BOTH named substitutions, read only now that the
+    # branch has opened (the rubric's letter: confirmation is a consequence of
+    # the jump, not a per-run cost):
+    #   leg 1 `etherscan`   - substitutes the rubric's Dune leg (P-3.19; Dune's
+    #                         free plan goes view-only 2026-09-24);
+    #   leg 2 `blockscout`  - substitutes the rubric's DefiLlama leg (P-3.39;
+    #                         DefiLlama reports a circulating convention that
+    #                         excludes protocol-held inventory, which for
+    #                         crvUSD is most of supply - not comparable to
+    #                         `totalSupply()`. It survives as spot-check item
+    #                         10, informational).
+    # Both read a token-supply endpoint, NEVER an `eth_call` proxy - that was
+    # the rev-1 defect class (a checker re-deriving our own number).
+    sources = ctx.get("supply_confirmations")
+    if sources is None:
+        sources = fetch_supply_confirmations(ctx)
     if len(sources) < 2 or any(v is None for v in sources.values()):
         return ("T-14", 3)
     ok = all(abs(Decimal(v - b.supply.total_supply)) / Decimal(b.supply.total_supply)
