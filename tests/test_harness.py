@@ -15,10 +15,17 @@ import pytest
 
 from factory.config import Root
 from factory.logbook import Logbook, is_first_run
-from factory.schema import Counts, LogEntry, finalise
+from factory.provenance import AbsenceRead
+from factory.schema import Counts, LogEntry, RedemptionPath, finalise
 from factory.spotcheck import generate as spot_generate
-from factory.validate.harness import TRIGGER_TABLE, Level3, run_harness
-from tests.test_schema import CF, CTRL, a_bundle
+from factory.validate.harness import (
+    TRIGGER_TABLE,
+    Level3,
+    NotYetImplemented,
+    det_66,
+    run_harness,
+)
+from tests.test_schema import CF, CTRL, RB, a_bundle
 
 CRVUSD = "0xf939e0a03fb07f59a73314e73794be0e57ac1b4e"
 
@@ -125,6 +132,33 @@ def test_det33_absent_bridge_config_must_be_disclosed():
     b.supply.bridge_disclosure = "all good"        # not a disclosure of absence
     with pytest.raises(Level3, match="DET-33"):
         run_harness(b, a_ctx())
+
+
+def test_det66_r1_none_implication_is_enforced():
+    """DET-66 synthetic fail path: R1 = none must force R2 = no_one.
+
+    The live crvUSD block conforms, so the fail path cannot be exercised
+    against real data - the input is built to violate exactly one clause.
+    """
+    bad = RedemptionPath(
+        r1_path="none", r2_who="anyone", r3_received="n/a", r4_rate="n/a",
+        r5_minimum="n/a", r6_gates=[{"kind": "none", "param": None}],
+        r7_capacity="n/a", r8="n/a", r9_legal_claim="no_pure_protocol",
+        r10_provenance=AbsenceRead(contract=CF, method="selector_absence_scan",
+                                   evidence="no holder redemption function",
+                                   block=RB))
+    with pytest.raises(Level3, match="DET-66"):
+        run_harness(a_bundle(redemption_paths=[bad]), a_ctx())
+
+
+def test_det66_gho_token_raises_not_yet_implemented():
+    """The ruled fail-loud dispatch: a token whose path-count clause is not
+    built raises rather than passing. `run_harness` turns it into DET-85's
+    `error` + Level 3 (T-25); asserted on `det_66` directly so the exception
+    type itself is pinned, not just its harness consequence."""
+    gho = a_bundle(header=a_bundle().header.model_copy(update={"token": "GHO"}))
+    with pytest.raises(NotYetImplemented, match="GHO"):
+        det_66(gho, a_ctx())
 
 
 def test_det04_stale_analyst_root_fires_t16():

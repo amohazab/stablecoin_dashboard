@@ -23,6 +23,7 @@ from factory.schema import (
     Market,
     OracleRow,
     PositionCompleteness,
+    RedemptionPath,
     StabilizerBlock,
     StabilizerOperation,
     StaticMetadata,
@@ -107,7 +108,14 @@ def a_bundle(first_run=True, **kw):
             counterfactual_ref="EMA_lag", reference_feed="pending_config_round",
             market_vs_protocol_oracle_gap="pending_config_round",
             staleness_check="not_applicable_ema_oracle", use_chainlink=False)],
-        redemption_paths=[],
+        # DET-66: crvUSD is one path, R1 = none - the shape run.py emits.
+        redemption_paths=[RedemptionPath(
+            r1_path="none", r2_who="no_one", r3_received="n/a", r4_rate="n/a",
+            r5_minimum="n/a", r6_gates=[{"kind": "none", "param": None}],
+            r7_capacity="n/a", r8="n/a", r9_legal_claim="no_pure_protocol",
+            r10_provenance=AbsenceRead(
+                contract=CF, method="selector_absence_scan",
+                evidence="no holder redemption function", block=RB))],
         admin_surface=[AdminRow(power=p, holder_address=None, holder_type="none",
                                 provenance=AbsenceRead(contract=CF,
                                                        method="selector_absence_scan",

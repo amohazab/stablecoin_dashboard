@@ -3961,3 +3961,127 @@ Record: out/step3-evidence.md; src/factory/; config/. Post-pair application
   3. Step-7 opening checklist: call `Logbook.write()` for quarantine
      entries; retire the P-3.14 `first_run` convention.
   4. Available, not scoped: DET-34 per-run gating once `pools[]` exists.
+
+## P-3.44 — DET-66 built: per-path R-block checks, the crvUSD dispatch, GHO/LUSD fail-loud
+
+- **Date:** 2026-09-07
+- **Type:** implementation
+- **Confirmed by:** Amin
+- **Content:**
+  **DET-66 EXISTS AND EVALUATES.** Ruled in Step-3 scope at P-3.07 (S1,
+  Level 3) and found unimplemented by P-3.40's coverage audit, it is the
+  second of conjunct 2's two disclosed omissions to close. **CHECKS: 20 ->
+  21 entries**, `DET-66` seated between `DET-65` and `DET-68` —
+  `Check("DET-66", "S1", 3, det_66)`.
+
+  **THE PER-PATH CHECKS, exactly as rubric line 102 lists them**, all
+  token-agnostic and all landing now: R1/R2/R9 against their enums; R3 an
+  address list or `n/a`, **`n/a` iff R1 = none**; R4 in {`face_value`,
+  `face_minus_fee(range)`, `market`}; R5 a figure or `none`; R6 a subset of
+  the closed kind set with `none` **exclusive** and `state_conditional(C)`'s
+  `C` referencing a bundle field; R7 a resolvable field ref or `unbounded`;
+  R10 `{contract, function}` + provenance or `{document, date}`; and the
+  implication **R1 = none ⇒ R2 = `no_one`, R3-R7 `n/a`, R9 present**.
+
+  **THREE NAMED IMPLEMENTER DEFAULTS, each in the code beside what it
+  decides, each encoding a reading P-3.40 already recorded:**
+  1. **R6's `n/a` IS the exclusive `none` gate.** The implication says R3-R7
+     `n/a`, but `r6_gates` is typed `list[dict]` on `RedemptionPath`, so the
+     string `"n/a"` is not representable for R6. Its n/a is therefore the
+     rubric's own `[{"kind": "none", "param": None}]` — the exact form
+     P-3.40 read the emitted crvUSD block as satisfying. Constant `R6_NA`.
+  2. **"References a bundle field" (R6's `C`) and "resolvable field ref"
+     (R7) both mean a dotted attribute path from the bundle root**, e.g.
+     `supply.total_supply`. No indexing, no calls. Helper
+     `_resolves_on_bundle`.
+  3. **`AbsenceRead` is R10's absence form of `{contract, function}`.**
+     `AbsenceRead.function` is `None` by construction and `method` +
+     `evidence` carry the provenance; for a token with no holder redemption
+     function that IS the correct provenance shape, and it is what the
+     emitted crvUSD block carries (P-3.40).
+  Also named: `_is_figure` reads R5's "figure" as a plain decimal literal,
+  units belonging to the sheet rather than the field.
+
+  **THE TWO-LEVEL MAPPING, STATED EXPLICITLY** because the rubric assigns
+  DET-66 "Level 3 (missing block) / Level 2" and the harness has one raise:
+  - **Level 3 — missing block.** `paths[]` empty, and the token-level
+    path-count clause failing (crvUSD not exactly one path with R1 = none).
+    These are the structural conditions: the block is absent or is not the
+    block the token is supposed to have.
+  - **Level 2 — malformed field.** Every per-path field condition: R1/R2
+    outside enum, **R9 absent or outside enum**, the R3 `n/a`-iff rule, the
+    R1 = none implication on R2/R4/R5/R7/R6, R4's form, R5's form, R7's
+    form, R6's kind set / exclusivity / `C` resolution, and **R10 provenance
+    mismatch**.
+  - **"R10 provenance mismatch" when R10 is an `AbsenceRead`** means
+    specifically: a missing `contract`, a missing `method`, or a missing
+    `evidence`. It does **not** mean a null `function` — `function` is
+    `None` by construction on that class, and per default 3 above the
+    absence read is a *valid* R10 form, not a defective contract read. A
+    `ContractRead` R10 mismatches on a missing `source_contract` or a
+    missing `function`; an `AnalystSupplied` R10 mismatches on a missing
+    `source` or `date`; any other shape mismatches outright.
+  - **Both surface as a `Level3` raise**, which is the harness convention
+    rather than a re-ruling: `run_harness` has one failure path, and
+    `Check.level_on_fail` carries the ruled level. The row is registered at
+    **`level_on_fail = 3`** — the structural default, chosen because the
+    worse of the two consequences is the fail-closed direction. **DET-33 is
+    the standing precedent**: its rubric line is likewise "Level 3
+    (provenance) / Level 2" and it is registered at 3. The Level-2 half is
+    recorded here and in the function's docstring rather than in a second
+    registry row; a real two-level registry is a harness change, not a
+    DET-66 change, and is not made here.
+  - At review the design layer proposed inverting this mapping — Level 3 for
+    every per-path condition, Level 2 only for R9 absent and R10 mismatch —
+    on a misquotation of DET-66's consequence text; withdrawn on re-reading
+    the rubric before the proposal was issued to the agent. The mapping
+    above is the rubric's letter, "Level 3 (missing block) / Level 2", with
+    the Level-2 half a named default.
+
+  **THE TOKEN DISPATCH, FAIL-LOUD.** `det_66` dispatches on `header.token`.
+  **crvUSD** is implemented: exactly one path, `R1 = none`. **GHO and LUSD
+  raise a named `NotYetImplemented`** citing this entry and stating what
+  each owes — GHO: `module_on_chain` paths equal to `gsm_count`, one per
+  live GSM, GSM identity by the DET-28 interface probe; LUSD: exactly one
+  `direct_on_chain` path. **`run_harness` records any non-`Level3`
+  exception as `error` and re-raises it as a Level 3 (DET-85, T-25)**, so an
+  unbuilt limb stops that token's run rather than passing silently. The
+  clause lands at Step 4, when GHO and LUSD bundles first exist. **The
+  per-path checks above are token-agnostic and already apply to them.**
+
+  **FIXTURE WIRING — a real finding, not incidental.** `a_bundle()` in
+  `tests/test_schema.py` carried `redemption_paths=[]`, so the moment DET-66
+  entered CHECKS the clean-bundle test failed on the missing block. **The
+  shared fixture now carries the conforming crvUSD path — the exact shape
+  `run.py` emits.** Worth recording: the harness's own fixture had been
+  asserting a bundle that no gate would have accepted, which is what an
+  unimplemented entry buys.
+
+  **TWO TESTS, both synthetic because the live block conforms.** (1) The
+  `R1 = none ⇒ R2 = no_one` implication fail path — input built to violate
+  exactly one clause, `Level3` matching `DET-66`. (2) **The ruled fail-loud
+  dispatch**: a GHO-token bundle raises `NotYetImplemented` from `det_66`,
+  **asserted on `det_66` directly so the exception type itself is pinned,
+  not merely its harness consequence** — added at Amin's instruction as the
+  only test of that dispatch.
+
+  **VERIFICATION.** `uv run python -m pytest` -> **84 passed** (82 + 2).
+  `ruff check src/factory/validate/harness.py tests/test_schema.py
+  tests/test_harness.py` -> **All checks passed**. `ruff check src tests`
+  still shows the two deferred `run.py` errors, untouched here and owned by
+  Block 3.4.
+
+  **WHAT THIS DOES NOT DO.** It does not re-open the completed pair, and it
+  does not retroactively change what runs 1 and 2 evaluated: those remain
+  20/20 as built, with P-3.41's disclosure standing. DET-66 is first seen
+  evaluating at the demonstration run.
+- **Artifacts:** `src/factory/validate/harness.py` 13,223 B -> **20,856 B**;
+  `tests/test_schema.py` 9,558 B -> **10,265 B**;
+  `tests/test_harness.py` 11,442 B -> **12,525 B**. No config and no
+  `docs/context/` change. One commit for this entry.
+- **Follow-ups spawned:**
+  1. Step 4: implement the GHO and LUSD path-count clauses and delete their
+     `NotYetImplemented` branch; the named error is the reminder.
+  2. Rubric amendment queue, noted not raised: DET-66's two consequence
+     levels have no two-level home in the harness registry. Recorded as a
+     harness-shape question for a later revision, not a DET-66 defect.

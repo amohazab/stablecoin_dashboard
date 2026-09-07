@@ -15,7 +15,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from decimal import Decimal
 
-from factory.provenance import AnalystSupplied, ContractRead
+from factory.provenance import AbsenceRead, AnalystSupplied, ContractRead
 from factory.schema import Bundle, GateResult
 
 # Trigger table, mirrored from rubric §3. DET-12 compares this to the printed
@@ -33,6 +33,15 @@ DET83_FRESHNESS_LIMIT_S = 3600
 
 class Level3(Exception):
     """A Level-3 condition. Nothing downstream computes; no promotion."""
+
+
+class NotYetImplemented(Exception):
+    """A ruled check whose token-specific limb is not built yet (P-3.44).
+
+    Fail-loud, house style: `run_harness` records any non-`Level3` exception
+    as `error` and re-raises it as a Level 3 (DET-85), so an unbuilt limb
+    stops the run instead of passing silently. Never caught in this module.
+    """
 
 
 @dataclass
@@ -279,6 +288,151 @@ def det_55(b: Bundle, ctx) -> None:
             raise Level3(f"DET-55: non-positive ema_window_s on {r.node_address}")
 
 
+# --- DET-66 vocabularies and helpers (rubric line 102) -----------------------
+R6_KINDS = frozenset({"none", "pausable", "capacity_limited",
+                      "state_conditional", "notice_period"})
+# Named implementer default: the `R1 = none` implication reads "R3-R7 n/a", but
+# `r6_gates` is typed `list[dict]` on RedemptionPath, so the string "n/a" is not
+# representable for R6. Its n/a IS the rubric's own exclusive `none` gate, which
+# is the form P-3.40 read the emitted crvUSD block as satisfying.
+R6_NA = [{"kind": "none", "param": None}]
+
+
+def _resolves_on_bundle(b: Bundle, ref: str) -> bool:
+    """Named implementer default for the rubric's "`C` references a bundle
+    field" (R6) and "resolvable field ref" (R7): a dotted attribute path from
+    the bundle root, e.g. `supply.total_supply`. No indexing, no calls."""
+    cur: object = b
+    for part in ref.split("."):
+        if not part or not hasattr(cur, part):
+            return False
+        cur = getattr(cur, part)
+    return True
+
+
+def _is_figure(s: str) -> bool:
+    """Named implementer default for R5's "figure or `none`": a plain decimal
+    literal. Units belong to the sheet, not to this field."""
+    try:
+        Decimal(s)
+    except Exception:
+        return False
+    return True
+
+
+def det_66(b: Bundle, ctx) -> None:
+    """R-blocks complete per path (rubric line 102; S1).
+
+    Consequence as the rubric assigns it: **Level 3** for a missing block,
+    **Level 2** for a malformed field. Both surface as a `Level3` raise - the
+    harness convention, with `Check.level_on_fail` carrying the ruled level
+    (DET-33 is the precedent for a two-level entry registered at 3).
+
+    R1/R2/R9 are Pydantic `Literal`s on `RedemptionPath`, so their enum limbs
+    are structurally guaranteed; they are asserted here anyway because the gate
+    record is the artifact, not the type system (brief section 1).
+    """
+    paths = b.redemption_paths
+    if not paths:
+        raise Level3("DET-66: paths[] missing (empty) - Level 3, missing block")
+
+    # --- token-level path count ---------------------------------------------
+    token = b.header.token
+    if token == "crvUSD":
+        if len(paths) != 1 or paths[0].r1_path != "none":
+            raise Level3(
+                "DET-66: crvUSD requires exactly one path with R1 = none; got "
+                f"{len(paths)} path(s) with R1 = {[p.r1_path for p in paths]}")
+    else:
+        raise NotYetImplemented(
+            f"DET-66: the path-count clause for {token} is not implemented. "
+            "GHO: module_on_chain paths must equal gsm_count, one per live GSM, "
+            "GSM identity by the DET-28 interface probe. LUSD: exactly one "
+            "direct_on_chain path. Ruled P-3.44; lands at Step 4, when those "
+            "bundles first exist. The per-path checks below are token-agnostic "
+            "and already apply.")
+
+    # --- per-path field rules, token-agnostic --------------------------------
+    for i, p in enumerate(paths):
+        at = f"DET-66[path {i}]"
+        if p.r1_path not in ("direct_on_chain", "module_on_chain",
+                             "issuer_offchain", "none"):
+            raise Level3(f"{at}: R1 outside enum: {p.r1_path!r}")
+        if p.r2_who not in ("anyone", "whitelisted", "borrowers_only", "no_one"):
+            raise Level3(f"{at}: R2 outside enum: {p.r2_who!r}")
+        if p.r9_legal_claim not in ("yes", "no_pure_protocol", "disclaimed"):
+            raise Level3(f"{at}: R9 absent or outside enum: {p.r9_legal_claim!r}")
+
+        na = p.r1_path == "none"
+
+        # R3 - address list or `n/a`, and `n/a` iff R1 = none
+        if (p.r3_received == "n/a") != na:
+            raise Level3(f"{at}: R3 is `n/a` iff R1 = none "
+                         f"(R1={p.r1_path!r}, R3={p.r3_received!r})")
+
+        if na:
+            # the implication: R2 = no_one, R3-R7 n/a, R9 present (checked above)
+            if p.r2_who != "no_one":
+                raise Level3(f"{at}: R1 = none requires R2 = no_one, "
+                             f"got {p.r2_who!r}")
+            for name, val in (("R4", p.r4_rate), ("R5", p.r5_minimum),
+                              ("R7", p.r7_capacity)):
+                if val != "n/a":
+                    raise Level3(f"{at}: R1 = none requires {name} = 'n/a', "
+                                 f"got {val!r}")
+            if p.r6_gates != R6_NA:
+                raise Level3(f"{at}: R1 = none requires R6 = the exclusive "
+                             f"`none` gate {R6_NA}, got {p.r6_gates}")
+        else:
+            if not (p.r4_rate in ("face_value", "market")
+                    or (p.r4_rate.startswith("face_minus_fee(")
+                        and p.r4_rate.endswith(")"))):
+                raise Level3(f"{at}: R4 outside "
+                             "{face_value, face_minus_fee(range), market}: "
+                             f"{p.r4_rate!r}")
+            if p.r5_minimum != "none" and not _is_figure(p.r5_minimum):
+                raise Level3(f"{at}: R5 must be a figure or `none`: "
+                             f"{p.r5_minimum!r}")
+            if (p.r7_capacity != "unbounded"
+                    and not _resolves_on_bundle(b, p.r7_capacity)):
+                raise Level3(f"{at}: R7 must be a resolvable bundle field ref "
+                             f"or `unbounded`: {p.r7_capacity!r}")
+
+        # R6 - subset of the closed kind set, `none` exclusive, `C` resolves
+        if not p.r6_gates:
+            raise Level3(f"{at}: R6 empty; the empty form is the `none` gate")
+        kinds = [g.get("kind") for g in p.r6_gates]
+        outside = sorted(k for k in set(kinds) if k not in R6_KINDS)
+        if outside:
+            raise Level3(f"{at}: R6 kinds outside the closed set: {outside}")
+        if "none" in kinds and len(kinds) != 1:
+            raise Level3(f"{at}: R6 `none` is exclusive, got {kinds}")
+        for g in p.r6_gates:
+            if g.get("kind") == "state_conditional":
+                c = g.get("param")
+                if not isinstance(c, str) or not _resolves_on_bundle(b, c):
+                    raise Level3(f"{at}: R6 state_conditional(C) must reference "
+                                 f"a bundle field; got {c!r}")
+
+        # R10 - {contract, function} + provenance, or {document, date}
+        prov = p.r10_provenance
+        if isinstance(prov, ContractRead):
+            if not prov.source_contract or not prov.function:
+                raise Level3(f"{at}: R10 contract read missing contract/function")
+        elif isinstance(prov, AbsenceRead):
+            # The absence form of {contract, function}: `function` is None by
+            # construction and `method` + `evidence` carry the provenance. This
+            # is the reading P-3.40 recorded for the emitted crvUSD block.
+            if not prov.contract or not prov.method or not prov.evidence:
+                raise Level3(f"{at}: R10 absence read missing "
+                             "contract/method/evidence")
+        elif isinstance(prov, AnalystSupplied):
+            if not prov.source or prov.date is None:
+                raise Level3(f"{at}: R10 document/date form incomplete")
+        else:
+            raise Level3(f"{at}: R10 provenance of unknown shape: {type(prov)}")
+
+
 CHECKS: list[Check] = [
     Check("DET-02", "S0", 3, det_02), Check("DET-12", "S0", 3, det_12),
     Check("DET-77", "S0", 3, det_77),
@@ -289,6 +443,7 @@ CHECKS: list[Check] = [
     Check("DET-33", "S1", 3, det_33), Check("DET-55", "S1", 3, det_55),
     Check("DET-61", "S1", 1, det_61), Check("DET-62", "S1", 3, det_62),
     Check("DET-63", "S1", 2, det_63), Check("DET-65", "S1", 2, det_65),
+    Check("DET-66", "S1", 3, det_66),
     Check("DET-68", "S1", 3, det_68), Check("DET-08", "S1", 2, det_08),
     Check("DET-82", "S1", 3, det_82),
 ]
