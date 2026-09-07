@@ -4085,3 +4085,62 @@ Record: out/step3-evidence.md; src/factory/; config/. Post-pair application
   2. Rubric amendment queue, noted not raised: DET-66's two consequence
      levels have no two-level home in the harness registry. Recorded as a
      harness-shape question for a later revision, not a DET-66 defect.
+
+## P-3.40-A1 — AMEND P-3.40 — narrowing the "DET-15 in `spotcheck.py`" placement claim
+
+- **Date:** 2026-09-07
+- **Type:** AMEND
+- **Confirmed by:** Amin
+- **Content:**
+  P-3.40's coverage audit lists, under *"Not gaps — implemented in their
+  proper owner module"*: **"DET-15 in `spotcheck.py`"**. Checked against the
+  tracked tree at 2026-09-07 while ruling on Block 3.3, **the claim does not
+  hold as written**, in two ways.
+
+  **1 — It attributes DET-15 wholesale; only two of four clauses have
+  machinery.** `grep -rn "DET-15" src/ tests/` returns exactly ONE hit —
+  `spotcheck.py:254` — and that hit is a **prose sentence** in the generated
+  sheet ("it already **includes** the stabilizer leg — DET-15(b) defines it
+  as Σ principal + Σ stabilizer debt"), not a check.
+  - **(a) replay — NO machinery anywhere in the tree.**
+  - **(b) origination sum — REAL.** `run.py` computes
+    `origination_sum = Σ principal_sum + Σ stabilizer current_debt`;
+    `schema.py` types it; `spotcheck.py` prints it beside the DefiLlama
+    figure with the non-summation note.
+  - **(c) named-cause residual — ABSENT.** `run.py` computes
+    `residual = supply_ruled − origination_sum` as a single integer. There
+    is no named-cause list, no per-cause amount, no provenance per cause,
+    and no check of the 0.1% unexplained bound. This is the finding Block
+    3.3 raised: P-3.39 ruling 1 signed wording for a disclosure the
+    pipeline does not produce.
+  - **(d) sole denominator — PARTIAL.** `supply_ruled` is computed and
+    typed, so the quantity exists; **nothing checks that it is the SOLE
+    denominator**, which is what (d) asserts.
+
+  **2 — It names the wrong owner module.** The computation for (b) and (d)
+  lives in `run.py` and `schema.py`. `spotcheck.py` **displays** (b); it
+  owns nothing.
+
+  **Narrowed claim, replacing the audit line for this entry only:**
+  *"DET-15(b) and the `supply_ruled` quantity of DET-15(d) are computed in
+  `run.py` and typed in `schema.py`, with (b) displayed in `spotcheck.py`.
+  DET-15(a), DET-15(c), and (d)'s sole-denominator condition have no
+  machinery in the tracked tree."*
+
+  **Recorded as-counted regardless of whose reading it was.** The audit line
+  was written by the agent and accepted by the analyst; neither caught it.
+  What caught it was Block 3.3 failing to find text to reword — the flag
+  doing the work a flag is for.
+
+  **Consequence: none retroactive.** P-3.40's verdict, the run pair, and
+  P-3.41's four conjuncts are unaffected: DET-15 was never in `CHECKS`, was
+  never counted among the 20 gates, and no number in either bundle depended
+  on it. The correction is to the audit's placement list, not to any result.
+  **P-3.40 stands unedited**, per rule 2.
+- **Artifacts:** `PROGRESS.md`. No code change.
+- **Follow-ups spawned:**
+  1. DET-15(c)'s emission is the deferred Block 3.3 item — owner the crvUSD
+     adapter, scheduled after the third-minting-class perimeter re-ruling
+     and the DET-15(c) per-token cause-list intake edit.
+  2. DET-15(a) and (d)'s sole-denominator condition join the same
+     follow-up; neither is a Step-4 item.
