@@ -4783,3 +4783,85 @@ Record: out/step3-evidence.md; src/factory/; config/. Post-pair application
      implementations rule.
   6. **Available, not scoped:** DET-34 per-run gating, now that `pools[]`
      exists — the ~10 lines P-3.43 noted.
+
+## P-3.43-A1 — AMEND P-3.43 — the pointer-source failure route as built
+
+- **Date:** 2026-09-07
+- **Type:** AMEND
+- **Confirmed by:** Amin
+- **Content:**
+  P-3.43 ruling 2, building the per-run discovery pass, recorded the pointer
+  source's failure route as: *"Unavailability ⇒ harness error ⇒ DET-85, T-25
+  Level 2. **No new trigger is invented.**"* The intent stands and is
+  unchanged. **The route does not exist**, and the built route is different.
+
+  **WHY THE RECORDED ROUTE WAS IMPOSSIBLE — two independent reasons.**
+  1. **DET-85 can never see it.** DET-85's fail-closed path is inside
+     `run_harness`: it catches an exception raised by a CHECK FUNCTION,
+     records `error`, and re-raises. The discovery pass runs in `assemble()`,
+     **before `run_harness` is called at all**. An exception there propagates
+     out of `execute()` with no `GateResult`, no `error` row and no T-25
+     attribution. Nothing in the harness is reachable from it.
+  2. **T-25 could not have been the trigger even if it were reachable.** The
+     printed trigger table carries no shape-change trigger — T-25 is *harness
+     error*, T-16 is *enumeration source stale* (Level 1, a DATE condition on
+     DET-74 class-I tags carrying `{value, source, date}`, which a live pointer
+     fetch is not). **DET-12 compares the runtime trigger table to the printed
+     one row-for-row and halts the pipeline on any difference**, so adding a
+     trigger is a rubric amendment, never an implementer default.
+
+  **THE ROUTE AS BUILT (ruled at the Block-1b proposal, implemented at
+  P-3.46).** A `ValidationError` from the pointer model, an **empty in-scope
+  registry class**, and a **transport failure** are all caught in
+  `discovery.py` and re-raised as **`AssemblyStop`** — the existing pre-harness
+  class, whose docstring already reads *"a precondition the bundle cannot be
+  assembled without."* That halts the token **before analysis**, which is
+  exactly memo §8.1.1's Level 3 shape: *"Pipeline halts for this token before
+  analysis; nothing downstream computes."* No bundle is built, no promotion is
+  reachable, nothing is published. **It carries no trigger ID, and the
+  docstring says so and cites the ruling** — recording the absence rather than
+  papering over it.
+
+  **PRACTICAL CONSEQUENCE, stated plainly.** A Curve API outage now halts that
+  week's crvUSD run **before** analysis rather than producing an unpublished
+  bundle. **Publication is blocked either way**; what changes is that nothing
+  downstream computes on absent data, and the run leaves an `AssemblyStop`
+  naming the class rather than a quarantined bundle. That is the design's
+  accepted trade, as P-3.43 ruling 2 already stated it.
+
+  **RUBRIC-AMENDMENT QUEUE — the gap this exposes.** The brief's
+  schema/shape-change hard gate (**brief line 80**, *"Schema/shape-change
+  quarantine (scraped sources)"*; scoped at **brief line 43** to *"undocumented
+  JSON endpoints — scrape those with schema-validation gates that quarantine on
+  shape change rather than publishing garbage"*) **has no trigger in the
+  printed T-01..T-27 table and no DET entry owning it.** For crvUSD the
+  consequence is contained, because the pointer is one leg of a pass that halts
+  cleanly. **It becomes load-bearing at step 10 (USDe)**, where the adapter is
+  a scraper end to end and shape change is the expected failure mode, not an
+  edge case.
+
+  **AS-COUNTED — where the premise came from.** At the round-8 review the
+  design layer located this gate in **memo §9**, asking whether it mapped more
+  naturally to T-16 via DET-74's class-I condition. The agent read memo §9's
+  gate list in full — eleven gates: address-not-symbol, principal/interest, no
+  hardcoded lists, stabilizer netting, position netting, mint-vs-lend, unlisted
+  node, discovery reconciliation, frozen pool set, paired-asset labeling,
+  declare-your-level, gate integrity — and **found no shape-change gate there**,
+  locating it in the brief instead, and gave the three reasons T-16 was the
+  wrong home. **The correction is counted where it arose.** The memo's own
+  quarantine bounds are *semantic* (composition/count), which DET-10's T-10
+  already covers.
+
+  **NO RETROACTIVE CONSEQUENCE.** P-3.43's other rulings are unaffected:
+  ruling 1 (the event log and its backfill), ruling 2's substance (Route A,
+  the `freeze.py` reuse, the `pools[]` table, the detectors, the named
+  defaults), ruling 3 (the two queued items) and ruling 4 (the reorder) all
+  stand as written. **P-3.43 stands unedited**, per rule 2; only its recorded
+  failure route is superseded here.
+- **Artifacts:** `PROGRESS.md`. No code change — the route it describes was
+  built under P-3.46.
+- **Follow-ups spawned:**
+  1. Rubric amendment queue: give the brief's schema/shape-change gate a
+     trigger with a declared level and a DET owner, before step 10.
+  2. Carried from P-3.46: DET-10(c)'s missing consequence level; the event
+     log's entry types and DET-60's scope.
