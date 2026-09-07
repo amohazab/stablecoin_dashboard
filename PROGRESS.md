@@ -35,7 +35,9 @@ docs/context/phase-b-checklist.md.
 Status: DONE (v1 FINAL 2026-09-03). Record: docs/context/rubic_v1.md.
 
 ## Step 3 — crvUSD adapter
-Status: IN PROGRESS (opened 2026-09-03).
+Status: DONE (opened 2026-09-03; done-condition met 2026-09-07, P-3.41).
+Record: out/step3-evidence.md; src/factory/; config/. Post-pair application
+(DET-10, DET-66, held items) continues under P-3.42+ before Step 4 opens.
 
 ## P-3.01 — Block 0.1 anomaly dispositions; Python stack ruling; checksum task
 - **Date:** 2026-09-03
@@ -3670,3 +3672,125 @@ Status: IN PROGRESS (opened 2026-09-03).
      DET-10 and DET-66 evaluating and passing with the detector fields present.
   2. Step 4 — GHO and LUSD adapters, against the same memo and the same
      harness.
+
+## P-3.42 — The `uv` anomaly and its resolution; Step-3 status housekeeping; the run entry point
+
+- **Date:** 2026-09-07
+- **Type:** implementation + record correction
+- **Confirmed by:** Amin
+- **Content:**
+  **THE `uv` ANOMALY.** At session open `uv` — the ruled toolchain (P-3.04
+  slot 2; bare pip *rejected* because the lockfile is what makes the Step-8
+  cron reproducible) — **was not invocable**. Search scope, reported before
+  any workaround: bare invocation in both shells (Git Bash, Windows
+  PowerShell 5.1); `which` / `command -v` / `Get-Command`; the **live
+  persisted registry Path in both scopes** (`User` and `Machine`), which a
+  restore made after session start would show; a recursive `C:\` sweep to
+  depth 6; and eight conventional install directories (`.local\bin`,
+  `.cargo\bin`, WinGet Links, `AppData\Roaming\uv`, `AppData\Local\uv`,
+  scoop shims, chocolatey bin, `Program Files\uv`). All negative.
+
+  **AS-COUNTED, NOT AS-PROPOSED: Block 0's 82-pass figure was obtained on
+  `.venv/Scripts/python.exe -m pytest`, not on the ruled invocation.** The
+  substitution is recorded rather than smoothed over: the count itself was
+  never in doubt — 82 is 82 on either path, and `uv sync --frozen` later
+  proved the two paths select the same interpreter — but the *invocation*
+  was not the ruled one, and an entry that said "82 passed" without saying
+  how would have misdescribed the run. The agent stopped at the ruled halt
+  point rather than continuing on the substitute: the session's first
+  fail-closed behaviour, applied to its own toolchain.
+
+  **RESOLUTION — PASSED, WITH THE CAVEAT THAT IS PART OF THE RESULT.** `uv`
+  **is** installed: **uv 0.12.9** (`9f9286029 2026-09-01
+  x86_64-pc-windows-msvc`) at **`%APPDATA%\Python\Python314\Scripts\uv.exe`**
+  — a `pip --user` install into Python 3.14's user site. What located it was
+  uv's own cache appearing at `%LOCALAPPDATA%\uv\cache`, dated 2026-09-04,
+  so uv was in use in earlier sessions from a shell that resolved it.
+
+  **The three steps passed WITH `%APPDATA%\Python\Python314\Scripts`
+  PREPENDED TO PATH FOR THE INVOCATION. Bare `uv` still fails in both
+  shells** — that directory is on neither shell's PATH nor either persisted
+  Path scope. **The permanent fix — adding it to the User Path — is an OPEN
+  ITEM, OWNER AMIN**, in progress between sessions. Prepending per
+  invocation is the ruled interim.
+
+  **uv's host interpreter is irrelevant to the project's pin.** uv is a
+  standalone binary that happens to have been installed by Python 3.14's
+  pip; the project remains pinned to **Python 3.12** (P-3.04 slot 1,
+  `requires-python >=3.12,<3.13`, `.python-version` 3.12), and `.venv` is a
+  3.12 environment. A future reader should not read "Python314" in the path
+  as a toolchain drift.
+
+  **THE THREE STEPS.** (1) `uv --version` -> uv 0.12.9, path above. (2)
+  `uv sync --frozen` -> `Checked 49 packages in 5ms`, **no installs, no
+  removals** — the proof that `.venv` IS the locked environment and that
+  Block 0's figure was taken on the interpreter `uv run` selects. (3)
+  `uv run python -m pytest` -> **82 passed**, reproduced under the ruled
+  invocation.
+
+  **HOUSEKEEPING (a) — PROGRESS.md Step-3 status line.** `Status: IN
+  PROGRESS (opened 2026-09-03).` replaced by the Step-1 form recording DONE
+  with the P-3.41 reference, the close date, the record locations, and the
+  post-pair application continuing under P-3.42+. One hunk, against a match
+  string asserted unique before replacement; **every confirmed entry below
+  it byte-identical**. 220,871 B / 3,672 lines -> **221,053 B / 3,674
+  lines**.
+
+  **HOUSEKEEPING (b) — CLAUDE.md "Where implementation stands".** Step 3
+  DONE with its record; Step 4 NEXT; the "there is no code, build system, or
+  test suite" paragraph's opening replaced by the layout-and-toolchain
+  sentence, its last two sentences (common schema; static site) carried
+  verbatim. 11,516 B -> **12,196 B**; the section 1,273 B -> 1,953 B.
+
+  **THE LENGTH INSTRUCTION, WITHDRAWN — as-counted.** The kickoff's "keep
+  the section the same length or shorter" was **over-tight for content that
+  adds a Step-4 bullet and a toolchain paragraph**, and is withdrawn and
+  replaced by acceptance of the 1,953 B section. Recorded as an over-tight
+  instruction replaced, not as a defect of the agent's: the agent measured
+  it (1,945 B as-proposed, 1,837 B even gutted, against 1,273 B), reported
+  that the constraint was unreachable, and stopped for a ruling rather than
+  silently trimming content out of a governing file.
+
+  **0.5(c) — THE RUN ENTRY POINT, ruled in and built.** A `__main__` block
+  in `src/factory/run.py`: resolve the repo root from `__file__`, obtain the
+  RPC URL, call `execute()`, print one result line, exit non-zero on a
+  raised stop. No argparse, no options. 21,799 B -> **23,627 B**.
+
+  **THE FINDING THAT MADE IT NECESSARY, recorded because it is a
+  reproducibility defect in its own right: NOTHING IN THE TRACKED TREE HAD
+  EVER READ AN ENVIRONMENT VARIABLE.** `os.environ`, `getenv` and `dotenv`
+  appear nowhere in `src/` or `tests/`; `execute(` occurs exactly once in
+  the repo — its own definition, with no caller. **Runs 1 and 2 were driven
+  by an uncommitted one-liner that passed the URL in literally**, and
+  PROGRESS.md records no command string. The record could not state how a
+  run is invoked, and the Step-8 cron needs the same entry point.
+
+  **RPC-URL SOURCE, a named implementer default:** `ETH_RPC_URL` from the
+  process environment, falling back to the `ETH_RPC_URL=` line of `.env` at
+  the repo root. The fallback is deliberate and disclosed rather than
+  quietly minimal — `.env` is the ruled home for the key (P-3.05,
+  `.env.example`), and without it the documented invocation would not run on
+  this repo as configured. Absent both, `AssemblyStop`. **Confirmed kept.**
+
+  **The documented invocation is now true at application:** CLAUDE.md reads
+  `uv run python -m factory.run`, and it works.
+
+  **Reporting channel:** a `results.txt` file was used for the agent's round
+  reports in rounds 1, 2 and 4 of this session — introduced by the design
+  layer, suspended once on Amin's round-3 instruction, and retired by Amin's
+  ruling in round 5; reports are given in chat, entry drafts shown there
+  verbatim.
+
+  **Suite and lint after (a)(b)(c): 82 tests pass under
+  `uv run python -m pytest`; `ruff check src tests` shows the two deferred
+  `run.py` errors (`F841`, `UP031`) and nothing new** — Block 3.4's targets,
+  untouched here.
+- **Artifacts:** `PROGRESS.md` (221,053 B); `CLAUDE.md` (12,196 B);
+  `src/factory/run.py` (23,627 B). No `docs/context/` change. One commit for
+  this entry.
+- **Follow-ups spawned:**
+  1. **OPEN ITEM, OWNER AMIN:** add `%APPDATA%\Python\Python314\Scripts` to
+     the User Path and restart VS Code, so bare `uv` resolves without a
+     per-invocation prepend. Until then, prepending is the ruled interim.
+  2. The Step-8 cron invokes `uv run python -m factory.run`; the entry
+     point now exists to be invoked.

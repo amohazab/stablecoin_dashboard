@@ -9,7 +9,9 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import pathlib
+import sys
 import time
 from decimal import Decimal
 
@@ -426,3 +428,42 @@ def execute(repo: pathlib.Path, rpc_url: str) -> dict:
         biggest_position=biggest)
     return {"bundle": stamped, "hash": h, "outcome": outcome, "spotcheck": sheet_path,
             "seconds": round(time.time() - t0, 1)}
+
+
+# --------------------------------------------------------------- entry ------
+# 0.5(c), P-3.42: the run entry point. Ruled in because the record could not
+# otherwise state how a run is invoked, and the Step-8 cron needs the same
+# entry point. Minimal by ruling: no argparse, no options.
+#
+# RPC URL source, named implementer default: `ETH_RPC_URL` from the process
+# environment, falling back to the `ETH_RPC_URL=` line of `.env` at the repo
+# root. The fallback exists because NOTHING in the tracked tree has ever read
+# an environment variable (runs 1 and 2 passed the URL into `execute()` from
+# an uncommitted one-liner), while `.env` is the ruled home for the key
+# (P-3.05; `.env.example`). Without it the documented invocation would not
+# run on this repo as configured.
+
+
+def _rpc_url(repo: pathlib.Path) -> str:
+    url = os.environ.get("ETH_RPC_URL", "").strip()
+    if url:
+        return url
+    env = repo / ".env"
+    if env.exists():
+        for line in env.read_text(encoding="utf-8").splitlines():
+            if line.startswith("ETH_RPC_URL="):
+                return line.split("=", 1)[1].strip()
+    raise AssemblyStop("ETH_RPC_URL not set in the environment or .env")
+
+
+if __name__ == "__main__":
+    _repo = pathlib.Path(__file__).resolve().parents[2]
+    try:
+        _r = execute(_repo, _rpc_url(_repo))
+    except Exception as exc:                                  # a raised stop
+        print(f"{type(exc).__name__}: {exc}", file=sys.stderr)
+        raise SystemExit(1) from None
+    _o = _r["outcome"]
+    print(f"run_block {_r['bundle'].header.run_block} | bundle {_r['hash'][:8]} | "
+          f"gates {sum(1 for g in _o.results if g.result == 'pass')}/{len(_o.results)} pass"
+          f" | worst_level {_o.worst_level} | {_r['seconds']}s | spotcheck {_r['spotcheck']}")
