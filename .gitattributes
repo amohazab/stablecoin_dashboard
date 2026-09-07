@@ -1,0 +1,3 @@
+# Line endings pinned so hashed bytes == committed bytes (P-3.02, P-3.05).
+docs/context/*.md   text eol=lf
+out/**/*.json       text eol=lf

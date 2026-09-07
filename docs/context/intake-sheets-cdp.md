@@ -10,7 +10,7 @@
  
 **Archetype assignment:** #1, CDP / on-chain-backed. Fit test: supply originates from LLAMMA controllers minting against pledged collateral with a soft-liquidation path — passes.
  
-**Contracts to read** [FIRST-RUN READ: TroveManager address from Liquity deployment registry]:
+**Contracts to read**:
 - Controller factory (crvUSD mint markets) — market discovery; hardcoded market lists forbidden.
 - Per-market: Controller, LLAMMA (AMM), collateral token address, monetary policy contract.
 - PegKeeper regulator / registry; per-PegKeeper contracts (below).
@@ -24,9 +24,10 @@
 | wstETH | LST | `terminal_other_layer` |
 | sfrxETH | LST | `terminal_other_layer` |
 | WBTC | WBTC | `recurses` (custodian PoR) |
-| tBTC | tBTC | deferred (§4.4) |
-| cbBTC (largest mint-market borrow flow, Curve News wk32 2026) | cbBTC / custodial BTC | `recurses` (Coinbase custody attestation) [RE-SCOPED TO INTAKE: attestation cadence] |
+| tBTC | tBTC | deferred (§4.4) — [FIRST-RUN READ: WalletRegistry read; label ∈ {`terminal_other_layer`, `recurses`} per DET-76(c); unreachable ⇒ unlabeled-in-run → §8.2] |
+| cbBTC (largest mint-market borrow flow, Curve News wk32 2026) | cbBTC / custodial BTC | `recurses` (Coinbase custody attestation); `disclosure_cadence` = continuous — Chainlink PoR feed (Ethereum) + Coinbase PoR page, near-real-time refresh; `last_disclosure_date` = per-run read of the Ethereum PoR feed `updatedAt` [ANALYST-SUPPLIED 2026-09-03: Chainlink PoR adopted for cbBTC 2025-05-29 (Coinbase/Chainlink announcements); Coinbase CDP docs state ~per-minute refresh; page coinbase.com/cbbtc/proof-of-reserves] |
 | weETH | LRT family | `terminal_other_layer` |
+| LBTC (live mint market, found at first contact 2026-09-04) | cbBTC / custodial BTC | `recurses` (Lombard custody attestation); `disclosure_cadence` = continuous — Chainlink PoR (Ethereum) + Lombard PoR page, real-time verification; `last_disclosure_date` = per-run read of the LBTC PoR feed's `updatedAt` [ANALYST-SUPPLIED 2026-09-04: Chainlink PoR on Ethereum for LBTC announced 2026-02-05 (Chainlink/Lombard); partnership incl. PoR 2024-10 (lombard.finance blog). Feed 0x70c158c7731Da2C14BC84aEBa39A4FF703DDc7d2, chain-verified description() = 'Lombard Proof of Reserves' — Lombard-wide, broader than LBTC specifically. Memo §4.4/§4.5 name LBTC in the custodial-BTC class (P1)] |
 | Any other mint-market collateral | — | unlisted → §8.2 quarantine rule |
  
 Expected verifiability result (Step-5 done-condition): majority `terminal` / `terminal_other_layer`, with WBTC **and cbBTC** as the `recurses` slices (cbBTC is currently the largest mint market — the crvUSD split is no longer trivially ~100% verifiable; "boring, correct" now reads as a defensible custodial-BTC share).
@@ -36,11 +37,12 @@ Expected verifiability result (Step-5 done-condition): majority `terminal` / `te
 - Classification: protocol stabilizer debt, zero-credited. Class rule applies unmodified.
 - Discovery: active PegKeeper set read from the PegKeeper regulator / registry contract, never hardcoded [VERIFIED 2026-09-01: regulator 0x36a04CAffc681fa179558B2Aaba30395CDdd855f exposes peg_keepers (DynArray of PegKeeperInfo) — discovery source confirmed. Source: PegKeeperRegulator.vy (curvefi/curve-stablecoin master) + verified deploy 0x36a04CAffc681fa179558B2Aaba30395CDdd855f (Etherscan)].
 - Version: [VERIFIED 2026-09-01: all four docs-listed keepers are V2 under the regulator: USDC 0x9201da0D97CaAAff53f01B2fB56767C7072dE340, USDT 0xFb726F57d251aB5C731E5C64eD4F5F94351eF9F3, pyUSD 0x3fA20eAa107DE08B38a8734063D605d5842fe09C, frxUSD 0x338Cb2D827112d989A861cDe87CD9FfD913A1f9D. Source: docs.curve.finance static/deployments.json (snapshot 2026-08-21)].
-- Instances [FIRST-RUN READ: TroveManager address from Liquity deployment registry]:
+- Instances:
   - crvUSD/USDC keeper — pool [FIRST-RUN READ: live value]; ceiling [ANALYST-SUPPLIED 2026-09-01: USDC ceiling not web-resolvable (history: 25M 2024 → 45M by Aug 2025 → raised Oct 2025 vote, ×3 claimed); [FIRST-RUN READ: debt_ceiling]]
   - crvUSD/USDT keeper — pool [FIRST-RUN READ: live value]; ceiling [VERIFIED 2026-09-01: USDT ceiling $135M — Curve News July 2026 recap]
   - crvUSD/pyUSD keeper — [VERIFIED 2026-09-01: pyUSD keeper active (docs deployments 2026-08-21); ceiling history 15M→5M (Sept 2024)→15M (Aug 2025) → current [FIRST-RUN READ: debt_ceiling]]
   - Other keepers added since 2025 — [FIRST-RUN READ: live value]
+  - crvUSD/GHO keeper — [VERIFIED 2026-09-04: a **fifth keeper** 0x53876b157decf04389eed66c7c29d73863f8c50b, pool 0x635ef0056a597d13863b73825cca297236578595 (GHO/crvUSD), is registered in the regulator and read live at index 4; `debt_ceiling` = 0 and `debt()` = 0 at block 25905210. This **settles the P4 source conflict** recorded above — Pharos and LlamaRisk indicated a GHO PegKeeper, the docs list did not — in favour of existence. Discovered by the per-run registry read, never a list, which is what P4 exists for. Its zero ceiling exercises DET-21/R-11's ceiling-zero branch live]
   - Retired keepers (USDP, TUSD) — [VERIFIED 2026-09-01: USDP/TUSD not in docs keeper list — retired (TUSD ceiling→0 Sept 2024); USDM keeper (added Oct 2024, 10M) also absent from 2026-08-21 docs list — treat as retired, confirm via regulator.peg_keepers(). CONFLICT: Pharos (Jun 2026) and LlamaRisk (Mar 2026 onboarding review) indicate a GHO PegKeeper — not in docs list; see candidate open point]
 - Aggregate ceiling: [FIRST-RUN READ: live value]. Reported as upper bound of the stabilizer slice.
 - Reads per keeper per run: debt(), LP balance, pool balances, pool virtual price, ceiling, regulator status. Provenance: block + timestamp.
@@ -56,19 +58,21 @@ Expected verifiability result (Step-5 done-condition): majority `terminal` / `te
 - **LEND markets** — existing crvUSD deposited by lenders and re-lent: no supply creation; collateral (CRV, others) backs lenders' claims, **not** crvUSD supply.
 Discovery by factory/controller address class [VERIFIED 2026-09-01: mint = ControllerFactory 0xC9332fdCB1C491Dcc683bAe86Fe3cb70360738BC (docs.curve.finance static/deployments.json (snapshot 2026-08-21)); lend = OneWayLendingFactory + V2 factory [FIRST-RUN READ: deployments.json]], never by asset symbol. Lend-market crvUSD counted as minted supply is a double-count. If the V2 claim is not confirmed, the gate is still recorded and applied to LlamaLend V1 crvUSD lend markets vs. mint markets, which already share the distinction.
  
+**Supply comparand note (DET-62)** [ANALYST-SUPPLIED 2026-09-03: DefiLlama reports Ethereum-chain *circulating* for crvUSD; the ruled comparand is mainnet `totalSupply()`. DefiLlama's figure is **accepted as the comparand within the ruled 5% tolerance** — convention mismatch acknowledged and absorbed by the tolerance, never equated. Source: stablecoins.llama.fi, coverage verified 2026-09-03]
+ 
 **Pool set (exit liquidity):** Rule: memo §5. Frozen set established at first run by three-way discovery; §5.4 exclusions apply (crvUSD/wstETH, crvUSD/WETH-type pools excluded as circular; PegKeeper pools included in full). Expected pools [FIRST-RUN READ: discovery; expected incl. PegKeeper pools USDC/USDT/pyUSD/frxUSD (frxUSD needs §4 row)], crvUSD/USDe or other synthetic pairs [RE-SCOPED TO INTAKE: frxUSD and any other keeper paired asset gets its §4 row at freeze; unlabeled → §8.2 (memo §9 stabilizer instance, P4)], any tricrypto-style pools (paired with volatile assets)]. Off-venue share and bridged/L2 supply disclosed per §5.1–5.2 [FIRST-RUN READ: bridge contract balances; lock-vs-burn per bridge].
  
 **Stress hooks (memo §6.3):**
 - H1 crash path — **state-conditional capacity (memo §6.3 H1, ruled 2026-09-02).** Per keeper, per run: (1) regulator `is_killed` Provide flag → killed keeper contributes zero; (2) read α, β (`regulator.alpha()`, `regulator.beta()`), each keeper's `debt()` and crvUSD balance; deployable = (α + β·Σ√r_others)² × (debt + balance) − debt. Capacity = Σ over live keepers. **Metric 4 prints both:** effective deployable headroom vs. naive ceiling − debt. Counterfactual: discretionary kill mid-crash → zero. Verified 2026-09-01: regulator 0x36a04CAffc681fa179558B2Aaba30395CDdd855f, deployed α = 0.5, β = 0.25 (source + Etherscan); USDT ceiling $135M (Curve News July 2026); other ceilings `ControllerFactory.debt_ceiling(pk)` per run.
 - H1 depeg path (Member 2) — primary: V2 gating effective, no new mint, LP share stuck in depegging asset (metric 4). Counterfactual: V1 contagion mint sized by headroom. [VERIFIED 2026-09-01: see memo §6.3 H1 — four-condition block incl. cross-pool worst_price_threshold 0.03%; discretionary kill switch exists (admin or Emergency DAO). Source: PegKeeperRegulator.vy (curvefi/curve-stablecoin master) + verified deploy 0x36a04CAffc681fa179558B2Aaba30395CDdd855f (Etherscan)]
 - LLAMMA band depth + arbitrage appetite as primary capacity [FIRST-RUN READ: AMM.A(), Controller.n (per loan), AMM.bands_x/bands_y]. Arbitrage sell-side bounded by the §6.3 collateral-sell-side parameter per node.
-- Volatile nodes for Member 1: WETH, wstETH, sfrxETH (LST axis applies), WBTC, tBTC. Cells: 47.
+- Volatile nodes for Member 1: WETH, wstETH, sfrxETH, weETH (LST/LRT axis applies), WBTC, tBTC, cbBTC. Cells: 47.
 - Member 2 target stable: set at pool-set freeze (memo §6.2.5) — expected USDC or USDT (set at first freeze; not a Phase B item). Forced-sell numerator zero by construction → structural-insulation finding; Member 2 told via exit-depth curve + metric 4 (PegKeeper LP share).
 **Quarantine instances (memo §8.1):**
 - (c) Market-count: mint-market count from the controller factory. Addition with known node → L1; removal → L2. Lend-market count changes are logged but do not trigger (excluded by the supply-origination gate).
 - (d) Mechanism near bound → L1: any PegKeeper debt > 80% of its ceiling, or aggregate PegKeeper debt > 80% of aggregate ceiling [ANALYST-SUPPLIED 2026-09-01: USDT $135M (Curve News July 2026); others first-run read]. Mirrored in the monitoring brief.
 - (a), (b): archetype defaults (10pp / 25% two-branch).
-**Oracle sources (memo §7):** per-market price oracle contracts [FIRST-RUN READ: AMM.price_oracle_contract() per market], crvUSD price aggregator [VERIFIED 2026-09-01: AggregateStablePrice v3 0x18672b1b0c623a30089A280Ed9256379fb0E4E62; composition [FIRST-RUN READ: price_pairs()]; frxUSD pool oracle added Aug 2025 (Curve News)], LLAMMA EMA smoothing [VERIFIED 2026-09-01: crvUSD market oracles are CryptoWithStablePrice*/CryptoFromPool* contracts with MA_EXP_TIME as an immutable constructor argument (bounds 30s–365d), read per market via the oracle's MA_EXP_TIME()/ma_exp_time getter. Values are per deployment — [FIRST-RUN READ: Controller.amm().price_oracle_contract() → MA_EXP_TIME]. Aggregator: AggregateStablePrice v3 0x18672b1b0c623a30089A280Ed9256379fb0E4E62 (TVL_MA_TIME 50000s), legacy 0xe5Afcf332a5457E8FafCD668BcE3dF953762Dfe7. Source: curvefi/curve-stablecoin price_oracles/*.vy; docs.curve.finance static/deployments.json (snapshot 2026-08-21)]. §7 assumption: instant observation primary, knowingly optimistic for LLAMMA; EMA counterfactual line under metric 4 (bounded approximation, labeled).
+**Oracle sources (memo §7):** per-market price oracle contracts [FIRST-RUN READ: AMM.price_oracle_contract() per market], crvUSD price aggregator [VERIFIED 2026-09-01: AggregateStablePrice v3 0x18672b1b0c623a30089A280Ed9256379fb0E4E62; composition [FIRST-RUN READ: price_pairs()]; frxUSD pool oracle added Aug 2025 (Curve News)], LLAMMA EMA smoothing [VERIFIED 2026-09-01, CORRECTED 2026-09-04: the 2026-09-01 note said the window is read from the oracle's own MA_EXP_TIME()/ma_exp_time getter. **No such getter exists on any of the nine deployed market oracles** — all four spellings revert (P-3.31). The EMA architecture is real but the parameter sits one level down: **price-EMA smoothing lives on the constituent pools** (`ma_time`/`ma_exp_time`), while the oracle's own `TVL_MA_TIME` smooths the pool-weighting series — a different quantity, not substituted. `ema_window_s` per market is the **transitive max** over the constituent chain; constituents come from the oracle's address getters where exposed, from `POOLS(i)`/`POOL_COUNT` for `CryptoFromPool`-class oracles, and from the verified deploy's constructor arguments where the ABI advertises immutables the bytecode does not expose. Values are per deployment — [FIRST-RUN READ: Controller.amm().price_oracle_contract() → constituent windows, transitive max]. Aggregator: AggregateStablePrice v3 0x18672b1b0c623a30089A280Ed9256379fb0E4E62 (TVL_MA_TIME 50000s), legacy 0xe5Afcf332a5457E8FafCD668BcE3dF953762Dfe7. Source: curvefi/curve-stablecoin price_oracles/*.vy; docs.curve.finance static/deployments.json (snapshot 2026-08-21)]. §7 assumption: instant observation primary, knowingly optimistic for LLAMMA; EMA counterfactual line under metric 4 (bounded approximation, labeled).
 **Redemption-rights (memo §12) — holder paths: 1 (none)**
  
 | Field | Path 1 |
@@ -98,19 +102,60 @@ Note: PegKeeper pools and Curve pools are markets, not redemption (§5); holder 
 | `set_parameters` | Curve DAO [VERIFIED 2026-09-01: factory.set_monetary_policy/set_fee etc. (DAO); regulator set_worst_price_threshold / set_price_deviation / set_debt_parameters / set_aggregator (admin only); AggMonetaryPolicy4 adds set_debt_ratio_ema_time — curve-stablecoin source] | n/a | as `mint` | Emergency DAO [FIRST-RUN READ: live value] | — | all markets; regulator | [FIRST-RUN READ: live value] |
 | `seize` | `none` expected [FIRST-RUN READ: live value] | | | | | | |
  
-**Qualifier block (memo §13):** expected — `mint` — DAO, [bucket VERIFY], veto: Emergency DAO; `set_oracle` — DAO, [bucket VERIFY]; `upgrade` — none (immutable); `seize` — none. Final content follows Phase B.
+**Qualifier block (memo §13):** expected — `mint` — DAO, veto: Emergency DAO; `set_oracle` — DAO; `upgrade` — none (immutable); `seize` — none. Delay buckets are per-run reads (DET-68 A4). Final content follows Phase B.
  
 **Audit status (memo §14):** audits [VERIFIED 2026-09-01: crvUSD infrastructure: MixBytes 2023-06-05, ChainSecurity 2024-01-24, ChainSecurity 2025-02-21; PegKeeperV2: ChainSecurity 2023-12-12; FastBridge (cross-chain crvUSD): ChainSecurity 2024-10-25; LlamaLend: MixBytes 2024 — docs.curve.finance/developer/security]; bug bounty [ANALYST-SUPPLIED 2026-09-01: Curve: bug bounty program stated on docs (platform/max not surfaced); GHO: Immunefi (LlamaRisk Mar 2026); Liquity: active bounty (TokenBrice) — max values first-run analyst entry]; last material change audited [ANALYST-SUPPLIED 2026-09-01: LlamaLend V2 audit status not surfaced — analyst entry]. Staleness date: set at Phase B. Never scored.
  
 **Counterparty enumeration (memo §14):** n/a — archetype #1 holds no off-chain counterparties. WBTC custodian captured in §4 look-through.
  
+ 
+**`first_run_reads[]` (DET-75 / R-45)** — registry of every FIRST-RUN READ tag on this sheet, resolved to a concrete read. **Count identity: 35 literal tags − 2 (misplaced Liquity tags deleted by this edit) + 1 (tBTC tag added by this edit) = 34 tags = 34 open rows, FR-36 included.** All reads at `run_block`. Shorthand: **CF** = ControllerFactory 0xC9332fdCB1C491Dcc683bAe86Fe3cb70360738BC · **REG** = PegKeeperRegulator 0x36a04CAffc681fa179558B2Aaba30395CDdd855f · **AGG** = AggregateStablePrice 0x18672b1b0c623a30089A280Ed9256379fb0E4E62 · **CRVUSD** = 0xf939E0A03FB07F59A73314E73794Be0E57ac1b4E. `sheet_location` is a section anchor rather than a line number, so the registry survives later edits.
+ 
+| tag_id | sheet_location | bundle_field_path | read_spec | status |
+|---|---|---|---|---|
+| FR-02 | crvUSD § Collateral nodes | `markets[]` | `CF.n_collaterals()`; `CF.controllers(i)` / `amms(i)` / `collaterals(i)` ∀i | open |
+| FR-04 | crvUSD § PegKeepers — USDC instance | `stabilizers[USDC].paired_pool_address` | `REG.peg_keepers()[i].pool` | open |
+| FR-05 | crvUSD § PegKeepers — USDC instance | `stabilizers[USDC].debt_ceiling` | `CF.debt_ceiling(pk)` (O18: this row carries the ceiling read) | open |
+| FR-06 | crvUSD § PegKeepers — USDT instance | `stabilizers[USDT].paired_pool_address` | `REG.peg_keepers()[i].pool` | open |
+| FR-07 | crvUSD § PegKeepers — pyUSD instance | `stabilizers[pyUSD].debt_ceiling` | `CF.debt_ceiling(pk)` | open |
+| FR-08 | crvUSD § PegKeepers — other keepers | `stabilizers[]` (completeness) | `REG.peg_keepers(uint256)` walked from index 0 until the getter reverts — a Vyper DynArray public getter is an INDEXED accessor, not an array return; the struct is 4-member `(address peg_keeper, address pool, bool is_inverse, bool include_index)`. Corrected 2026-09-04 (P-3.20): the zero-arg form reverts. Retired keepers absent by construction | open |
+| FR-09 | crvUSD § PegKeepers — aggregate ceiling | `stabilizer.ceiling_aggregate` | Σ over per-keeper `CF.debt_ceiling(pk)`; derived — carries `lineage`, not provenance | open |
+| FR-10 | crvUSD § Supply-origination gate | `lend_factories[]` | dated `discovery_roots.toml` entry + on-chain confirmation (code present, enumerates markets) | open |
+| FR-11 | crvUSD § Supply-origination gate | `lend_factories[].origination_class` | as FR-10; feeds DET-07 | open |
+| FR-12 | crvUSD § Pool set | `discovered_pools[]`, `frozen_set` | three-way discovery; `pool.balances(i)` at par for TVL and coverage | open |
+| FR-13 | crvUSD § Pool set | `supply.bridges[]` | `CRVUSD.balanceOf(bridge)` — **amount only**; `bridge_type` from the DET-33 menu, never inferred from a balance | open |
+| FR-14 | crvUSD § Stress hooks | `markets[].{a_coefficient, band_range_occupied, collateral_in_bands}` | `AMM.A()`; `AMM.bands_x(i)`/`bands_y(i)` over the occupied range | open |
+| FR-15 | crvUSD § Oracle sources | `markets[].oracle_address` | `Controller.amm()` → `AMM.price_oracle_contract()` | open |
+| FR-16 | crvUSD § Oracle sources | `aggregator.price_pairs[]` | `AGG.price_pairs(i)` + count | open |
+| FR-17 | crvUSD § Oracle sources | `markets[].ema_window_s` | **transitive max over the oracle's constituent price-EMA windows** (P-3.31/P-3.32/P-3.33): constituent pools via the oracle's own address getters where exposed, via `POOLS(i)`/`POOL_COUNT` for `CryptoFromPool`-class oracles, and via the verified deploy's constructor arguments where the ABI advertises immutables the bytecode does not expose (config `[[oracle_constituents]]`, addresses only — windows read on-chain per run); each pool's `ma_time()`/`ma_exp_time()` at `run_block`; a chained oracle recurses and its chain contributes to the same max | open |
+| FR-18 | crvUSD § Redemption-rights R10 | `redemption_paths[0].r10_provenance` | selector-absence scan over `eth_getCode(CRVUSD)`, `eth_getCode(CF)` | open |
+| FR-19 | crvUSD § Admin-power surface (header) | `admin_surface[]` | umbrella — A1–A8 table present, nine powers | open |
+| FR-20 | crvUSD § Admin surface — `mint` A2 | `admin_surface[mint].holder` | `CF.admin()` | open |
+| FR-21 | crvUSD § Admin surface — `mint` A7 | `admin_surface[mint].scope` | `{CF, REG}` addresses | open |
+| FR-22 | crvUSD § Admin surface — `mint` A8 | `admin_surface[mint].reads` | provenance of the FR-20 read | open |
+| FR-23 | crvUSD § Admin surface — `set_ceiling` A2 | `admin_surface[set_ceiling].holder` | `CF.admin()` | open |
+| FR-24 | crvUSD § Admin surface — `set_ceiling` A5 | `admin_surface[set_ceiling].veto` | `REG.emergency_admin()` | open |
+| FR-25 | crvUSD § Admin surface — `set_ceiling` A8 | `admin_surface[set_ceiling].reads` | provenance of the FR-23 / FR-24 reads | open |
+| FR-26 | crvUSD § Admin surface — `upgrade` A6 | `admin_surface[upgrade].upgradeability` | `eth_getStorageAt` EIP-1967 implementation slot = 0 ∀ live market contract | open |
+| FR-27 | crvUSD § Admin surface — `upgrade` A8 | `admin_surface[upgrade].reads` | slot reads + `eth_getCode` hash | open |
+| FR-28 | crvUSD § Admin surface — `pause` A2 | `admin_surface[pause].holder` | `REG.emergency_admin()` | open |
+| FR-29 | crvUSD § Admin surface — `freeze_asset` A2 | `admin_surface[freeze_asset].holder` | selector-absence scan → `none` | open |
+| FR-30 | crvUSD § Admin surface — `blacklist_address` A2 | `admin_surface[blacklist_address].holder` | selector-absence scan → `none` | open |
+| FR-31 | crvUSD § Admin surface — `set_oracle` A5 | `admin_surface[set_oracle].veto` | `REG.emergency_admin()` | open |
+| FR-32 | crvUSD § Admin surface — `set_oracle` A8 | `admin_surface[set_oracle].reads` | provenance of the FR-31 read | open |
+| FR-33 | crvUSD § Admin surface — `set_parameters` A5 | `admin_surface[set_parameters].veto` | `REG.emergency_admin()` | open |
+| FR-34 | crvUSD § Admin surface — `set_parameters` A8 | `admin_surface[set_parameters].reads` | provenance of the FR-33 read | open |
+| FR-35 | crvUSD § Admin surface — `seize` A2 | `admin_surface[seize].holder` | selector-absence scan → `none` | open |
+| FR-36 | crvUSD § Collateral nodes — tBTC row (tag added by this edit) | `nodes[tBTC].label`, `nodes[tBTC].label_provenance` | tBTC `WalletRegistry` read; label ∈ {`terminal_other_layer`, `recurses`} per DET-76(c); unreachable ⇒ unlabeled-in-run → §8.2 | open |
+ 
+*FR-01 and FR-03 are retired with the misplaced Liquity tags deleted by this edit; their ids are reserved, not reused.*
 ---
  
 ## GHO
  
 **Archetype assignment:** #1, CDP / on-chain-backed — with two facilitator sub-mechanisms. Fit test: primary supply originates from the Aave V3 facilitator minting against pledged collateral with a liquidation path — passes. GSM supply is asset-in-a-box (memo §3 exclusion), backed by the boxed asset via look-through.
  
-**Contracts to read** [FIRST-RUN READ: addresses per Liquity deployment registry]:
+**Contracts to read**:
 - GHO token; GhoToken facilitator registry — facilitator discovery (list, bucket caps, current levels); hardcoded lists forbidden.
 - Aave V3 Ethereum Pool, PoolDataProvider — per-reserve and per-position reads.
 - GSM contracts per boxed asset [VERIFIED 2026-09-01: USDC and USDT GSMs live (addresses above); a GHO_DIRECT_FACILITATOR_MAINNET_GSMS 0xE9ac5231… exists (address book) — facilitator list [FIRST-RUN READ: GhoToken.getFacilitatorsList()]].

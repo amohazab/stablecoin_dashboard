@@ -33,6 +33,27 @@ The memo, intake sheets, rubric, and Phase B checklist are **closed, finalized j
 
 The core design principle: **judgment moves from runtime to design time.** Rulings are made once (memo per archetype, sheet per token) and code enforces them per run. No per-report judgment exists in production.
 
+## Session protocol
+
+Every session begins by reading this file **and `PROGRESS.md`** (repo root) before proposing anything. `PROGRESS.md` is the implementation record: what has been decided, built, and verified, in confirmation order.
+
+Its rules bind every session and are stated in the file itself. Two of them govern behaviour before you have read it: **entries are appended only on Amin's explicit confirmation — the agent never self-confirms**, and **confirmed entries are immutable** — never edited, reworded, renumbered, or deleted, not even for typos; an instructed change is a new `AMEND` entry referencing the original, which stands. Confirmed entries are settled: they are not re-opened, re-litigated, or contradicted by later work without an explicit AMEND instruction.
+
+Working rhythm: numbered blocks, one topic per block, **exactly one open proposal at a time**. Per point — propose (with rationale, and real alternatives where a choice exists) → Amin rules → implement exactly what was confirmed → append the `PROGRESS.md` entry → show the appended entry verbatim. Corrections, directives, and rulings are recorded as stated, as-counted not as-proposed. Sessions close with a block listing confirmed points, open points, and flagged items awaiting ruling.
+
+Ask when a choice is a **ruling** (design, scope, thresholds, document content); decide when it is an **implementer default** — and name it as such in the code and docs the way the rubric does, so it is auditable. Never mark your own work done. Never write to `PROGRESS.md` without confirmation. Never touch `docs/context/` without explicit instruction. When a read or an output contradicts a Phase-B `[VERIFIED …]` value, that is a flag, not a correction: report "verified value was X (source, date); live read is Y at block N" and stop that point.
+
+**Stack ruling.** All pipeline code is Python (ruled 2026-09-03, P-3.01). Tooling and version per the P-3 stack entry.
+
+**Scope discipline** (ruled 2026-09-03, P-3.03). This is a portfolio/demo project, not production software. The goal is a working, presentable end-to-end system — not robustness to every edge case. Rules:
+
+1. When choosing between a simple approach and a more "correct" but complex one, default to the simple one unless the difference is visible in the final output.
+2. Don't gold-plate: no extensive error handling, config abstraction, test coverage, or optimization unless Amin asks for it.
+3. A minor issue or edge case with marginal impact gets one sentence and moves on — never solved unprompted.
+4. A task ballooning in scope stops for an is-it-worth-it question instead of absorbing the effort silently.
+
+**Boundary — this directive never overrides:** the hard gates, the rulings in the closed artifacts, or any condition owned by a rubric entry. The system's documented rulings and validation gates ARE the portfolio artifact (brief §1); a check the rubric demands is required output, never gold-plating, and fail-closed behavior where ruled is not "extensive error handling." The directive governs everything the rulings leave open: engineering style, abstraction depth, error handling beyond ruled fail-closed points, test breadth beyond the ruled done-conditions, optimization, and tooling weight. Where the directive and a ruling appear to conflict, that is a flag for Amin, not a judgment call.
+
 ## Three-tier work model
 
 - **Tier 1 — fully automated:** adapter data collection; admin-power-surface reads; deterministic validation; verifiability computation; stress runs; monitoring-brief generation; site regeneration.
@@ -64,4 +85,4 @@ Per brief §8 step order:
 - **Step 3 — NEXT:** crvUSD adapter. Factory-contract market discovery; RPC/multicall state reads including PegKeeper pools and admin-power surface; three-way cross-validation; emits the common schema. Done when two runs a day apart pass validation and match a manual spot-check.
 - Then: GHO + LUSD adapters (4), verifiability module (5), CDP stress module (6), report generation + evaluation loop (7), unattended execution (8), static site v1 (9), USDe as token #4 with benchmark reconciliation against the manual report (10), expansion by archetype coverage (11), vaults phase 2 (12).
 
-There is no code, build system, or test suite in the repo yet — do not invent commands. Adapters emit one common schema (collateral composition keyed by contract address, verifiability-split inputs, staleness, provenance, admin-power surface, counterparty enumeration). The site is static only — no backend, no live anything; it regenerates when the pipeline runs.
+There is no code, build system, or test suite in the repo yet — do not invent commands; the implementation language is ruled (Python, P-3.01), the toolchain is not. Adapters emit one common schema (collateral composition keyed by contract address, verifiability-split inputs, staleness, provenance, admin-power surface, counterparty enumeration). The site is static only — no backend, no live anything; it regenerates when the pipeline runs.

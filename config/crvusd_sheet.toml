@@ -1,0 +1,264 @@
+# DERIVED MIRROR - NOT AUTHORITATIVE (P-3.04 binding).
+# Source of truth: docs/context/intake-sheets-cdp.md, crvUSD section.
+# Derived from sheet version sha256_first8 = a6d8f12a (signed 2026-09-04, P-3.12).
+# DET-77's sheet_hash check binds this mirror to that source; drift is caught
+# mechanically, never trusted away. Regenerated, never hand-patched.
+schema_version = 1
+sheet_hash = "a6d8f12a"
+
+near_bound_threshold = 0.80
+counterparties = "n/a - archetype #1 holds no off-chain counterparties"
+attribution_method = "direct"
+member2_target = ""   # null until the R-a1 refresh (Step 6/7); nothing consumes it in Step 3
+
+# cbBTC disclosure fields - mirrored from the stamped sheet (D-8; owner: sheet, not labels.toml per C-8)
+[disclosure.cbBTC]
+disclosure_cadence = "continuous — Chainlink PoR feed (Ethereum) + Coinbase PoR page, near-real-time refresh"
+last_disclosure_date = "per-run read of the Ethereum PoR feed `updatedAt`"
+source = "ANALYST-SUPPLIED 2026-09-03: Chainlink PoR adopted for cbBTC 2025-05-29 (Coinbase/Chainlink announcements); Coinbase CDP docs state ~per-minute refresh; page coinbase.com/cbbtc/proof-of-reserves"
+
+# first_run_reads[] - 34 rows mirrored from the stamped sheet.
+# status stays "open" until a stamped sheet edit retires the prose tag (P-3.14).
+
+[[first_run_read]]
+tag_id = "FR-02"
+sheet_location = "crvUSD § Collateral nodes"
+bundle_field_path = "`markets[]`"
+read_spec = "`CF.n_collaterals()`; `CF.controllers(i)` / `amms(i)` / `collaterals(i)` ∀i"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-04"
+sheet_location = "crvUSD § PegKeepers — USDC instance"
+bundle_field_path = "`stabilizers[USDC].paired_pool_address`"
+read_spec = "`REG.peg_keepers()[i].pool`"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-05"
+sheet_location = "crvUSD § PegKeepers — USDC instance"
+bundle_field_path = "`stabilizers[USDC].debt_ceiling`"
+read_spec = "`CF.debt_ceiling(pk)` (O18: this row carries the ceiling read)"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-06"
+sheet_location = "crvUSD § PegKeepers — USDT instance"
+bundle_field_path = "`stabilizers[USDT].paired_pool_address`"
+read_spec = "`REG.peg_keepers()[i].pool`"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-07"
+sheet_location = "crvUSD § PegKeepers — pyUSD instance"
+bundle_field_path = "`stabilizers[pyUSD].debt_ceiling`"
+read_spec = "`CF.debt_ceiling(pk)`"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-08"
+sheet_location = "crvUSD § PegKeepers — other keepers"
+bundle_field_path = "`stabilizers[]` (completeness)"
+read_spec = "`REG.peg_keepers(uint256)` walked from index 0 until the getter reverts — a Vyper DynArray public getter is an INDEXED accessor, not an array return; the struct is 4-member `(address peg_keeper, address pool, bool is_inverse, bool include_index)`. Corrected 2026-09-04 (P-3.20): the zero-arg form reverts. Retired keepers absent by construction"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-09"
+sheet_location = "crvUSD § PegKeepers — aggregate ceiling"
+bundle_field_path = "`stabilizer.ceiling_aggregate`"
+read_spec = "Σ over per-keeper `CF.debt_ceiling(pk)`; derived — carries `lineage`, not provenance"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-10"
+sheet_location = "crvUSD § Supply-origination gate"
+bundle_field_path = "`lend_factories[]`"
+read_spec = "dated `discovery_roots.toml` entry + on-chain confirmation (code present, enumerates markets)"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-11"
+sheet_location = "crvUSD § Supply-origination gate"
+bundle_field_path = "`lend_factories[].origination_class`"
+read_spec = "as FR-10; feeds DET-07"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-12"
+sheet_location = "crvUSD § Pool set"
+bundle_field_path = "`discovered_pools[]`, `frozen_set`"
+read_spec = "three-way discovery; `pool.balances(i)` at par for TVL and coverage"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-13"
+sheet_location = "crvUSD § Pool set"
+bundle_field_path = "`supply.bridges[]`"
+read_spec = "`CRVUSD.balanceOf(bridge)` — **amount only**; `bridge_type` from the DET-33 menu, never inferred from a balance"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-14"
+sheet_location = "crvUSD § Stress hooks"
+bundle_field_path = "`markets[].{a_coefficient, band_range_occupied, collateral_in_bands}`"
+read_spec = "`AMM.A()`; `AMM.bands_x(i)`/`bands_y(i)` over the occupied range"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-15"
+sheet_location = "crvUSD § Oracle sources"
+bundle_field_path = "`markets[].oracle_address`"
+read_spec = "`Controller.amm()` → `AMM.price_oracle_contract()`"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-16"
+sheet_location = "crvUSD § Oracle sources"
+bundle_field_path = "`aggregator.price_pairs[]`"
+read_spec = "`AGG.price_pairs(i)` + count"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-17"
+sheet_location = "crvUSD § Oracle sources"
+bundle_field_path = "`markets[].ema_window_s`"
+read_spec = "**transitive max over the oracle's constituent price-EMA windows** (P-3.31/P-3.32/P-3.33): constituent pools via the oracle's own address getters where exposed, via `POOLS(i)`/`POOL_COUNT` for `CryptoFromPool`-class oracles, and via the verified deploy's constructor arguments where the ABI advertises immutables the bytecode does not expose (config `[[oracle_constituents]]`, addresses only — windows read on-chain per run); each pool's `ma_time()`/`ma_exp_time()` at `run_block`; a chained oracle recurses and its chain contributes to the same max"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-18"
+sheet_location = "crvUSD § Redemption-rights R10"
+bundle_field_path = "`redemption_paths[0].r10_provenance`"
+read_spec = "selector-absence scan over `eth_getCode(CRVUSD)`, `eth_getCode(CF)`"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-19"
+sheet_location = "crvUSD § Admin-power surface (header)"
+bundle_field_path = "`admin_surface[]`"
+read_spec = "umbrella — A1–A8 table present, nine powers"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-20"
+sheet_location = "crvUSD § Admin surface — `mint` A2"
+bundle_field_path = "`admin_surface[mint].holder`"
+read_spec = "`CF.admin()`"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-21"
+sheet_location = "crvUSD § Admin surface — `mint` A7"
+bundle_field_path = "`admin_surface[mint].scope`"
+read_spec = "`{CF, REG}` addresses"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-22"
+sheet_location = "crvUSD § Admin surface — `mint` A8"
+bundle_field_path = "`admin_surface[mint].reads`"
+read_spec = "provenance of the FR-20 read"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-23"
+sheet_location = "crvUSD § Admin surface — `set_ceiling` A2"
+bundle_field_path = "`admin_surface[set_ceiling].holder`"
+read_spec = "`CF.admin()`"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-24"
+sheet_location = "crvUSD § Admin surface — `set_ceiling` A5"
+bundle_field_path = "`admin_surface[set_ceiling].veto`"
+read_spec = "`REG.emergency_admin()`"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-25"
+sheet_location = "crvUSD § Admin surface — `set_ceiling` A8"
+bundle_field_path = "`admin_surface[set_ceiling].reads`"
+read_spec = "provenance of the FR-23 / FR-24 reads"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-26"
+sheet_location = "crvUSD § Admin surface — `upgrade` A6"
+bundle_field_path = "`admin_surface[upgrade].upgradeability`"
+read_spec = "`eth_getStorageAt` EIP-1967 implementation slot = 0 ∀ live market contract"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-27"
+sheet_location = "crvUSD § Admin surface — `upgrade` A8"
+bundle_field_path = "`admin_surface[upgrade].reads`"
+read_spec = "slot reads + `eth_getCode` hash"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-28"
+sheet_location = "crvUSD § Admin surface — `pause` A2"
+bundle_field_path = "`admin_surface[pause].holder`"
+read_spec = "`REG.emergency_admin()`"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-29"
+sheet_location = "crvUSD § Admin surface — `freeze_asset` A2"
+bundle_field_path = "`admin_surface[freeze_asset].holder`"
+read_spec = "selector-absence scan → `none`"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-30"
+sheet_location = "crvUSD § Admin surface — `blacklist_address` A2"
+bundle_field_path = "`admin_surface[blacklist_address].holder`"
+read_spec = "selector-absence scan → `none`"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-31"
+sheet_location = "crvUSD § Admin surface — `set_oracle` A5"
+bundle_field_path = "`admin_surface[set_oracle].veto`"
+read_spec = "`REG.emergency_admin()`"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-32"
+sheet_location = "crvUSD § Admin surface — `set_oracle` A8"
+bundle_field_path = "`admin_surface[set_oracle].reads`"
+read_spec = "provenance of the FR-31 read"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-33"
+sheet_location = "crvUSD § Admin surface — `set_parameters` A5"
+bundle_field_path = "`admin_surface[set_parameters].veto`"
+read_spec = "`REG.emergency_admin()`"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-34"
+sheet_location = "crvUSD § Admin surface — `set_parameters` A8"
+bundle_field_path = "`admin_surface[set_parameters].reads`"
+read_spec = "provenance of the FR-33 read"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-35"
+sheet_location = "crvUSD § Admin surface — `seize` A2"
+bundle_field_path = "`admin_surface[seize].holder`"
+read_spec = "selector-absence scan → `none`"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-36"
+sheet_location = "crvUSD § Collateral nodes — tBTC row (tag added by this edit)"
+bundle_field_path = "`nodes[tBTC].label`, `nodes[tBTC].label_provenance`"
+read_spec = "tBTC `WalletRegistry` read; label ∈ {`terminal_other_layer`, `recurses`} per DET-76(c); unreachable ⇒ unlabeled-in-run → §8.2"
+status = "open"
+
+# ---- Deferred by ruling, present-and-empty -------------------------------
+# sell_side_capacity - per volatile node; lands at the R-a1 refresh (R-a4).
+# m4_fields[]        - Step 6.
+# bias_table[]       - Step 6 (Appendix C seed).

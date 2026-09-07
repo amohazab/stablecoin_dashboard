@@ -1,0 +1,11 @@
+.env
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+
+# Run-local, regenerable from any archive node at run_block (P-3.05 bundle boundary)
+out/raw/
+# May contain a substituted API key (P-3.13 binding 1)
+out/spotcheck/

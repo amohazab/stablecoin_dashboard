@@ -2,7 +2,11 @@
  
 **Status:** v1 FINAL — Step 2 CLOSED 2026-09-03; self-test (a)-list empty.
 **Date:** 2026-09-03.
-**Governing artifacts (checksums):** `archetype-memo-1-cdp.md` f65f5f72 · `intake-sheets-cdp.md` 976085c9 · `phase-b-checklist.md` 6c7c6708 — all at status "Phase B COMPLETE — 2026-09-02".
+**Checksum algorithm (declared 2026-09-03):** SHA-256, first 8 hex digits, over the raw bytes of the LF-normalized file (line endings pinned by `.gitattributes`, so on-disk bytes and hash input are identical on every platform).
+ 
+**Governing artifacts (checksums):** `archetype-memo-1-cdp.md` e08ce1e8 · `intake-sheets-cdp.md` a6d8f12a · `phase-b-checklist.md` 54620383 — all at status "Phase B COMPLETE — 2026-09-02".
+ 
+**Historical checksums — unreproducible, retained (2026-09-03):** the previous values `f65f5f72` · `976085c9` · `6c7c6708` reproduce under no tested scheme: 0 of 3 files matched across 126 scheme × byte-form combinations (14 schemes — CRC-32, Adler-32, and first-8/last-8 of MD5, SHA-1, SHA-256, SHA3-256, BLAKE2b, BLAKE2s — over 9 byte forms). The three values were authored during the Step-2 design sessions in a chat environment where no byte-level hash of the repository files was ever computed; the working explanation is that the stamps were authored, not machine-computed over these bytes. Pre-import drift is not excluded by evidence, but under either explanation the values are unrecoverable. Provenance boundary: commit 5aef7c4 (2026-09-03), clean tree for `docs/context/` — bytes as committed are the earliest verifiable state. Retained, never deleted.
 **Place in the pipeline (brief §7):** deterministic checks in plain code run first, in stage order; then one LLM-as-judge call with structured output. generate → evaluate → one revision → ship or quarantine.
  
 The rubric is the analyst's judgment artifact. It records rulings once; code enforces them per run. A criterion with no source is a design rule and carries its ruling ID as its source. Every checkable condition has exactly one owning entry; other entries cross-reference and never restate (assembly rule, P-2).

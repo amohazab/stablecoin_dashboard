@@ -1,0 +1,289 @@
+# Section 4 look-through label config - address-keyed (DET-02; memo section 9 gate 1).
+# label_source_address == address on every row; a match on any other field fails.
+# NOTE (C-8): disclosure_cadence / last_disclosure_date are NOT carried here.
+# They live on the stamped sheet and its mirror (DET-76(e) / DET-77 territory);
+# a second copy here would be the two-copies-drift pattern the one-owner rule forbids.
+schema_version = 1
+
+[[node]]
+address = "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
+symbol = "WETH"
+label = "terminal"
+node_class = "volatile"
+lst_discount_applies = false
+label_source = "memo 4.3 transparent wrapper -> ETH; memo 4.5 WETH row"
+date = 2026-09-01
+
+[[node]]
+address = "0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0"
+symbol = "wstETH"
+label = "terminal_other_layer"
+node_class = "volatile"
+lst_discount_applies = true
+label_source = "memo 4.4/4.5 LST row"
+date = 2026-09-01
+
+[[node]]
+address = "0xac3e018457b222d93114458476f3e3416abbe38f"
+symbol = "sfrxETH"
+label = "terminal_other_layer"
+node_class = "volatile"
+lst_discount_applies = true
+label_source = "memo 4.4/4.5 LST row"
+date = 2026-09-01
+
+[[node]]
+address = "0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee"
+symbol = "weETH"
+label = "terminal_other_layer"
+node_class = "volatile"
+lst_discount_applies = true
+label_source = "memo 4.5 LRT family row; P1; lst_discount per memo 6.2.2 (LST and LRT) - A3 ruling"
+date = 2026-09-02
+
+[[node]]
+address = "0x2260fac5e5542a773aa44fbcfedf7c193bc2c599"
+symbol = "WBTC"
+label = "recurses"
+node_class = "volatile"
+lst_discount_applies = false
+label_source = "memo 4.4/4.5 WBTC row - custodian PoR"
+date = 2026-09-01
+
+[[node]]
+address = "0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf"
+symbol = "cbBTC"
+label = "recurses"
+node_class = "volatile"
+lst_discount_applies = false
+label_source = "memo 4.4/4.5 custodial BTC wrapper row; P1 - A3 ruling"
+date = 2026-09-02
+
+[[node]]
+address = "0x8236a87084f8b84306f72007f36f2618a5634494"
+symbol = "LBTC"
+label = "recurses"
+node_class = "volatile"
+lst_discount_applies = false
+label_source = "memo 4.4/4.5 custodial BTC wrapper row; P1; live mint-market collateral found at first contact 2026-09-04"
+date = 2026-09-04
+
+# tBTC - label OMITTED by ruling A5: config must never carry the sheet's
+# placeholder label value; the label is not knowable before the run.
+# The label is resolved per run by FR-36 (WalletRegistry read, DET-76(c)) to one of
+# {terminal_other_layer, recurses}; unreachable at run_block => unlabeled-in-run,
+# routed via section 8.2 / DET-08, never a default label.
+[[node]]
+address = "0x18084fba666a33d37592fa2633fd49a74dd93a88"
+symbol = "tBTC"
+node_class = "volatile"
+lst_discount_applies = false
+label_source = "memo 4.4 tBTC row; label resolved per run by FR-36"
+date = 2026-09-01
+
+# ---- OWED (Amin, config round) -------------------------------------------
+# [[reference_feed]] per node - Chainlink feed for DET-55's R-49 gap column,
+#   {feed_address, source, date}; a node with no feed in existence carries a
+#   dated `no_reference_feed` entry, never a silent omission (flag (iii), C-4).
+# [[por_feed]] cbBTC - Ethereum Chainlink PoR feed address, dated; its own entry
+#   class, distinct from reference_feed (P-3.12).
+
+# ---- Paired-asset label config (DET-11) - ruled 2026-09-04, P-3.24 -------
+# DISTINCT entry class from [[node]]: paired stables are NOT crvUSD tree nodes
+# and owe neither DET-52 sell-side parameters nor DET-76(e) disclosure cadences.
+# The tree-node checks must never sweep these rows in.
+
+[[paired_asset]]
+address = "0xdac17f958d2ee523a2206206994597c13d831ec7"
+symbol = "USDT"
+label = "recurses"
+label_source = "memo 4.5 USDT row - Tether attestation"
+date = 2026-09-04
+
+[[paired_asset]]
+address = "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+symbol = "USDC"
+label = "recurses"
+label_source = "memo 4.5 USDC row - Circle attestation"
+date = 2026-09-04
+
+[[paired_asset]]
+address = "0x6c3ea9036406852006290770bedfcaba0e23a0e8"
+symbol = "PYUSD"
+label = "recurses"
+label_source = "memo 4.5 pyUSD row - Paxos, monthly"
+date = 2026-09-04
+
+[[paired_asset]]
+address = "0x40d16fc0246ad3160ccc09b8d0d3a2cd28ae6c2f"
+symbol = "GHO"
+label = "recurses_truncated"
+label_source = "memo 4.1/4.5 analyzed-set row"
+note = "Level 1 'analyzed token, tree pending' until GHO publishes its tree"
+date = 2026-09-04
+
+[[paired_asset]]
+address = "0xcacd6fd266af91b8aed52accc382b4e165586e29"
+symbol = "frxUSD"
+label = "recurses"
+label_source = "P4 + ruling R-1 (P-3.24) - Frax fiat/RWA-backed, issuer transparency reporting"
+date = 2026-09-04
+
+[[paired_asset]]
+address = "0x9d39a5de30e57443bff2a8307a4256c8797a3497"
+symbol = "sUSDe"
+label = "recurses"
+label_source = "ruling R-2 (P-3.24) - Ethena staked USDe, off-chain exchange/custodian attestations"
+note = "UPGRADE PLANNED: when USDe enters the analyzed set at Step 10, this row moves to the recurses_truncated cross-reference treatment per the GHO pattern - a planned transition, not a rediscovery"
+date = 2026-09-04
+
+[[paired_asset]]
+address = "0xcea18a8752bb7e7817f9ae7565328fe415c0f2ca"
+symbol = "cvcrvUSD"
+label = "terminal"
+label_source = "ruling R-4 (P-3.24) - transparent Convex wrapper on crvUSD, section 4.3 pass-through"
+note = "POOL EXCLUDED: a crvUSD/cvcrvUSD pool is crvUSD against itself; exclusion_reason = self_referential_wrapper (interpretive extension of 5.4, amendment-queued)"
+date = 2026-09-04
+
+# pmUSD - DELIBERATELY UNLABELED (ruling R-3, P-3.24). Recorded as a decision,
+# not an omission: RAAC's f(x)-fork gold-CDP stablecoin against tokenized ION.au
+# collateral, observed trading near $0.53 (ATL ~$0.12, 2026-05). Sources to verify
+# at the config round: DefiLlama stablecoin page, Pharos profile, RAAC site.
+# Its pool takes DET-11's T-18 route; expected Level 1 (share below 5%).
+# [[paired_asset]] address = 0xc0c17dd08263c16f6b64e772fb9b723bf1344ddf  symbol = pmUSD
+
+# ---- Reference feeds (DET-55 R-49 gap column): SIGNED 2026-09-04, P-3.35 --
+# Pointer: the canonical per-network Chainlink list. Evidence: on-chain
+# description() / decimals() / latestRoundData() at run_block 25906055.
+# An absence here is a real absence claim from the per-network list plus a
+# Feed Registry revert - never a pointer failure (that would stay open).
+
+[[reference_feed]]
+node_address = "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
+symbol = "WETH"
+kind = "chainlink"
+feed_address = "0x5f4ec3df9cbd43714fe2740f5e3616155c5b8419"
+description = "ETH / USD"
+decimals = 8
+source = "docs.chain.link/data-feeds/price-feeds/addresses canonical per-network list, chain-verified description() at run_block 25906055, 2026-09-04"
+date = 2026-09-04
+
+[[reference_feed]]
+node_address = "0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf"
+symbol = "cbBTC"
+kind = "chainlink"
+feed_address = "0x2665701293fcbeb223d11a08d826563edcce423a"
+description = "cbBTC / USD"
+decimals = 8
+source = "docs.chain.link/data-feeds/price-feeds/addresses canonical per-network list, chain-verified description() at run_block 25906055, 2026-09-04"
+date = 2026-09-04
+
+[[reference_feed]]
+node_address = "0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0"
+symbol = "wstETH"
+kind = "chainlink"
+feed_address = "0x164b276057258d81941e97b0a900d4c7b358bce0"
+description = "wstETH / USD Calculated"
+decimals = 8
+note = "Calculated composite published by Chainlink as a first-class feed with its own description(); R-49 compares against Chainlink reference for the node, and this is it (ruling P-3.35 flag 3, correcting the earlier no-mainnet-feed premise)"
+source = "docs.chain.link/data-feeds/price-feeds/addresses canonical per-network list, chain-verified description() at run_block 25906055, 2026-09-04"
+date = 2026-09-04
+
+[[reference_feed]]
+node_address = "0x18084fba666a33d37592fa2633fd49a74dd93a88"
+symbol = "tBTC"
+kind = "chainlink"
+feed_address = "0x8350b7de6a6a2c1368e7d4bd968190e13e354297"
+description = "TBTC / USD"
+decimals = 8
+source = "docs.chain.link/data-feeds/price-feeds/addresses canonical per-network list, chain-verified description() at run_block 25906055, 2026-09-04"
+date = 2026-09-04
+
+[[reference_feed]]
+node_address = "0x2260fac5e5542a773aa44fbcfedf7c193bc2c599"
+symbol = "WBTC"
+kind = "chainlink"
+feed_address = "0xf4030086522a5beea4988f8ca5b36dbc97bee88c"
+description = "BTC / USD"
+decimals = 8
+note = "the protocol own dormant use_chainlink reference for the WBTC market (P-3.33 constructor args); no direct WBTC/USD on the canonical mainnet list, checked 2026-09-04 (listed on 36 chains, none Ethereum; Feed Registry getFeed reverts). WBTC/BTC 0xfdfd9c85ad200c506cf9e21f1fd8dd01932fbb23 exists on mainnet but is a ratio feed, not a USD reference - declined, not missed"
+source = "docs.chain.link/data-feeds/price-feeds/addresses canonical per-network list, chain-verified description() at run_block 25906055, 2026-09-04"
+date = 2026-09-04
+
+[[reference_feed]]
+node_address = "0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee"
+symbol = "weETH"
+kind = "no_reference_feed"
+literal = "no weETH/USD on the canonical mainnet list (only exchange-rate and RefPrice variants, none mainnet); Feed Registry getFeed(weETH,USD) reverts. weETH/ETH 0x5c9c449bbc9a6075a2c061df312a35fd1e05ff22 exists on mainnet but is a ratio feed - composing it with ETH/USD would be OUR composite, which scope discipline excludes (the flag-3 distinction: Chainlink publishing a Calculated feed is not us building one)"
+source = "docs.chain.link/data-feeds/price-feeds/addresses canonical per-network list, chain-verified description() at run_block 25906055, 2026-09-04"
+date = 2026-09-04
+
+[[reference_feed]]
+node_address = "0x8236a87084f8b84306f72007f36f2618a5634494"
+symbol = "LBTC"
+kind = "no_reference_feed"
+literal = "no LBTC/USD on the canonical mainnet list (listed on 14 chains, none Ethereum); Feed Registry getFeed(LBTC,USD) reverts. LBTC/BTC 0x5c29868c58b6e15e2b962943278969ab6a7d3212 exists on mainnet but is a ratio feed - declined on the same flag-3 distinction"
+source = "docs.chain.link/data-feeds/price-feeds/addresses canonical per-network list, chain-verified description() at run_block 25906055, 2026-09-04"
+date = 2026-09-04
+
+[[reference_feed]]
+node_address = "0xac3e018457b222d93114458476f3e3416abbe38f"
+symbol = "sfrxETH"
+kind = "no_reference_feed"
+literal = "no sfrxETH feed of any kind on the canonical mainnet list; Feed Registry reverts"
+source = "docs.chain.link/data-feeds/price-feeds/addresses canonical per-network list, chain-verified description() at run_block 25906055, 2026-09-04"
+date = 2026-09-04
+
+# ---- Proof-of-reserve feeds (DET-76(e)): SIGNED 2026-09-04, P-3.35 -------
+# Own entry class: a PoR feed answers staleness, not DET-55 price gap.
+
+[[por_feed]]
+node_address = "0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf"
+symbol = "cbBTC"
+feed_address = "0xcbe87dc0cf9d807848a3e703b01a90b28ecfb2a7"
+description = "cbBTC Reserves"
+source = "Chainlink PoR adopted for cbBTC 2025-05-29 (P-3.12); chain-verified description()"
+date = 2026-09-04
+
+[[por_feed]]
+node_address = "0x8236a87084f8b84306f72007f36f2618a5634494"
+symbol = "LBTC"
+feed_address = "0x70c158c7731da2c14bc84aeba39a4ff703ddc7d2"
+description = "Lombard Proof of Reserves"
+source = "Lombard integrated Chainlink PoR on Ethereum, announced 2026-02-05 on the 2024-10 partnership; chain-verified description(). CAVEAT: the feed own description() is 'Lombard Proof of Reserves' - Lombard-wide, broader than LBTC specifically; recorded so the row does not overstate its subject"
+date = 2026-09-04
+
+# ---- Oracle constituents: SIGNED 2026-09-04 (P-3.36) ---------------------
+# Only for market oracles whose constituents no live route reaches.
+# addresses only - windows are read on-chain per run (ma_time/ma_exp_time) and the transitive max taken, so a retuned pool window is tracked, never fossilized. Two of the four are the USDC and USDT PegKeeper pools, also in the frozen set: the oracle-basis / exit-venue overlap of Step-6 design note 1, now explicit
+
+[[oracle_constituents]]
+oracle_address = "0xbe83fd842db4937c0c3d15b2aba6af7e854f8dcb"
+market_symbol = "WBTC"
+pools = ["0x7f86bf177dd4f3494b841a37e810a34dd56c829b", "0xf5f5b97624542d72a9e06f04804bf81baa15e2b4", "0x4dece678ceceb27446b35c672dc7d61f30bad69e", "0x390f3595bca2df7d23783dfd126427cceb997bf4"]
+reason = "ABI advertises STABLESWAP/TRICRYPTO/TRICRYPTO_IX as immutables the deployed bytecode does not expose as callable getters; neither the getter route nor the POOLS walk resolves"
+source = "verified deploy constructor arguments + creation tx (Etherscan), P-3.32 route 2"
+date = 2026-09-04
+
+[[oracle_constituents]]
+oracle_address = "0x966cbdecefb60a289b0460f7638f4a75f432ca06"
+market_symbol = "WETH"
+pools = ["0x7f86bf177dd4f3494b841a37e810a34dd56c829b", "0xf5f5b97624542d72a9e06f04804bf81baa15e2b4", "0x4dece678ceceb27446b35c672dc7d61f30bad69e", "0x390f3595bca2df7d23783dfd126427cceb997bf4"]
+reason = "ABI advertises STABLESWAP/TRICRYPTO/TRICRYPTO_IX as immutables the deployed bytecode does not expose as callable getters; neither the getter route nor the POOLS walk resolves"
+source = "verified deploy constructor arguments + creation tx (Etherscan), P-3.32 route 2"
+date = 2026-09-04
+
+# ---- tBTC wallet registry: SIGNED 2026-09-04 (P-3.37) --------------------
+# The ADDRESS lives here; the LABEL never does. DET-76(c) makes the per-run
+# WalletRegistry read the label authority, resolving to terminal_other_layer
+# or recurses with read provenance. A5 stands: config carries no placeholder
+# label, and an unreachable read leaves the node unlabeled-in-run -> 8.2.
+
+[[wallet_registry]]
+node_address = "0x18084fba666a33d37592fa2633fd49a74dd93a88"
+symbol = "tBTC"
+bridge_address = "0x5e4861a80b55f035d899f66772117f00fa0e8e7b"
+registry_address = "0x46d52e41c2f300bc82217ce22b920c34995204eb"
+locator_read = "Bridge.activeWalletPubKeyHash()"
+source = "chain-verified hop walk 2026-09-04 at block 25906321: tBTC.owner() -> TBTCVault 0x9c070027cdc9dc8f82416b2e5314e11dfb4fe3cd (ContractName=TBTCVault); .bridge() -> 0x5e4861a80b55f035d899f66772117f00fa0e8e7b (TransparentUpgradeableProxy -> impl 0x7d43c925..., Bridge); .contractReferences()[2] -> 0x46d52e41c2f300bc82217ce22b920c34995204eb (TransparentUpgradeableProxy -> impl 0x420c99a4..., ContractName=WalletRegistry). Closure: WalletRegistry.walletOwner() returns the Bridge. P-3.32 route-2 pattern"
+date = 2026-09-04

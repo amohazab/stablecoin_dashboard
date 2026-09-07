@@ -1,0 +1,175 @@
+# Discovery roots - analyst-supplied, staleness-tracked (DET-04; R-1 92-day rule).
+# Everything enumerable is discovered FROM these at run_block. None of these
+# addresses may appear as a literal in adapter code (memo section 9; brief section 10).
+schema_version = 1
+
+[[root]]
+id = "controller_factory"
+address = "0xc9332fdcb1c491dcc683bae86fe3cb70360738bc"
+role = "mint-market discovery; debt_ceiling(pk); admin()"
+source = "docs.curve.finance static/deployments.json (snapshot 2026-08-21); crvUSD sheet [VERIFIED 2026-09-01]"
+date = 2026-09-01
+
+[[root]]
+id = "pegkeeper_regulator"
+address = "0x36a04caffc681fa179558b2aaba30395cddd855f"
+role = "PegKeeper set discovery (P4); alpha/beta/is_killed/emergency_admin"
+source = "PegKeeperRegulator.vy + verified deploy (Etherscan); crvUSD sheet [VERIFIED 2026-09-01]"
+date = 2026-09-01
+
+[[root]]
+id = "price_aggregator"
+address = "0x18672b1b0c623a30089a280ed9256379fb0e4e62"
+role = "AggregateStablePrice v3; price_pairs()"
+source = "crvUSD sheet [VERIFIED 2026-09-01]"
+date = 2026-09-01
+
+[[root]]
+id = "crvusd_token"
+address = "0xf939e0a03fb07f59a73314e73794be0e57ac1b4e"
+role = "totalSupply(); balanceOf(bridge); decimals()"
+source = "crvUSD sheet [VERIFIED 2026-09-01]"
+date = 2026-09-01
+
+#
+# SOURCE NOTE (2026-09-04, P-3.18): the cited URL
+#   https://docs.curve.finance/static/deployments.json
+# was found dead (404) during B-3; the Curve docs site has restructured.
+# The provenance above is a historical claim and stands as made - the
+# addresses were verified from that snapshot on 2026-09-01 and are
+# unaffected. What the death breaks is FUTURE re-verification: at R-1
+# expiry (~2026-12-01) re-verify on-chain, or against the then-living
+# Curve catalog (api.curve.finance), not this URL.
+#
+
+# ---- Pool-factory roots: signed 2026-09-04 (P-3.23) ----------------------
+# Provenance is contract_read at run_block 25904647 for all six - the acceptance
+# test was on-chain in every case. Coverage evidence: 183/183 crvUSD-containing
+# pools across the swept classes are enumerated by their class factory.
+# Only pool_factory_crvusd and pool_factory_stable_ng hold stableswap pools and
+# so feed the section 5.1 modeled set; crypto/twocrypto/tricrypto route to 5.4
+# exclusions. All six count toward DET-09's discovery total.
+
+[[root]]
+id = "pool_factory_crvusd"
+address = "0x4f8846ae9380b90d2e71d5e3d042dff3e7ebb40d"
+role = "Curve pool enumeration (pool_count/pool_list)"
+derivation_route = "pool.factory()"
+closure_evidence = "count 29 = API; 26/26 crvUSD pools in pool_list; get_n_coins(pool) = 2"
+source = "on-chain derivation at 25904647, API catalog as pointer (2026-09-04)"
+date = 2026-09-04
+
+[[root]]
+id = "pool_factory_crypto"
+address = "0xf18056bbd320e96a48e3fbf8bc061322531aac99"
+role = "Curve pool enumeration (pool_count/pool_list)"
+derivation_route = "pool.factory()"
+closure_evidence = "count 401 = API; 7/7 crvUSD pools in pool_list"
+source = "on-chain derivation at 25904647, API catalog as pointer (2026-09-04)"
+date = 2026-09-04
+
+[[root]]
+id = "pool_factory_twocrypto"
+address = "0x98ee851a00abee0d95d08cf4ca2bdce32aeaaf7f"
+role = "Curve pool enumeration (pool_count/pool_list)"
+derivation_route = "pool.factory()"
+closure_evidence = "count 403 = API; 42/42 crvUSD pools in pool_list"
+source = "on-chain derivation at 25904647, API catalog as pointer (2026-09-04)"
+date = 2026-09-04
+
+[[root]]
+id = "pool_factory_tricrypto"
+address = "0x0c0e5f2ff0ff18a3be9b835635039256dc4b4963"
+role = "Curve pool enumeration (pool_count/pool_list)"
+derivation_route = "pool.factory()"
+closure_evidence = "count 125 = API; 31/31 crvUSD pools in pool_list"
+source = "on-chain derivation at 25904647, API catalog as pointer (2026-09-04)"
+date = 2026-09-04
+
+[[root]]
+id = "pool_factory_stable_ng"
+address = "0x6a8cbed756804b16e05e741edabd5cb544ae21bf"
+role = "Curve pool enumeration (pool_count/pool_list)"
+derivation_route = "candidate -> closure"
+closure_evidence = "count 1057 = API; 66/66 crvUSD pools in pool_list; pointer at index 510"
+source = "on-chain derivation at 25904647, API catalog as pointer (2026-09-04)"
+date = 2026-09-04
+
+[[root]]
+id = "pool_factory_old"
+address = "0xb9fc157394af804a3578134a6585c0dc9cc990d4"
+role = "Curve pool enumeration (pool_count/pool_list)"
+derivation_route = "candidate -> closure"
+closure_evidence = "count 381 = API; 11/11 crvUSD pools in pool_list; pointer at index 351"
+source = "on-chain derivation at 25904647, API catalog as pointer (2026-09-04)"
+date = 2026-09-04
+
+# ---- Dated no-crvUSD-pools records (P-3.17 binding 2: never silence) ----
+
+[[registry_class_record]]
+registry_class = "main"
+pools = 49
+crvusd_pools = 0
+record = "no crvUSD pools in this class"
+checked_at_block = 25904647
+date = 2026-09-04
+
+[[registry_class_record]]
+registry_class = "crypto"
+pools = 8
+crvusd_pools = 0
+record = "no crvUSD pools in this class"
+checked_at_block = 25904647
+date = 2026-09-04
+
+[[registry_class_record]]
+registry_class = "factory-eywa"
+pools = 0
+crvusd_pools = 0
+record = "no crvUSD pools in this class"
+checked_at_block = 25904647
+date = 2026-09-04
+
+# ---- OWED (Amin, config round) -------------------------------------------
+# [[lend_factory]]  FR-10/FR-11 - enumerated ONLY to exclude (DET-07).
+#   Addresses from deployments.json /ethereum/lending. STATUS: OWED.
+#
+# [[bridge]]  FR-13 - one entry per known crvUSD bridge:
+#   address, bridge_type in {lock_and_mint, burn_and_mint}, source, date.
+#   NEVER inferred from a balance (C-1, P-3.06). Unclassified bridges take
+#   DET-33's `unresolved` path -> T-19. STATUS: OWED.
+
+# ---- Bridge classifications: SIGNED 2026-09-04 (P-3.35) ------------------
+# bridge_type is NEVER inferred from a balance (C-1). Verified per candidate:
+# code present, Etherscan implementation ContractName matches the claimed bridge,
+# nonzero crvUSD balanceOf at run_block 25905900.
+# Mint authority settled the same round: crvUSD.minter() = the ControllerFactory,
+# no second minter -> the FastBridgeVault docs 'minting' is pre-funded transfer
+# semantics, no DET-68 row owed. The vault has no row: docs.curve.finance
+# /fast-bridge/* returns 404 (same restructuring as deployments.json, P-3.18).
+# Materiality: these three total ~$1.99M against ~$2.1B supply; escrows beyond
+# the identified majors stay outside the set - immaterial, revisitable on T-27.
+
+[[bridge]]
+address = "0xa3a7b6f88361f48403514059f1f16c8e78d60eec"
+name = "Arbitrum L1 ERC20 Gateway"
+bridge_type = "lock_and_mint"
+verification = "TransparentUpgradeableProxy -> impl L1ERC20Gateway; crvUSD balance 1,072,255 at block 25905900"
+source = "docs.curve.finance FastBridge/supported-chains (2026-09-04): minted on Ethereum only; native bridges + LayerZero"
+date = 2026-09-04
+
+[[bridge]]
+address = "0x99c9fc46f92e8a1c0dec1b1747d010903e884be1"
+name = "Optimism L1StandardBridge"
+bridge_type = "lock_and_mint"
+verification = "L1ChugSplashProxy -> impl L1StandardBridge; crvUSD balance 540,734 at block 25905900"
+source = "docs.curve.finance FastBridge/supported-chains (2026-09-04): minted on Ethereum only; native bridges + LayerZero"
+date = 2026-09-04
+
+[[bridge]]
+address = "0x3154cf16ccdb4c6d922629664174b904d80f2c35"
+name = "Base L1StandardBridge"
+bridge_type = "lock_and_mint"
+verification = "L1ChugSplashProxy -> impl L1StandardBridge; crvUSD balance 372,820 at block 25905900"
+source = "docs.curve.finance FastBridge/supported-chains (2026-09-04): minted on Ethereum only; native bridges + LayerZero"
+date = 2026-09-04
