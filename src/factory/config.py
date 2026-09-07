@@ -105,6 +105,9 @@ class Config:
     por_feeds: list[dict] = field(default_factory=list)
     oracle_constituents: dict[str, list[str]] = field(default_factory=dict)
     wallet_registries: list[dict] = field(default_factory=list)
+    # DET-10(d)-ii's factory-side pin, signed 2026-09-07: one row per
+    # frozen pool, `{pool, factory_root, index, found_at_block, date}`.
+    frozen_pool_index: list[dict] = field(default_factory=list)
 
     def root(self, root_id: str) -> Root:
         if root_id not in self.roots:
@@ -187,6 +190,8 @@ def load(config_dir: Path) -> Config:
             "date": _date(r["date"])}
            for r in labels_raw.get("wallet_registry", [])]
 
+    frozen_pool_index = list(roots_raw.get("frozen_pool_index", []))
     return Config(roots=roots, labels=labels, paired=paired, lend=lend, sheet=sheet_raw,
                   bridges=bridges, reference_feeds=refs, por_feeds=pors,
-                  oracle_constituents=ocs, wallet_registries=wrs)
+                  oracle_constituents=ocs, wallet_registries=wrs,
+                  frozen_pool_index=frozen_pool_index)

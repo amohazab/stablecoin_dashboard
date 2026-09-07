@@ -277,3 +277,29 @@ def test_isinstance_guard_for_reconciliation_type():
     assert isinstance(
         AddressReconciliation((), (), ()), AddressReconciliation
     )  # shape is a value object, not a dict
+
+
+# --- 1b: the pointer source's shape-change gate ------------------------------
+
+
+def test_pointer_shape_change_and_empty_class_halt_before_analysis():
+    """Ruled P-3.46 R1: a shape change, an empty in-scope class and a transport
+    failure all halt the token BEFORE analysis. No trigger ID accompanies them
+    because the printed T-table has none, and DET-12 halts the pipeline on a
+    runtime table that differs from the printed one."""
+    from factory.discovery import AssemblyStopFromDiscovery, fetch_candidates
+
+    def missing_field(_url):
+        return {"data": {}}                       # `poolData` gone
+
+    def empty_class(_url):
+        return {"data": {"poolData": []}}
+
+    def dead(_url):
+        raise ConnectionError("pointer source down")
+
+    for stub, needle in ((missing_field, "SHAPE CHANGE"),
+                         (empty_class, "EMPTY pool list"),
+                         (dead, "unavailable")):
+        with pytest.raises(AssemblyStopFromDiscovery, match=needle):
+            fetch_candidates(stub, ["factory-crvusd"])

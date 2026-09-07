@@ -4385,3 +4385,401 @@ Record: out/step3-evidence.md; src/factory/; config/. Post-pair application
      condition have no machinery; they join follow-up 1's scope.
   3. Untracked-analysis pattern: instance 3 (the decomposition) remains
      open; instances 1 and 2 are closed by P-3.43 ruling 2 and 0.5(c).
+## P-3.46 — Block 1b: DET-10 built — the event log, per-run discovery, `pools[]`, the detectors
+
+- **Date:** 2026-09-07
+- **Type:** implementation + decision
+- **Confirmed by:** Amin
+- **Content:**
+  The last of P-3.41's two disclosed omissions closes. DET-10 was ruled Full at
+  P-3.09, found unimplemented by P-3.40's coverage audit, and disclosed in
+  P-3.41's conjunct 2. It is now built — but the inventory at P-3.43 had
+  already established that building it meant building two things that did not
+  exist: **a log for it to chain to, and a per-run pool pass for it to gate.**
+
+  **THE PROPOSAL AS RULED.** Four flags were raised in the proposal and ruled
+  before implementation, so nothing was reworked afterwards.
+  1. **Who appends `intake_trigger`** — the agent's default stands: an
+     `append_intake_trigger` helper in `eventlog.py` and one line added to the
+     (d)-machinery. Documented, deliberately **not** tool-enforced; no CLI.
+     The enforcement is DET-77's new limb, and the revision session will
+     exercise the step several times, which is where the discipline is proven.
+  2. **The field name** — `share_of_frozen_coverage` renamed
+     **`ratio_to_frozen_coverage`** on every row. For F and non-F rows alike it
+     is `tvl_at_par / freeze_discovery_total`: a ratio to the freeze-time
+     denominator, **not** a share of a partition, and it may exceed 1.0. The
+     docstring says so once; the name stops saying "share".
+  3. **The disappearance read** — accepted at review, then **overturned by the
+     data**; see below.
+  4. **The seam** — accepted: **no change to `freeze.py`.** P-3.43 anticipated
+     a seam and none was needed, because the module already splits pure
+     computation from I/O; `par_value`, `DUST_FLOOR_USD`, `EXCLUSION_REASONS`
+     and `classify_exclusions` import as they stand. `build_freeze` is
+     deliberately NOT imported — it SELECTS, and a per-run pass must never
+     re-select (memo 5.6: "detector flags never auto-update the set").
+
+  **R1 — SHAPE CHANGE AND UNAVAILABILITY ROUTE TO `AssemblyStop`, NO TRIGGER.**
+  The agent's finding stood on both legs: the printed T-01..T-27 table has no
+  shape-change trigger and DET-12 halts the pipeline on any runtime table
+  differing from the printed one, so inventing one is not an implementer's to
+  make; and discovery runs in `assemble()` **before** `run_harness`, so DET-85
+  can never see the exception. A `ValidationError`, an empty in-scope class and
+  a transport failure therefore all raise `AssemblyStop` — the existing
+  pre-harness class — halting the token before analysis, which is memo
+  §8.1.1's Level 3 shape. **No trigger ID; the docstring says none exists.**
+  This supersedes P-3.43 ruling 2's DET-85 / T-25 route — see **P-3.43-A1**.
+
+  **R2 — "NEW" MEANS `added_since_freeze`, NOTHING WIDER — with the detector
+  list and (d)-i's test scoped separately (review refinement, folded in before
+  append).** A row enters the detector list `new_pool_above_floor` iff it is
+  above floor, not in F, and its freeze-time classification is **absent** or
+  was **`below_dust_floor`** (known, excluded only for size, and since grown).
+  A pool the freeze already knew and listed must not re-flag every run.
+
+  **But (d)-i's ≥ 10% TEST is deliberately WIDER than that list.** Memo
+  §5.6(i) reads *"a new pool above the dust floor **not in the frozen set**"*,
+  and **`tail_beyond_freeze_coverage` is a SIZE cut — the coverage rule's own —
+  not a structural exclusion.** As first written, a pool the freeze excluded
+  only by the coverage cut could grow to ≥ 10% of coverage and never reach the
+  test at all. So (d)-i runs over **every above-floor non-F row whose
+  freeze-time reason is size-based** — `added_since_freeze` (which absorbs the
+  old `below_dust_floor` rows) or `tail_beyond_freeze_coverage` — **or
+  absent**. Constant `DET10_SIZE_BASED_REASONS`, named in code.
+
+  **Structural reasons stay outside both** — `self_referential_wrapper`,
+  `volatile_collateral_circular`, and any no-par-eligible-side case: those are
+  §5.4 judgments about what a pool IS, and no amount of growth makes such a
+  pool exit liquidity. `0x516c3ecf…` is carried on its `pools[]` row with its
+  freeze-time reason and is neither detected nor tested.
+
+  **R3 — DET-10(c) IS STRUCTURAL; NO LEVEL IS INVENTED.** The rubric's
+  consequence line reads "(a) Level 3; (b)(d)(e) Level 2; (f) Level 1" —
+  **(c) is absent from it.** The three detector fields are required on
+  `PoolDetectors`, which is required on `Bundle`, so a bundle without them
+  cannot be constructed: Pydantic raises before any gate runs and there is no
+  runtime failure path to attach a level to. The missing consequence goes to
+  the rubric-amendment queue. **P-3.45's withdrawn `det_63` raise is the
+  standing example of what this declines to repeat.**
+
+  **R4 — (f) IS A PURE FUNCTION OF THE BUNDLE.** There is no `header.run_date`
+  FIELD; a `run_date` **property** derives from `block_timestamp`, which is the
+  pinned block's own timestamp and already in the hash preimage, so adding it
+  changes no emitted byte. A stored bundle re-run through the harness later
+  gives the same answer, which was the requirement.
+
+  **R5 — (b) AND (d)-ii DO NOT FIGHT.** A frozen pool that fails the
+  disappearance test **keeps its `pools[]` row** (`in_frozen_set = True`, its
+  reads, and an annotation naming the disappearance), so (b)'s exact-equality
+  membership still holds and (d)-ii evaluates **from the row** rather than from
+  its absence.
+
+  **WHAT WAS BUILT.**
+
+  **`src/factory/eventlog.py` (new).** Append-only JSONL at
+  **`out/logs/events_crvusd.jsonl`**, **committed, not gitignored — it is the
+  chain.** Four closed entry types, discriminated on `type`, `extra="forbid"`:
+  `freeze {type, date, token, freeze_block, set_file_hash, set_file_path,
+  source}`; `intake_trigger {type, date, token, sheet_hash, set_file_hash,
+  source}`; `published {type, date, token, bundle_hash}` (reserved, first
+  written at Step 7); `quarantine` = DET-60's closed schema exactly plus
+  `type`. **DET-60's additional-field prohibition scopes to `quarantine`
+  alone**; the other three are the P-3.43 interpretive extension, named in code
+  and queued for the rubric revision. API: `append`, `read`,
+  `last_event(entries, types, token)` and `append_intake_trigger`.
+
+  **`last_event` resolves by FILE ORDER, not `date` order** — a named default:
+  the log is append-only, so file order is the order events were recorded, and
+  the two 2026-09-04 events must not resolve by a tie-break that has no
+  meaning.
+
+  **THE THREE BACKFILLED ENTRIES, VERBATIM AS WRITTEN** (511 B, `e1cde6a1`):
+
+      {"date":"2026-09-04","set_file_hash":null,"sheet_hash":"43a5d27b","source":"backfilled 2026-09-07 from P-3.12","token":"crvUSD","type":"intake_trigger"}
+      {"date":"2026-09-04","freeze_block":25905210,"set_file_hash":"80d87407","set_file_path":"config/frozen_set_crvusd.json","source":"backfilled 2026-09-07 from P-3.28","token":"crvUSD","type":"freeze"}
+      {"date":"2026-09-05","set_file_hash":"80d87407","sheet_hash":"a6d8f12a","source":"backfilled 2026-09-07 from P-3.38","token":"crvUSD","type":"intake_trigger"}
+
+  Each is a recorded fact re-expressed in machine form, marked with where it
+  came from. The `token` on a sheet-level event is **`"crvUSD"`, not a
+  sentinel** — a named default: the sheet is per-token and `last_event` filters
+  by token, so a null or `"all"` token would make that filter a special case at
+  every call site.
+
+  **`src/factory/discovery.py` (new) — the committed producer the signed set
+  file never had.** Route A as ruled: the Curve catalog is the POINTER, the
+  chain is the VERDICT. `PoolsResponse`/`PoolData`/`PoolEntry`/`CoinEntry` with
+  `extra="ignore"` — a named default with its reason: the API adds fields
+  routinely and the freeze already tolerated that, so **a shape change is a
+  field the model REQUIRES going missing or changing type, not a field being
+  added.** `value_candidates` reads `balances(i)` per coin and calls
+  `freeze.par_value` under the same par-eligibility gate; no external price
+  enters, R-16 preserved rather than patched.
+
+  **THE SCOPE FINDING — load-bearing, and self-applied because it changed
+  nothing ruled.** The proposal said "the six signed pool-factory registry
+  classes". Probing the API showed those six hold **183** crvUSD pools
+  (26+7+42+31+66+11), while the set file's own `scope.classes` names **three**
+  — `factory-crvusd`, `factory-stable-ng`, `factory` — totalling
+  **26+66+11 = 103**, exactly P-3.28's "103 crvUSD stableswap-class pools".
+  Reading the wider universe per run would have made **80 pools look
+  `added_since_freeze` every run, forever.** `fetch_candidates` therefore takes
+  `fs["scope"]["classes"]`: **the per-run pass inherits the freeze's declared
+  scope, so DET-34's universe per run is the three declared classes, exactly as
+  at the freeze.** This is the `ScopeDeclaration` doing precisely the job
+  P-3.27 recorded it for — "a statement about a NAMED universe".
+  **It also dissolved a gap:** the empty-class check needs only "a class in the
+  declared scope returned nothing", so no `registry_slug` config field and no
+  new signature were needed. (The six slugs did return exactly the counts in
+  each root's `closure_evidence` — 29/401/403/125/1057/381 — which is the
+  closure the config already records.)
+
+  **THE DISAPPEARANCE LIMB, END TO END — the confirmed design failed on real
+  data.** The proposal chose `pool.factory()` per frozen pool, and the design
+  layer accepted it at R3 as "the freeze's own closure evidence re-run".
+  Probed at block **25927789**:
+
+  | frozen pool | `factory()` | result |
+  |---|---|---|
+  | `0x390f3595…` USDT | ok | `0x4f8846ae…` = `pool_factory_crvusd` |
+  | `0x4dece678…` USDC | ok | `0x4f8846ae…` = `pool_factory_crvusd` |
+  | `0x13e12bb0…` frxUSD | **REVERTS** | — |
+  | `0x625e9262…` PYUSD | **REVERTS** | — |
+  | `0x635ef005…` GHO | **REVERTS** | — |
+
+  **What it would have cost:** treating a revert as disappearance marks 3 of 5
+  frozen pools gone on the FIRST run and fires DET-10(d)-ii **T-10 Level 2** on
+  frxUSD alone — $15,125,583 / $86,180,625 = **17.5%**, well over the 10%
+  threshold. **The demonstration run would have quarantined the report on a
+  false positive.**
+
+  **TWO CORRECTIONS, AS-COUNTED.** The **agent** generalised `pool.factory()`
+  — signed as `derivation_route` for four of the six roots — to all six, though
+  `pool_factory_stable_ng` and `pool_factory_old` carry
+  `derivation_route = "candidate -> closure"` in the config the agent had
+  read. The **design layer** accepted it at R3 without reading the signed
+  routes. **The probe caught what neither review did.** Recorded in those terms
+  because the signed config already contained the answer, and two passes over
+  the proposal missed it.
+
+  **RULED: FACTORY-SIDE INDEX PIN, UNIFORM ON ALL FIVE.**
+  `factory_root.pool_list(index)` at `run_block` must equal the frozen pool;
+  anything else — a different address, a revert, or `pool_count() <= index` —
+  is the disappearance event. This is **the rubric's letter, "absent from
+  on-chain factory enumeration"**: the factory is asked what it lists rather
+  than the pool being asked to vouch for itself. **One code path for all five,
+  including the two that do answer `factory()`.** `pool.factory()` is removed
+  entirely; the tri-state `None` branch is **retired** — with a row for every
+  frozen pool it is unreachable, and unreachable code is not kept. A frozen
+  pool with **no** `[[frozen_pool_index]]` row raises `AssemblyStop` naming the
+  pool, before any read: **present config or no run.**
+
+  **APPEND-ONLY VERIFIED FROM VERIFIED SOURCE, NOT RECALL** — all three
+  declared-scope factories, fetched via Etherscan v2 `getsourcecode`:
+
+  | factory | `pool_list` writes | `pool_count` writes | deletion / reorder |
+  |---|---|---|---|
+  | `pool_factory_crvusd` (Vyper_contract) | l.581, 663, 932 | l.582, 664 (`length + 1`); l.975 (`= length`) | **0 matches** |
+  | `pool_factory_stable_ng` (CurveStableswapFactoryNG) | l.542, 661 | l.543, 662 (`length + 1`) | **0 matches** |
+  | `pool_factory_old` (Vyper_contract) | l.573, 655, 911 | l.574, 656 (`length + 1`); l.954 (`= length`) | **0 matches** |
+
+  Every write is `self.pool_list[length] = pool` with `length =
+  self.pool_count`. **The `= length` sites were read rather than assumed:**
+  they are the `add_existing_metapools` batch path, which loops appending at
+  `pool_list[length]` with `length += 1` per pool and then sets the count —
+  **still strictly append-only, only indices >= the old count are written.**
+  Zero matches in any of the three for a deletion, a reorder, a `pool_count`
+  decrement, or a `pool_list[i] = empty`. **No function exists that removes or
+  reorders, so an index is stable for the life of the factory.**
+
+  **THE SCAN — one-time, outside the run path.** `pool_list` walked over the
+  three declared classes at block **25927843**: **1,470 reads**
+  (29 + 1,057 + 381, plus 3 counts). All five located. **Index 510 reproduces
+  `pool_factory_stable_ng`'s signed `closure_evidence`, "pointer at index
+  510"** — the scan agrees with the freeze's own record, which is the
+  cross-check that the pin is measuring the same thing the freeze did.
+
+  **THE FIVE SIGNED ROWS** in `config/discovery_roots.toml`, each with
+  `found_at_block = 25927843`, `date = 2026-09-07`,
+  `method = "pool_list walk at review time"`:
+
+  | pool | `factory_root` | index |
+  |---|---|---|
+  | `0x4dece678ceceb27446b35c672dc7d61f30bad69e` USDC | `pool_factory_crvusd` | 0 |
+  | `0x390f3595bca2df7d23783dfd126427cceb997bf4` USDT | `pool_factory_crvusd` | 1 |
+  | `0x625e92624bc2d88619accc1788365a69767f6200` PYUSD | `pool_factory_stable_ng` | 42 |
+  | `0x635ef0056a597d13863b73825cca297236578595` GHO | `pool_factory_stable_ng` | 117 |
+  | `0x13e12bb0e6a2f1a3d6901a59a9d585e89a6243e1` frxUSD | `pool_factory_stable_ng` | 510 |
+
+  **LIVE CHECK at block 25927850: all five `pool_list(index)` return their
+  pool; `still_enumerated` is True on every one.** The (d)-ii test was
+  **adjusted in place**, not added beside — it now exercises
+  `still_enumerated` against a stubbed `pool_list(index)` returning a different
+  address (disappearance) and against one returning the pool (not), then drives
+  the trigger from the annotated row. The suite lands at 95, not 96.
+
+  **`pools[]` AND THE DETECTORS.** `PoolRow` — `address`, `in_frozen_set`,
+  `paired_assets`, `freeze_tvl | None`, `tvl_at_par`,
+  `ratio_to_frozen_coverage`, `is_stabilizer_pool`, `exclusion_reason | None`,
+  `annotations`, `zeroed_sides`, `reads` — address-sorted, in the hash preimage
+  via the existing `finalise` path (O-2; `Decimal` routes through `_default`
+  as a string, never a float). Row set: every frozen pool; every above-floor
+  non-F pool with exactly one `exclusion_reason`; **below-floor non-F counted,
+  not listed**, in `Counts.below_floor_pool_count`. `PoolDetectors` carries the
+  three address lists plus `baseline_source` and `baseline_note`.
+
+  **NAMED IMPLEMENTER DEFAULTS, each in code citing P-3.43.** (i) The 10%
+  denominator is the set file's `freeze_discovery_total`, held fixed between
+  refreshes so the threshold does not move as pool TVLs do. (ii) (d)-ii's
+  last-run share is the prior bundle's `pools[]`, falling back to the set
+  file's `freeze_tvl` ratios when the prior carries none — **true exactly once**
+  and disclosed via `baseline_source`, never silent; the next run flips to
+  `prior_bundle` unprompted, with no retirement step and no dead code.
+  (iii) The TVL-change baseline is the prior run's per-pool `tvl_at_par`, same
+  fallback, same disclosure. (iv) The below-floor detector reports a frozen
+  pool under the floor **even when that pool is floor-EXEMPT at selection**
+  (memo 5.5 / P-4): the exemption is a SELECTION rule, the detector is a
+  disclosure, and (e) gives below-floor detections no consequence beyond
+  disclosure — stated rather than assumed because **all five of crvUSD's frozen
+  pools are keeper pools** (P-3.28).
+
+  **`det_10`, CLAUSE BY CLAUSE, AT THE RUBRIC'S LEVELS AND NO OTHERS.**
+  (a) **Level 3** — header stamps present, a logged `freeze`/`intake_trigger`
+  exists, its `set_file_hash` is **not null**, and it equals
+  `header.frozen_set_hash`; three distinct messages so the record
+  distinguishes the fail modes. **A null `set_file_hash` FAILS CLOSED** —
+  backfilled entry 1's shape, a sheet edit logged before any freeze existed:
+  *no chain is not a passing chain.* (b) **Level 2** — exact-equality
+  membership of the modeled rows against the signed set file, with R5's kept
+  row. (c) structural, per R3. (d) **Level 2 via `("T-10", 2)`** — the two
+  ruled events only, with (d)-i scoped per R2's refinement. (e) **Level 2** —
+  every detector address carries a matching annotation on its row; an
+  undisclosed detection fails. (f) **Level 1 via `("T-17", 1)`** —
+  `header.run_date − freeze_date > 100 d` (R-a2). Registered
+  `Check("DET-10", "S1", 3, det_10)`, seated between DET-08 and DET-82:
+  **CHECKS 21 → 22.**
+
+  **DET-77's SECOND LIMB.** Alongside the mirror equality it already
+  performed, DET-77 now asserts `header.sheet_hash` equals the last logged
+  `intake_trigger`'s `sheet_hash`. **This is why the log exists:** the mirror
+  check compares the bundle to a file this run loaded, which cannot detect that
+  file being edited. Consequence, stated because it changes the (d)-machinery:
+  **a sheet edit without a logged `intake_trigger` fails here at Level 3.**
+  That is the intended gate, and the (d)-machinery gains one final step —
+  append the `intake_trigger` event with the new stamps.
+
+  **THE `run.py` SELF-COMPARISON IS REPLACED, NOT KEPT ALONGSIDE.** The set
+  file is still read and its hash still stamped (that is (a) limb 1), but the
+  bundle no longer compares the hash of the file it just read against itself —
+  both sides of that comparison came from one read, so it could never detect an
+  edit. The chain is now: file bytes → header → gate → event log.
+
+  **THE FIXTURE WIRING — the same class as DET-66's, and worth recording
+  twice.** `a_bundle()` carried no `pools[]`, no `pool_detectors` and no
+  `frozen_set_hash`/`freeze_date`, so nine existing tests failed the moment
+  DET-10 entered CHECKS. The fixture now carries all four. As at P-3.44: **an
+  unimplemented entry lets the shared fixture drift into asserting a bundle
+  that no gate would accept.**
+
+  **THE `run.py` ACCOUNTING, owed against the proposal's "~35 lines".** The
+  file went 27,386 → 37,298 B. The growth is not wiring: `discovery.py` owns
+  the pointer fetch, the par valuation and the membership test, while the
+  **assembly** of `PoolRow`s stayed in `assemble()` —
+
+  | block | lines |
+  |---|---:|
+  | per-run pool discovery section in `assemble()` | 87 |
+  | `_detectors` helper | 55 |
+  | `_fs_members` + `_last_run_ratios` | 22 |
+  | **total** | **164** |
+
+  **RULED: IT STAYS**, for the reason given — every other bundle table
+  (`markets`, `nodes`, `oracle_rows`, `lend_markets`) is assembled in
+  `assemble()`, and splitting one table across two modules would make it the
+  exception. **The cost is recorded rather than waved away:** business logic
+  (`_detectors`) sits in the orchestrator, and `assemble()`'s pool section is
+  ~87 lines, longer than any other section in it. Roughly 110 of the 164 lines
+  would move cleanly to `discovery.py`. **Not moved now because the move
+  changes no output; revisited at Step 4**, where P-3.04 has shared
+  abstractions extracted from two real implementations rather than one. The
+  "~35 lines" estimate is recorded as **an estimating error, not a scope
+  change.**
+
+  **READ-COUNT DELTA.** ~259 valuation reads + 10 pin reads = **~+270 pinned
+  reads per run**, against a ~2,150 baseline — ~+12.5%, roughly 2 extra
+  `aggregate3` batches at `MAX_BATCH = 150`; **~2,420 total.** Three off-chain
+  pointer fetches, one per declared class. *Note, not a change:* calling
+  `pool_count()` once per FACTORY rather than once per pool would make the pin
+  7 reads instead of 10 — not worth a diff. The 1,470-read index scan was
+  **one-time and outside the run path**.
+
+  **VERIFICATION.** `uv run python -m pytest` → **95 passed** (86 + 8 new + 1
+  fixture-dependent). `ruff check src tests` → **All checks passed**, no
+  exclusions, no `noqa`. **No demonstration run** — Block 4 follows this
+  entry's commit, so the run executes against committed code.
+
+  | file | bytes | sha256[:8] |
+  |---|---:|---|
+  | `config/discovery_roots.toml` | 12,338 | `4484746d` |
+  | `src/factory/config.py` | 7,578 | `0128d62a` |
+  | `src/factory/schema.py` | 17,194 | `18b2df2b` |
+  | `src/factory/eventlog.py` **new** | 5,220 | `a74d6b1f` |
+  | `src/factory/discovery.py` **new** | 8,657 | `d96b0ea7` |
+  | `src/factory/run.py` | 37,298 | `b233657e` |
+  | `src/factory/validate/harness.py` | 32,958 | `d39b2fc4` |
+  | `out/logs/events_crvusd.jsonl` **new** | 511 | `e1cde6a1` |
+  | `tests/test_schema.py` | 11,484 | `e2f57d70` |
+  | `tests/test_harness.py` | 19,385 | `78b6a438` |
+  | `tests/test_discovery.py` | 12,619 | `333be408` |
+
+  **THE DEMONSTRATION RUN'S EXPECTED CHANGES, FINAL.**
+  - `pools[]` present: **5 frozen rows**, plus above-floor non-F rows carrying
+    their **freeze-time** reasons (`self_referential_wrapper`,
+    `volatile_collateral_circular`, `tail_beyond_freeze_coverage`), plus
+    `Counts.below_floor_pool_count`.
+  - `pool_detectors` present, **`baseline_source = "freeze_set_file"`** with
+    its note — the one-time fallback, visible.
+  - **`new_pool_above_floor` expected EMPTY** unless a pool above $500k was
+    created after 2026-09-04, **or a pool the freeze knew as
+    `below_dust_floor` has since grown above the floor**. Present-and-empty is
+    the normal case. **(d)-i's test additionally sweeps any
+    `tail_beyond_freeze_coverage` row** per R2's refinement, so a grown tail
+    pool at ≥ 10% would fire T-10 without appearing in that list.
+  - **DET-10 evaluating and PASSING; gate count 21 → 22.**
+  - **(f) not fired** — freeze_date 2026-09-04 against run date 2026-09-07,
+    3 days on the 100-day clock (R-a2).
+  - **DET-77 chaining to backfilled entry 3** (`sheet_hash a6d8f12a`) as well
+    as the mirror.
+  - Event log present at **3 lines**, committed.
+  - `lend_market_count = 52` with its one-time note; `lend_markets[]` at
+    **52 rows** (P-3.45).
+  - Config hash **`4484746d`**.
+  - **`bundle_hash` changes** — new fields enter the preimage;
+    **`raw_positions_hash` must NOT**, since positions are untouched.
+  - **~2,420 pinned reads.**
+- **Artifacts:** `config/discovery_roots.toml` (12,338 B, `4484746d`);
+  `src/factory/config.py` (7,578 B); `src/factory/schema.py` (17,194 B);
+  `src/factory/eventlog.py` (5,220 B, new); `src/factory/discovery.py`
+  (8,657 B, new); `src/factory/run.py` (37,298 B);
+  `src/factory/validate/harness.py` (32,958 B);
+  `out/logs/events_crvusd.jsonl` (511 B, new, committed);
+  `tests/test_schema.py` (11,484 B); `tests/test_harness.py` (19,385 B);
+  `tests/test_discovery.py` (12,619 B). No `docs/context/` change. One commit
+  for this entry, by explicit paths.
+- **Follow-ups spawned:**
+  1. **Rubric amendment queue — DET-10(c)'s consequence.** The clause has no
+     level in the rubric's consequence line. State it as structural, or assign
+     one; nothing invented here.
+  2. **Rubric amendment queue — the shape-change gate's missing trigger and
+     owner.** The brief's schema/shape-change gate (brief lines 43 and 80) has
+     no trigger in the printed T-table and no DET entry owning it.
+     **Load-bearing at step 10 (USDe)**, where scraping is the whole adapter.
+  3. **Rubric amendment queue — the event log's entry types and DET-60's
+     scope**, already queued at P-3.43; this entry is its implementation.
+  4. **R-a1 refresh:** the regenerated set file should carry each frozen
+     pool's `pool_list` index itself, at which point the
+     `[[frozen_pool_index]]` config table is redundant and **retires**. The
+     refresh's job; built nowhere here.
+  5. **Step 4:** revisit the `run.py` placement of the 164 lines of pool
+     assembly and detector computation, per P-3.04's extract-from-two-
+     implementations rule.
+  6. **Available, not scoped:** DET-34 per-run gating, now that `pools[]`
+     exists — the ~10 lines P-3.43 noted.

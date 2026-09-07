@@ -54,6 +54,19 @@ class Header(BaseModel):
     def det83_delta_s(self) -> int:
         return self.run_start_time - self.block_timestamp
 
+    @property
+    def run_date(self) -> _dt.date:
+        """The run's date as a PURE FUNCTION OF THE BUNDLE (P-3.46 R4).
+
+        DET-10(f) must give the same answer when a stored bundle is re-run
+        through the harness later, so it cannot read a wall clock. There is no
+        `run_date` FIELD - this derives from `block_timestamp`, which is the
+        pinned block's own timestamp and is already in the hash preimage, so
+        adding a property changes no emitted byte.
+        """
+        return _dt.datetime.fromtimestamp(self.block_timestamp,
+                                          _dt.UTC).date()
+
 
 # --------------------------------------------------------------- markets ----
 
@@ -277,6 +290,61 @@ class StaticMetadata(BaseModel):
     counterparties: str                                      # ruled literal
 
 
+# ---------------------------------------------------------------- pools -----
+
+
+class ZeroedSideRow(BaseModel):
+    """A pool side that contributed nothing to par value, disclosed rather than
+    silently dropped (P-3.26). Mirrors `freeze.ZeroedSide` in the bundle."""
+
+    address: Address
+    units: int
+    par_eligibility: str = "none"
+
+
+class PoolRow(BaseModel):
+    """One pool as seen at `run_block` (DET-10(c)(e); memo 5.6's per-run pass).
+
+    `ratio_to_frozen_coverage` is `tvl_at_par / freeze_discovery_total` - a
+    RATIO to the freeze-time denominator, not a share of a partition. It may
+    exceed 1.0 for a pool that did not exist at the freeze. The denominator is
+    held fixed between refreshes on purpose (P-3.43): a moving denominator
+    would move DET-10(d)'s 10% threshold every week.
+    """
+
+    address: Address
+    in_frozen_set: bool
+    paired_assets: list[Address] = []
+    freeze_tvl: int | None = None                # None for a non-F pool
+    tvl_at_par: int
+    ratio_to_frozen_coverage: Decimal
+    is_stabilizer_pool: bool = False
+    exclusion_reason: str | None = None          # non-F only; exactly one
+    annotations: list[str] = []                  # DET-10(e)'s disclosure surface
+    zeroed_sides: list[ZeroedSideRow] = []
+    reads: dict[str, Provenance] = {}
+
+
+class PoolDetectors(BaseModel):
+    """DET-10(c). Three address lists, each sorted ascending.
+
+    The lists carry NO figures of their own - every number lives on the
+    `pools[]` row the address names, so no quantity has two owners. Presence is
+    STRUCTURAL: these fields are required, so a bundle without them cannot be
+    constructed. That is where clause (c) is enforced; the rubric assigns (c)
+    no consequence level and none is invented here (P-3.46 R3).
+    """
+
+    new_pool_above_floor: list[Address] = []
+    frozen_pool_below_floor: list[Address] = []
+    frozen_pool_tvl_change_gt_50pct: list[Address] = []
+    # Named implementer default (P-3.43): which comparand the last-run figures
+    # came from. `freeze_set_file` is true exactly once - at the first run whose
+    # prior bundle predates `pools[]` - and is DISCLOSED, never silent.
+    baseline_source: Literal["prior_bundle", "freeze_set_file"]
+    baseline_note: str | None = None
+
+
 class LendMarket(BaseModel):
     """One lend market, enumerated ONLY to exclude (DET-07, FR-10/FR-11).
 
@@ -297,6 +365,8 @@ class Counts(BaseModel):
     # P-3.14-class disclosure (3.1b): set when the prior run carried the
     # three-state STRING rather than an integer, so no delta is computable.
     lend_market_count_note: str | None = None
+    # DET-10(e): below-floor non-F pools are COUNTED, not listed (P-3.43).
+    below_floor_pool_count: int = 0
     gsm_count: int = 0                                       # explicit for crvUSD
     facilitator_count: int | str = "n/a"
 
@@ -337,6 +407,8 @@ class Bundle(BaseModel):
     redemption_paths: list[RedemptionPath]
     admin_surface: list[AdminRow]
     lend_markets: list[LendMarket] = []
+    pools: list[PoolRow] = []
+    pool_detectors: PoolDetectors
     static_metadata: StaticMetadata
     counts: Counts
     attribution_method: Literal["per_position", "protocol_level_fallback", "direct"]

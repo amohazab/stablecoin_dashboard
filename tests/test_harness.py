@@ -14,9 +14,18 @@ from decimal import Decimal
 import pytest
 
 from factory.config import Root
+from factory.discovery import still_enumerated
+from factory.eventlog import FreezeEvent, IntakeTriggerEvent, last_event
 from factory.logbook import Logbook, is_first_run
 from factory.provenance import AbsenceRead
-from factory.schema import Counts, LogEntry, RedemptionPath, finalise
+from factory.schema import (
+    Counts,
+    LogEntry,
+    PoolDetectors,
+    PoolRow,
+    RedemptionPath,
+    finalise,
+)
 from factory.spotcheck import generate as spot_generate
 from factory.validate.harness import (
     TRIGGER_TABLE,
@@ -25,7 +34,8 @@ from factory.validate.harness import (
     det_66,
     run_harness,
 )
-from tests.test_schema import CF, CTRL, RB, a_bundle
+from tests.test_discovery import FakeRpc
+from tests.test_schema import CF, CTRL, FROZEN_POOL, RB, a_bundle
 
 CRVUSD = "0xf939e0a03fb07f59a73314e73794be0e57ac1b4e"
 
@@ -38,6 +48,20 @@ def a_ctx(**kw):
         roots={"controller_factory": Root("controller_factory", CF, "r", "s",
                                           dt.date(2026, 9, 1))},
         today=dt.date(2026, 9, 4), is_first_run=True, prior_bundle=None,
+        # DET-10 / DET-77 chain to the event log; both comparands come from
+        # OUTSIDE the bundle, never from the bundle itself.
+        event_log=[
+            IntakeTriggerEvent(date="2026-09-04", token="crvUSD",
+                               sheet_hash="43a5d27b", set_file_hash=None,
+                               source="test"),
+            FreezeEvent(date="2026-09-04", token="crvUSD",
+                        freeze_block=25905210, set_file_hash="80d87407",
+                        set_file_path="config/frozen_set_crvusd.json",
+                        source="test"),
+        ],
+        last_event=last_event,
+        frozen_set_members={FROZEN_POOL},
+        last_run_ratio={FROZEN_POOL: Decimal("0.5605")},
     )
     base.update(kw)
     return base
@@ -159,6 +183,105 @@ def test_det66_gho_token_raises_not_yet_implemented():
     gho = a_bundle(header=a_bundle().header.model_copy(update={"token": "GHO"}))
     with pytest.raises(NotYetImplemented, match="GHO"):
         det_66(gho, a_ctx())
+
+
+
+# --- DET-10, one synthetic fail path per clause (the live state passes) -------
+
+
+def test_det10a_hash_mismatch_and_null_chain_both_fail_closed():
+    """(a) Level 3, its two ruled fail modes. A null `set_file_hash` on the last
+    event is backfilled entry 1's shape: no chain is not a passing chain."""
+    bad = a_bundle().model_copy(update={"header": a_bundle().header.model_copy(
+        update={"frozen_set_hash": "deadbeef"})})
+    with pytest.raises(Level3, match="DET-10"):
+        run_harness(bad, a_ctx())
+    only_null = [IntakeTriggerEvent(date="2026-09-04", token="crvUSD",
+                                    sheet_hash="43a5d27b", set_file_hash=None,
+                                    source="test")]
+    with pytest.raises(Level3, match="null set_file_hash"):
+        run_harness(a_bundle(), a_ctx(event_log=only_null))
+
+
+def test_det10b_modeled_pool_outside_the_frozen_set_fails():
+    """(b) Level 2: membership is exact equality against the SIGNED set file."""
+    with pytest.raises(Level3, match="DET-10.b."):
+        run_harness(a_bundle(), a_ctx(frozen_set_members={CTRL}))
+
+
+def test_det10d_new_pool_above_ten_percent_fires_t10():
+    """(d)-i Level 2 via T-10: a new above-floor pool at >= 10% of coverage."""
+    b = a_bundle()
+    rows = list(b.pools) + [PoolRow(
+        address=CTRL, in_frozen_set=False, tvl_at_par=20_000_000,
+        ratio_to_frozen_coverage=Decimal("0.12"),
+        exclusion_reason="added_since_freeze",
+        annotations=["detector: new pool above the dust floor"])]
+    b = b.model_copy(update={
+        "pools": rows,
+        "pool_detectors": PoolDetectors(new_pool_above_floor=[CTRL],
+                                        baseline_source="freeze_set_file")})
+    with pytest.raises(Level3, match="Level 2 trigger"):
+        run_harness(b, a_ctx())
+
+
+def test_det10d_disappeared_frozen_pool_above_ten_percent_fires_t10():
+    """(d)-ii Level 2 via T-10, on the FACTORY-SIDE pin (ruled 2026-09-07).
+
+    `still_enumerated` is exercised against a stubbed `pool_list(index)` that
+    returns a different address - the disappearance condition - and the row it
+    annotates then drives the trigger. The row is KEPT (P-3.46 R5) so (b)'s
+    exact-equality membership still holds and the event evaluates FROM the row
+    rather than from its absence.
+    """
+    other = "0x" + "ab" * 20
+    table = {(CF, "pool_count()", ()): (600,),
+             (CF, "pool_list(uint256)", ("117",)): (other,)}
+    assert still_enumerated(FakeRpc(table), FROZEN_POOL, CF, 117) is False
+    # and the same pool still listed at its index is NOT a disappearance
+    ok = {(CF, "pool_count()", ()): (600,),
+          (CF, "pool_list(uint256)", ("117",)): (FROZEN_POOL,)}
+    assert still_enumerated(FakeRpc(ok), FROZEN_POOL, CF, 117) is True
+
+    b = a_bundle()
+    row = b.pools[0].model_copy(update={
+        "annotations": ["disappeared: pool_factory_crvusd.pool_list(1) "
+                        "no longer holds it"]})
+    b = b.model_copy(update={"pools": [row]})
+    with pytest.raises(Level3, match="Level 2 trigger"):
+        run_harness(b, a_ctx())
+
+
+def test_det10e_undisclosed_detection_fails():
+    """(e) Level 2: a detection with no matching pool-row annotation."""
+    b = a_bundle()
+    b = b.model_copy(update={"pool_detectors": PoolDetectors(
+        frozen_pool_below_floor=[FROZEN_POOL], baseline_source="freeze_set_file")})
+    with pytest.raises(Level3, match="undisclosed detection"):
+        run_harness(b, a_ctx())
+
+
+def test_det10f_freeze_overdue_fires_t17_level_1_and_publishes():
+    """(f) Level 1 via T-17, evaluated against the bundle's own pinned date -
+    never a wall clock - so a stored bundle re-run gives the same answer."""
+    b = a_bundle().model_copy(update={"header": a_bundle().header.model_copy(
+        update={"freeze_date": "2026-05-01"})})
+    out = run_harness(b, a_ctx())
+    assert ("T-17", 1) in out.triggers and out.worst_level == 1
+
+
+def test_det77_second_limb_chains_to_the_logged_intake_trigger():
+    """The sheet edit that never logged its event fails HERE at Level 3 - the
+    gate that makes the (d)-machinery's new last step load-bearing."""
+    stale = [FreezeEvent(date="2026-09-04", token="crvUSD", freeze_block=25905210,
+                         set_file_hash="80d87407",
+                         set_file_path="config/frozen_set_crvusd.json",
+                         source="test"),
+             IntakeTriggerEvent(date="2026-09-05", token="crvUSD",
+                                sheet_hash="ffffffff", set_file_hash="80d87407",
+                                source="test")]
+    with pytest.raises(Level3, match="DET-77"):
+        run_harness(a_bundle(), a_ctx(event_log=stale))
 
 
 def test_det04_stale_analyst_root_fires_t16():

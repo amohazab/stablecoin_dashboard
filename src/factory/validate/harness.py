@@ -92,12 +92,33 @@ def det_12(b: Bundle, ctx) -> None:
 
 
 def det_77(b: Bundle, ctx) -> None:
-    """Sheet fields present, typed, dated; sheet version stamped (R-47)."""
+    """Sheet fields present, typed, dated; sheet version stamped (R-47).
+
+    Two limbs. The mirror equality was always here. The SECOND limb — the
+    entry's letter, "sheet version at the last logged `intake_trigger`" — is
+    new (P-3.43 ruling 1) and is why the event log exists: the mirror check
+    compares the bundle to a file this run loaded, which cannot detect that
+    file being edited. The log is the chain that can.
+
+    Consequence, stated because it changes the (d)-machinery: a sheet edit
+    without a logged `intake_trigger` fails HERE at Level 3. That is the
+    intended gate; the fix is to append the event dated when the edit happened
+    (`eventlog.append_intake_trigger`), which is now the last step of the
+    (d)-machinery.
+    """
     if b.header.sheet_hash != ctx["sheet"]["sheet_hash"]:
         raise Level3("DET-77: bundle sheet_hash != mirrored sheet version")
     for field in ("near_bound_threshold", "counterparties", "attribution_method"):
         if field not in ctx["sheet"]:
             raise Level3(f"DET-77: sheet field absent: {field}")
+
+    ev = ctx["last_event"](ctx["event_log"], ("intake_trigger",), b.header.token)
+    if ev is None:
+        raise Level3("DET-77: no logged intake_trigger for this token - the "
+                     "sheet version is unchained")
+    if ev.sheet_hash != b.header.sheet_hash:
+        raise Level3(f"DET-77: bundle sheet_hash {b.header.sheet_hash} != last "
+                     f"logged intake_trigger {ev.sheet_hash} ({ev.date})")
 
 
 # --------------------------------------------------------------- S1 --------
@@ -525,6 +546,119 @@ def det_66(b: Bundle, ctx) -> None:
             raise Level3(f"{at}: R10 provenance of unknown shape: {type(prov)}")
 
 
+# --- DET-10 named implementer defaults (all P-3.43 unless stated) ------------
+# The 10% denominator is the SET FILE's `freeze_discovery_total`, held fixed
+# between refreshes so the threshold does not move as pool TVLs do. It is
+# already baked into every row's `ratio_to_frozen_coverage`, so this constant is
+# the threshold only.
+DET10_SHARE_THRESHOLD = Decimal("0.10")
+DET10_FREEZE_MAX_AGE_DAYS = 100          # R-a2; (f) via T-17
+# (d)-i's scope: freeze-time reasons that are SIZE cuts, so a pool excluded
+# only for being small can re-enter the test by growing. Structural reasons
+# are excluded - see `det_10`.
+DET10_SIZE_BASED_REASONS = frozenset({"added_since_freeze",
+                                      "tail_beyond_freeze_coverage"})
+
+
+def det_10(b: Bundle, ctx) -> tuple[str, int] | None:
+    """Frozen set integrity (rubric line 81; S1).
+
+    Clause consequences EXACTLY as the rubric assigns them - (a) Level 3;
+    (b)(d)(e) Level 2; (f) Level 1 via T-17 - and **no consequence for (c),
+    because the rubric assigns none**. (c) is satisfied STRUCTURALLY: the three
+    detector fields are required on `PoolDetectors`, which is required on
+    `Bundle`, so a bundle without them cannot be constructed - Pydantic raises
+    before any gate runs, and there is no runtime failure path here to attach a
+    level to. Inventing one is what P-3.45's withdrawn `det_63` raise did; the
+    missing level is on the rubric-amendment queue instead.
+    """
+    h = b.header
+
+    # -- (a) Level 3: header stamps, and the chain to the event log ----------
+    if not h.freeze_date or not h.frozen_set_hash:
+        raise Level3("DET-10(a): header missing freeze_date / frozen_set_hash")
+    ev = ctx["last_event"](ctx["event_log"], ("freeze", "intake_trigger"), h.token)
+    if ev is None:
+        raise Level3("DET-10(a): no logged freeze / intake_trigger event - the "
+                     "set file is unchained")
+    logged = getattr(ev, "set_file_hash", None)
+    if logged is None:
+        # Backfilled entry 1's shape: a sheet edit logged before any freeze
+        # existed. FAIL CLOSED - no chain is not a passing chain.
+        raise Level3(f"DET-10(a): last {ev.type} event ({ev.date}) carries a "
+                     "null set_file_hash - no chain is not a passing chain")
+    if logged != h.frozen_set_hash:
+        raise Level3(f"DET-10(a): frozen_set_hash {h.frozen_set_hash} != last "
+                     f"logged {ev.type} {logged} ({ev.date})")
+
+    # -- (b) Level 2: every modeled pool is in the frozen set ---------------
+    # A frozen pool that failed the disappearance read KEEPS its row (P-3.46
+    # R5), so this exact-equality membership still holds and (d)-ii evaluates
+    # from that row rather than from its absence.
+    modeled = {r.address for r in b.pools if r.in_frozen_set}
+    frozen = set(ctx["frozen_set_members"])
+    if modeled != frozen:
+        raise Level3(f"DET-10(b): modeled-vs-frozen mismatch; extra "
+                     f"{sorted(modeled - frozen)}, missing {sorted(frozen - modeled)}")
+
+    # -- (e) Level 2: every detection disclosed as a pool-table annotation ---
+    d = b.pool_detectors
+    by_addr = {r.address: r for r in b.pools}
+    for field, needle in (("new_pool_above_floor", "new pool above the dust floor"),
+                          ("frozen_pool_below_floor", "frozen pool below the dust floor"),
+                          ("frozen_pool_tvl_change_gt_50pct", "TVL change > 50%")):
+        for addr in getattr(d, field):
+            row = by_addr.get(addr)
+            if row is None:
+                raise Level3(f"DET-10(e): {field} names {addr}, absent from pools[]")
+            if not any(needle in a for a in row.annotations):
+                raise Level3(f"DET-10(e): undisclosed detection - {addr} in "
+                             f"{field} carries no matching annotation")
+
+    # -- (d) Level 2 via T-10: exactly two events ---------------------------
+    # (i) an above-floor non-F pool >= 10% of frozen-set coverage.
+    #
+    # The TEST is wider than the DETECTOR LIST, deliberately (review refinement
+    # to P-3.46 R2). `new_pool_above_floor` holds `added_since_freeze` rows
+    # only, because a pool the freeze already knew and listed must not re-flag
+    # every run. But memo 5.6(i) reads "a new pool above the dust floor NOT IN
+    # THE FROZEN SET", and `tail_beyond_freeze_coverage` is a SIZE cut - the
+    # coverage rule's own - not a structural exclusion. A tail pool that grew
+    # to >= 10% of coverage would otherwise never reach this test at all.
+    #
+    # Structural reasons stay OUT: `self_referential_wrapper` and
+    # `volatile_collateral_circular` are section 5.4 judgments about what a
+    # pool IS, and no amount of growth makes such a pool exit liquidity.
+    for r in b.pools:
+        if r.in_frozen_set:
+            continue
+        if r.exclusion_reason not in DET10_SIZE_BASED_REASONS:
+            continue
+        if r.ratio_to_frozen_coverage >= DET10_SHARE_THRESHOLD:
+            return ("T-10", 2)
+    # (ii) a frozen pool that has DISAPPEARED whose LAST-RUN share >= 10%.
+    # Named default: last-run share comes from the prior bundle's pools[],
+    # falling back to the set file's freeze_tvl ratios when the prior carries
+    # none - true exactly once and disclosed via `baseline_source`.
+    for r in b.pools:
+        if not r.in_frozen_set:
+            continue
+        if not any("disappeared" in a for a in r.annotations):
+            continue
+        last = ctx["last_run_ratio"].get(r.address)
+        if last is not None and last >= DET10_SHARE_THRESHOLD:
+            return ("T-10", 2)
+
+    # -- (f) Level 1 via T-17: freeze overdue -------------------------------
+    # Evaluated against `header.run_date` (derived from the pinned
+    # `block_timestamp`), NOT a wall clock, so re-running a stored bundle
+    # through the harness gives the same answer.
+    freeze_day = _dt.date.fromisoformat(h.freeze_date)
+    if (h.run_date - freeze_day).days > DET10_FREEZE_MAX_AGE_DAYS:
+        return ("T-17", 1)
+    return None
+
+
 CHECKS: list[Check] = [
     Check("DET-02", "S0", 3, det_02), Check("DET-12", "S0", 3, det_12),
     Check("DET-77", "S0", 3, det_77),
@@ -537,6 +671,7 @@ CHECKS: list[Check] = [
     Check("DET-63", "S1", 2, det_63), Check("DET-65", "S1", 2, det_65),
     Check("DET-66", "S1", 3, det_66),
     Check("DET-68", "S1", 3, det_68), Check("DET-08", "S1", 2, det_08),
+    Check("DET-10", "S1", 3, det_10),
     Check("DET-82", "S1", 3, det_82),
 ]
 

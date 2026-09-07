@@ -170,6 +170,83 @@ crvusd_held = 0
 source = "vault.factory() closure pass over the Curve-API lending catalog"
 date = 2026-09-05
 
+# ---- Frozen-pool factory indices: SIGNED 2026-09-07 -----------------------
+# DET-10(d)-ii's disappearance test, factory-side. Per run:
+# `factory_root.pool_list(index)` at run_block must equal `pool`; anything else
+# - a different address, a revert, or pool_count() <= index - is the
+# disappearance event. This is the rubric's letter ("absent from on-chain
+# factory enumeration"), not the pool's self-report.
+#
+# `pool.factory()` was tried first and REJECTED: it reverts on 3 of the 5
+# frozen pools, whose classes carry `derivation_route = "candidate -> closure"`
+# above, and treating a revert as disappearance would have fired T-10 Level 2
+# on frxUSD (17.5% of freeze coverage) at the first run.
+#
+# SAFE BECAUSE `pool_list` IS APPEND-ONLY, verified from the verified source of
+# all three factories at review time, not from recall:
+#   * pool_factory_crvusd (Vyper_contract): writes at l.581, 663, 932, each
+#     `self.pool_list[length] = pool` with `length = self.pool_count`, followed
+#     by `self.pool_count = length + 1` (l.582, 664) or, in the batch
+#     `add_existing_metapools` path, `length += 1` per pool then
+#     `self.pool_count = length` (l.975) - still only indices >= the old count.
+#   * pool_factory_stable_ng (CurveStableswapFactoryNG): writes at l.542, 661,
+#     same shape, counts at l.543, 662.
+#   * pool_factory_old (Vyper_contract): writes at l.573, 655, 911; counts at
+#     l.574, 656, 954.
+#   * ZERO matches in any of the three for a deletion, a reorder, a
+#     `pool_count` decrement, or a `pool_list[i] = empty` - no function exists
+#     that removes or reorders. An index is therefore stable for the life of
+#     the factory.
+#
+# Located by a one-time `pool_list` walk over the frozen set's three DECLARED
+# scope classes at block 25927843 - 1,470 reads, once, outside the run path.
+# Cross-check: index 510 reproduces `pool_factory_stable_ng`'s signed
+# closure_evidence, "pointer at index 510".
+#
+# RETIRES AT THE R-a1 REFRESH: the regenerated set file should carry each
+# pool's index itself, at which point this table is redundant. The refresh's
+# job, built nowhere here.
+
+[[frozen_pool_index]]
+pool = "0x4dece678ceceb27446b35c672dc7d61f30bad69e"
+factory_root = "pool_factory_crvusd"
+index = 0
+found_at_block = 25927843
+date = 2026-09-07
+method = "pool_list walk at review time"
+
+[[frozen_pool_index]]
+pool = "0x390f3595bca2df7d23783dfd126427cceb997bf4"
+factory_root = "pool_factory_crvusd"
+index = 1
+found_at_block = 25927843
+date = 2026-09-07
+method = "pool_list walk at review time"
+
+[[frozen_pool_index]]
+pool = "0x625e92624bc2d88619accc1788365a69767f6200"
+factory_root = "pool_factory_stable_ng"
+index = 42
+found_at_block = 25927843
+date = 2026-09-07
+method = "pool_list walk at review time"
+
+[[frozen_pool_index]]
+pool = "0x635ef0056a597d13863b73825cca297236578595"
+factory_root = "pool_factory_stable_ng"
+index = 117
+found_at_block = 25927843
+date = 2026-09-07
+method = "pool_list walk at review time"
+
+[[frozen_pool_index]]
+pool = "0x13e12bb0e6a2f1a3d6901a59a9d585e89a6243e1"
+factory_root = "pool_factory_stable_ng"
+index = 510
+found_at_block = 25927843
+date = 2026-09-07
+method = "pool_list walk at review time"
+
 # ---- OWED (Amin, config round) -------------------------------------------
 # [[bridge]]  FR-13 - one entry per known crvUSD bridge:
 #   address, bridge_type in {lock_and_mint, burn_and_mint}, source, date.

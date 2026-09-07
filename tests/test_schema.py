@@ -22,6 +22,8 @@ from factory.schema import (
     LogEntry,
     Market,
     OracleRow,
+    PoolDetectors,
+    PoolRow,
     PositionCompleteness,
     RedemptionPath,
     StabilizerBlock,
@@ -37,6 +39,7 @@ CF = "0xc9332fdcb1c491dcc683bae86fe3cb70360738bc"
 CTRL = "0xf8c786b1064889ffd3c8a08b48d5e0c159f4cbe3"
 COL = "0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf"
 RB = 25905210
+FROZEN_POOL = "0x390f3595bca2df7d23783dfd126427cceb997bf4"
 
 
 def cr(fn, contract=CTRL):
@@ -73,6 +76,8 @@ def a_bundle(first_run=True, **kw):
         header=Header(token="crvUSD", run_block=RB, block_timestamp=1788540023,
                       run_start_time=1788540098, first_run=first_run,
                       pipeline_version="0.1.0", sheet_hash="43a5d27b",
+                      # DET-10(a) limb 1: the header stamps the gate reads.
+                      frozen_set_hash="80d87407", freeze_date="2026-09-04",
                       raw_positions_hash="76f7aebc"),
         markets=[a_market()],
         stabilizer=StabilizerBlock(
@@ -116,6 +121,14 @@ def a_bundle(first_run=True, **kw):
             r10_provenance=AbsenceRead(
                 contract=CF, method="selector_absence_scan",
                 evidence="no holder redemption function", block=RB))],
+        # DET-10: one frozen pool row and the three detector fields. The
+        # fields are REQUIRED, which is where clause (c) is enforced.
+        pools=[PoolRow(address=FROZEN_POOL, in_frozen_set=True,
+                       paired_assets=[COL], freeze_tvl=48_308_600,
+                       tvl_at_par=48_308_600,
+                       ratio_to_frozen_coverage=Decimal("0.5605"),
+                       is_stabilizer_pool=True)],
+        pool_detectors=PoolDetectors(baseline_source="freeze_set_file"),
         admin_surface=[AdminRow(power=p, holder_address=None, holder_type="none",
                                 provenance=AbsenceRead(contract=CF,
                                                        method="selector_absence_scan",
@@ -234,3 +247,13 @@ def test_mirror_generator_reproduces_the_committed_mirror():
 def test_mirror_preserves_det75_identity():
     sheet = REPO / "docs/context/intake-sheets-cdp.md"
     assert count_first_run_tags(sheet) == len(parse_first_run_reads(sheet)) == 34
+
+
+def test_det10c_detector_fields_are_required_at_the_model():
+    """DET-10(c) has NO consequence level in the rubric, so no gate invents one.
+    It is enforced here instead: a bundle without `pool_detectors` cannot be
+    constructed, so there is no runtime failure path to assign a level to."""
+    base = a_bundle()
+    fields = {k: v for k, v in base.__dict__.items() if k != "pool_detectors"}
+    with pytest.raises(ValidationError):
+        Bundle(**fields)
