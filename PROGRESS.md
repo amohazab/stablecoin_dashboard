@@ -5061,3 +5061,16 @@ Status: IN PROGRESS (opened 2026-09-08).
 - **Artifacts:** `src/factory/run.py` 37,298 → 39,092 B; `tests/test_harness.py`
   20,863 → 21,747 B; `CLAUDE.md` 12,196 → 12,494 B; `.gitattributes` 139 → 294 B.
 - **Follow-ups spawned:** none new — 4B/4C's `OWED` deletion is named above.
+
+## P-4.03 — Pin extended to the gated config and log files
+
+- **Date:** 2026-09-08
+- **Type:** implementation
+- **Confirmed by:** Amin
+- **Content:** `.gitattributes` gains `config/*.toml`, `config/*.json`,
+  `out/logs/*.jsonl` below P-4.02's block — the bytes the gate chain hashes
+  (DET-10(a)'s set file, DET-77's mirror, the event log both chain to).
+  **Five files matched, all already LF, nothing rewritten:** 9,995 / 12,338 /
+  10,677 / 14,204 / 511 B, hashes unchanged. Closes P-3.45's rewrite class.
+- **Artifacts:** `.gitattributes` 294 → 488 B.
+- **Follow-ups spawned:** none.

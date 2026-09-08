@@ -5,3 +5,8 @@ out/**/*.json       text eol=lf
 PROGRESS.md         text eol=lf
 CLAUDE.md           text eol=lf
 .gitignore          text eol=lf
+# Files the gate chain hashes: DET-10(a) set file, DET-77 sheet mirror,
+# the event log (P-4.03).
+config/*.toml       text eol=lf
+config/*.json       text eol=lf
+out/logs/*.jsonl    text eol=lf
