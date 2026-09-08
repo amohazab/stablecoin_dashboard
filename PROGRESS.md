@@ -5126,3 +5126,22 @@ Status: IN PROGRESS (opened 2026-09-08).
   the signed sheet edit is its own event.
 - **Follow-ups spawned:** the §11.6 Fluid open point (R4); the signed edit and
   its (d)-machinery; then the GHO build.
+
+## P-4.04-A1 — AMEND P-4.04 — R7 omits liquidations
+
+- **Date:** 2026-09-08
+- **Type:** AMEND
+- **Confirmed by:** Amin
+- **Content:** R7's formula as confirmed — principal = Σ `Borrow` − Σ `Repay` — omits
+  `LiquidationCall`, which burns debt without emitting `Repay`: **128 of 2,142 live
+  positions** (126 Core, 2 Lido) would show principal > gross. **Corrected: principal =
+  Σ `Borrow` − Σ `Repay` − Σ `LiquidationCall.debtToCover`**, GHO filtered locally
+  (`debtAsset` is `topic2`), floored at zero — **holds on all 2,142 with zero
+  exceptions**; live Σ principal 107,674,430.51 / 42,974,642.73 / 34,777,621.78 against
+  `totalSupply` 112,828,347.43 / 46,118,648.84 / 34,980,050.07. Pointer cost 89 requests,
+  full re-walk every run, no cursor. **As-counted:** the agent's first aggregate summed
+  over every address that ever borrowed rather than the live set — the wrong comparand,
+  caught by its own recompute. P-4.04 stands unedited per rule 2.
+- **Artifacts:** `PROGRESS.md`. No code change.
+- **Follow-ups spawned:** `principal ≤ gross` becomes a position-row validator at build
+  (the crvUSD invariants-as-validators pattern).
