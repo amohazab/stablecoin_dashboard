@@ -9,7 +9,7 @@ from __future__ import annotations
 import json
 import pathlib
 
-from factory.schema import Bundle, LogEntry
+from factory.schema import LogEntry, PriorBundle
 
 RESOLUTION_TYPES = frozenset(
     {"template_change", "intake_change", "config_change",
@@ -82,7 +82,7 @@ def is_first_run(bundles_dir: pathlib.Path, token: str) -> bool:
 
 
 def load_prior(bundles_dir: pathlib.Path, token: str,
-               before_block: int) -> Bundle | None:
+               before_block: int) -> PriorBundle | None:
     """The prior bundle the delta checks compare against — `is_first_run`'s
     exact counterpart, under the same P-3.14 convention and the same scope.
 
@@ -102,5 +102,8 @@ def load_prior(bundles_dir: pathlib.Path, token: str,
     prior = [b for b in blocks if b < before_block]
     if not prior:
         return None
-    return Bundle.model_validate_json(
+    # Read through the PRIOR VIEW, never the full current `Bundle`: the store
+    # holds older shapes by construction, and validating history against the
+    # present schema is what broke the P-3.46 tree. See `PriorBundle`.
+    return PriorBundle.model_validate_json(
         (d / f"{prior[-1]}.json").read_text(encoding="utf-8"))

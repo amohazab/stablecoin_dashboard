@@ -426,6 +426,76 @@ class Bundle(BaseModel):
         return self
 
 
+# ------------------------------------------------------- the prior view -----
+
+
+class PriorHeader(BaseModel, extra="ignore"):
+    token: str
+    run_block: int
+    first_run: bool
+
+
+class PriorCounts(BaseModel, extra="ignore"):
+    mint_market_count: int
+    lend_market_count: int | str
+
+
+class PriorSupply(BaseModel, extra="ignore"):
+    total_supply: int
+
+
+class PriorNode(BaseModel, extra="ignore"):
+    address: Address
+    share_of_backing: Decimal
+
+
+class PriorPool(BaseModel, extra="ignore"):
+    address: Address
+    tvl_at_par: int
+    ratio_to_frozen_coverage: Decimal
+
+
+class PriorBundle(BaseModel, extra="ignore"):
+    """A stored bundle read as HISTORY, not as a current bundle.
+
+    `load_prior` used to validate the prior through the full `Bundle`. That was
+    wrong on principle, and P-3.46 proved it: making `pool_detectors` required
+    - correctly, for what a run EMITS - made every previously promoted bundle
+    undeserializable, and the demonstration run died before its first read.
+    The store will always hold older shapes, and every field Steps 4-6 add
+    would recreate the same failure.
+
+    So the two directions are separated. The full `Bundle` validates what this
+    run emits and stays strict. This view reads every shape the store has ever
+    held, and carries ONLY the fields a delta or cross check actually reads
+    from a prior:
+
+      * `header`  - DET-86 (the prior's existence must agree with `first_run`)
+      * `counts`  - DET-63's market count; the lend three-state (P-3.45)
+      * `supply`  - DET-62's supply jump
+      * `nodes`   - DET-65's composition shift
+      * `pools`   - DET-10(d)-ii's last-run ratio, and the TVL-change baseline
+
+    `extra="ignore"` throughout, so a field this view does not name is skipped
+    rather than rejected. A field that POSTDATES some stored shape defaults to
+    TYPED ABSENCE - `pools: list[PriorPool] = []` - never a sentinel and never
+    a fabricated value: an older bundle genuinely has no pools, and the
+    baseline fallback (`baseline_source = "freeze_set_file"`) is what discloses
+    that. Fields present in every shape ever stored stay REQUIRED, so a
+    malformed prior fails loudly instead of reading as an empty one.
+
+    This is not a shim and has no retirement condition. A check that reads a
+    field this view does not carry fails at attribute access, which the tests
+    surface; the field list grows when a delta check needs it to.
+    """
+
+    header: PriorHeader
+    counts: PriorCounts
+    supply: PriorSupply
+    nodes: list[PriorNode]
+    pools: list[PriorPool] = []
+
+
 def _default(o: Any) -> Any:
     if isinstance(o, Decimal):
         return str(o)                                        # O-2: never a float

@@ -16,13 +16,14 @@ import pytest
 from factory.config import Root
 from factory.discovery import still_enumerated
 from factory.eventlog import FreezeEvent, IntakeTriggerEvent, last_event
-from factory.logbook import Logbook, is_first_run
+from factory.logbook import Logbook, is_first_run, load_prior
 from factory.provenance import AbsenceRead
 from factory.schema import (
     Counts,
     LogEntry,
     PoolDetectors,
     PoolRow,
+    PriorBundle,
     RedemptionPath,
     finalise,
 )
@@ -38,6 +39,16 @@ from tests.test_discovery import FakeRpc
 from tests.test_schema import CF, CTRL, FROZEN_POOL, RB, a_bundle
 
 CRVUSD = "0xf939e0a03fb07f59a73314e73794be0e57ac1b4e"
+
+
+def a_prior(**kw):
+    """A prior as `ctx["prior_bundle"]` actually holds it: a `PriorBundle`.
+
+    Built by round-tripping a full bundle through the view, which is what
+    `load_prior` does with the stored JSON - so these tests exercise the same
+    parser the store is read with, not a convenient stand-in.
+    """
+    return PriorBundle.model_validate(a_bundle(**kw).model_dump())
 
 
 def a_ctx(**kw):
@@ -295,7 +306,7 @@ def test_det04_stale_analyst_root_fires_t16():
 
 
 def test_run2_supply_jump_without_confirmations_is_level_3():
-    prior = a_bundle(first_run=True)
+    prior = a_prior(first_run=True)
     b = a_bundle(first_run=False, first_run_literals=None)
     b.supply.total_supply = prior.supply.total_supply * 2
     with pytest.raises(Level3, match="Level 2|DET-62|T-14"):
@@ -318,7 +329,7 @@ def test_det62_confirmation_legs_are_read_when_the_branch_opens():
             return {"result": "2104809"}          # both legs return raw wei
         return {"total_supply": "2104809"}
 
-    prior = a_bundle(supply=a_bundle().supply.model_copy(
+    prior = a_prior(supply=a_bundle().supply.model_copy(
         update={"total_supply": 1_000_000}))
     b = a_bundle(first_run=False, first_run_literals=None)
     out = run_harness(b, a_ctx(is_first_run=False, prior_bundle=prior,
@@ -331,7 +342,7 @@ def test_det62_confirmation_legs_are_read_when_the_branch_opens():
 
 
 def test_run2_market_removal_is_level_2():
-    prior = a_bundle(first_run=True)
+    prior = a_prior(first_run=True)
     b = a_bundle(first_run=False, first_run_literals=None,
                  counts=Counts(mint_market_count=8, lend_market_count="unknown"))
     with pytest.raises(Level3, match="Level 2"):
@@ -471,3 +482,26 @@ def test_spotcheck_item10_is_informational_not_a_gate():
     assert "within 5%" not in row          # the gate is gone from the row...
     assert "within 5%" in s                # ...and survives only as the note
     assert "do not compare it to `totalSupply()`" in s
+
+
+def test_every_promoted_bundle_on_disk_still_loads():
+    """SCHEMA-EVOLUTION REGRESSION GUARD.
+
+    Every bundle in the committed store must load through `load_prior`'s
+    parser. Nothing else in the suite deserializes a bundle written by an
+    earlier version - the in-process fixture tracks the current schema by
+    construction, the on-disk store does not - which is exactly how P-3.46
+    shipped a tree whose demonstration run died before its first read.
+
+    Reads the REAL committed artifacts, as `test_discovery` reads the real
+    config. The standing rule this encodes: before any commit that changes
+    `Bundle`'s shape, this test must pass.
+    """
+    store = pathlib.Path(__file__).resolve().parents[1] / "out/bundles/crvUSD"
+    promoted = sorted(store.glob("*.json"))
+    assert promoted, "no promoted bundles to guard"
+    for path in promoted:
+        block = int(path.stem)
+        got = load_prior(store.parent, "crvUSD", block + 1)
+        assert got is not None, f"{path.name} did not load"
+        assert got.header.run_block == block

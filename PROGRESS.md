@@ -4865,3 +4865,112 @@ Record: out/step3-evidence.md; src/factory/; config/. Post-pair application
      trigger with a declared level and a DET owner, before step 10.
   2. Carried from P-3.46: DET-10(c)'s missing consequence level; the event
      log's entry types and DET-60's scope.
+
+## P-3.47 — The prior-loader defect and fix; the demonstration run; session close
+
+- **Date:** 2026-09-08
+- **Type:** implementation + verification
+- **Confirmed by:** Amin
+- **Content:**
+  **THE DEFECT.** The demonstration run died in 2.4 s on
+  `ValidationError: pool_detectors Field required`: `load_prior` validated the
+  stored prior through the full current `Bundle`, and P-3.46 had made
+  `pool_detectors` required — correctly for what a run emits, fatally for
+  every bundle written before it. No test deserialised an on-disk bundle, so
+  the one path that broke was the one path nothing covered; **the P-3.46
+  commit (`0317c1f`) was not runnable as committed**, and "95 passing, ruff
+  clean" was reported accurately without "a run starts" having been checked.
+  Third instance of the drift class the fixtures showed twice, one layer out:
+  the in-process fixture tracks the current schema by construction, the
+  on-disk store does not.
+
+  **THE FIX.** `PriorBundle` in `schema.py` — a typed prior view,
+  `extra="ignore"`, carrying only what a delta or cross check reads from a
+  prior (`header`, `counts`, `supply`, `nodes`, `pools`), with fields that
+  postdate a stored shape defaulting to typed absence and never a sentinel.
+  `load_prior` returns it. Not a shim and no retirement condition: the full
+  schema validates what this run emits, the view reads every shape the store
+  has held. **Guard test written first — every promoted bundle loads through
+  `load_prior`'s parser — failed on the tree as committed, passes after; the
+  three prior-constructing tests now build a `PriorBundle`. 96 passing, ruff
+  clean.** **Standing rule: that test passes before any commit that changes
+  `Bundle`'s shape.** No new tooling; the test is the rule.
+
+  **THE DEMONSTRATION RUN**, `uv run python -m factory.run` — the 0.5(c)
+  entry point, first run in the record with a stated command. Run dated
+  2026-09-07 (block timestamp 20:52 UTC); this entry dated at confirmation
+  (P-3.12 split).
+
+  | | |
+  |---|---|
+  | `run_block` / `bundle_hash` | 25927985 / `75e14dae…` |
+  | gates | **22/22 pass, 0 fail, 0 error, zero triggers, worst_level 0** |
+  | `first_run` / prior | false / 25923250 |
+  | config / sheet / frozen set | `4484746d` / `a6d8f12a` / `80d87407` |
+  | `pools[]` | 7 rows — 5 frozen; wrapper `0x516c3ecf…` at 5.26× **structurally excluded** from (d)-i; tail `0x57064f49…` at 0.0078; `below_floor_pool_count` 96 |
+  | detectors | all three empty; `baseline_source = freeze_set_file` with its one-time note |
+  | DET-10 | (a) chained to backfilled entry 3, `80d87407` matched; (b) exact membership; (d) no trigger, five pins held at the run block; (f) 3 days on the 100-day clock |
+  | DET-77 | both limbs — mirror, and `a6d8f12a` == entry 3 |
+  | DET-62 / DET-63 | jump 0, branch closed, zero HTTP calls / `lend_market_count` 52 with its note |
+  | event log / wall time | 3 lines, unchanged / 93.9 s (read count not instrumented; run 2 was 130.8 s) |
+
+  **COMPARISON AGAINST RUN 2.** Every expected change ticked —
+  `lend_market_count` string → 52, `lend_markets[]` 0 → 52, `pools[]` 0 → 7,
+  `pool_detectors` present, gates 20 → 22, `below_floor_pool_count` 96,
+  `bundle_hash`. Everything else equal: 9 markets, 5 keepers,
+  `origination_class`, admin holders, `ema_window_s`, the three bridge rows and
+  a byte-identical `bridge_disclosure`, oracle rows, node addresses,
+  `total_supply`. Max node Δshare 0.003135 against the 0.10 bound.
+  **`raw_positions_hash` differs, as it should** — see `P-3.46-A1`.
+
+  **LIGHT CHECK (items 0, 1, 5, 5b)** — executed by Amin 2026-09-08 from
+  `out/spotcheck/25927985.md`, rev-2 transport, two independent RPCs.
+  **A = B on every item.** Not the done-condition protocol.
+
+  | item | read (decimal) | sheet | match |
+  |---|---|---|---|
+  | 0 — `totalSupply()` @ run block 25927985 (`0x18ba131`) | 2,104,809,204.981834 | `0x…06cd0eafa2ac2b9dcdff1cb3` | **Y** |
+  | 0 — `totalSupply()` @ block 24117248 (`0x1700000`) | 2,080,809,203.966811 | must DIFFER from the first | **Y — differs** |
+  | 1 — crvUSD `totalSupply()` | 2,104,809,204.981834 | `2104809204981834354272443571` | **Y** |
+  | 5 — PegKeeper `0xfb726f57…` `debt()` | 25,465,785.075475 | `25465785075474556892486136` | **Y** |
+  | 5b — `ControllerFactory.debt_ceiling(0xfb726f57…)` | 135,000,000.000000 | `135000000000000000000000000` | **Y** |
+
+  **Item 0 — PASS**, with the sheet's definition stated because it differs
+  from the reading at review: its two reads are the run block against **block
+  24117248**, not against head, and the pass condition is simply that they
+  **differ** — proving the transport pins rather than serving a cached head.
+  The second value is therefore an **earlier, smaller** supply, so the
+  24,000,001.015 crvUSD gap is supply **minted between** 24117248 and
+  25927985, not a burn after the run.
+  **Item 1** equals the run's `total_supply` and the 2026-09-07 three-way
+  smoke value to the wei.
+  **Items 5 / 5b** are one keeper and its ceiling, not two keepers:
+  `0xfb726f57d251ab5c731e5c64ed4f5f94351ef9f3`, the USDT-pool keeper (paired
+  pool `0x390f3595…`), whose `debt()` and `ControllerFactory.debt_ceiling()`
+  reproduce the bundle's `current_debt` and `debt_ceiling` exactly —
+  utilization 0.18864, well under DET-61's 0.80 bound.
+
+  **CLOSURE.** DET-10 and DET-66 — ruled in Step-3 scope, found unimplemented
+  at P-3.40, disclosed at P-3.41's conjunct 2 — **are now gated, not asserted
+  by comparison.**
+- **Artifacts:** `src/factory/schema.py` (19,782 B); `src/factory/logbook.py`
+  (4,611 B); `tests/test_harness.py` (20,863 B);
+  `out/bundles/crvUSD/25927985.json` (64,000 B, promoted);
+  `out/spotcheck/25927985.md` (10,957 B, gitignored, zero `apikey`);
+  `PROGRESS.md`. No `docs/context/` change.
+- **Open items at session close:**
+
+  | item | owner | note |
+  |---|---|---|
+  | `%APPDATA%\Python\Python314\Scripts` onto the User Path | Amin | bare `uv` still unresolved; per-invocation prepend is the interim |
+  | DET-15(c) named-cause emission + P-3.39 ruling 1's signed wording | crvUSD adapter | after the third-class perimeter re-ruling and the cause-list intake edit; not Step 4's |
+  | Rubric bookkeeping for the revision session's amendment log | Amin | event-log types / DET-60 scope; DET-10(c)'s level; the shape-change gate's trigger and owner; DET-09 and DET-89 stage listings; DET-66's two-level home |
+  | R-a1 refresh | Amin | `member2_target` fill; pool indices into the regenerated set file, retiring the `[[frozen_pool_index]]` table |
+  | `run.py` placement of the 164 pool-assembly lines | Step 4 | extract from two implementations, per P-3.04 |
+  | Read counter | Step 8 | only if the cron needs it |
+
+  **Next: the revision session before Step 4**, per standing recommendation.
+- **Follow-ups spawned:**
+  1. The next ordinary run flips `baseline_source` to `prior_bundle`
+     unprompted — expected, not a finding.
+  2. `PriorBundle`'s field list grows only when a delta check needs a field.
