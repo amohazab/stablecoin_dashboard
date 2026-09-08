@@ -64,7 +64,7 @@ from factory.spotcheck import write as write_spotcheck
 from factory.validate.harness import TRIGGER_TABLE, run_harness
 
 PIPELINE_VERSION = "0.1.0"
-EVENT_LOG = "out/logs/events_crvusd.jsonl"
+BUNDLES = "out/bundles"
 CRVUSD = "0xf939e0a03fb07f59a73314e73794be0e57ac1b4e"
 A1_POWERS = ("mint", "set_ceiling", "upgrade", "pause", "freeze_asset",
              "blacklist_address", "set_oracle", "set_parameters", "seize")
@@ -261,7 +261,7 @@ def _bridge_disclosure(rows: list[Bridge]) -> str:
     return f"bridged component assessed: {'; '.join(parts)}; {tail}"
 
 
-def assemble(cfg: Config, rpc: RpcClient, repo: pathlib.Path,
+def assemble(cfg: Config, rpc: RpcClient, repo: pathlib.Path, token: str,
              http_get=None) -> tuple[Bundle, dict]:
     rb = rpc.run_block
     http_get = http_get or _http_get_json
@@ -275,7 +275,7 @@ def assemble(cfg: Config, rpc: RpcClient, repo: pathlib.Path,
     _fs_path = repo / "config/frozen_set_crvusd.json"
     fs = json.loads(_fs_path.read_text(encoding="utf-8"))
     fs_hash = hashlib.sha256(_fs_path.read_bytes()).hexdigest()[:8]
-    _prior = load_prior(repo / "out/bundles", "crvUSD", rb)
+    _prior = load_prior(repo / BUNDLES, token, rb)
     prior_pools = ({p.address: {"tvl_at_par": p.tvl_at_par}
                     for p in _prior.pools} if _prior else {})
     reg = cfg.root("pegkeeper_regulator").address
@@ -582,10 +582,10 @@ def assemble(cfg: Config, rpc: RpcClient, repo: pathlib.Path,
     # ---- raw dump + header --------------------------------------------------
     raw = json.dumps(raw_rows, sort_keys=True, separators=(",", ":"))
     raw_hash = hashlib.sha256(raw.encode()).hexdigest()
-    first = is_first_run(repo / "out/bundles", "crvUSD")
+    first = is_first_run(repo / BUNDLES, token)
 
     bundle = Bundle(
-        header=Header(token="crvUSD", run_block=rb, block_timestamp=rpc.block_timestamp,
+        header=Header(token=token, run_block=rb, block_timestamp=rpc.block_timestamp,
                       run_start_time=rpc.run_start_time, first_run=first,
                       pipeline_version=PIPELINE_VERSION,
                       sheet_hash=cfg.sheet["sheet_hash"], frozen_set_hash=fs_hash,
@@ -629,12 +629,19 @@ def _http_get_json(url: str) -> dict:
 
 
 
+def _event_log(repo: pathlib.Path, token: str) -> pathlib.Path:
+    """The per-token event log. `crvUSD` -> `out/logs/events_crvusd.jsonl`,
+    the committed path unchanged (P-3.46)."""
+    return repo / f"out/logs/events_{token.lower()}.jsonl"
+
+
 def _fs_members(repo: pathlib.Path) -> set[str]:
     fs = json.loads((repo / "config/frozen_set_crvusd.json").read_text(encoding="utf-8"))
     return {q["address"].lower() for q in fs["pools"]}
 
 
-def _last_run_ratios(repo: pathlib.Path, run_block: int) -> dict[str, Decimal]:
+def _last_run_ratios(repo: pathlib.Path, token: str,
+                     run_block: int) -> dict[str, Decimal]:
     """DET-10(d)-ii's "last-run share", with its NAMED one-time fallback.
 
     Prior bundle's `pools[]` where it has one; otherwise the set file's
@@ -642,7 +649,7 @@ def _last_run_ratios(repo: pathlib.Path, run_block: int) -> dict[str, Decimal]:
     once - for the first run whose prior predates `pools[]` - and the bundle
     discloses which was used via `pool_detectors.baseline_source` (P-3.43).
     """
-    prior = load_prior(repo / "out/bundles", "crvUSD", run_block)
+    prior = load_prior(repo / BUNDLES, token, run_block)
     if prior is not None and prior.pools:
         return {p.address: p.ratio_to_frozen_coverage for p in prior.pools}
     fs = json.loads((repo / "config/frozen_set_crvusd.json").read_text(encoding="utf-8"))
@@ -651,12 +658,33 @@ def _last_run_ratios(repo: pathlib.Path, run_block: int) -> dict[str, Decimal]:
             for q in fs["pools"]}
 
 
-def execute(repo: pathlib.Path, rpc_url: str) -> dict:
+# ---- token dispatch --------------------------------------------------------
+# P-4.02: `run.py` takes one required positional token and dispatches on this
+# dict. NAMED IMPLEMENTER DEFAULT, the DET-66 `NotYetImplemented` pattern
+# (P-3.44): a token with no assembly raises `AssemblyStop` naming the token
+# and the step that owes it. The lookup runs BEFORE the config load and
+# before `RpcClient` is constructed, so an unbuilt adapter cannot reach the
+# network. Steps 4B and 4C delete their `OWED` row when the adapter lands.
+ASSEMBLIES = {"crvUSD": assemble}
+OWED = {"GHO": "Step 4B", "LUSD": "Step 4C"}
+
+
+def _assembly_for(token: str):
+    if token in ASSEMBLIES:
+        return ASSEMBLIES[token]
+    if token in OWED:
+        raise AssemblyStop(f"no adapter for {token} yet - owed by {OWED[token]}")
+    raise AssemblyStop(f"unknown token {token!r} - pilot tokens are "
+                       f"{', '.join([*ASSEMBLIES, *OWED])}")
+
+
+def execute(repo: pathlib.Path, rpc_url: str, token: str) -> dict:
     """Assemble, gate, promote. Promotion is unreachable on a Level 3."""
+    assembly = _assembly_for(token)     # before config load, before any RPC
     cfg = load(repo / "config")
     rpc = RpcClient(rpc_url)
     t0 = time.time()
-    bundle, extra = assemble(cfg, rpc, repo)
+    bundle, extra = assembly(cfg, rpc, repo, token)
 
     ctx = {"labels": cfg.labels, "printed_trigger_table": dict(TRIGGER_TABLE),
            "sheet": cfg.sheet, "roots": cfg.roots,
@@ -664,7 +692,7 @@ def execute(repo: pathlib.Path, rpc_url: str) -> dict:
            "is_first_run": bundle.header.first_run,
            # the delta checks (DET-62/63/65) need the last successful run; it is
            # None exactly when first_run is true, which DET-86 cross-checks.
-           "prior_bundle": load_prior(repo / "out/bundles", "crvUSD",
+           "prior_bundle": load_prior(repo / BUNDLES, token,
                                       bundle.header.run_block),
            # DET-62's two confirmation legs (P-3.19 / P-3.39). Injected rather
            # than imported inside the harness so the branch is stubbable; the
@@ -675,19 +703,20 @@ def execute(repo: pathlib.Path, rpc_url: str) -> dict:
            "etherscan_api_key": _env(repo, "ETHERSCAN_API_KEY"),
            # DET-10(a) and DET-77's second limb chain to the event log; the
            # harness does no file I/O of its own (P-3.43 ruling 1).
-           "event_log": read_event_log(repo / EVENT_LOG),
+           "event_log": read_event_log(_event_log(repo, token)),
            "last_event": last_event,
            # DET-10(b)'s comparand and (d)-ii's last-run ratios. Both come from
            # OUTSIDE the bundle so the gate compares the emitted table against
            # the signed set file and the prior run, never against itself.
            "frozen_set_members": _fs_members(repo),
-           "last_run_ratio": _last_run_ratios(repo, bundle.header.run_block)}
+           "last_run_ratio": _last_run_ratios(repo, token,
+                                              bundle.header.run_block)}
     outcome = run_harness(bundle, ctx)            # raises => nothing below runs
 
     stamped, h = finalise(bundle)
     stamped.gate_results = [GateResult(entry_id=r.entry_id, result=r.result)
                             for r in outcome.results]
-    out = repo / "out/bundles/crvUSD"
+    out = repo / BUNDLES / token
     out.mkdir(parents=True, exist_ok=True)
     (out / f"{stamped.header.run_block}.json").write_text(
         serialise_for_disk(stamped), encoding="utf-8", newline="")
@@ -710,6 +739,10 @@ def execute(repo: pathlib.Path, rpc_url: str) -> dict:
 # 0.5(c), P-3.42: the run entry point. Ruled in because the record could not
 # otherwise state how a run is invoked, and the Step-8 cron needs the same
 # entry point. Minimal by ruling: no argparse, no options.
+#
+# P-4.02: ONE REQUIRED POSITIONAL TOKEN -- `sys.argv[1]`, nothing else. No
+# default and no env var: a run must say which token it is for, and a typo
+# must stop rather than silently produce the wrong token's report.
 #
 # RPC URL source, named implementer default: `ETH_RPC_URL` from the process
 # environment, falling back to the `ETH_RPC_URL=` line of `.env` at the repo
@@ -744,12 +777,17 @@ def _rpc_url(repo: pathlib.Path) -> str:
 
 if __name__ == "__main__":
     _repo = pathlib.Path(__file__).resolve().parents[2]
+    _token = sys.argv[1] if len(sys.argv) > 1 else None
     try:
-        _r = execute(_repo, _rpc_url(_repo))
+        if _token is None:
+            raise AssemblyStop("usage: python -m factory.run <TOKEN>  "
+                               "(crvUSD | GHO | LUSD)")
+        _r = execute(_repo, _rpc_url(_repo), _token)
     except Exception as exc:                                  # a raised stop
         print(f"{type(exc).__name__}: {exc}", file=sys.stderr)
         raise SystemExit(1) from None
     _o = _r["outcome"]
-    print(f"run_block {_r['bundle'].header.run_block} | bundle {_r['hash'][:8]} | "
+    print(f"token {_token} | run_block {_r['bundle'].header.run_block} | "
+          f"bundle {_r['hash'][:8]} | "
           f"gates {sum(1 for g in _o.results if g.result == 'pass')}/{len(_o.results)} pass"
           f" | worst_level {_o.worst_level} | {_r['seconds']}s | spotcheck {_r['spotcheck']}")

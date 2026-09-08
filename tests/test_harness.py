@@ -18,6 +18,7 @@ from factory.discovery import still_enumerated
 from factory.eventlog import FreezeEvent, IntakeTriggerEvent, last_event
 from factory.logbook import Logbook, is_first_run, load_prior
 from factory.provenance import AbsenceRead
+from factory.run import AssemblyStop, execute
 from factory.schema import (
     Counts,
     LogEntry,
@@ -505,3 +506,21 @@ def test_every_promoted_bundle_on_disk_still_loads():
         got = load_prior(store.parent, "crvUSD", block + 1)
         assert got is not None, f"{path.name} did not load"
         assert got.header.run_block == block
+
+
+def test_execute_unknown_token_stops_before_any_rpc(tmp_path):
+    """P-4.02: the token dispatch runs before the config load and before the
+    RpcClient, so a token with no adapter cannot reach the network.
+
+    `tmp_path` holds no `config/` and the URL is unroutable: if dispatch did
+    NOT come first, this would fail on a config or transport error instead.
+    The two owed steps are pinned because 4B and 4C delete these reminders.
+    """
+    for token, step in (("GHO", "Step 4B"), ("LUSD", "Step 4C")):
+        with pytest.raises(AssemblyStop) as exc:
+            execute(tmp_path, "http://rpc.invalid", token)
+        assert token in str(exc.value) and step in str(exc.value)
+
+    with pytest.raises(AssemblyStop) as exc:
+        execute(tmp_path, "http://rpc.invalid", "crvUSDD")
+    assert "unknown token" in str(exc.value)

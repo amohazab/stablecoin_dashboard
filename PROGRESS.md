@@ -5036,3 +5036,28 @@ Status: IN PROGRESS (opened 2026-09-08).
 - **Artifacts:** `PROGRESS.md` — the `## Step 4` heading, the Step-3 status
   line's last sentence, and this entry.
 - **Follow-ups spawned:** none new — the queue above is the parked set.
+
+## P-4.02 — Token argument; opening housekeeping
+
+- **Date:** 2026-09-08
+- **Type:** implementation
+- **Confirmed by:** Amin
+- **Content:**
+  **One required positional token** — `uv run python -m factory.run crvUSD`:
+  `sys.argv[1]`, no argparse, no default, no env var; `execute(repo, rpc_url,
+  token)`, echoed in the result line; dispatch on `{"crvUSD": assemble}`.
+  **Named default, DET-66's `NotYetImplemented` pattern (P-3.44):** a missing
+  argument or an absent token raises `AssemblyStop` naming the token and the
+  step that owes it (GHO → 4B, LUSD → 4C) **before any RPC call**; 4B/4C
+  delete the `OWED` row. Bundle path, event-log path and prior lookup each
+  still hardcoded `crvUSD` and now derive from `token`, `events_crvusd.jsonl`
+  unchanged; the frozen-set path, `CRVUSD` and `cfg.sheet` stay crvUSD-literal
+  in the crvUSD assembly. **97 tests (96 + 1), ruff clean, no run.** P-3.42's
+  documented invocation stands in its new form — **no AMEND.**
+  `.gitattributes` pins `PROGRESS.md`, `CLAUDE.md`, `.gitignore` LF — the root
+  files `core.autocrlf` was flagging; nothing rewritten.
+  P-4.01 appended at 304,092 B / 5,038 lines, one separator line added before
+  its header (as-counted), commit `19a2ad2`.
+- **Artifacts:** `src/factory/run.py` 37,298 → 39,092 B; `tests/test_harness.py`
+  20,863 → 21,747 B; `CLAUDE.md` 12,196 → 12,494 B; `.gitattributes` 139 → 294 B.
+- **Follow-ups spawned:** none new — 4B/4C's `OWED` deletion is named above.

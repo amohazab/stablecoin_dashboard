@@ -1,3 +1,7 @@
 # Line endings pinned so hashed bytes == committed bytes (P-3.02, P-3.05).
 docs/context/*.md   text eol=lf
 out/**/*.json       text eol=lf
+# Root files whose byte counts the record states (P-4.02).
+PROGRESS.md         text eol=lf
+CLAUDE.md           text eol=lf
+.gitignore          text eol=lf
