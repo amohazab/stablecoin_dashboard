@@ -127,12 +127,10 @@ date = 2026-09-08
 [[node]]
 address = "0x5a0f93d040de44e78f251b03c43be9cf317dcf64"
 symbol = "JAAA"
-label = "unlabeled"
-node_class = "volatile"
+label = "recurses_truncated"
+node_class = "stable"
 lst_discount_applies = false
-label_source = "P-4.08 ruling 1"
-reason = "no memo 4.5 row (tokenized fund shares)"
-share = "3.973%"
+label_source = "memo 4.5 tokenized-fund-shares row (ADDED 2026-09-08, P-4.09); node_class by the fund's mandate (CLO -> stable)"
 date = 2026-09-08
 
 [[node]]
@@ -147,12 +145,10 @@ date = 2026-09-08
 [[node]]
 address = "0x43415eb6ff9db7e26a15b704e7a3edce97d31c4e"
 symbol = "USTB"
-label = "unlabeled"
-node_class = "volatile"
+label = "recurses_truncated"
+node_class = "stable"
 lst_discount_applies = false
-label_source = "P-4.08 ruling 1"
-reason = "no memo 4.5 row (tokenized fund shares)"
-share = "2.791%"
+label_source = "memo 4.5 tokenized-fund-shares row (ADDED 2026-09-08, P-4.09); node_class by the fund's mandate (T-bill -> stable)"
 date = 2026-09-08
 
 [[node]]
@@ -193,12 +189,10 @@ date = 2026-09-08
 [[node]]
 address = "0x14d60e7fdc0d71d8611742720e4c50e7a974020c"
 symbol = "USCC"
-label = "unlabeled"
+label = "recurses_truncated"
 node_class = "volatile"
 lst_discount_applies = false
-label_source = "P-4.08 ruling 1"
-reason = "no memo 4.5 row (tokenized fund shares)"
-share = "1.213%"
+label_source = "memo 4.5 tokenized-fund-shares row (ADDED 2026-09-08, P-4.09); node_class by the fund's mandate (crypto carry -> volatile)"
 date = 2026-09-08
 
 [[node]]
@@ -231,12 +225,10 @@ date = 2026-09-08
 [[node]]
 address = "0xbe9895146f7af43049ca1c1ae358b0541ea49704"
 symbol = "cbETH"
-label = "unlabeled"
+label = "recurses"
 node_class = "volatile"
 lst_discount_applies = false
-label_source = "P-4.08 ruling 1"
-reason = "memo open point 2 - the GHO sheet's own node table says row needed"
-share = "0.048%"
+label_source = "memo 4.5 cbETH row + section 11 item 2, RESOLVED 2026-09-02 (P1/P2). The GHO SHEET's node table still reads 'row needed - memo open point 2'; that note is stale against the memo, which resolved it, and precedence is brief -> memo -> sheets (P-4.09). The sheet note is queued for the next signed sheet edit."
 date = 2026-09-08
 
 [[node]]

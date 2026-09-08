@@ -5348,3 +5348,44 @@ Status: IN PROGRESS (opened 2026-09-08).
 - **Follow-ups spawned:** DET-66's R7 ruling; the memo row for tokenized fund
   shares, owed **before Step 5's tree**; cbETH's open point 2; tBTC's run-time
   resolver for GHO; the heartbeat values (analyst); session 3 — freeze, run 1.
+
+## P-4.09 — Memo §4.5 amended: tokenized fund shares; cbETH resolved from the memo
+
+- **Date:** 2026-09-08
+- **Type:** decision
+- **Confirmed by:** Amin
+- **Content:**
+  **Signature line 1 — SIGNED — memo amendment**, two hunks, each match string
+  asserted unique: §4.5 gains one look-through row, *tokenized fund shares with
+  off-chain NAV (JAAA, USTB, USCC) -> `recurses_truncated`*, truncation at the
+  fund's off-chain holdings, `node_class` by mandate, cadence
+  `[RE-SCOPED TO INTAKE: NAV cadence per fund]` in the cbBTC row's own
+  convention, carrying `[AMENDED 2026-09-08: … 8.0% of attributed weight at
+  block 25934326 (P-4.09)]`; and §11 gains item **14**, in the cbETH
+  resolution line's form. **Item 14, not a line beside item 2** — §11's numbers
+  are load-bearing (P-3.11 cites §11.12 and §11.6, P-4.04 R4 cites §11.6), so
+  renumbering would silently break rulings already made.
+  → `archetype-memo-1-cdp.md` **e08ce1e8 -> 17553d7b**, 88,095 -> 88,651 B.
+  **Signature line 2 — SIGNED — `rubric_change`** (DET-87): the header's
+  memo-line only. → `rubic_v1.md` **875c9718 -> bb874d04**, 83,457 B unchanged;
+  sheet `d2114a96` and checklist `54620383` reappear byte-identical. **The one
+  live literal pinning `e08ce1e8` was that header line; no test and no
+  `CLAUDE.md` pinned it.** **No mirror regeneration and no log event:** the
+  mirrors are generated from the SHEET and DET-77 binds `header.sheet_hash` to
+  the sheet and to the last `intake_trigger`, so the memo is in neither chain
+  and asserting otherwise would fake a binding.
+  **cbETH — RULED FROM THE MEMO, NOT NEWLY RULED.** The memo's §4.5 cbETH row
+  and §11 item 2 resolved it 2026-09-02 (P1/P2): `recurses`. **As-counted:**
+  the design layer's "cbETH stays `unlisted` on open point 2" rested on the GHO
+  SHEET's stale "row needed" note; precedence is brief -> memo -> sheets, and
+  the agent flagged it rather than acting on it. The sheet note is queued for
+  the next signed sheet edit — one line, no (d)-cycle for a note.
+  **`gho_labels.toml` 752bdfb8 -> 837e88b7:** JAAA `recurses_truncated`/stable
+  (CLO), USTB `recurses_truncated`/stable (T-bill), USCC
+  `recurses_truncated`/volatile (crypto carry), cbETH `recurses`/volatile.
+  **Zero `unlabeled` rows remain**, so DET-08's `unlisted` set is **{tBTC}**
+  alone until block 2's A5 resolver lands. 111 tests; ruff clean.
+- **Artifacts:** `docs/context/archetype-memo-1-cdp.md`,
+  `docs/context/rubic_v1.md`, `config/gho_labels.toml`; `PROGRESS.md`.
+- **Follow-ups spawned:** the GHO sheet's stale cbETH note, queued for the next
+  signed sheet edit.

@@ -4,7 +4,7 @@
 **Date:** 2026-09-03.
 **Checksum algorithm (declared 2026-09-03):** SHA-256, first 8 hex digits, over the raw bytes of the LF-normalized file (line endings pinned by `.gitattributes`, so on-disk bytes and hash input are identical on every platform).
  
-**Governing artifacts (checksums):** `archetype-memo-1-cdp.md` e08ce1e8 · `intake-sheets-cdp.md` d2114a96 · `phase-b-checklist.md` 54620383 — all at status "Phase B COMPLETE — 2026-09-02".
+**Governing artifacts (checksums):** `archetype-memo-1-cdp.md` 17553d7b · `intake-sheets-cdp.md` d2114a96 · `phase-b-checklist.md` 54620383 — all at status "Phase B COMPLETE — 2026-09-02".
  
 **Historical checksums — unreproducible, retained (2026-09-03):** the previous values `f65f5f72` · `976085c9` · `6c7c6708` reproduce under no tested scheme: 0 of 3 files matched across 126 scheme × byte-form combinations (14 schemes — CRC-32, Adler-32, and first-8/last-8 of MD5, SHA-1, SHA-256, SHA3-256, BLAKE2b, BLAKE2s — over 9 byte forms). The three values were authored during the Step-2 design sessions in a chat environment where no byte-level hash of the repository files was ever computed; the working explanation is that the stamps were authored, not machine-computed over these bytes. Pre-import drift is not excluded by evidence, but under either explanation the values are unrecoverable. Provenance boundary: commit 5aef7c4 (2026-09-03), clean tree for `docs/context/` — bytes as committed are the earliest verifiable state. Retained, never deleted.
 **Place in the pipeline (brief §7):** deterministic checks in plain code run first, in stage order; then one LLM-as-judge call with structured output. generate → evaluate → one revision → ship or quarantine.

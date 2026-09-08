@@ -119,6 +119,7 @@ Edge case: aToken pass-through assumes withdrawable liquidity; at 100% pool util
 | weETH / LRT family (rsETH, ezETH, osETH, ETHx, tETH) | crvUSD (weETH mint market); GHO | `terminal_other_layer` (ruled 2026-09-02) | — | — | – |
 | cbETH | GHO | `recurses` (ruled 2026-09-02) | Coinbase disclosure | [RE-SCOPED TO INTAKE: cadence] | – |
 | cbBTC (and LBTC / eBTC / FBTC / BTCb as custodial BTC wrappers) | crvUSD (cbBTC mint market — largest borrow flow, Curve News wk32 2026); GHO | `recurses` (ruled 2026-09-02, P1) | custodian PoR + attestation (Coinbase for cbBTC) | [RE-SCOPED TO INTAKE: cadence per custodian] | – |
+| Tokenized fund shares with off-chain NAV (JAAA, USTB, USCC) | GHO (Aave Horizon RWA instance) | `recurses_truncated` — `node_class` by the fund's mandate (T-bill / CLO → stable; crypto carry → volatile) | the fund's off-chain holdings — not analyzed | [RE-SCOPED TO INTAKE: NAV cadence per fund] | — [AMENDED 2026-09-08: row added; first needed by GHO's Horizon collateral, 8.0% of attributed weight at block 25934326 (P-4.09)] |
 | Basepool LP tokens (3CRV-type) as paired assets | LUSD, others via metapools | composite pass-through (§4.3) → constituents | — | per constituent | – |
 | Analyzed-set tokens (crvUSD, GHO) as paired assets or nodes | GHO/crvUSD pools | linked to last published tree (§4.1); `recurses_truncated` + L1 until first publication | — | inherited | – |
 | Unlisted node | any | **quarantine** (§8.2) — never "other" | — | — | — |
@@ -448,6 +449,7 @@ Weight-thresholded at **5% of a token's backing** (by value, at the run's block)
 11. **Per-node admin qualifier (§13 option b, full form).** The pilot ships the token-level qualifier. Revisit after first runs, when it is known whether token-level suffices or nodes behind different admin surfaces (e.g., GSM vs. Aave facilitator within GHO) need per-node decoration.
 12. **Off-venue share sourcing — logged 2026-09-02 (P5).** A Step-3 implementation task, not a memo matter. Licensed fallback: if not reliably computable on a run, publish "off-venue share: not computed" with a §8.1 Level 1 flag. Never guessed.
 13. **Collateral-sell-side parameter values — deferred as designed (P6).** Set at pool-set freeze (first-run setup) from observable market depth on that date, staleness-dated. Not a Phase B item.
+14. **Tokenized fund shares — ADDED 2026-09-08 (P-4.09).** §4.5 row; first needed by GHO's Horizon collateral.
 ## §12. Redemption-rights fields
  
 **Scope — holder redemption only.** R1–R9 describe what a **holder** of the stablecoin can claim. Borrower repayment (repay debt, withdraw collateral) is the mechanism, not a right, and is out of scope for these fields. The LUSD-vs-crvUSD contrast is the illustration: LUSD holders redeem at face against troves; crvUSD holders have no redemption path — only borrowers close positions. Recording that difference is the field set's entire purpose. *"Backing you can't claim isn't backing in a run."*
