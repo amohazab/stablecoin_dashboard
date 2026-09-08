@@ -231,3 +231,69 @@ def test_det03_gho_clause_reads_the_facilitator_rows():
         "principal": ContractRead(source_contract=POOL, function="Borrow", args=[], block=RB)}})]
     with pytest.raises(Level3, match="anti-tautology"):
         det_03(b, {})
+
+
+# --- 2b surfaces --------------------------------------------------------------
+
+
+def test_role_holders_uses_logs_as_pointer_and_hasrole_as_verdict():
+    """P-4.04 R5. A holder that was granted then revoked must NOT come back;
+    a holder revoked then re-granted MUST — which is only true if the verdict
+    is a state read rather than a replay of the log."""
+    from factory.adapters.gho import ROLE_GRANTED, ROLE_REVOKED, role_holders
+    A = "0x1111111111111111111111111111111111111111"
+    B = "0x2222222222222222222222222222222222222222"
+    role = b"" * 32
+    rows = {ROLE_GRANTED: [A, B], ROLE_REVOKED: [A]}
+
+    def http_get(url, params):
+        who = rows.get(params.get("topic0"), [])
+        return {"status": "1", "result": [
+            {"topics": [params["topic0"], params["topic1"],
+                        "0x" + "0" * 24 + w[2:]], "data": "0x",
+             "blockNumber": "0x1"} for w in who]}
+
+    rpc = FakeRpc({(GSM, "hasRole(bytes32,address)", (str(role), B)): (True,),
+                   (GSM, "hasRole(bytes32,address)", (str(role), A)): (False,)})
+    held, ptrs, n = role_holders(GSM, role, rpc, http_get, "KEY", 0)
+    assert held == [B] and n == 2 and len(ptrs) == 2
+
+
+def test_unlabeled_config_row_emits_unlisted_and_keeps_its_reason():
+    """The tree's label set is closed (memo §4.2), so an `unlabeled` config row
+    cannot introduce a fifth state: it emits §8.2's `unlisted` and its reason
+    rides in `flags`, so 'ruling owed' stays distinguishable from 'no row'."""
+    import datetime as dt
+    from pathlib import Path
+
+    from factory.adapters.gho import _nodes
+    from factory.config import Config, LabelRow, LendFactories, LendState
+    node = "0x5a0f93d040de44e78f251b03c43be9cf317dcf64"
+    cfg = Config(token="GHO", frozen_set_path=Path("x"), roots={},
+                 labels={node: LabelRow(node, "JAAA", "volatile", False, "P-4.08",
+                                        dt.date(2026, 9, 8), "unlabeled",
+                                        "no memo 4.5 row", "3.973%")},
+                 paired={}, lend=LendFactories(LendState.EXPLICIT_EMPTY), sheet={})
+    rpc = FakeRpc({(node, "decimals()", ()): (18,),
+                   (POOL, "getAssetPrice(address)", (node,)): (10 ** 8,)})
+    rows, _ = _nodes(cfg, {node: 10 ** 18}, {node: [POOL]}, rpc, [POOL], {POOL: POOL})
+    (r,) = rows
+    assert r.label == "unlisted"                      # never a fifth state
+    assert "no memo 4.5 row" in r.flags[0] and "3.973%" in r.flags[0]
+
+
+def test_det55_dispatches_on_the_update_condition_type():
+    """P-4.08: DET-55's enum has two members. A deviation/heartbeat row whose
+    heartbeat is not yet signed is present-and-empty — allowed, but only when
+    the adapter class names WHY it is absent."""
+    import tests.test_schema as ts
+    from factory.schema import DeviationHeartbeat
+    from factory.validate.harness import Level3, det_55
+    b = ts.a_bundle()
+    row = b.oracle_rows[0]
+    ok = row.model_copy(update={"update_condition": DeviationHeartbeat(provenance=[]),
+                                "adapter_class": "nav", "staleness_check": None})
+    det_55(b.model_copy(update={"oracle_rows": [ok]}), {})
+    bad = ok.model_copy(update={"adapter_class": None})
+    with pytest.raises(Level3, match="neither a heartbeat nor an adapter class"):
+        det_55(b.model_copy(update={"oracle_rows": [bad]}), {})

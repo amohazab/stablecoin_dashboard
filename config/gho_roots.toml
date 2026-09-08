@@ -15,6 +15,12 @@
 # Anything reachable from these two is discovered per run. Anything not
 # reachable from them is a finding, not a config addition.
 
+# EXPLICITLY EMPTY, not absent (P-3.17's three states): GHO originates through
+# its Aave instances, which ARE the lending venues; a third-party aGHO holding
+# is a supply read, not a lend market. Absent would read as 'no data'; empty
+# says the question was asked and answered (P-4.08).
+lend_factory = []
+
 [[root]]
 id = "gho_token"
 address = "0x40D16FC0246aD3160Ccc09B8D0D3A2cD28aE6C2f"

@@ -16,13 +16,40 @@ facilitator set comes from `GhoToken.getFacilitatorsList()`, the live GSMs from
 
 from __future__ import annotations
 
+import hashlib
+import json
+import pathlib
 from decimal import Decimal
 
 from eth_utils import keccak
 
+from factory.logbook import is_first_run
 from factory.logs_pointer import get_logs
+from factory.provenance import AbsenceRead, AnalystSupplied, ContractRead
 from factory.rpc import Call
-from factory.schema import Facilitator, GhoPosition, Gsm, PositionCompleteness
+from factory.schema import (
+    AdminRow,
+    Bridge,
+    Bundle,
+    CollateralNode,
+    Counts,
+    DeviationHeartbeat,
+    Facilitator,
+    FirstRunLiterals,
+    GhoPosition,
+    Gsm,
+    Header,
+    OracleRow,
+    PoolDetectors,
+    PositionCompleteness,
+    RedemptionPath,
+    StabilizerBlock,
+    StaticMetadata,
+    Supply,
+)
+
+# Where promoted bundles live; `is_first_run` is path-scoped (P-3.14).
+_BUNDLES = pathlib.Path("out/bundles")
 
 # DET-28's discriminators, read from the chain at block 25930871 rather than
 # recalled: each class answers a selector no other class answers.
@@ -102,7 +129,7 @@ def _class_of(evidence: list[str]) -> str:
     return "unresolved"
 
 
-def read_facilitators(rpc, gho: str) -> tuple[list[Facilitator], int]:
+def read_facilitators(rpc, gho: str, cfg=None) -> tuple[list[Facilitator], int]:
     """`getFacilitatorsList()` -> one row per facilitator. Returns the rows and
     the read count, so the caller can report reads without recounting."""
     listed = rpc.read([Call(gho, "getFacilitatorsList()", ("address[]",))])[0]
@@ -131,6 +158,13 @@ def read_facilitators(rpc, gho: str) -> tuple[list[Facilitator], int]:
         label = by[a]["facilitator"].require()[0][2]
         evidence = [sig for sig, _, _ in PROBE if by[a][sig].ok]
         cls = _class_of(evidence)
+        # DET-28's dated fallback (P-4.08 ruling 1): consulted ONLY where the
+        # probe could not resolve; a row's absence keeps `unresolved`.
+        if cls == "unresolved" and cfg is not None:
+            fb = getattr(cfg, "facilitator_classes", {}).get(a)
+            if fb:
+                cls = fb["facilitator_class"]
+                evidence = evidence + [f"analyst row {fb['classified_on']}"]
         pool = by[a]["POOL()"].one().lower() if cls == "direct_minter" else None
         rows.append(Facilitator(
             address=a, label=label, bucket_capacity=int(cap), bucket_level=int(lvl),
@@ -247,39 +281,97 @@ def read_inventory(rpc, gho: str, atoken: str) -> tuple[int, object, int]:
     return int(r.one()), r.provenance, 1
 
 
+def _nodes(cfg, weights, node_instance, rpc, pools, oracle_by_pool) -> tuple[list, int]:
+    """`CollateralNode` rows for every node carrying a config row, valued at the
+    instance's own Aave oracle (DET-81). A config `unlabeled` row emits
+    `unlisted` — the tree's label set is closed and §8.2 is where these belong
+    (P-4.08); its `reason` and share ride in `flags` so the disclosure names
+    which wedge is unruled rather than hiding it inside a label.
+    """
+    n = 0
+    priced: dict[str, int] = {}
+    dec: dict[str, int] = {}
+    addrs = [a for a in weights if a in cfg.labels]
+    if addrs:
+        d = rpc.read([Call(a, "decimals()", ("uint8",)) for a in addrs])
+        n += len(d)
+        dec = {a: int(r.one()) if r.ok else 18 for a, r in zip(addrs, d, strict=True)}
+        for pool in pools:
+            o = oracle_by_pool.get(pool)
+            mine = [a for a in addrs if pool in (node_instance.get(a) or []) and a not in priced]
+            if not o or not mine:
+                continue
+            pr = rpc.read([Call(o, "getAssetPrice(address)", ("uint256",), (a,)) for a in mine])
+            n += len(pr)
+            for a, r in zip(mine, pr, strict=True):
+                if r.ok:
+                    priced[a] = int(r.one())
+    values = {a: (weights[a] * priced.get(a, 0)) // (10 ** dec.get(a, 18)) for a in addrs}
+    total = sum(values.values()) or 1
+    rows = []
+    for a in addrs:
+        row = cfg.labels[a]
+        label = row.label
+        flags = []
+        if label is None:
+            # A5: no config label, and this slice performs no run-time resolver
+            # for GHO's tBTC, so it is unlabeled-in-run and routes via §8.2.
+            label = "unlisted"
+            flags.append("A5: label resolved by a run-time read; not performed in this slice")
+        elif label == "unlabeled":
+            label = "unlisted"
+            flags.append(f"unlabeled: {row.reason} (share at classification {row.share})")
+        rows.append(CollateralNode(
+            address=a, symbol=row.symbol, label=label, label_source_address=a,
+            node_class=row.node_class, lst_discount_applies=row.lst_discount_applies,
+            value=values[a], share_of_backing=Decimal(values[a]) / Decimal(total),
+            flags=flags,
+            reads={"balance": ContractRead(source_contract=a, function="balanceOf(address)",
+                                           args=[], block=rpc.run_block)},
+            lineage=["collateral_read", "price_read"]))
+    return sorted(rows, key=lambda r: r.address), n
+
+
 def assemble(cfg, rpc, repo, token: str, http_get=None, key: str = "",
              from_block: int = 0):
-    """P-4.02's adapter signature. Builds slice 2a and STOPS — see
-    `GhoAdapterIncomplete`. Returns nothing; the numbers ride the stop."""
-    return build(cfg, rpc, http_get=http_get, key=key, from_block=from_block, stop=True)
+    """P-4.02's adapter signature — returns a full `Bundle` and its extras."""
+    res = build(cfg, rpc, http_get=http_get, key=key, from_block=from_block)
+    return res["bundle"], res
 
 
-def build(cfg, rpc, http_get=None, key: str = "", from_block: int = 0, stop: bool = False):
-    """Slice 2a end to end: facilitators, GSMs, supply inventory, positions,
-    principal, node weights. Returns a dict; `assemble` raises on it."""
+def build(cfg, rpc, http_get=None, key: str = "", from_block: int = 0):
+    """Slice 2a+2b end to end: facilitators, GSMs, supply, positions, principal,
+    nodes, admin surface, oracle rows, redemption paths — a whole `Bundle`."""
     gho = cfg.root("gho_token").address
     registry = cfg.root("gsm_registry").address
     reads = 0
 
-    facilitators, n = read_facilitators(rpc, gho)
+    facilitators, n = read_facilitators(rpc, gho, cfg)
     reads += n
-    supply = int(rpc.read([Call(gho, "totalSupply()", ("uint256",))])[0].one())
+    supply_total = int(rpc.read([Call(gho, "totalSupply()", ("uint256",))])[0].one())
     reads += 1
-    check_supply_identity(facilitators, supply)
-
+    check_supply_identity(facilitators, supply_total)
     gsms, n = read_gsms(rpc, registry, http_get=http_get, key=key, from_block=from_block)
     reads += n
+
     bridge_rows = []
     for b in cfg.bridges:
         r = rpc.read([Call(gho, "balanceOf(address)", ("uint256",), (b["address"],))])[0]
         reads += 1
-        bridge_rows.append({"bridge_address": b["address"], "amount": int(r.one()),
-                            "bridge_type": b["bridge_type"], "reads": {"amount": r.provenance}})
+        # C-1: the AMOUNT is a contract read, the TYPE is the dated analyst row
+        # from the DET-33 menu. Two provenances, because they are two claims.
+        bridge_rows.append(Bridge(
+            bridge_address=b["address"], amount=int(r.one()),
+            bridge_type=b["bridge_type"],
+            reads={"amount": r.provenance,
+                   "bridge_type": AnalystSupplied(value=b["bridge_type"],
+                                                  source=b["source"],
+                                                  date=str(b["date"]))}))
 
-    # ---- positions, per instance -------------------------------------------
     positions: list[GhoPosition] = []
-    node_reserves: dict[str, set[str]] = {}
+    node_instance: dict[str, list[str]] = {}
     pointers = []
+    oracle_by_pool: dict[str, str] = {}
     out_f = []
     for f in facilitators:
         if f.facilitator_class != "direct_minter":
@@ -287,6 +379,7 @@ def build(cfg, rpc, http_get=None, key: str = "", from_block: int = 0, stop: boo
             continue
         debt_token, atoken, reserves, atokens, oracle, n = read_instance(rpc, gho, f.pool_address)
         reads += n
+        oracle_by_pool[f.pool_address] = oracle
         inv, inv_prov, n = read_inventory(rpc, gho, atoken)
         reads += n
         ledger, ptrs = ({}, [])
@@ -299,42 +392,88 @@ def build(cfg, rpc, http_get=None, key: str = "", from_block: int = 0, stop: boo
         reads += n
         positions.extend(rows)
         for r in rows:
-            for res in r.collateral:
-                node_reserves.setdefault(res, set()).add(f.pool_address)
+            for res_addr in r.collateral:
+                node_instance.setdefault(res_addr, [])
+                if f.pool_address not in node_instance[res_addr]:
+                    node_instance[res_addr].append(f.pool_address)
         out_f.append(f.model_copy(update={
             "debt_token_address": debt_token, "atoken_address": atoken, "inventory": inv,
-            "reads": {**f.reads, "inventory": inv_prov},
+            "reads": {**f.reads, "inventory": inv_prov,
+                      "principal": ContractRead(source_contract=f.pool_address,
+                                                function="Borrow(address,address,address,"
+                                                         "uint256,uint8,uint256,uint16)",
+                                                args=[gho], block=rpc.run_block),
+                      "gross_debt": ContractRead(source_contract=debt_token,
+                                                 function="balanceOf(address)", args=[],
+                                                 block=rpc.run_block)},
             "n_positions": len(rows),
             "principal_sum": sum(x.principal for x in rows),
             "accrued_interest_sum": sum(x.accrued_interest for x in rows),
             "gross_debt_sum": sum(x.gross_debt for x in rows),
             "position_completeness": completeness}))
     facilitators = out_f
+    pools = sorted(oracle_by_pool)
 
-    result = {"facilitators": facilitators, "gsms": gsms, "total_supply": supply,
-              "oracles": {f.pool_address: f.atoken_address for f in facilitators
-                          if f.facilitator_class == "direct_minter"},
-              "bridges": bridge_rows, "positions": positions,
-              "node_weights": attribute_nodes(positions),
-              "node_instances": {k: sorted(v) for k, v in node_reserves.items()},
-              "pointers": [p.record() for p in pointers], "reads": reads}
-    if stop:
-        raise GhoAdapterIncomplete(
-            f"GHO slice 2a built: {len(facilitators)} facilitators, {len(gsms)} GSMs, "
-            f"{len(positions)} positions, {len(result['node_weights'])} nodes, "
-            f"totalSupply {supply}, {reads} pinned reads. "
-            "OWED before a bundle can be constructed: node LABELS (analyst, 2b), the "
-            "nine admin_surface rows (DET-68), oracle_rows, redemption_paths (DET-66's "
-            "GHO clause), the lend disclosure, and the freeze with pools and "
-            "pool_detectors. Sessions 2b and 3."
-        )
-    return result
+    weights = attribute_nodes(positions)
+    nodes, n = _nodes(cfg, weights, node_instance, rpc, pools, oracle_by_pool)
+    reads += n
+    admin, aptrs, n = read_admin_surface(rpc, gho, gsms, pools, http_get, key, from_block)
+    reads += n
+    pointers.extend(aptrs)
+    oracle_rows, n = read_oracle_rows(rpc, cfg, pools, [r.address for r in nodes],
+                                      node_instance)
+    reads += n
+    paths, n = redemption_paths(rpc, gsms, gho)
+    reads += n
 
+    origination = sum(f.principal_sum or 0 for f in facilitators)
+    burn_mint = [b for b in bridge_rows if b.bridge_type == "burn_and_mint"]
+    disclosure = (f"bridged component assessed: {len(bridge_rows)} "
+                  f"{bridge_rows[0].bridge_type if bridge_rows else 'no'} escrow(s); "
+                  f"burn_and_mint component {'zero' if not burn_mint else 'present'}")
+    supply = Supply(total_supply=supply_total, supply_ruled=supply_total,
+                    bridge_state="populated" if bridge_rows else "not_configured",
+                    bridge_disclosure=disclosure if bridge_rows
+                    else "no bridge classification data configured",
+                    bridges=bridge_rows, origination_sum=origination,
+                    residual=supply_total - origination,
+                    stabilizer_over_supply=Decimal(0),
+                    reads={"total_supply": ContractRead(
+                        source_contract=gho, function="totalSupply()", args=[],
+                        block=rpc.run_block)})
 
-__all__ = ["GhoAdapterIncomplete", "PROBE", "assemble", "attribute_nodes", "build",
-           "borrower_ledger", "check_supply_identity", "read_facilitators",
-           "read_gsms", "read_instance", "read_inventory", "read_positions"]
-
+    first = is_first_run(_BUNDLES, "GHO") if _BUNDLES else True
+    raw = json.dumps([p.model_dump(mode="json") for p in positions],
+                     sort_keys=True, separators=(",", ":"))
+    bundle = Bundle(
+        header=Header(token="GHO", run_block=rpc.run_block,
+                      block_timestamp=rpc.block_timestamp,
+                      run_start_time=rpc.run_start_time, first_run=first,
+                      pipeline_version="0.1.0", sheet_hash=cfg.sheet["sheet_hash"],
+                      raw_positions_hash=hashlib.sha256(raw.encode()).hexdigest()),
+        markets=[], facilitators=facilitators, gsms=gsms,
+        stabilizer=StabilizerBlock(operations=[], ceiling_aggregate=0,
+                                   ceiling_aggregate_lineage=[]),
+        supply=supply, nodes=nodes, oracle_rows=oracle_rows, redemption_paths=paths,
+        admin_surface=admin, lend_markets=[],
+        pools=[], pool_detectors=PoolDetectors(baseline_source="freeze_set_file",
+                                               baseline_note="no GHO freeze yet"),
+        static_metadata=StaticMetadata(
+            audits="none", bug_bounty="none", last_material_change_audited="no",
+            staleness_date="2026-09-01", counterparties=cfg.sheet["counterparties"]),
+        counts=Counts(mint_market_count=sum(1 for f in facilitators
+                                            if f.facilitator_class == "direct_minter"),
+                      lend_market_count=cfg.lend.market_count_field,
+                      lend_market_count_note=(
+                          "explicitly empty: GHO's Aave instances ARE the lending "
+                          "venues and are counted as origination, not re-lending; a "
+                          "third-party aGHO holding is a supply read (P-4.08)"),
+                      facilitator_count=len(facilitators), gsm_count=len(gsms)),
+        attribution_method=cfg.sheet["attribution_method"],
+        first_run_literals=FirstRunLiterals() if first else None)
+    return {"bundle": bundle, "positions": positions, "raw": raw,
+            "node_weights": weights, "node_instances": node_instance,
+            "pointers": [p.record() for p in pointers], "reads": reads}
 
 # --------------------------------------------------------------- positions ---
 
@@ -491,3 +630,267 @@ def attribute_nodes(positions: list[GhoPosition]) -> dict[str, int]:
         for res, amount in p.collateral.items():
             out[res] = out.get(res, 0) + (amount * num) // p.total_debt_base
     return dict(sorted(out.items(), key=lambda kv: -kv[1]))
+
+# --------------------------------------------------------------- surfaces ---
+# 2b: the admin surface, oracle rows, redemption paths, lend disclosure. Every
+# holder here is DISCOVERED - role logs as pointer, `hasRole` at `run_block` as
+# verdict (P-4.04 R5) - and every absence is an F4-shaped absence read rather
+# than a silent omission.
+
+ROLE_REVOKED = _sig("RoleRevoked(bytes32,address,address)")
+A1_POWERS = ("mint", "set_ceiling", "upgrade", "pause", "freeze_asset",
+             "blacklist_address", "set_oracle", "set_parameters", "seize")
+EIP1967_IMPL = "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc"
+EIP1967_ADMIN = "0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103"
+
+
+def role_holders(contract: str, role: bytes, rpc, http_get, key: str,
+                 from_block: int) -> tuple[list[str], object, int]:
+    """Current holders of one role: `RoleGranted`/`RoleRevoked` as POINTER,
+    `hasRole` at `run_block` as VERDICT. A revoked-then-regranted holder comes
+    back because the verdict is a state read, not a replay of the log."""
+    role_topic = "0x" + role.hex()
+    cand: set[str] = set()
+    ptrs = []
+    for sig in (ROLE_GRANTED, ROLE_REVOKED):
+        p = get_logs(contract, [sig, role_topic], from_block, rpc.run_block, http_get, key)
+        ptrs.append(p)
+        for r in p.rows:
+            if len(r.topics) > 2:
+                cand.add("0x" + r.topics[2][-40:])
+    uniq = sorted(cand)
+    res = rpc.read([Call(contract, "hasRole(bytes32,address)", ("bool",), (role, h))
+                    for h in uniq]) if uniq else []
+    held = [h for h, v in zip(uniq, res, strict=False) if v.ok and v.one()]
+    return held, ptrs, len(res)
+
+
+def holder_type(rpc, addr: str) -> tuple[str, int | None, int]:
+    """What KIND of holder, from what the address answers - never from a name.
+
+    `getDelay()` answers  -> timelock, and the delay is the read.
+    `getThreshold()`      -> multisig.
+    no code               -> eoa.
+    otherwise             -> contract_automated.
+    NAMED DEFAULT (P-4.08): `dao_governance` is never assigned by probe. An
+    Aave executor IS the DAO's instrument, and it answers `getDelay()`, so it
+    lands as `timelock` - the stricter, read-backed statement.
+    """
+    r = rpc.read([Call(addr, "getDelay()", ("uint256",)),
+                  Call(addr, "getThreshold()", ("uint256",))])
+    if r[0].ok:
+        return "timelock", int(r[0].one()), 2
+    if r[1].ok:
+        return "multisig", None, 2
+    return "contract_automated", None, 2
+
+
+def _bucket(delay: int | None) -> str:
+    if not delay:
+        return "none"
+    if delay < 86_400:
+        return "<24h"
+    return "1-7d" if delay <= 604_800 else ">7d"
+
+
+def read_admin_surface(rpc, gho: str, gsms: list, pools: list[str], http_get, key: str,
+                       from_block: int) -> tuple[list, list, int]:
+    """The nine A1 rows (DET-68). Holders by role logs + `hasRole`; upgrade by
+    EIP-1967 slot; `blacklist_address` by selector-absence scan."""
+    rows, ptrs, n = [], [], 0
+    roles = {"FACILITATOR_MANAGER_ROLE": keccak(text="FACILITATOR_MANAGER_ROLE"),
+             "BUCKET_MANAGER_ROLE": keccak(text="BUCKET_MANAGER_ROLE")}
+    acl = {}
+    for p in pools:
+        ap = rpc.read([Call(p, "ADDRESSES_PROVIDER()", ("address",))])[0]
+        n += 1
+        if ap.ok:
+            m = rpc.read([Call(ap.one(), "getACLManager()", ("address",))])[0]
+            n += 1
+            if m.ok:
+                acl[p] = m.one().lower()
+
+    def first(holders):
+        return holders[0] if holders else None
+
+    def row(power, holder, prov, **kw):
+        ht, delay, k = ("none", None, 0)
+        if holder:
+            ht, delay, k = holder_type(rpc, holder)
+        return (AdminRow(power=power, holder_address=holder, holder_type=ht,
+                         delay_seconds=delay, delay_bucket=_bucket(delay),
+                         provenance=prov, **kw), k)
+
+    # --- mint / set_ceiling: GhoToken roles ---------------------------------
+    for power, role_name in (("mint", "FACILITATOR_MANAGER_ROLE"),
+                             ("set_ceiling", "BUCKET_MANAGER_ROLE")):
+        held, p, k = role_holders(gho, roles[role_name], rpc, http_get, key, from_block)
+        ptrs.extend(p)
+        n += k
+        h = first(held)
+        prov = (ContractRead(source_contract=gho, function="hasRole(bytes32,address)",
+                             args=[role_name, h or ""], block=rpc.run_block) if h
+                else AbsenceRead(contract=gho, method="selector_absence_scan",
+                                 evidence=f"no live {role_name} holder", block=rpc.run_block))
+        r, k = row(power, h, prov, scope=[gho])
+        n += k
+        rows.append(r)
+
+    # --- upgrade: EIP-1967 slots -------------------------------------------
+    admin_slot = rpc.storage(gho, EIP1967_ADMIN)
+    impl_slot = rpc.storage(gho, EIP1967_IMPL)
+    n += 2
+    up = "proxy_upgradeable" if int(impl_slot, 16) else "immutable"
+    holder = ("0x" + admin_slot[-40:]) if int(admin_slot, 16) else None
+    prov = AbsenceRead(contract=gho, method="eip1967_slot_read",
+                       evidence=admin_slot, block=rpc.run_block)
+    r, k = row("upgrade", holder, prov, upgradeability=up, scope=[gho])
+    n += k
+    rows.append(r)
+
+    # --- pause / freeze_asset / set_oracle / set_parameters: ACLManager -----
+    acl_roles = {"pause": "EMERGENCY_ADMIN", "freeze_asset": "RISK_ADMIN",
+                 "set_oracle": "ASSET_LISTING_ADMIN", "set_parameters": "RISK_ADMIN"}
+    for power, rname in acl_roles.items():
+        h, prov = None, None
+        for mgr in acl.values():
+            held, p, k = role_holders(mgr, keccak(text=rname), rpc, http_get, key,
+                                      from_block)
+            ptrs.extend(p)
+            n += k
+            if held:
+                h = held[0]
+                prov = ContractRead(source_contract=mgr,
+                                    function="hasRole(bytes32,address)",
+                                    args=[rname, h], block=rpc.run_block)
+                break
+        if prov is None:
+            prov = AbsenceRead(contract=(next(iter(acl.values())) if acl else gho),
+                               method="selector_absence_scan",
+                               evidence=f"no live {rname} holder", block=rpc.run_block)
+        r, k = row(power, h, prov, scope=sorted(acl))
+        n += k
+        rows.append(r)
+
+    # --- blacklist_address: the selector is simply absent (F4) --------------
+    code = rpc.code(gho)
+    n += 1
+    present = any(sel in code for sel in ("0xf9f92be4", "0x1a695230"))
+    rows.append(AdminRow(power="blacklist_address", holder_address=None,
+                         holder_type="none", delay_bucket="none",
+                         provenance=AbsenceRead(
+                             contract=gho, method="selector_absence_scan",
+                             evidence=f"blacklist selector present={present}",
+                             block=rpc.run_block)))
+
+    # --- seize: GSM LIQUIDATOR_ROLE ----------------------------------------
+    h, prov = None, None
+    for g in gsms:
+        held, p, k = role_holders(g.address, keccak(text="LIQUIDATOR_ROLE"), rpc,
+                                  http_get, key, from_block)
+        ptrs.extend(p)
+        n += k
+        if held:
+            h = held[0]
+            prov = ContractRead(source_contract=g.address,
+                                function="hasRole(bytes32,address)",
+                                args=["LIQUIDATOR_ROLE", h], block=rpc.run_block)
+            break
+    if prov is None:
+        prov = AbsenceRead(contract=(gsms[0].address if gsms else gho),
+                           method="selector_absence_scan",
+                           evidence="no live LIQUIDATOR_ROLE holder", block=rpc.run_block)
+    r, k = row("seize", h, prov, scope=[g.address for g in gsms])
+    n += k
+    rows.append(r)
+    return rows, ptrs, n
+
+
+def read_oracle_rows(rpc, cfg, pools: list[str], nodes: list[str],
+                     node_instance: dict[str, list[str]]) -> tuple[list, int]:
+    """One row per labelled node. The Aave price SOURCE is discovered per
+    instance; its class comes from `description()` and whether `aggregator()`
+    answers, not from a list."""
+    n = 0
+    oracle = {}
+    for p in pools:
+        ap = rpc.read([Call(p, "ADDRESSES_PROVIDER()", ("address",))])[0]
+        n += 1
+        if ap.ok:
+            o = rpc.read([Call(ap.one(), "getPriceOracle()", ("address",))])[0]
+            n += 1
+            if o.ok:
+                oracle[p] = o.one()
+    rows = []
+    for node in nodes:
+        inst = (node_instance.get(node) or pools)[0]
+        o = oracle.get(inst)
+        if o is None:
+            continue
+        s = rpc.read([Call(o, "getSourceOfAsset(address)", ("address",), (node,))])[0]
+        n += 1
+        if not s.ok:
+            continue
+        src = s.one().lower()
+        q = rpc.read([Call(src, "description()", ("string",)),
+                      Call(src, "aggregator()", ("address",)),
+                      Call(src, "latestRoundData()",
+                           ("uint80", "int256", "uint256", "uint256", "uint80"))])
+        n += 3
+        desc = q[0].value[0] if q[0].ok else ""
+        raw = q[1].ok
+        cls = "nav" if "NAV" in desc else ("capo" if desc.startswith("Capped") or "/" in desc
+                                           and not raw else ("raw" if raw else "other"))
+        if raw and not desc.startswith("Capped") and "NAV" not in desc:
+            cls = "raw"
+        answer = int(q[2].value[1]) if q[2].ok else None
+        updated = int(q[2].value[3]) if q[2].ok else None
+        hb = None                     # owed until the values are signed (P-4.08)
+        rows.append(OracleRow(
+            node_address=node, market_or_reserve_address=inst, feed_or_source=src,
+            update_condition=DeviationHeartbeat(
+                heartbeat_s=hb, answer=answer, updated_at=updated,
+                provenance=[q[2].provenance if hasattr(q[2], "provenance") else s.provenance]),
+            assumption_applied="instant_optimistic_counterfactual",
+            counterfactual_ref="EMA_lag",
+            reference_feed="pending_config_round",
+            market_vs_protocol_oracle_gap="pending_config_round",
+            staleness_check=None, adapter_class=cls,
+            disclosure=(f"{desc}; heartbeat owed, present-and-empty for T-26"
+                        if cls != "nav" else
+                        f"{desc}; NAV adapter - no heartbeat exists, T-26 not applicable")))
+    return rows, n
+
+
+def redemption_paths(rpc, gsms: list, gho: str) -> tuple[list, int]:
+    """The sheet's R1-R5: one `module_on_chain` path per LIVE GSM, plus the
+    Aave facilitator path at `none` (a borrower repaying is not a holder
+    redemption - R2 is `no_one` on that path, per the sheet's Path 2)."""
+    n = 0
+    out = []
+    for g in gsms:
+        out.append(RedemptionPath(
+            r1_path="module_on_chain", r2_who="anyone",
+            r3_received=[g.underlying_asset],
+            r4_rate="face_minus_fee(sell fee from GSM.getFeeStrategy())",
+            r5_minimum="none", r6_gates=[{"kind": "capacity_limited", "param": None},
+                                         {"kind": "pausable", "param": None}],
+            r7_capacity=str(g.available_liquidity), r8="enforceable_unless_paused",
+            r9_legal_claim="no_pure_protocol",
+            r10_provenance=ContractRead(source_contract=g.address,
+                                        function="getFeeStrategy()", args=[],
+                                        block=rpc.run_block)))
+    out.append(RedemptionPath(
+        r1_path="none", r2_who="no_one", r3_received="n/a", r4_rate="n/a",
+        r5_minimum="n/a", r6_gates=[{"kind": "none", "param": None}],
+        r7_capacity="n/a", r8="n/a", r9_legal_claim="no_pure_protocol",
+        r10_provenance=AbsenceRead(contract=gho, method="selector_absence_scan",
+                                   evidence="no holder redemption function on GhoToken",
+                                   block=rpc.run_block)))
+    return out, n
+
+
+__all__ = ["GhoAdapterIncomplete", "PROBE", "assemble", "attribute_nodes", "build",
+           "borrower_ledger", "check_supply_identity", "read_admin_surface",
+           "read_facilitators", "read_gsms", "read_instance", "read_inventory",
+           "read_oracle_rows", "read_positions", "redemption_paths", "role_holders"]

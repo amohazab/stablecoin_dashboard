@@ -40,3 +40,238 @@ address = "0x06179f7C1be40863405f374E7f5F8806c728660A"
 bridge_type = "lock_and_mint"
 source = "intake-sheets-cdp.md, GHO section, Redemption-rights R3 row [VERIFIED 2026-09-01: CCIP token pool 0x06179f7C1be40863405f374E7f5F8806c728660A; source bgd-labs/aave-address-book main (GhoEthereum.sol)]; 'CCIP token pool = lock-and-mint on Ethereum (see 8.1.4(b))' per the same section's Other-facilitators line"
 date = 2026-09-01
+
+# ---- facilitator classes (DET-28 fallback, C-1 form) -------------------------
+# ANALYST-AUTHORED, verbatim from Amin (P-4.08). The DET-28 selector probe stays
+# PRIMARY: a facilitator the probe resolves never consults these rows, and a
+# facilitator with neither a probe result nor a row stays `unresolved`. These
+# four are the ones P-4.07 flagged - nineteen selectors revert on all of them,
+# they share one verified contract name, and their bytecode groups them 2/2
+# across this split, so on-chain they are indistinguishable and the class is an
+# analyst act with a date, never an inference from the label string.
+[[facilitator_class]]
+address = "0xe9ac5231faecb633da0fe85fcb2785b8363427d2"
+facilitator_class = "gsm_funder"
+classified_on = 2026-09-08
+source = "analyst: Aave governance, GHO Direct Facilitator for mainnet GSMs; on-chain indistinguishable (P-4.08)"
+
+[[facilitator_class]]
+address = "0x2bd010ab5393ab51b601b99c4b33ba148d9466e9"
+facilitator_class = "off_mainnet"
+classified_on = 2026-09-08
+source = "analyst: Aave governance, GHO cross-chain Direct Facilitator onboarding; on-chain indistinguishable (P-4.08)"
+
+[[facilitator_class]]
+address = "0x436dccc028322afc355f608cf582b7d7f19fdfed"
+facilitator_class = "off_mainnet"
+classified_on = 2026-09-08
+source = "analyst: Aave governance, GHO cross-chain Direct Facilitator onboarding; on-chain indistinguishable (P-4.08)"
+
+[[facilitator_class]]
+address = "0x0cb7c2a2ab38aed3e6096631d7dba3dabf237134"
+facilitator_class = "off_mainnet"
+classified_on = 2026-09-08
+source = "analyst: Aave governance, GHO cross-chain Direct Facilitator onboarding; on-chain indistinguishable (P-4.08)"
+
+# ---- collateral nodes (DET-02) ----------------------------------------------
+# The freeze-time section-4 table, instantiated from the P-4.07 measurement at
+# block 25934326: the marked set is the union of the sheet's named nodes and
+# every node at or above 1% of attributed weight - 98.451% of the total.
+#
+# `label = "unlabeled"` is a CONFIG state, not a tree state: the tree's label
+# set is closed at four states plus `unlisted` (memo 4.2 / hard gate), so an
+# unlabeled row emits `unlisted` - section 8.2's own state, where these nodes
+# belong - and its `reason` rides in the node's `flags`, so "row exists, ruling
+# owed" and "no row at all" stay distinguishable in the output.
+#
+# NAMED DEFAULT: an unlabeled node takes `node_class = "volatile"`. `stable`
+# would grant a peg assumption the absent ruling has not made; volatile is the
+# conservative side and is stated rather than assumed.
+
+[[node]]
+address = "0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0"
+symbol = "wstETH"
+label = "terminal_other_layer"
+node_class = "volatile"
+lst_discount_applies = true
+label_source = "memo 4.5 LST row"
+date = 2026-09-08
+
+[[node]]
+address = "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
+symbol = "WETH"
+label = "terminal"
+node_class = "volatile"
+lst_discount_applies = false
+label_source = "memo 4.5 aTokens / WETH row - transparent"
+date = 2026-09-08
+
+[[node]]
+address = "0x2260fac5e5542a773aa44fbcfedf7c193bc2c599"
+symbol = "WBTC"
+label = "recurses"
+node_class = "volatile"
+lst_discount_applies = false
+label_source = "memo 4.5 WBTC row - custodial wrapper"
+date = 2026-09-08
+
+[[node]]
+address = "0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9"
+symbol = "AAVE"
+label = "terminal"
+node_class = "volatile"
+lst_discount_applies = false
+label_source = "memo 4.5 governance/volatile row"
+date = 2026-09-08
+
+[[node]]
+address = "0x5a0f93d040de44e78f251b03c43be9cf317dcf64"
+symbol = "JAAA"
+label = "unlabeled"
+node_class = "volatile"
+lst_discount_applies = false
+label_source = "P-4.08 ruling 1"
+reason = "no memo 4.5 row (tokenized fund shares)"
+share = "3.973%"
+date = 2026-09-08
+
+[[node]]
+address = "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+symbol = "USDC"
+label = "recurses"
+node_class = "stable"
+lst_discount_applies = false
+label_source = "memo 4.5 USDC row - Circle attestation"
+date = 2026-09-08
+
+[[node]]
+address = "0x43415eb6ff9db7e26a15b704e7a3edce97d31c4e"
+symbol = "USTB"
+label = "unlabeled"
+node_class = "volatile"
+lst_discount_applies = false
+label_source = "P-4.08 ruling 1"
+reason = "no memo 4.5 row (tokenized fund shares)"
+share = "2.791%"
+date = 2026-09-08
+
+[[node]]
+address = "0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee"
+symbol = "weETH"
+label = "terminal_other_layer"
+node_class = "volatile"
+lst_discount_applies = true
+label_source = "memo 6.2.2 + 4.5 LRT row + P1 (the crvUSD precedent)"
+date = 2026-09-08
+
+[[node]]
+address = "0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf"
+symbol = "cbBTC"
+label = "recurses"
+node_class = "volatile"
+lst_discount_applies = false
+label_source = "memo 4.5 custodial-BTC row + P1 (the crvUSD precedent)"
+date = 2026-09-08
+
+[[node]]
+address = "0x18084fba666a33d37592fa2633fd49a74dd93a88"
+symbol = "tBTC"
+node_class = "volatile"
+lst_discount_applies = false
+label_source = "A5: NO label in config - resolved per run by the WalletRegistry read (memo 4.4 branch 1); unreachable at run_block leaves it unlabeled-in-run and routes via 8.2"
+date = 2026-09-08
+
+[[node]]
+address = "0x9d39a5de30e57443bff2a8307a4256c8797a3497"
+symbol = "sUSDe"
+label = "recurses"
+node_class = "stable"
+lst_discount_applies = false
+label_source = "P-3.24 R-2 - Ethena off-chain attestations; upgrades to the analyzed-set treatment when USDe enters at Step 10"
+date = 2026-09-08
+
+[[node]]
+address = "0x14d60e7fdc0d71d8611742720e4c50e7a974020c"
+symbol = "USCC"
+label = "unlabeled"
+node_class = "volatile"
+lst_discount_applies = false
+label_source = "P-4.08 ruling 1"
+reason = "no memo 4.5 row (tokenized fund shares)"
+share = "1.213%"
+date = 2026-09-08
+
+[[node]]
+address = "0xae78736cd615f374d3085123a210448e74fc6393"
+symbol = "rETH"
+label = "terminal_other_layer"
+node_class = "volatile"
+lst_discount_applies = true
+label_source = "memo 4.5 LST row"
+date = 2026-09-08
+
+[[node]]
+address = "0xdac17f958d2ee523a2206206994597c13d831ec7"
+symbol = "USDT"
+label = "recurses"
+node_class = "stable"
+lst_discount_applies = false
+label_source = "memo 4.5 USDT row - Tether attestation"
+date = 2026-09-08
+
+[[node]]
+address = "0x514910771af9ca656af840dff83e8264ecf986ca"
+symbol = "LINK"
+label = "terminal"
+node_class = "volatile"
+lst_discount_applies = false
+label_source = "memo 4.5 governance/volatile row"
+date = 2026-09-08
+
+[[node]]
+address = "0xbe9895146f7af43049ca1c1ae358b0541ea49704"
+symbol = "cbETH"
+label = "unlabeled"
+node_class = "volatile"
+lst_discount_applies = false
+label_source = "P-4.08 ruling 1"
+reason = "memo open point 2 - the GHO sheet's own node table says row needed"
+share = "0.048%"
+date = 2026-09-08
+
+[[node]]
+address = "0xdc035d45d973e3ec169d2276ddab16f1e407384f"
+symbol = "USDS"
+label = "recurses_truncated"
+node_class = "stable"
+lst_discount_applies = false
+label_source = "memo 4.5 DAI/USDS row - Sky, disclosure-dependent"
+date = 2026-09-08
+
+[[node]]
+address = "0x6b175474e89094c44da98b954eedeac495271d0f"
+symbol = "DAI"
+label = "recurses_truncated"
+node_class = "stable"
+lst_discount_applies = false
+label_source = "memo 4.5 DAI/USDS row - Sky, disclosure-dependent"
+date = 2026-09-08
+
+[[node]]
+address = "0x83f20f44975d03b1b09e64809b757c47f942beea"
+symbol = "sDAI"
+label = "recurses_truncated"
+node_class = "stable"
+lst_discount_applies = false
+label_source = "memo 4.5 asDAI row - Sky, disclosure-dependent"
+date = 2026-09-08
+
+# The 15 nodes below the marked set take one combined disclosure row rather
+# than 15 stubs: USDe, XAUt, LBTC, syrupUSDT, EURC, BTC.b, eBTC, ETHx, rsETH,
+# PYUSD, osETH, eUSDe, LUSD, ezETH, FBTC.
+[unlabeled_by_threshold]
+count = 15
+share = "1.549%"
+reason = "below the 1% marking threshold and not named on the sheet; each routes via 8.2 as an unlisted node"
+measured_at_block = 25934326
+date = 2026-09-08

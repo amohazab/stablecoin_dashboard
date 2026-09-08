@@ -426,8 +426,22 @@ def det_55(b: Bundle, ctx) -> None:
     if priced - covered:
         raise Level3(f"DET-55: no oracle row for priced node(s) {sorted(priced - covered)}")
     for r in b.oracle_rows:
-        if r.update_condition.ema_window_s <= 0:
-            raise Level3(f"DET-55: non-positive ema_window_s on {r.node_address}")
+        # DET-55's enum has TWO update-condition types (P-3.07 flag (v)). crvUSD
+        # is all `ema_window`; GHO's Chainlink sources are `deviation_heartbeat`,
+        # whose T-26 field is `heartbeat_s`. The check is dispatched on the type
+        # rather than on one member's field, and a heartbeat that is not yet
+        # SIGNED is present-and-empty, not zero: T-26 evaluates only where the
+        # value exists, and the row names its adapter class so the absence says
+        # which kind it is (P-4.08).
+        uc = r.update_condition
+        if uc.type == "ema_window":
+            if uc.ema_window_s <= 0:
+                raise Level3(f"DET-55: non-positive ema_window_s on {r.node_address}")
+        elif uc.heartbeat_s is not None and uc.heartbeat_s <= 0:
+            raise Level3(f"DET-55: non-positive heartbeat_s on {r.node_address}")
+        elif uc.heartbeat_s is None and not r.adapter_class:
+            raise Level3(f"DET-55: {r.node_address} has neither a heartbeat nor an "
+                         "adapter class naming why it has none")
 
 
 # --- DET-66 vocabularies and helpers (rubric line 102) -----------------------
@@ -485,14 +499,29 @@ def det_66(b: Bundle, ctx) -> None:
             raise Level3(
                 "DET-66: crvUSD requires exactly one path with R1 = none; got "
                 f"{len(paths)} path(s) with R1 = {[p.r1_path for p in paths]}")
+    elif token == "GHO":
+        # P-4.08 replaces P-3.44's stub. The sheet rules "holder paths: 1 + N
+        # GSMs" - one `module_on_chain` path per LIVE GSM plus the Aave
+        # facilitator's `none`. Live-GSM identity is the DET-28 probe's, and
+        # the count comes from `gsms[]`, which the registry enumerated - never
+        # a configured number.
+        modules = [p for p in paths if p.r1_path == "module_on_chain"]
+        if len(modules) != len(b.gsms):
+            raise Level3(
+                f"DET-66: GHO requires one module_on_chain path per live GSM; "
+                f"got {len(modules)} path(s) against {len(b.gsms)} GSM(s)")
+        if not any(p.r1_path == "none" for p in paths):
+            raise Level3("DET-66: GHO requires the Aave-facilitator path at R1 = none")
+        boxed = {g.underlying_asset for g in b.gsms}
+        for m in modules:
+            if not isinstance(m.r3_received, list) or not set(m.r3_received) <= boxed:
+                raise Level3(f"DET-66: GHO module path R3 must be a boxed asset; "
+                             f"got {m.r3_received!r}")
     else:
         raise NotYetImplemented(
             f"DET-66: the path-count clause for {token} is not implemented. "
-            "GHO: module_on_chain paths must equal gsm_count, one per live GSM, "
-            "GSM identity by the DET-28 interface probe. LUSD: exactly one "
-            "direct_on_chain path. Ruled P-3.44; lands at Step 4, when those "
-            "bundles first exist. The per-path checks below are token-agnostic "
-            "and already apply.")
+            "LUSD: exactly one direct_on_chain path. Ruled P-3.44; lands at "
+            "Step 4C. The per-path checks below are token-agnostic and apply.")
 
     # --- per-path field rules, token-agnostic --------------------------------
     for i, p in enumerate(paths):

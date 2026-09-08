@@ -145,6 +145,20 @@ class RpcClient:
             results.extend(self.decode_aggregate3(chunk, raw))
         return results
 
+    def storage(self, address: str, slot: str) -> str:
+        """One raw storage slot at `run_block` — the F4 `eip1967_slot_read`
+        shape's evidence (P-3.07 ruling (i) branch 2)."""
+        v = self._w3.eth.get_storage_at(Web3.to_checksum_address(address), slot,
+                                        block_identifier=self._run_block)
+        h = v.hex()
+        return h if h.startswith("0x") else "0x" + h
+
+    def code(self, address: str) -> str:
+        """Deployed bytecode at `run_block` — the selector-absence scan's input."""
+        c = self._w3.eth.get_code(Web3.to_checksum_address(address),
+                                  block_identifier=self._run_block).hex()
+        return c if c.startswith("0x") else "0x" + c
+
     def decode_aggregate3(self, calls: list[Call], raw: bytes) -> list[ReadResult]:
         (entries,) = abi_decode(["(bool,bytes)[]"], raw)
         if len(entries) != len(calls):

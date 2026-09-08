@@ -39,6 +39,11 @@ class LabelRow:
     label_source: str
     date: _dt.date
     label: str | None = None
+    # P-4.08: an `unlabeled` row is a config state, not a tree state - it says
+    # a ruling is OWED. `reason` and `share` travel with it into the node's
+    # flags so the disclosure names which wedge of the tree is unruled.
+    reason: str | None = None
+    share: str | None = None
 
 
 class LendState(Enum):
@@ -123,6 +128,10 @@ class Config:
     # DET-10(d)-ii's factory-side pin, signed 2026-09-07: one row per
     # frozen pool, `{pool, factory_root, index, found_at_block, date}`.
     frozen_pool_index: list[dict] = field(default_factory=list)
+    # DET-28's dated fallback (P-4.08 ruling 1). Consulted ONLY for a
+    # facilitator the selector probe returns `unresolved`; absence keeps it.
+    facilitator_classes: dict[str, dict] = field(default_factory=dict)
+    unlabeled_by_threshold: dict | None = None
 
     def root(self, root_id: str) -> Root:
         if root_id not in self.roots:
@@ -159,6 +168,8 @@ def load(config_dir: Path, token: str) -> Config:
             label_source=n["label_source"],
             date=_date(n["date"]),
             label=n.get("label"),
+            reason=n.get("reason"),
+            share=n.get("share"),
         )
         if row.address in labels:  # DET-02: unique address per row
             raise ValueError(f"duplicate label config address: {row.address}")
@@ -212,7 +223,16 @@ def load(config_dir: Path, token: str) -> Config:
            for r in labels_raw.get("wallet_registry", [])]
 
     frozen_pool_index = list(roots_raw.get("frozen_pool_index", []))
+    fac_cls = {}
+    for f in labels_raw.get("facilitator_class", []):
+        a = f["address"].lower()
+        if a in fac_cls:
+            raise ValueError(f"duplicate facilitator_class address: {a}")
+        fac_cls[a] = {"facilitator_class": f["facilitator_class"],
+                      "classified_on": _date(f["classified_on"]), "source": f["source"]}
     return Config(token=token, frozen_set_path=config_dir / files["frozen_set"],
+                  facilitator_classes=fac_cls,
+                  unlabeled_by_threshold=labels_raw.get("unlabeled_by_threshold"),
                   roots=roots, labels=labels, paired=paired, lend=lend, sheet=sheet_raw,
                   bridges=bridges, reference_feeds=refs, por_feeds=pors,
                   oracle_constituents=ocs, wallet_registries=wrs,

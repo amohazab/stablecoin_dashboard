@@ -337,17 +337,44 @@ class EmaWindow(BaseModel):
     provenance: list[Provenance]
 
 
+class DeviationHeartbeat(BaseModel):
+    """DET-55's OTHER update-condition type, built when GHO first needed it.
+
+    P-3.07 flag (v) records that "DET-55's `update_condition.type` enum already
+    splits `deviation_heartbeat` from `ema_window`", and that T-26's formula
+    references `heartbeat_s` — a field only this type carries. crvUSD's oracles
+    are all `ema_window`, so this member had no instance until now; GHO's are
+    Chainlink deviation/heartbeat feeds. Implementing a ruled enum member, not
+    inventing one (P-4.08).
+
+    `heartbeat_s` is None until the values are signed — present-and-empty, and
+    T-26 evaluates only where it is present.
+    """
+
+    type: Literal["deviation_heartbeat"] = "deviation_heartbeat"
+    heartbeat_s: int | None = None
+    deviation_bps: int | None = None
+    answer: int | None = None
+    updated_at: int | None = None
+    provenance: list[Provenance]
+
+
 class OracleRow(BaseModel):
     node_address: Address
     market_or_reserve_address: Address                       # crvUSD: per mint market
     feed_or_source: Address
-    update_condition: EmaWindow
+    update_condition: EmaWindow | DeviationHeartbeat
     assumption_applied: Literal["instant_optimistic_counterfactual"]
     counterfactual_ref: Literal["EMA_lag"]
     reference_feed: AnalystSupplied | Literal["no_reference_feed", "pending_config_round"]
     market_vs_protocol_oracle_gap: Decimal | Literal["no_reference_feed",
                                                      "pending_config_round"]
-    staleness_check: Literal["not_applicable_ema_oracle"]    # flag (v)
+    # None where the row is present-and-empty for T-26: a deviation/heartbeat
+    # source whose heartbeat is not yet signed, or a NAV adapter which has no
+    # heartbeat at all. The class is named in `adapter_class` so the absence
+    # says WHICH kind of absence it is.
+    staleness_check: Literal["not_applicable_ema_oracle"] | None = None
+    adapter_class: Literal["raw", "capo", "nav", "other"] | None = None
     use_chainlink: bool | None = None
     disclosure: str | None = None                            # weETH rate mechanism
 

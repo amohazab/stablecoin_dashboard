@@ -5296,3 +5296,55 @@ Status: IN PROGRESS (opened 2026-09-08).
   `tests/test_gho.py`; `PROGRESS.md`. No `docs/context/` change.
 - **Follow-ups spawned:** the facilitator-class re-ruling; the JAAA/USTB/USCC
   and cbETH label rulings; the heartbeat values (owed, analyst); session 2b.
+
+## P-4.08 — GHO build 2b: the surfaces; the bundle assembles
+
+- **Date:** 2026-09-08
+- **Type:** implementation + flag
+- **Confirmed by:** Amin
+- **Content:**
+  **THE FOUR RULINGS APPLIED.** (1) Four dated `[[facilitator_class]]` rows in
+  Amin's own words, C-1 form — the probe stays primary, a row is consulted only
+  where it returns `unresolved`, and absence keeps `unresolved`; all four now
+  resolve. (2) Fifteen labelled `[[node]]` rows sourced to their memo rows, four
+  `unlabeled` rows carrying `reason` and share, one `unlabeled_by_threshold`
+  row for the 15 nodes below 1% (1.549%). **A config `unlabeled` row emits
+  `unlisted`** — the tree's label set is closed at four states plus `unlisted`
+  (memo §4.2), so no fifth state is introduced; the reason rides in `flags`.
+  (3) Heartbeats **NOT written**: the Chainlink source is reachable but not
+  reliably readable — two fetches of the same JSON disagreed — so no dated row
+  was drafted from it and every `heartbeat_s` is `None`. (4) `lend_factory = []`
+  explicitly empty, with the note that GHO's Aave instances ARE the lending
+  venues and are counted as origination.
+  **BUILT.** Admin surface: nine rows, holders by `RoleGranted`/`RoleRevoked`
+  pointer + `hasRole` verdict, `holder_type` probed (`getDelay()` ⇒ timelock,
+  `getThreshold()` ⇒ multisig) — **`dao_governance` is never assigned by
+  probe**; EIP-1967 slots and the selector-absence scan as F4 absence reads;
+  `rpc.storage` / `rpc.code` added. Oracle rows: `DeviationHeartbeat`
+  implements DET-55's second enum member (P-3.07 flag (v)), and `det_55`
+  dispatches on the type; an absent heartbeat is allowed **only** where
+  `adapter_class` names why (raw / capo / nav). Redemption: one
+  `module_on_chain` path per live GSM plus the facilitator's `none`, and
+  **DET-66's GHO clause replaces the P-3.44 stub**, counting against `gsms[]`.
+  **THE BUNDLE ASSEMBLES.** At 25934590: 16,508 pinned reads, 148 pointer
+  requests, 226.8 s; 8 facilitators, 2 GSMs, 19 nodes, 19 oracle rows, 9 admin
+  rows, 2,140 positions; `origination_sum` 187,426,842.96. **Harness 20 of 22.**
+  DET-10(a) fails closed on the absent freeze — expected, session 3. **DET-08
+  returns ('T-09', 2): five nodes are `unlisted` — JAAA, USTB, USCC, cbETH and
+  tBTC (A5, no run-time resolver in this slice) — over the 5% bound, so GHO's
+  report would NOT publish.** Ruling 1 gates publication; it is not paperwork.
+  **TWO DEFECTS OF MINE, FIXED:** the bridge row owed `bridge_type` provenance
+  in C-1's analyst form, and `det_55` reached for `ema_window_s` on every row.
+  **FLAG — DET-66's R7 cannot name a per-instance capacity.** The sheet's R7 is
+  the GSM's boxed balance; P-3.44's default reads "resolvable field ref" as a
+  dotted path from the bundle root with no indexing, and `gsms[0].…` is not
+  one. Either the helper admits indexing or GHO's R7 names the table. **Neither
+  chosen; the check is left failing so the choice is visible.**
+  **111 tests** (108 + 3); ruff clean; no bundle written, nothing promoted.
+- **Artifacts:** `config/gho_roots.toml`, `config/gho_labels.toml`;
+  `src/factory/` `adapters/gho.py` · `config.py` · `rpc.py` · `schema.py` ·
+  `validate/harness.py`; `tests/test_gho.py` · `tests/test_harness.py`;
+  `PROGRESS.md`. No `docs/context/` change.
+- **Follow-ups spawned:** DET-66's R7 ruling; the memo row for tokenized fund
+  shares, owed **before Step 5's tree**; cbETH's open point 2; tBTC's run-time
+  resolver for GHO; the heartbeat values (analyst); session 3 — freeze, run 1.

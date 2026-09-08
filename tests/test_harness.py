@@ -187,14 +187,33 @@ def test_det66_r1_none_implication_is_enforced():
         run_harness(a_bundle(redemption_paths=[bad]), a_ctx())
 
 
-def test_det66_gho_token_raises_not_yet_implemented():
-    """The ruled fail-loud dispatch: a token whose path-count clause is not
-    built raises rather than passing. `run_harness` turns it into DET-85's
-    `error` + Level 3 (T-25); asserted on `det_66` directly so the exception
-    type itself is pinned, not just its harness consequence."""
-    gho = a_bundle(header=a_bundle().header.model_copy(update={"token": "GHO"}))
-    with pytest.raises(NotYetImplemented, match="GHO"):
-        det_66(gho, a_ctx())
+def test_det66_lusd_still_raises_not_yet_implemented():
+    """The ruled fail-loud dispatch survives GHO's clause landing: a token whose
+    path-count clause is not built raises rather than passing. Asserted on
+    `det_66` directly so the exception type is pinned, not just its harness
+    consequence. GHO's branch was deleted at P-4.08 when its clause landed,
+    exactly as P-3.44 said Step 4 would; LUSD's remains until 4C."""
+    lusd = a_bundle(header=a_bundle().header.model_copy(update={"token": "LUSD"}))
+    with pytest.raises(NotYetImplemented, match="LUSD"):
+        det_66(lusd, a_ctx())
+
+
+def test_det66_gho_clause_counts_module_paths_against_live_gsms():
+    """P-4.08: one `module_on_chain` path per LIVE GSM plus the facilitator's
+    `none`, and each module path's R3 must be a boxed asset the registry named.
+    The comparand is `gsms[]`, which the registry enumerated - never a number."""
+    from factory.schema import Gsm
+    gsm = Gsm(address="0x882285e62656b9623af136ce3078c6bdcc33f5e3",
+              underlying_asset="0x7bc3485026ac48b6cf9baf0a377477fff5703af8",
+              exposure_cap=1, available_liquidity=1, available_underlying_exposure=1,
+              is_frozen=False, is_seized=False,
+              price_strategy=CF, fee_strategy=CF, gho_treasury=CF, reads={})
+    base = a_bundle(header=a_bundle().header.model_copy(update={"token": "GHO"}))
+    # one GSM, zero module paths -> the count clause fires
+    with pytest.raises(Level3, match="one module_on_chain path per live GSM"):
+        det_66(base.model_copy(update={"gsms": [gsm]}), a_ctx())
+    # no GSMs and the lone `none` path -> passes
+    det_66(base.model_copy(update={"gsms": []}), a_ctx())
 
 
 
