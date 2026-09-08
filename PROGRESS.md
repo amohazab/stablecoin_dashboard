@@ -5074,3 +5074,55 @@ Status: IN PROGRESS (opened 2026-09-08).
   10,677 / 14,204 / 511 B, hashes unchanged. Closes P-3.45's rewrite class.
 - **Artifacts:** `.gitattributes` 294 → 488 B.
 - **Follow-ups spawned:** none.
+
+## P-4.04 — Step 4B opened: the GHO inventory, seven rulings, the signed edit
+
+- **Date:** 2026-09-08
+- **Type:** decision
+- **Confirmed by:** Amin
+- **Content:**
+  **R1 — architecture.** Archetype #1 stands: supply originates on the
+  borrower draw; the pre-minted undrawn balance is protocol-held inventory.
+  All three Aave instances enter, nodes keyed by underlying address with the
+  instance recorded per read. `markets[]` empty; the three direct minters are
+  `facilitators[]` rows (P-3.08); DET-03 gains a GHO clause reading them,
+  dispatched on token as DET-66 is (P-3.44). `Market` is not widened.
+  **R2 — attribution: Route A**, per-user per-reserve, bitmap-filtered.
+  **R3 — enumeration transport:** Etherscan v2 `logs/getLogs` as POINTER
+  (DET-62's key and `_env` helper), pinned reads at `run_block` as VERDICT,
+  Σ positions == debt-token `totalSupply()`. The RPC is never asked for logs;
+  the key reaches no bundle, log or sheet (P-3.39 binding 1).
+  **R4 — pool universe: Curve only in Step 4.** |F| = 1; both consequences
+  Level 1 and published — T-02 with a dated §11.6 open point, GHO/crvUSD as
+  an analyzed token, tree pending to Step 5. Fluid IS that open point.
+  **R5 — role holders:** `RoleGranted`/`RoleRevoked` logs as pointer,
+  `hasRole` at `run_block` as verdict; no candidate list.
+  **R6 — one signed edit.** 4B parameterizes by token only what blocks a GHO
+  run — `<token>_sheet.toml`, the mirror's section anchor, the frozen-set
+  path, `det_12`'s mirror source. Nothing extracted before Block D.
+  **Probe, as-counted:** the design layer's `getBalanceFromInterest` pointer
+  does not exist on the three variable-debt tokens; Aave's scaled model stores
+  no per-user borrow index, so no contract read yields a borrower's principal,
+  and `scaledTotalSupply` is not principal either.
+  **R7 — principal/interest.** Per borrower, principal = Σ `Borrow` − Σ
+  `Repay` amounts for the GHO reserve on each Pool via the R3 pointer (both
+  events index `reserve`), floored at zero; gross = `balanceOf` at
+  `run_block`; accrued = gross − principal. "Repayments reduce the borrowed
+  sum" is a **named implementer default citing this entry**, because the pool
+  records no split.
+  **NUMBERS.** Core 112,828,347.43 drawn over 67 reserves, Lido-Prime
+  46,118,648.84 / 9, Horizon 34,980,050.07 / 11; 7,996 addresses ever
+  borrowed, **2,142 live positions** (2,133 distinct); Route A **17,848
+  pinned reads**, 119 batches, ~45–52 s at a measured 2.4–2.9 ms/read.
+  **8 facilitators**, bucket levels summing to `totalSupply` 699,000,000.00
+  exactly; **2 GSMs**, neither frozen nor seized. **25 Curve GHO pools, 1
+  above the $500k floor** (GHO/crvUSD, crvUSD's own keeper pool). **Fluid DEX
+  78%** of GHO's $32.93M Ethereum DEX liquidity; Balancer $120,227.
+  **FLAGS.** F1 stale facilitator premise, F2 one instance became three → R1,
+  both sheet-corrected. F3 `getRoleMember` reverts on GhoToken and both GSMs →
+  R5, two read specs corrected. F4 protocol-held inventory (310M GSM bucket vs
+  23.29M boxed; CCIP 130,791,379) → P-4.01 #3. F5 slot zero, noted.
+- **Artifacts:** `PROGRESS.md`. No code, config or `docs/context/` change —
+  the signed sheet edit is its own event.
+- **Follow-ups spawned:** the §11.6 Fluid open point (R4); the signed edit and
+  its (d)-machinery; then the GHO build.
