@@ -5192,3 +5192,58 @@ Status: IN PROGRESS (opened 2026-09-08).
   `tests/test_discovery.py`; `PROGRESS.md`.
 - **Follow-ups spawned:** the GHO build opens next — config loader by token,
   `gho_sheet.toml` mirror, `facilitators[]`, the adapter, the freeze.
+
+## P-4.06 — GHO build 1: config by token, the log pointer, `facilitators[]`
+
+- **Date:** 2026-09-08
+- **Type:** implementation
+- **Confirmed by:** Amin
+- **Content:**
+  **Config by token.** `load(config_dir, token)` over a `TOKEN_FILES` dict;
+  `Config` gains `token` and `frozen_set_path`. Separate per-token files, so
+  **crvUSD's four hashes are unmoved** — `4484746d` / `96ec22cc` / `a75ca7ea` /
+  `80d87407` — and its mirror still reproduces byte-identically. GHO's frozen
+  set is absent: the first-run state, never read, not an error. `mirror.generate`
+  takes the token; the cbBTC disclosure is scoped, so GHO's mirror omits it
+  rather than faking it. **Named default:** `attribution_method` is `direct` for
+  crvUSD, `per_position` for GHO (R2), because DET-12 compares it to the mirror.
+  **`gho_roots.toml` — two roots and nothing else.** GhoToken and the GSM
+  registry. The three Aave instances come from each minter's `POOL()`, each
+  Pool's providers from its `ADDRESSES_PROVIDER()`: the hard gate is the file's
+  design. `gho_labels.toml` carries one `[[paired_asset]]` row — crvUSD as an
+  analyzed-set token (memo §4.1), `recurses_truncated` + Level 1 until crvUSD's
+  tree publishes, the **symmetric application** of P-3.24's GHO row. The
+  numeraire is deliberately absent: it is the `gho_token` root, and a second
+  copy is the C-8 drift pattern. No `[[node]]` rows — the §4 table is a
+  freeze-time artifact.
+  **`logs_pointer.py`** — Etherscan v2 `logs/getLogs`, pointer never verdict,
+  re-anchoring at `fromBlock = last + 1` on a saturated 10,000-row window, no
+  cursor (P-4.04-A1), `PointerRead.record()` carrying no key.
+  **`adapters/gho.py` + the schema sibling.** `Facilitator` and `Gsm` models,
+  `Bundle.facilitators` / `.gsms` defaulted empty; `ASSEMBLIES["GHO"]` wired and
+  GHO's `OWED` row deleted. **85 pinned reads.** Σ bucket levels ==
+  `totalSupply()` enforced in the adapter, moving onto `Bundle` in session 2.
+  **THREE AS-COUNTED CORRECTIONS.** (i) "two batches" was wrong: 85 reads fit
+  two by size but **11 by data dependency** — the probe cannot precede the list.
+  (ii) A GHO invocation does not reach DET-10(a): `Bundle` validation precedes
+  the harness, so `assemble` raises a named `GhoAdapterIncomplete` naming what
+  it built and what it owes rather than emitting placeholders. (iii) The CCIP
+  inventory read is **not built** — its address is reachable from neither
+  declared root and the ruling listed no third root; it wants a dated
+  `[[bridge]]` row in the supply slice.
+  **FINDING — DET-28 cannot separate `gsm_funder` from `off_mainnet`.** All four
+  `GhoDirectFacilitator *` rows answer only `GHO_TOKEN()`; splitting them means
+  reading the label string, which the no-symbol gate forbids. They classify
+  `unresolved` with their evidence recorded — the C-1 shape. Needs a ruling.
+  **104 tests pass** (97 + 7); ruff clean; **no run**. `.gitattributes` gains
+  the optional `*.py text eol=lf` line; no Python file was rewritten.
+- **Artifacts:** `config/gho_roots.toml` (1,661 B), `config/gho_labels.toml`
+  (2,013 B), `config/gho_sheet.toml` (12,938 B, generated); `src/factory/`
+  `config.py` (8,542) · `mirror.py` (6,177) · `schema.py` (22,626) ·
+  `run.py` (39,135) · `logs_pointer.py` (5,900, new) · `adapters/gho.py`
+  (11,747, new); `tests/test_gho.py` (7,571, new) · `test_schema.py` (11,810) ·
+  `test_discovery.py` (12,799) · `test_harness.py` (21,780); `.gitattributes`
+  (646); `PROGRESS.md`. No `docs/context/` change.
+- **Follow-ups spawned:** the DET-28 separability ruling; the CCIP `[[bridge]]`
+  row; session 2 — positions, nodes, admin surface, oracle rows, the supply
+  block, and the identity's move onto `Bundle`.

@@ -1,0 +1,30 @@
+# GHO discovery roots — DECLARED ROOTS ONLY (P-4.06).
+#
+# Two roots, and nothing else. The hard gate ("no hardcoded market / pool /
+# collateral / stabilizer lists — discovery from factory, registry or regulator
+# contracts") is the design of this file, not a comment on it:
+#
+#   * the eight facilitators come from `GhoToken.getFacilitatorsList()`;
+#   * the live GSMs come from `GsmRegistry.getGsmList()`;
+#   * the three Aave instances come from each `*GhoDirectMinter.POOL()` — they
+#     are NOT listed here, because listing them would hardcode the market set
+#     the facilitator registry already enumerates (P-4.04 R1);
+#   * each Pool's data provider, ACL manager and price oracle come from that
+#     Pool's own `ADDRESSES_PROVIDER()`.
+#
+# Anything reachable from these two is discovered per run. Anything not
+# reachable from them is a finding, not a config addition.
+
+[[root]]
+id = "gho_token"
+address = "0x40D16FC0246aD3160Ccc09B8D0D3A2cD28aE6C2f"
+role = "facilitator registry + numeraire; getFacilitatorsList(), getFacilitator(), getFacilitatorBucket(), totalSupply()"
+source = "intake-sheets-cdp.md, GHO section, Redemption-rights R3 row [VERIFIED 2026-09-01: GHO 0x40D16FC0246aD3160Ccc09B8D0D3A2cD28aE6C2f; source bgd-labs/aave-address-book main (GhoEthereum.sol)]"
+date = 2026-09-01
+
+[[root]]
+id = "gsm_registry"
+address = "0x167527DB01325408696326e3580cd8e55D99Dc1A"
+role = "live-GSM enumeration; getGsmList()"
+source = "intake-sheets-cdp.md, GHO section, Redemption-rights R3 row [VERIFIED 2026-09-01: GSM registry 0x167527DB01325408696326e3580cd8e55D99Dc1A; source bgd-labs/aave-address-book main (GhoEthereum.sol)]"
+date = 2026-09-01

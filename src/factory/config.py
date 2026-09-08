@@ -93,8 +93,23 @@ class PairedAsset:
     note: str | None = None
 
 
+# P-4.06: one file set per token, separate files rather than one keyed file.
+# crvUSD's names are untouched, so its four hashes do not move on this change.
+# The GHO frozen set is ABSENT until its freeze; absence is the first-run state,
+# not an error, so the loader never reads it — `frozen_set_path` is resolved and
+# the caller checks existence.
+TOKEN_FILES: dict[str, dict[str, str]] = {
+    "crvUSD": {"roots": "discovery_roots.toml", "labels": "labels.toml",
+               "sheet": "crvusd_sheet.toml", "frozen_set": "frozen_set_crvusd.json"},
+    "GHO": {"roots": "gho_roots.toml", "labels": "gho_labels.toml",
+            "sheet": "gho_sheet.toml", "frozen_set": "frozen_set_gho.json"},
+}
+
+
 @dataclass(frozen=True)
 class Config:
+    token: str
+    frozen_set_path: Path
     roots: dict[str, Root]
     labels: dict[str, LabelRow]
     paired: dict[str, PairedAsset]
@@ -119,10 +134,13 @@ def _date(v) -> _dt.date:
     return v if isinstance(v, _dt.date) else _dt.date.fromisoformat(str(v))
 
 
-def load(config_dir: Path) -> Config:
-    roots_raw = tomllib.loads((config_dir / "discovery_roots.toml").read_text(encoding="utf-8"))
-    labels_raw = tomllib.loads((config_dir / "labels.toml").read_text(encoding="utf-8"))
-    sheet_raw = tomllib.loads((config_dir / "crvusd_sheet.toml").read_text(encoding="utf-8"))
+def load(config_dir: Path, token: str) -> Config:
+    if token not in TOKEN_FILES:
+        raise KeyError(f"no config file set declared for token '{token}'")
+    files = TOKEN_FILES[token]
+    roots_raw = tomllib.loads((config_dir / files["roots"]).read_text(encoding="utf-8"))
+    labels_raw = tomllib.loads((config_dir / files["labels"]).read_text(encoding="utf-8"))
+    sheet_raw = tomllib.loads((config_dir / files["sheet"]).read_text(encoding="utf-8"))
 
     roots: dict[str, Root] = {}
     for r in roots_raw.get("root", []):
@@ -191,7 +209,8 @@ def load(config_dir: Path) -> Config:
            for r in labels_raw.get("wallet_registry", [])]
 
     frozen_pool_index = list(roots_raw.get("frozen_pool_index", []))
-    return Config(roots=roots, labels=labels, paired=paired, lend=lend, sheet=sheet_raw,
+    return Config(token=token, frozen_set_path=config_dir / files["frozen_set"],
+                  roots=roots, labels=labels, paired=paired, lend=lend, sheet=sheet_raw,
                   bridges=bridges, reference_feeds=refs, por_feeds=pors,
                   oracle_constituents=ocs, wallet_registries=wrs,
                   frozen_pool_index=frozen_pool_index)

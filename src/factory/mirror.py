@@ -57,10 +57,14 @@ def count_first_run_tags(sheet_path: pathlib.Path, token: str) -> int:
     return sum(ln.count("[FIRST-RUN READ:") for ln in _section(sheet_path, token))
 
 
-def extract_cbbtc_disclosure(sheet_path: pathlib.Path) -> dict[str, str] | None:
-    """D-8's cbBTC disclosure fields, mirrored from the node table row."""
-    text = sheet_path.read_text(encoding="utf-8")
-    for line in text.split("\n"):
+def extract_cbbtc_disclosure(sheet_path: pathlib.Path, token: str) -> dict[str, str] | None:
+    """D-8's cbBTC disclosure fields, mirrored from the node table row.
+
+    Scoped to the token's section like everything else here: cbBTC is a crvUSD
+    node, so this returns None for GHO and the block is ABSENT from GHO's
+    mirror rather than faked (P-4.06).
+    """
+    for line in _section(sheet_path, token):
         if line.startswith("| cbBTC ") and "disclosure_cadence" in line:
             cad = re.search(r"`disclosure_cadence` = ([^;]+);", line)
             last = re.search(r"`last_disclosure_date` = ([^\[]+)\[", line)
@@ -73,15 +77,23 @@ def extract_cbbtc_disclosure(sheet_path: pathlib.Path) -> dict[str, str] | None:
     return None
 
 
-def generate(sheet_path: pathlib.Path) -> str:
-    """Render the mirror TOML from the stamped sheet."""
+# DET-12 compares the bundle's `attribution_method` to the mirror's, so the
+# mirror must carry the token's ruled method. NAMED IMPLEMENTER DEFAULT
+# (P-4.06): crvUSD is `direct` as it has always been; GHO is `per_position`,
+# which is P-4.04 R2's Route A, and the sheet's own "Primary: pro-rata per
+# position". Nothing else in the header varies by token.
+ATTRIBUTION_METHOD = {"crvUSD": "direct", "GHO": "per_position"}
+
+
+def generate(sheet_path: pathlib.Path, token: str) -> str:
+    """Render one token's mirror TOML from the stamped sheet."""
     h = sheet_hash(sheet_path)
-    rows = parse_first_run_reads(sheet_path, "crvUSD")
-    disc = extract_cbbtc_disclosure(sheet_path)
+    rows = parse_first_run_reads(sheet_path, token)
+    disc = extract_cbbtc_disclosure(sheet_path, token)
 
     out = [
         "# DERIVED MIRROR - NOT AUTHORITATIVE (P-3.04 binding).",
-        "# Source of truth: docs/context/intake-sheets-cdp.md, crvUSD section.",
+        f"# Source of truth: docs/context/intake-sheets-cdp.md, {token} section.",
         f"# Derived from sheet version sha256_first8 = {h} (signed 2026-09-04, P-3.12).",
         "# DET-77's sheet_hash check binds this mirror to that source; drift is caught",
         "# mechanically, never trusted away. Regenerated, never hand-patched.",
@@ -90,7 +102,7 @@ def generate(sheet_path: pathlib.Path) -> str:
         "",
         "near_bound_threshold = 0.80",
         'counterparties = "n/a - archetype #1 holds no off-chain counterparties"',
-        'attribution_method = "direct"',
+        f'attribution_method = "{ATTRIBUTION_METHOD[token]}"',
         'member2_target = ""   # null until the R-a1 refresh (Step 6/7); '
         "nothing consumes it in Step 3",
     ]

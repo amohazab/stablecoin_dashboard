@@ -15,6 +15,7 @@ import sys
 import time
 from decimal import Decimal
 
+from factory.adapters import gho as gho_adapter
 from factory.adapters.crvusd import discover_lend_markets
 from factory.config import Config, load
 from factory.discovery import (
@@ -272,7 +273,7 @@ def assemble(cfg: Config, rpc: RpcClient, repo: pathlib.Path, token: str,
     # `det_10(a)`'s chain to the event log (P-3.43 ruling 1). Both sides of
     # the old comparison came from one read, so it could never detect an
     # edit.
-    _fs_path = repo / "config/frozen_set_crvusd.json"
+    _fs_path = cfg.frozen_set_path
     fs = json.loads(_fs_path.read_text(encoding="utf-8"))
     fs_hash = hashlib.sha256(_fs_path.read_bytes()).hexdigest()[:8]
     _prior = load_prior(repo / BUNDLES, token, rb)
@@ -635,12 +636,12 @@ def _event_log(repo: pathlib.Path, token: str) -> pathlib.Path:
     return repo / f"out/logs/events_{token.lower()}.jsonl"
 
 
-def _fs_members(repo: pathlib.Path) -> set[str]:
-    fs = json.loads((repo / "config/frozen_set_crvusd.json").read_text(encoding="utf-8"))
+def _fs_members(fs_path: pathlib.Path) -> set[str]:
+    fs = json.loads(fs_path.read_text(encoding="utf-8"))
     return {q["address"].lower() for q in fs["pools"]}
 
 
-def _last_run_ratios(repo: pathlib.Path, token: str,
+def _last_run_ratios(repo: pathlib.Path, token: str, fs_path: pathlib.Path,
                      run_block: int) -> dict[str, Decimal]:
     """DET-10(d)-ii's "last-run share", with its NAMED one-time fallback.
 
@@ -652,7 +653,7 @@ def _last_run_ratios(repo: pathlib.Path, token: str,
     prior = load_prior(repo / BUNDLES, token, run_block)
     if prior is not None and prior.pools:
         return {p.address: p.ratio_to_frozen_coverage for p in prior.pools}
-    fs = json.loads((repo / "config/frozen_set_crvusd.json").read_text(encoding="utf-8"))
+    fs = json.loads(fs_path.read_text(encoding="utf-8"))
     total = Decimal(int(fs["freeze_discovery_total"]))
     return {q["address"].lower(): Decimal(int(q["tvl_at_par"])) / total
             for q in fs["pools"]}
@@ -665,8 +666,8 @@ def _last_run_ratios(repo: pathlib.Path, token: str,
 # and the step that owes it. The lookup runs BEFORE the config load and
 # before `RpcClient` is constructed, so an unbuilt adapter cannot reach the
 # network. Steps 4B and 4C delete their `OWED` row when the adapter lands.
-ASSEMBLIES = {"crvUSD": assemble}
-OWED = {"GHO": "Step 4B", "LUSD": "Step 4C"}
+ASSEMBLIES = {"crvUSD": assemble, "GHO": gho_adapter.assemble}
+OWED = {"LUSD": "Step 4C"}
 
 
 def _assembly_for(token: str):
@@ -681,7 +682,7 @@ def _assembly_for(token: str):
 def execute(repo: pathlib.Path, rpc_url: str, token: str) -> dict:
     """Assemble, gate, promote. Promotion is unreachable on a Level 3."""
     assembly = _assembly_for(token)     # before config load, before any RPC
-    cfg = load(repo / "config")
+    cfg = load(repo / "config", token)
     rpc = RpcClient(rpc_url)
     t0 = time.time()
     bundle, extra = assembly(cfg, rpc, repo, token)
@@ -708,8 +709,8 @@ def execute(repo: pathlib.Path, rpc_url: str, token: str) -> dict:
            # DET-10(b)'s comparand and (d)-ii's last-run ratios. Both come from
            # OUTSIDE the bundle so the gate compares the emitted table against
            # the signed set file and the prior run, never against itself.
-           "frozen_set_members": _fs_members(repo),
-           "last_run_ratio": _last_run_ratios(repo, token,
+           "frozen_set_members": _fs_members(cfg.frozen_set_path),
+           "last_run_ratio": _last_run_ratios(repo, token, cfg.frozen_set_path,
                                               bundle.header.run_block)}
     outcome = run_harness(bundle, ctx)            # raises => nothing below runs
 

@@ -514,9 +514,10 @@ def test_execute_unknown_token_stops_before_any_rpc(tmp_path):
 
     `tmp_path` holds no `config/` and the URL is unroutable: if dispatch did
     NOT come first, this would fail on a config or transport error instead.
-    The two owed steps are pinned because 4B and 4C delete these reminders.
+    GHO's reminder was deleted at P-4.06 when its adapter landed, exactly as
+    P-4.02 said 4B would; LUSD's remains until 4C.
     """
-    for token, step in (("GHO", "Step 4B"), ("LUSD", "Step 4C")):
+    for token, step in (("LUSD", "Step 4C"),):
         with pytest.raises(AssemblyStop) as exc:
             execute(tmp_path, "http://rpc.invalid", token)
         assert token in str(exc.value) and step in str(exc.value)

@@ -241,7 +241,11 @@ def test_bundle_hash_changes_when_content_changes():
 def test_mirror_generator_reproduces_the_committed_mirror():
     sheet = REPO / "docs/context/intake-sheets-cdp.md"
     on_disk = (REPO / "config/crvusd_sheet.toml").read_text(encoding="utf-8")
-    assert generate(sheet) == on_disk, "mirror diff is a FINDING, never patched over"
+    assert generate(sheet, "crvUSD") == on_disk, (
+        "mirror diff is a FINDING, never patched over")
+    gho = (REPO / "config/gho_sheet.toml").read_text(encoding="utf-8")
+    assert generate(sheet, "GHO") == gho, (
+        "mirror diff is a FINDING, never patched over")
 
 
 def test_mirror_preserves_det75_identity():

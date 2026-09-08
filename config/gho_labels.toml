@@ -1,0 +1,31 @@
+# GHO label config (DET-02 / DET-11).
+#
+# NUMERAIRE — deliberately ABSENT from this file. GHO's own address is the
+# `gho_token` root in `gho_roots.toml`, and `freeze.par_value`'s caller passes
+# `eligible = set(cfg.paired) | {numeraire}` from there. A second copy here
+# would be the two-copies-drift pattern the one-owner rule forbids — the same
+# reason `disclosure_cadence` is absent from crvUSD's `labels.toml` (C-8,
+# P-3.15). The absence is recorded rather than left to be noticed.
+#
+# [[node]] ROWS — none yet. The GHO §4 node table is a FREEZE-TIME artifact
+# (sheet: "reserves with non-zero attributed GHO backing at pool-set freeze"),
+# and the 34 reserves in use as GHO-borrower collateral are read, labelled and
+# ruled at the freeze, not pre-listed here. Unlabelled nodes route via §8.2.
+
+# ---- paired assets (DET-11) -------------------------------------------------
+# One row: GHO's only above-floor Curve pool is GHO/crvUSD (P-4.04 R4, |F| = 1).
+#
+# crvUSD is an ANALYZED-SET TOKEN, so memo §4.1's linking rule applies — it
+# inherits crvUSD's label distribution pro-rata from crvUSD's LAST PUBLISHED
+# TREE, and is never re-analyzed here. No tree is published until Step 5, so
+# the row carries `recurses_truncated` with the Level-1 disclosure, which is
+# the SYMMETRIC APPLICATION of the ruling already made in the other direction:
+# crvUSD's `labels.toml` carries GHO as `recurses_truncated` + Level 1 "until
+# GHO publishes" (P-3.24). Same memo row, same treatment, mirror image.
+[[paired_asset]]
+address = "0xf939E0A03FB07F59A73314E73794Be0E57ac1b4E"
+symbol = "crvUSD"
+label = "recurses_truncated"
+label_source = "memo §4.1 analyzed-set linking rule; symmetric to P-3.24's GHO row in labels.toml; ~unit-priced with the numeraire (P-3.27 procedural guard)"
+date = 2026-09-08
+note = "Level 1 until crvUSD's tree publishes at Step 5; not shocked in Member 2 (GHO sheet, paired-asset notes). Pool 0x635ef0056a597d13863b73825cca297236578595 is also crvUSD's own GHO PegKeeper pool."

@@ -1,0 +1,342 @@
+# DERIVED MIRROR - NOT AUTHORITATIVE (P-3.04 binding).
+# Source of truth: docs/context/intake-sheets-cdp.md, GHO section.
+# Derived from sheet version sha256_first8 = d2114a96 (signed 2026-09-04, P-3.12).
+# DET-77's sheet_hash check binds this mirror to that source; drift is caught
+# mechanically, never trusted away. Regenerated, never hand-patched.
+schema_version = 1
+sheet_hash = "d2114a96"
+
+near_bound_threshold = 0.80
+counterparties = "n/a - archetype #1 holds no off-chain counterparties"
+attribution_method = "per_position"
+member2_target = ""   # null until the R-a1 refresh (Step 6/7); nothing consumes it in Step 3
+
+# first_run_reads[] - 46 rows mirrored from the stamped sheet.
+# status stays "open" until a stamped sheet edit retires the prose tag (P-3.14).
+
+[[first_run_read]]
+tag_id = "FR-G01"
+sheet_location = "GHO § Contracts to read"
+bundle_field_path = "`facilitators[]`"
+read_spec = "`GHO.getFacilitatorsList()`; per entry `GHO.getFacilitator(a)` -> `(bucketCapacity, bucketLevel, label)`"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-G02"
+sheet_location = "GHO § Collateral nodes — header"
+bundle_field_path = "`nodes[].attributed_weight`"
+read_spec = "pro-rata per position (memo §11.1, Route A): borrower set from the GHO variable-debt token's mint-side `Transfer` logs per instance (Etherscan v2 `logs/getLogs` as POINTER); per borrower `Pool.getUserConfiguration(u)` bitmap, then `aToken.balanceOf(u)` per set collateral bit and `variableDebtToken.balanceOf(u)` per set borrow bit, all at `run_block` (VERDICT); weight = collateral × (GHO debt ÷ total debt)"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-G03"
+sheet_location = "GHO § Collateral nodes — aDAI/aUSDS/asDAI"
+bundle_field_path = "`nodes[DAI,USDS,sDAI].attributed_weight`"
+read_spec = "as FR-G02, restricted to those reserve addresses"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-G04"
+sheet_location = "GHO § Collateral nodes — aweETH / LRTs"
+bundle_field_path = "`nodes[weETH,…].attributed_weight`"
+read_spec = "as FR-G02, restricted to the LRT reserve addresses"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-G05"
+sheet_location = "GHO § Collateral nodes — acbETH"
+bundle_field_path = "`nodes[cbETH].attributed_weight`"
+read_spec = "as FR-G02, restricted to the cbETH reserve address"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-G06"
+sheet_location = "GHO § Token-specific mechanisms — GSM"
+bundle_field_path = "`gsms[].{sell_fee, price_strategy, exposure_cap, is_frozen, is_seized}`"
+read_spec = "per GSM: `getFeeStrategy()`, `PRICE_STRATEGY()`, `getExposureCap()`, `getIsFrozen()`, `getIsSeized()`"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-G07"
+sheet_location = "GHO § Pool set"
+bundle_field_path = "`discovered_pools[]`, `frozen_set`"
+read_spec = "Curve API catalog as POINTER per registry class, `pool.balances(i)` at par on-chain as VERDICT (the P-3.28 pattern); GHO/crvUSD routes to the analyzed-token rule (memo §4.1)"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-G08"
+sheet_location = "GHO § Pool set — off-venue"
+bundle_field_path = "`offvenue_share`"
+read_spec = "DET-32 `X = 1 − curve/total` over the disclosed Ethereum DEX venue set; Curve-only modeling in Step 4 (P-4.04 R4)"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-G09"
+sheet_location = "GHO § Pool set — bridged"
+bundle_field_path = "`supply.bridges[]`"
+read_spec = "`GHO.balanceOf(ccip_pool)` — **amount only**; `bridge_type` from the DET-33 menu, never inferred from a balance (C-1)"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-G10"
+sheet_location = "GHO § Stress hooks — H5"
+bundle_field_path = "`nodes[].liquidation_params`"
+read_spec = "`PoolDataProvider.getReserveConfigurationData(asset)` per reserve, per instance"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-G11"
+sheet_location = "GHO § Stress hooks — facilitator caps"
+bundle_field_path = "`facilitators[].{bucket_capacity, bucket_level}`"
+read_spec = "`GHO.getFacilitatorBucket(a)` over every facilitator"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-G12"
+sheet_location = "GHO § Quarantine instances (d)"
+bundle_field_path = "`near_bound[]`"
+read_spec = "`GSM.getExposureCap()` vs `GSM.getAvailableUnderlyingExposure()`; `GHO.getFacilitatorBucket(a)` level ÷ capacity"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-G13"
+sheet_location = "GHO § Oracle sources"
+bundle_field_path = "`oracle_rows[].heartbeat_s`"
+read_spec = "heartbeat is not on-chain state — dated per-feed analyst value in the DET-04 form (data.chain.link)"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-G14"
+sheet_location = "GHO § Redemption-rights R4"
+bundle_field_path = "`redemption_paths[i].r4_rate`"
+read_spec = "`GSM.getFeeStrategy()` -> strategy `getSellFee(amount)`"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-G15"
+sheet_location = "GHO § Redemption-rights R5"
+bundle_field_path = "`redemption_paths[i].r5_minimum`"
+read_spec = "`GSM.getFeeStrategy()`; minimum absent => `none`, recorded as an absence read"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-G16"
+sheet_location = "GHO § Admin-power surface — header"
+bundle_field_path = "`admin_surface[]`"
+read_spec = "the nine A1 rows below, every read at `run_block`"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-G17"
+sheet_location = "GHO § Admin surface — `mint` A2"
+bundle_field_path = "`admin_surface[mint].holder`"
+read_spec = "GhoToken `RoleGranted` / `RoleRevoked` logs as POINTER (Etherscan v2 `logs/getLogs`), `GHO.hasRole(FACILITATOR_MANAGER_ROLE / BUCKET_MANAGER_ROLE, holder)` at `run_block` as VERDICT (P-4.04 R5)"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-G18"
+sheet_location = "GHO § Admin surface — `mint` A8"
+bundle_field_path = "`admin_surface[mint].reads`"
+read_spec = "provenance of the FR-G17 reads"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-G19"
+sheet_location = "GHO § Admin surface — `set_ceiling` A2 (bucket)"
+bundle_field_path = "`admin_surface[set_ceiling].holder`"
+read_spec = "as FR-G17, `BUCKET_MANAGER_ROLE`"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-G20"
+sheet_location = "GHO § Admin surface — `set_ceiling` A2 (GSM cap)"
+bundle_field_path = "`admin_surface[set_ceiling].holder_gsm`"
+read_spec = "as FR-G17 against each GSM, `CONFIGURATOR_ROLE`"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-G21"
+sheet_location = "GHO § Admin surface — `set_ceiling` A2 (risk steward)"
+bundle_field_path = "`admin_surface[set_ceiling].holder_steward`"
+read_spec = "`PoolAddressesProvider.getACLManager()` -> ACLManager `RoleGranted` logs as pointer, `hasRole(RISK_ADMIN, holder)` at `run_block` as verdict"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-G22"
+sheet_location = "GHO § Admin surface — `set_ceiling` A4"
+bundle_field_path = "`admin_surface[set_ceiling].delay_s`"
+read_spec = "executor `getDelay()`; steward path carries `none`"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-G23"
+sheet_location = "GHO § Admin surface — `set_ceiling` A8"
+bundle_field_path = "`admin_surface[set_ceiling].reads`"
+read_spec = "provenance of the FR-G19…FR-G21 reads"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-G24"
+sheet_location = "GHO § Admin surface — `upgrade` A2"
+bundle_field_path = "`admin_surface[upgrade].holder`"
+read_spec = "EIP-1967 admin slot on GhoToken, each Pool and each GSM (F4 absence shape where zero)"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-G25"
+sheet_location = "GHO § Admin surface — `upgrade` A4"
+bundle_field_path = "`admin_surface[upgrade].delay_s`"
+read_spec = "executor `getDelay()`"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-G26"
+sheet_location = "GHO § Admin surface — `upgrade` A6 (Pool/GSM)"
+bundle_field_path = "`admin_surface[upgrade].upgradeability`"
+read_spec = "EIP-1967 implementation slot on the three Pools and both GSMs"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-G27"
+sheet_location = "GHO § Admin surface — `upgrade` A6 (GhoToken)"
+bundle_field_path = "`admin_surface[upgrade].upgradeability_token`"
+read_spec = "EIP-1967 implementation slot on GhoToken; all-zero => `immutable`, recorded as an absence read"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-G28"
+sheet_location = "GHO § Admin surface — `upgrade` A8"
+bundle_field_path = "`admin_surface[upgrade].reads`"
+read_spec = "provenance of the FR-G24…FR-G27 reads"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-G29"
+sheet_location = "GHO § Admin surface — `pause` A3"
+bundle_field_path = "`admin_surface[pause].signers`"
+read_spec = "Guardian Safe `getThreshold()` / `getOwners()`"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-G30"
+sheet_location = "GHO § Admin surface — `pause` A4"
+bundle_field_path = "`admin_surface[pause].delay_s`"
+read_spec = "emergency path => `0`, recorded as an absence read"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-G31"
+sheet_location = "GHO § Admin surface — `pause` A8"
+bundle_field_path = "`admin_surface[pause].reads`"
+read_spec = "provenance of the FR-G29…FR-G30 reads"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-G32"
+sheet_location = "GHO § Admin surface — `freeze_asset` A2"
+bundle_field_path = "`admin_surface[freeze_asset].holder`"
+read_spec = "ACLManager `RoleGranted` logs as pointer, `hasRole(POOL_ADMIN / EMERGENCY_ADMIN / RISK_ADMIN, holder)` at `run_block` as verdict"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-G33"
+sheet_location = "GHO § Admin surface — `freeze_asset` A4"
+bundle_field_path = "`admin_surface[freeze_asset].delay_s`"
+read_spec = "`none`, recorded as an absence read"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-G34"
+sheet_location = "GHO § Admin surface — `freeze_asset` A8"
+bundle_field_path = "`admin_surface[freeze_asset].reads`"
+read_spec = "provenance of the FR-G32 reads"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-G35"
+sheet_location = "GHO § Admin surface — `blacklist_address` A2"
+bundle_field_path = "`admin_surface[blacklist_address].holder`"
+read_spec = "selector-absence scan over `eth_getCode(GHO)` (F4 shape)"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-G36"
+sheet_location = "GHO § Admin surface — `set_oracle` A2 (Aave)"
+bundle_field_path = "`admin_surface[set_oracle].holder`"
+read_spec = "`PoolAddressesProvider.getPriceOracle()`; ACLManager `hasRole(ASSET_LISTING_ADMIN / POOL_ADMIN, holder)` by FR-G21's route"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-G37"
+sheet_location = "GHO § Admin surface — `set_oracle` A2 (GSM)"
+bundle_field_path = "`admin_surface[set_oracle].holder_gsm`"
+read_spec = "as FR-G20, `CONFIGURATOR_ROLE` (GSM price-strategy setter)"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-G38"
+sheet_location = "GHO § Admin surface — `set_oracle` A4"
+bundle_field_path = "`admin_surface[set_oracle].delay_s`"
+read_spec = "executor `getDelay()`"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-G39"
+sheet_location = "GHO § Admin surface — `set_oracle` A8"
+bundle_field_path = "`admin_surface[set_oracle].reads`"
+read_spec = "provenance of the FR-G36…FR-G37 reads"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-G40"
+sheet_location = "GHO § Admin surface — `set_parameters` A2"
+bundle_field_path = "`admin_surface[set_parameters].holder`"
+read_spec = "`GSM.getFeeStrategy()`; ACLManager steward roles by FR-G21's route"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-G41"
+sheet_location = "GHO § Admin surface — `set_parameters` A4"
+bundle_field_path = "`admin_surface[set_parameters].delay_s`"
+read_spec = "executor `getDelay()`; steward path carries `none`"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-G42"
+sheet_location = "GHO § Admin surface — `set_parameters` A8"
+bundle_field_path = "`admin_surface[set_parameters].reads`"
+read_spec = "provenance of the FR-G40 reads"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-G43"
+sheet_location = "GHO § Admin surface — `seize` A2"
+bundle_field_path = "`admin_surface[seize].holder`"
+read_spec = "GSM `RoleGranted` / `RoleRevoked` logs as POINTER, `GSM.hasRole(LIQUIDATOR_ROLE, holder)` at `run_block` as VERDICT (P-4.04 R5)"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-G44"
+sheet_location = "GHO § Admin surface — `seize` A3"
+bundle_field_path = "`admin_surface[seize].signers`"
+read_spec = "holder Safe `getThreshold()` / `getOwners()`"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-G45"
+sheet_location = "GHO § Admin surface — `seize` A4"
+bundle_field_path = "`admin_surface[seize].delay_s`"
+read_spec = "`none`, recorded as an absence read"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-G46"
+sheet_location = "GHO § Admin surface — `seize` A8"
+bundle_field_path = "`admin_surface[seize].reads`"
+read_spec = "provenance of the FR-G43 reads"
+status = "open"
+
+# ---- Deferred by ruling, present-and-empty -------------------------------
+# sell_side_capacity - per volatile node; lands at the R-a1 refresh (R-a4).
+# m4_fields[]        - Step 6.
+# bias_table[]       - Step 6 (Appendix C seed).

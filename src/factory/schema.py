@@ -174,6 +174,66 @@ class StabilizerBlock(BaseModel):
     reads: dict[str, Provenance] = {}
 
 
+# ------------------------------------------------- facilitators (GHO) ------
+# The `facilitators[]` sibling P-3.08 endorsed and P-4.04 R1 ruled: GHO's
+# supply-origination surface is not a market set, so it is its own table rather
+# than a fake generalisation of `markets[]`. `markets` stays empty for GHO.
+
+
+class Facilitator(BaseModel):
+    """One row of `GhoToken.getFacilitatorsList()`, classified by what its
+    bytecode answers rather than by its label string (DET-28)."""
+
+    address: Address
+    label: str                                              # the on-chain label
+    bucket_capacity: int
+    bucket_level: int
+    utilization: Decimal | None                             # O-1: no prose here
+    utilization_na_reason: Literal["ceiling_zero"] | None = None
+    facilitator_class: Literal["direct_minter", "gsm_funder", "flash_minter",
+                               "off_mainnet", "unresolved"]
+    class_evidence: list[str]                               # selectors that answered
+    pool_address: Address | None = None                     # direct_minter: POOL()
+    inventory: int | None = None                            # undrawn, held elsewhere
+    reads: dict[str, Provenance]
+
+    @model_validator(mode="after")
+    def _check(self):
+        if (self.bucket_capacity == 0) != (self.utilization is None):
+            raise ValueError("DET-21: utilization is None iff capacity is 0")
+        if (self.utilization_na_reason == "ceiling_zero") != (self.bucket_capacity == 0):
+            raise ValueError("DET-21: na_reason must accompany a zero capacity")
+        if (self.facilitator_class == "direct_minter") != (self.pool_address is not None):
+            raise ValueError("a direct_minter carries its POOL(), and only it does")
+        return self
+
+
+class Gsm(BaseModel):
+    """One live GSM from `GsmRegistry.getGsmList()`, with the memo §6.3 H2
+    freezer state. `freezer_address` is discovered, never configured: the
+    holder comes from the role log pointer and `hasRole` is the verdict
+    (P-4.04 R5)."""
+
+    address: Address
+    underlying_asset: Address
+    exposure_cap: int
+    available_liquidity: int
+    available_underlying_exposure: int
+    is_frozen: bool
+    is_seized: bool
+    price_strategy: Address
+    fee_strategy: Address
+    gho_treasury: Address
+    freezer_address: Address | None = None
+    freeze_bound_lo: int | None = None
+    freeze_bound_hi: int | None = None
+    unfreeze_bound_lo: int | None = None
+    unfreeze_bound_hi: int | None = None
+    can_unfreeze: bool | None = None
+    freezer_role_confirmed: bool = False
+    reads: dict[str, Provenance]
+
+
 # ------------------------------------------------------------ supply -------
 
 
@@ -407,6 +467,10 @@ class Bundle(BaseModel):
     redemption_paths: list[RedemptionPath]
     admin_surface: list[AdminRow]
     lend_markets: list[LendMarket] = []
+    # GHO's origination surface (P-4.04 R1). Empty for crvUSD, whose surface is
+    # `markets[]`; `markets[]` is empty for GHO. Neither token carries both.
+    facilitators: list[Facilitator] = []
+    gsms: list[Gsm] = []
     pools: list[PoolRow] = []
     pool_detectors: PoolDetectors
     static_metadata: StaticMetadata

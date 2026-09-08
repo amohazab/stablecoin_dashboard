@@ -78,6 +78,7 @@ def _cfg(labels: dict[str, LabelRow] | None = None, lend: LendFactories | None =
         "crvusd_token": Root("crvusd_token", CRVUSD, "token", "sheet", dt.date(2026, 9, 1)),
     }
     return Config(
+        token="crvUSD", frozen_set_path=Path("config/frozen_set_crvusd.json"),
         roots=roots,
         labels=labels or {},
         paired={},
@@ -230,6 +231,7 @@ def test_lend_market_enumeration_counts_the_chain_not_the_rows():
         (f2, "markets(uint256)", ("0",)): (m[2],),
     }
     cfg = Config(
+        token="crvUSD", frozen_set_path=Path("config/frozen_set_crvusd.json"),
         roots={}, labels={}, paired={}, sheet={}, wallet_registries=[],
         reference_feeds=[], oracle_constituents={}, bridges=[],
         lend=LendFactories(
@@ -247,7 +249,7 @@ def test_lend_market_enumeration_counts_the_chain_not_the_rows():
 
 
 def test_repo_config_loads_and_lend_is_populated():
-    cfg = load(Path(__file__).resolve().parents[1] / "config")
+    cfg = load(Path(__file__).resolve().parents[1] / "config", "crvUSD")
     assert {"controller_factory", "pegkeeper_regulator", "price_aggregator",
             "crvusd_token"} <= set(cfg.roots)
     assert len([r for r in cfg.roots if r.startswith("pool_factory_")]) == 6  # P-3.23
