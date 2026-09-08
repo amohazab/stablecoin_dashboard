@@ -4974,3 +4974,21 @@ Record: out/step3-evidence.md; src/factory/; config/. Post-pair application
   1. The next ordinary run flips `baseline_source` to `prior_bundle`
      unprompted — expected, not a finding.
   2. `PriorBundle`'s field list grows only when a delta check needs a field.
+
+## P-3.46-A1 — AMEND P-3.46 — `raw_positions_hash` is a must-change, not a must-not-change
+
+- **Date:** 2026-09-08
+- **Type:** AMEND
+- **Confirmed by:** Amin
+- **Content:**
+  P-3.46's demonstration-run expectation list reads "**`raw_positions_hash`
+  must NOT** [change], since positions are untouched." That is wrong: the field
+  hashes 507 live borrower positions, which move every block, and P-3.40
+  already records it flipping `fbd54de1…` → `4a8747b8…` between runs 1 and 2.
+  The position-read **code** is untouched; the **data** is not. Origin: the
+  Block-1b proposal's section 7, repeated by the design layer into P-3.46's
+  checklist and caught only when the demonstration run's comparison flagged it.
+  **No retroactive effect** — no gate reads the field and no run outcome
+  depended on it; P-3.46 stands unedited per rule 2.
+- **Artifacts:** `PROGRESS.md`. No code change.
+- **Follow-ups spawned:** none.
