@@ -171,3 +171,63 @@ def test_gsm_row_reads_state_and_leaves_h2_present_and_empty():
     assert set(row.reads) == {sig for sig, _ in
                               __import__("factory.adapters.gho", fromlist=["x"]).GSM_READS}
     assert n == 1 + 9
+
+
+# --- positions, principal, attribution (2a) -----------------------------------
+
+
+def _pos(**kw):
+    from factory.schema import GhoPosition
+    base = dict(borrower=MINTER, instance=POOL, gross_debt=100, principal=60,
+                accrued_interest=40, gho_debt_base=100, total_debt_base=200,
+                collateral={WAUSDT: 1000})
+    base.update(kw)
+    return GhoPosition(**base)
+
+
+def test_principal_never_exceeds_gross_on_a_position_row():
+    """P-4.04-A1's invariant, proven on all 2,142 live positions, as a row
+    validator: R7 without `LiquidationCall` would put 128 of them here."""
+    with pytest.raises(Exception, match="principal 140 > gross"):
+        _pos(principal=140, accrued_interest=-40)
+
+
+def test_attribution_is_pro_rata_not_the_whole_collateral():
+    """memo §11.1: half the borrower's debt is GHO, so half the collateral is
+    credited. Crediting all of it is the upper bound, not the attribution."""
+    from factory.adapters.gho import attribute_nodes
+    assert attribute_nodes([_pos()])[WAUSDT] == 500
+    assert attribute_nodes([_pos(gho_debt_base=200)])[WAUSDT] == 1000   # share caps at 1
+    assert attribute_nodes([_pos(total_debt_base=0)]) == {}             # no denominator, no claim
+
+
+def test_det03_gho_clause_reads_the_facilitator_rows():
+    """Dispatched on the table the token carries, not on the token name."""
+    from factory.schema import Facilitator
+    from factory.validate.harness import Level3, det_03
+
+    def fac(**kw):
+        base = dict(address=MINTER, label="x", bucket_capacity=10, bucket_level=5,
+                    utilization=None, facilitator_class="direct_minter",
+                    class_evidence=["POOL()"], pool_address=POOL,
+                    principal_sum=60, accrued_interest_sum=40, gross_debt_sum=100,
+                    reads={})
+        base.update(kw)
+        base["utilization"] = None if base["bucket_capacity"] == 0 else 1
+        base["utilization_na_reason"] = "ceiling_zero" if base["bucket_capacity"] == 0 else None
+        return base
+
+    class B:
+        markets: list = []
+        facilitators: list = []
+    b = B()
+    ok = Facilitator(**fac(reads={
+        "principal": ContractRead(source_contract=POOL, function="Borrow", args=[], block=RB),
+        "gross_debt": ContractRead(source_contract=GSM, function="balanceOf(address)",
+                                   args=[], block=RB)}))
+    b.facilitators = [ok]
+    det_03(b, {})                                            # two distinct reads: passes
+    b.facilitators = [ok.model_copy(update={"reads": {
+        "principal": ContractRead(source_contract=POOL, function="Borrow", args=[], block=RB)}})]
+    with pytest.raises(Level3, match="anti-tautology"):
+        det_03(b, {})

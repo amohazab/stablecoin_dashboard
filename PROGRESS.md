@@ -5247,3 +5247,52 @@ Status: IN PROGRESS (opened 2026-09-08).
 - **Follow-ups spawned:** the DET-28 separability ruling; the CCIP `[[bridge]]`
   row; session 2 — positions, nodes, admin surface, oracle rows, the supply
   block, and the identity's move onto `Bundle`.
+
+## P-4.07 — GHO build 2a: supply, positions, principal, nodes
+
+- **Date:** 2026-09-08
+- **Type:** implementation + flag
+- **Confirmed by:** Amin
+- **Content:**
+  **RULING 1 NOT APPLIED — FLAG.** The chat-ruling classifying the four
+  `GhoDirectFacilitator *` rows by dated `[[facilitator_class]]` rows assumed a
+  citable governance proposal or GSM-registry relationship. At block 25930871
+  there is none: **19 selectors probed, every one reverts on all four**; all
+  four carry the same verified name `GhoDirectFacilitator`; their bytecode
+  groups them 2/2 as {GSMs Mainnet, Plasma} and {Arbitrum, Monad}, which cuts
+  across the ruled split; all four hold zero GHO. Only the ERC-20 label string
+  separates them, which the no-symbol gate forbids. **No rows written; the four
+  stay `unresolved` with their evidence. Needs re-ruling.**
+  **RULING 2 APPLIED.** One dated `[[bridge]]` row for the CCIP pool,
+  `lock_and_mint` from the DET-33 menu, sourced to the sheet's R3 `[VERIFIED
+  2026-09-01]` line; `load` reads `[[bridge]]` from either file, so crvUSD's
+  three do not move. `.gitattributes` gains its self-pin.
+  **BUILT.** Supply: `totalSupply` plus the three inventory reads with
+  provenance, amounts only. Positions: Route A per instance — mint-side
+  `Transfer` logs as pointer, live filter and bitmaps and balances pinned as
+  verdict; principal per R7 corrected (P-4.04-A1); `principal <= gross` a row
+  validator on `GhoPosition`; completeness in `PositionCompleteness`. The
+  origination numbers hang on the **direct-minter facilitator row**, which is
+  where R1 already put them, and positions stay out of the bundle as crvUSD's
+  do. Nodes: pro-rata weights keyed by underlying address. `det_03` and
+  `det_82` gain GHO clauses dispatched on the table the token carries;
+  **`len(CHECKS)` stays 22** — no new check is owed. The supply identity moved
+  from the adapter onto `Bundle`, as P-4.06 queued.
+  **THREE DEFECTS OF MINE, FOUND BY READING THE OUTPUT.** (i) `attribute_nodes`
+  had no denominator: `total_debt_base` was never read, so every borrower's
+  whole collateral was credited to GHO — **$794.5M against $508.9M once the
+  ratio was real.** (ii) The freezer was the DAO executor: `SWAP_FREEZER_ROLE`
+  has two holders and the last one won; selecting by **closure** (`GSM()` points
+  back) returns exactly the two Phase-B addresses with bands 0.99/1.01.
+  (iii) Inventory read `aGHO.balanceOf(aGHO)`, which is zero; `GHO.balanceOf(
+  aGHO)` gives 23,521,476 / 4,487,247 / 24,999,672.
+  **MEASURED at 25934326:** 16,338 pinned reads, 128 pointer requests, 22
+  windows, 194.5 s; 2,140 positions; 34 nodes; attributed **$508,933,082**;
+  DET-82 rel_diff 9.1e-24 / 6.5e-25 / 5.7e-26. **FLAG — three nodes at 7.977%
+  combined (JAAA, USTB, USCC, Horizon RWA) have NO memo §4.5 row**; cbETH is the
+  sheet's own open point 2. No label invented. **107 tests; ruff clean; no run.**
+- **Artifacts:** `config/gho_labels.toml`, `.gitattributes`; `src/factory/`
+  `config.py` · `schema.py` · `adapters/gho.py` · `validate/harness.py`;
+  `tests/test_gho.py`; `PROGRESS.md`. No `docs/context/` change.
+- **Follow-ups spawned:** the facilitator-class re-ruling; the JAAA/USTB/USCC
+  and cbETH label rulings; the heartbeat values (owed, analyst); session 2b.

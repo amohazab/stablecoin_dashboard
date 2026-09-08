@@ -29,3 +29,14 @@ label = "recurses_truncated"
 label_source = "memo §4.1 analyzed-set linking rule; symmetric to P-3.24's GHO row in labels.toml; ~unit-priced with the numeraire (P-3.27 procedural guard)"
 date = 2026-09-08
 note = "Level 1 until crvUSD's tree publishes at Step 5; not shocked in Member 2 (GHO sheet, paired-asset notes). Pool 0x635ef0056a597d13863b73825cca297236578595 is also crvUSD's own GHO PegKeeper pool."
+
+# ---- bridges (DET-33 / C-1) -------------------------------------------------
+# One row. `bridge_type` comes from the DET-33 menu, never inferred from a
+# balance (C-1, P-3.06); FR-G09 reads the AMOUNT only. The pool is a
+# `TransparentUpgradeableProxy` (impl 0x2ce40070…) holding GHO on mainnet,
+# which is what lock-and-mint looks like from this side.
+[[bridge]]
+address = "0x06179f7C1be40863405f374E7f5F8806c728660A"
+bridge_type = "lock_and_mint"
+source = "intake-sheets-cdp.md, GHO section, Redemption-rights R3 row [VERIFIED 2026-09-01: CCIP token pool 0x06179f7C1be40863405f374E7f5F8806c728660A; source bgd-labs/aave-address-book main (GhoEthereum.sol)]; 'CCIP token pool = lock-and-mint on Ethereum (see 8.1.4(b))' per the same section's Other-facilitators line"
+date = 2026-09-01

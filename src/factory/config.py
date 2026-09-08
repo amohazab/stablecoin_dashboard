@@ -189,9 +189,12 @@ def load(config_dir: Path, token: str) -> Config:
             raise ValueError(f"{row.symbol}: address is both a node and a paired asset")
         paired[row.address] = row
 
+    # P-4.07: a `[[bridge]]` row is read from EITHER file. crvUSD's three sit
+    # in `discovery_roots.toml` where P-3.35 signed them and do not move; GHO's
+    # CCIP row sits in `gho_labels.toml`. One reader, two homes, no duplication.
     bridges = [{"address": b["address"].lower(), "bridge_type": b["bridge_type"],
                 "source": b["source"], "date": _date(b["date"])}
-               for b in roots_raw.get("bridge", [])]
+               for b in list(roots_raw.get("bridge", [])) + list(labels_raw.get("bridge", []))]
     refs = [{"node_address": r["node_address"].lower(), "kind": r["kind"],
              "feed_address": r.get("feed_address"), "source": r["source"],
              "date": _date(r["date"])} for r in labels_raw.get("reference_feed", [])]

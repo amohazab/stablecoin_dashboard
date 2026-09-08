@@ -13,3 +13,4 @@ out/logs/*.jsonl    text eol=lf
 # Source, so `git add` stops warning on the files whose byte counts entries
 # state (P-4.06; optional line, rides this hunk).
 *.py                text eol=lf
+.gitattributes      text eol=lf

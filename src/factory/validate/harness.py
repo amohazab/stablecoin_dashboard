@@ -154,12 +154,32 @@ def det_01(b: Bundle, ctx) -> None:
 
 
 def det_03(b: Bundle, ctx) -> None:
-    """Principal / interest separation (anti-tautology, C-2/C-3)."""
+    """Principal / interest separation (anti-tautology, C-2/C-3).
+
+    Dispatched on token the way DET-66 is (P-3.44): crvUSD's origination unit
+    is a mint market, GHO's is a direct-minter facilitator (P-4.04 R1), and the
+    same condition is checked on whichever table the token actually carries.
+    """
     for m in b.markets:
         if m.gross_debt_sum != m.principal_sum + m.accrued_interest_sum:
             raise Level3(f"DET-03: identity broken on {m.symbol}")
         if m.principal_sum < 0 or m.accrued_interest_sum < 0:
             raise Level3(f"DET-03: negative component on {m.symbol}")
+    for f in b.facilitators:
+        if f.gross_debt_sum is None:
+            continue                                   # not an origination row
+        if f.gross_debt_sum != (f.principal_sum or 0) + (f.accrued_interest_sum or 0):
+            raise Level3(f"DET-03: identity broken on facilitator {f.address}")
+        if (f.principal_sum or 0) < 0 or (f.accrued_interest_sum or 0) < 0:
+            raise Level3(f"DET-03: negative component on {f.address}")
+        # C-3's anti-tautology, GHO shape: principal comes from the event
+        # ledger (R7) and gross from a pinned `balanceOf` — two sources, and
+        # the reads map must show two distinct signatures rather than one read
+        # plus arithmetic.
+        sigs = {(r.source_contract, r.function) for k, r in f.reads.items()
+                if k in ("principal", "gross_debt") and isinstance(r, ContractRead)}
+        if len(sigs) < 2:
+            raise Level3(f"DET-03 anti-tautology: {f.address} needs two reads")
 
 
 def det_04(b: Bundle, ctx) -> tuple[str, int] | None:
@@ -366,11 +386,20 @@ def det_08(b: Bundle, ctx) -> tuple[str, int] | None:
 
 
 def det_82(b: Bundle, ctx) -> None:
-    """Position-set completeness, 1e-9 (G-3 — untraceable pointer)."""
+    """Position-set completeness, 1e-9 (G-3 — untraceable pointer).
+
+    Same condition on GHO's origination rows: the live positions must sum to
+    the instance debt token's own `totalSupply()`, which is what makes an
+    event-derived borrower set checkable against the chain (P-4.04 R3).
+    """
     for m in b.markets:
         if not m.position_completeness.ok:
             raise Level3(f"DET-82: {m.symbol} rel_diff "
                          f"{m.position_completeness.relative_diff}")
+    for f in b.facilitators:
+        if f.position_completeness is not None and not f.position_completeness.ok:
+            raise Level3(f"DET-82: facilitator {f.address} rel_diff "
+                         f"{f.position_completeness.relative_diff}")
 
 
 def det_33(b: Bundle, ctx) -> tuple[str, int] | None:

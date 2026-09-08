@@ -195,6 +195,17 @@ class Facilitator(BaseModel):
     class_evidence: list[str]                               # selectors that answered
     pool_address: Address | None = None                     # direct_minter: POOL()
     inventory: int | None = None                            # undrawn, held elsewhere
+    # P-4.04 R1's literal words: a direct_minter row carries "pool, bucket
+    # capacity/level and drawn debt with principal and accrued interest
+    # separated". crvUSD hangs those on `markets[]`; GHO has none, and the
+    # facilitator IS the origination unit, so they hang here (P-4.07).
+    debt_token_address: Address | None = None
+    atoken_address: Address | None = None
+    n_positions: int | None = None
+    principal_sum: int | None = None
+    accrued_interest_sum: int | None = None
+    gross_debt_sum: int | None = None
+    position_completeness: PositionCompleteness | None = None
     reads: dict[str, Provenance]
 
     @model_validator(mode="after")
@@ -205,6 +216,38 @@ class Facilitator(BaseModel):
             raise ValueError("DET-21: na_reason must accompany a zero capacity")
         if (self.facilitator_class == "direct_minter") != (self.pool_address is not None):
             raise ValueError("a direct_minter carries its POOL(), and only it does")
+        if self.gross_debt_sum is not None:                  # DET-03, integer-exact
+            if self.gross_debt_sum != (self.principal_sum or 0) + (self.accrued_interest_sum or 0):
+                raise ValueError(f"DET-03 identity broken on facilitator {self.address}")
+            if (self.principal_sum or 0) < 0 or (self.accrued_interest_sum or 0) < 0:
+                raise ValueError(f"DET-03 negative component on {self.address}")
+        return self
+
+
+class GhoPosition(BaseModel):
+    """One borrower's GHO debt in one Aave instance.
+
+    Position rows stay OUT of the bundle and out of `bundle_hash` (P-3.05's
+    boundary); they are validated here on the way to the raw dump, which is
+    where `principal <= gross` gets a row-level home rather than a comment.
+    """
+
+    borrower: Address
+    instance: Address                                       # the Pool
+    gross_debt: int                                         # balanceOf at run_block
+    principal: int                                          # R7, P-4.04-A1
+    accrued_interest: int
+    gho_debt_base: int = 0                                  # gross in base currency
+    total_debt_base: int = 0                                # all reserves, for pro-rata
+    collateral: dict[Address, int] = {}                     # reserve -> aToken balance
+
+    @model_validator(mode="after")
+    def _check(self):
+        if self.principal > self.gross_debt:
+            raise ValueError(f"{self.borrower}: principal {self.principal} > gross "
+                             f"{self.gross_debt} — R7 without LiquidationCall (P-4.04-A1)")
+        if self.accrued_interest != self.gross_debt - self.principal:
+            raise ValueError(f"{self.borrower}: accrued must be gross - principal")
         return self
 
 
@@ -487,6 +530,13 @@ class Bundle(BaseModel):
             raise ValueError("DET-68: nine A1 powers required")
         if self.first_run_literals is None and self.header.first_run:
             raise ValueError("first_run bundle must carry its literals")
+        # P-4.06 queued this move: the identity was enforced in the adapter
+        # while no GHO bundle existed to hang it on. It lives here now.
+        if self.facilitators:
+            levels = sum(f.bucket_level for f in self.facilitators)
+            if levels != self.supply.total_supply:
+                raise ValueError(f"sum of facilitator bucket levels {levels} != "
+                                 f"totalSupply {self.supply.total_supply}")
         return self
 
 
