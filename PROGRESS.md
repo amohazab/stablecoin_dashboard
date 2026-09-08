@@ -37,7 +37,10 @@ Status: DONE (v1 FINAL 2026-09-03). Record: docs/context/rubic_v1.md.
 ## Step 3 — crvUSD adapter
 Status: DONE (opened 2026-09-03; done-condition met 2026-09-07, P-3.41).
 Record: out/step3-evidence.md; src/factory/; config/. Post-pair application
-(DET-10, DET-66, held items) continues under P-3.42+ before Step 4 opens.
+DONE at P-3.47 (2026-09-08).
+
+## Step 4 — GHO + LUSD adapters
+Status: IN PROGRESS (opened 2026-09-08).
 
 ## P-3.01 — Block 0.1 anomaly dispositions; Python stack ruling; checksum task
 - **Date:** 2026-09-03
@@ -4992,3 +4995,44 @@ Record: out/step3-evidence.md; src/factory/; config/. Post-pair application
   depended on it; P-3.46 stands unedited per rule 2.
 - **Artifacts:** `PROGRESS.md`. No code change.
 - **Follow-ups spawned:** none.
+
+## P-4.01 — Step 4 opened; the revision queue parked
+
+- **Date:** 2026-09-08
+- **Type:** decision
+- **Confirmed by:** Amin
+- **Content:**
+  **The revision session P-3.47 named as next is PARKED by Amin's ruling and
+  runs after Step 4's two-run conditions are met** — not an AMEND; P-3.47's
+  line was a recommendation.
+
+  **The parked queue** — one line per item, each citing its spawning entry:
+  1. crvUSD origination perimeter, the third minting class (P-3.39, P-3.41).
+  2. DET-89 and DET-09 stage listings (P-3.41, P-3.43).
+  3. `supply_ruled` denominator, gated before any percentage (P-3.41).
+  4. DET-15(c) emission with ruling 1's wording; (a) and (d)'s sole-
+     denominator condition (P-3.45, P-3.40-A1).
+  5. Intake edits — D-7, the DET-15(c) cause list, §13 veto hedges (P-3.41).
+  6. Rubric amendments — DET-62 and DET-09 source lists, G-index, T-26 scope,
+     DET-86 stage-awareness, memo §6.1.3 and §5.4, persistent-depeg (P-3.41).
+  7. Event-log entry types and DET-60's scope (P-3.43, P-3.46).
+  8. DET-10(c)'s missing consequence level (P-3.46).
+  9. The shape-change gate's trigger and owner, before Step 10 (P-3.43-A1).
+  10. DET-66's two-level home in the harness registry (P-3.44).
+  11. R-a1 refresh at Step 6/7, retiring `[[frozen_pool_index]]` (P-3.46/47).
+  12. Step-7 checklist — `Logbook.write()` for quarantine; retire the
+      `first_run` convention (P-3.43).
+  13. DET-34 per-run gating — available, not scoped (P-3.43).
+  14. `run.py`'s 164 pool-assembly lines — Step 4D placement (P-3.46).
+  15. Read counter — Step 8, if the cron needs it (P-3.47).
+  16. `%APPDATA%\Python\Python314\Scripts` onto the User Path — Amin (P-3.42).
+  17. T-17 clock — freeze 2026-09-04; DET-10(f) fires Level 1 on any run
+      dated after 2026-12-13 unless the R-a1 refresh lands first.
+
+  **Anchors at open:** `HEAD 2ea6ca7`, tree clean, `uv sync --frozen` no
+  changes, 96 tests, ruff clean, `len(CHECKS) = 22`; `e08ce1e8` / `a6d8f12a` /
+  `a48cd6ae` / `4484746d` / `d3d836a1` / `80d87407` / `e1cde6a1` (3 lines,
+  511 B); bundles 25906587, 25923250, 25927985.
+- **Artifacts:** `PROGRESS.md` — the `## Step 4` heading, the Step-3 status
+  line's last sentence, and this entry.
+- **Follow-ups spawned:** none new — the queue above is the parked set.
