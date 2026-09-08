@@ -246,7 +246,10 @@ def test_mirror_generator_reproduces_the_committed_mirror():
 
 def test_mirror_preserves_det75_identity():
     sheet = REPO / "docs/context/intake-sheets-cdp.md"
-    assert count_first_run_tags(sheet) == len(parse_first_run_reads(sheet)) == 34
+    assert count_first_run_tags(sheet, "crvUSD") == len(
+        parse_first_run_reads(sheet, "crvUSD")) == 34
+    assert count_first_run_tags(sheet, "GHO") == len(
+        parse_first_run_reads(sheet, "GHO")) == 46
 
 
 def test_det10c_detector_fields_are_required_at_the_model():

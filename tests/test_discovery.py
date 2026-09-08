@@ -269,7 +269,7 @@ def test_repo_config_loads_and_lend_is_populated():
     assert len(cfg.paired) == 7  # P-3.24: 7 labeled; pmUSD deliberately unlabeled
     assert cfg.paired["0xcea18a8752bb7e7817f9ae7565328fe415c0f2ca"].label == "terminal"
     assert "0xc0c17dd08263c16f6b64e772fb9b723bf1344ddf" not in cfg.paired  # pmUSD
-    assert cfg.sheet["sheet_hash"] == "a6d8f12a"  # (d2) signed 2026-09-05
+    assert cfg.sheet["sheet_hash"] == "d2114a96"  # GHO intake edit, signed 2026-09-08
     assert len(cfg.sheet["first_run_read"]) == 34
 
 

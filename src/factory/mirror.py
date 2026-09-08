@@ -21,11 +21,25 @@ def sheet_hash(sheet_path: pathlib.Path) -> str:
     return hashlib.sha256(raw).hexdigest()[:8]
 
 
-def parse_first_run_reads(sheet_path: pathlib.Path) -> list[dict[str, str]]:
-    """Read the registry table out of the stamped sheet's crvUSD section."""
+def _section(sheet_path: pathlib.Path, token: str) -> list[str]:
+    """The lines of one token's section: `## <token>` up to the next `## `.
+
+    P-4.05: this bound existed only in `count_first_run_tags`. The row parser
+    scanned the whole file, which was correct only while crvUSD's was the
+    sheet's only registry; the GHO registry made regeneration emit 80 rows
+    into the crvUSD mirror. Both functions now take the token and share this.
+    """
     lines = sheet_path.read_text(encoding="utf-8").split("\n")
+    start = next(i for i, ln in enumerate(lines) if ln.startswith(f"## {token}"))
+    end = next((i for i, ln in enumerate(lines) if i > start and ln.startswith("## ")),
+               len(lines))
+    return lines[start:end]
+
+
+def parse_first_run_reads(sheet_path: pathlib.Path, token: str) -> list[dict[str, str]]:
+    """Read the registry table out of the stamped sheet's `<token>` section."""
     rows = []
-    for line in lines:
+    for line in _section(sheet_path, token):
         if line.startswith("| FR-") and line.rstrip().endswith("| open |"):
             parts = [c.strip() for c in line.strip().strip("|").split(" | ")]
             if len(parts) != 5:
@@ -38,12 +52,9 @@ def parse_first_run_reads(sheet_path: pathlib.Path) -> list[dict[str, str]]:
     return rows
 
 
-def count_first_run_tags(sheet_path: pathlib.Path) -> int:
-    """DET-75's identity counts literal tags in the crvUSD section only."""
-    lines = sheet_path.read_text(encoding="utf-8").split("\n")
-    start = next(i for i, ln in enumerate(lines) if ln.startswith("## crvUSD"))
-    end = next(i for i, ln in enumerate(lines) if i > start and ln.startswith("## "))
-    return sum(ln.count("[FIRST-RUN READ:") for ln in lines[start:end])
+def count_first_run_tags(sheet_path: pathlib.Path, token: str) -> int:
+    """DET-75's identity counts literal tags in the `<token>` section only."""
+    return sum(ln.count("[FIRST-RUN READ:") for ln in _section(sheet_path, token))
 
 
 def extract_cbbtc_disclosure(sheet_path: pathlib.Path) -> dict[str, str] | None:
@@ -65,7 +76,7 @@ def extract_cbbtc_disclosure(sheet_path: pathlib.Path) -> dict[str, str] | None:
 def generate(sheet_path: pathlib.Path) -> str:
     """Render the mirror TOML from the stamped sheet."""
     h = sheet_hash(sheet_path)
-    rows = parse_first_run_reads(sheet_path)
+    rows = parse_first_run_reads(sheet_path, "crvUSD")
     disc = extract_cbbtc_disclosure(sheet_path)
 
     out = [

@@ -5145,3 +5145,50 @@ Status: IN PROGRESS (opened 2026-09-08).
 - **Artifacts:** `PROGRESS.md`. No code change.
 - **Follow-ups spawned:** `principal ≤ gross` becomes a position-row validator at build
   (the crvUSD invariants-as-validators pattern).
+
+## P-4.05 — The signed GHO intake edit; the (d)-machinery; the mirror's section bound
+
+- **Date:** 2026-09-08
+- **Type:** decision + implementation
+- **Confirmed by:** Amin
+- **Content:**
+  **Signature line 1 — SIGNED — sheet edit** (`intake_trigger`, R-47 stamp), GHO
+  section only: H1 the fit-test sentence corrected to the borrower-draw form with
+  the eight facilitators and three direct minters (R1); H2 the reserve universe
+  corrected to three Aave instances, 75 addresses, 34 in use (R1); H3 the
+  off-venue tag reduced to a read spec plus citation, with Balancer→Fluid as its
+  own `[VERIFIED …, CORRECTED …]` marker beside it (R4); H4a/b/c the three
+  `[bucket VERIFY]` → `1–7 d (A4, verified 2026-09-01)`; H5/H6 the two
+  `getRoleMember` read specs → logs-as-pointer, `hasRole`-as-verdict (R5); H7 the
+  46-row `first_run_reads[]` registry inserted, **46 literal tags = 46 open rows**.
+  At rev 3, three registry rows were revised in one clause: FR-G17 and FR-G43 lost
+  their trailing correction sentence (the reason lives here, not in a read spec),
+  and FR-G32 gained `POOL_ADMIN`. → `intake-sheets-cdp.md` at **d2114a96**.
+  **Signature line 2 — SIGNED — `rubric_change`** (DET-87): the header's
+  sheets-line `a6d8f12a` → `d2114a96`, nothing else; memo `e08ce1e8` and checklist
+  `54620383` reappear byte-identical. → `rubic_v1.md` at **875c9718**.
+  **THE DEFECT, found at step 3 and reported before anything else was written.**
+  `mirror.parse_first_run_reads` scanned the whole sheet for `| FR-` rows while
+  its docstring claimed the crvUSD section; the bound existed only in
+  `count_first_run_tags`. Regeneration produced **80 rows** (34 crvUSD + 46 GHO),
+  21,928 B, and two red tests. The mirror was restored to its committed bytes, not
+  hand-patched, and steps 3–6 stopped for a ruling. Fixed under option (a) by a
+  shared `_section(sheet, token)` bound that both functions take, `generate()`
+  passing `"crvUSD"`; the test gains one assertion, `46 = 46` for GHO.
+  **Artifacts and identities:** mirror **9,995 B** unchanged, `d3d836a1` →
+  **a75ca7ea**, 34 rows equal object-for-object, only the two stamp lines
+  differing, P-3.15's reproduce test green; `events_crvusd.jsonl` 511 → **643 B**,
+  3 → 4 lines, **2a6cd3a7**; `events_gho.jsonl` new, **123 B / 1 line, 70c2ea8c** —
+  **DET-10(a) fails closed for GHO on its null `set_file_hash` until the GHO
+  freeze**, which is correct (P-3.46). `test_discovery.py`'s `a6d8f12a` pin →
+  `d2114a96`. **97 tests pass; ruff clean; no run.**
+  **AS-COUNTED, two.** (i) The Block-B collision list claimed `mirror.py`'s tag
+  counter *and* row parser were section-anchored; only the counter was, and the
+  regeneration proved it. (ii) P-4.04 was appended before being shown, at 51 lines
+  against the ~44 allowed; both stated after the fact, neither flagged before.
+- **Artifacts:** `docs/context/intake-sheets-cdp.md`, `docs/context/rubic_v1.md`,
+  `config/crvusd_sheet.toml`, `out/logs/events_crvusd.jsonl`,
+  `out/logs/events_gho.jsonl`, `src/factory/mirror.py`, `tests/test_schema.py`,
+  `tests/test_discovery.py`; `PROGRESS.md`.
+- **Follow-ups spawned:** the GHO build opens next — config loader by token,
+  `gho_sheet.toml` mirror, `facilitators[]`, the adapter, the freeze.
