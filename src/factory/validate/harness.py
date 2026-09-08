@@ -466,6 +466,28 @@ def _resolves_on_bundle(b: Bundle, ref: str) -> bool:
     return True
 
 
+def _resolves_by_identity(b: Bundle, path) -> bool:
+    """R7 by IDENTITY, not index (ruled 2026-09-08).
+
+    A per-instance capacity — GHO's R7 is one GSM's boxed balance — cannot be
+    named by a dotted path from the bundle root, and admitting `[n]` would put
+    a positional index in a ruled field where a renumbering silently changes
+    the meaning. So `gsms.available_liquidity` names the TABLE and the field,
+    and the row is the one whose identity the path already carries: the GSM
+    whose `underlying_asset` is this path's R3. That is the same match DET-66
+    performs three lines above, so no new correspondence is invented.
+    """
+    if "." not in path.r7_capacity:
+        return False
+    table, field = path.r7_capacity.split(".", 1)
+    rows = getattr(b, table, None)
+    if not isinstance(rows, list) or not isinstance(path.r3_received, list):
+        return False
+    want = set(path.r3_received)
+    return any(getattr(r, "underlying_asset", None) in want and hasattr(r, field)
+               for r in rows)
+
+
 def _is_figure(s: str) -> bool:
     """Named implementer default for R5's "figure or `none`": a plain decimal
     literal. Units belong to the sheet, not to this field."""
@@ -565,7 +587,8 @@ def det_66(b: Bundle, ctx) -> None:
                 raise Level3(f"{at}: R5 must be a figure or `none`: "
                              f"{p.r5_minimum!r}")
             if (p.r7_capacity != "unbounded"
-                    and not _resolves_on_bundle(b, p.r7_capacity)):
+                    and not _resolves_on_bundle(b, p.r7_capacity)
+                    and not _resolves_by_identity(b, p)):
                 raise Level3(f"{at}: R7 must be a resolvable bundle field ref "
                              f"or `unbounded`: {p.r7_capacity!r}")
 

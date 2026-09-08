@@ -208,12 +208,20 @@ def build_freeze(
     excluded: list[ExcludedPool],
     freeze_date: str,
     freeze_block: int,
+    r20_waiver: dict | None = None,
 ) -> FrozenSet:
     """Build the frozen set: exclusions out, floor applied (stabilizer pools
     exempt, P-4), then the shortest prefix reaching 95% coverage.
 
     Raises FreezeCoverageStop if the target is unreachable — R-a3, never a
     self-issued waiver.
+
+    R-a3's SECOND HALF (P-4.10): the ruling does not end at the stop — it ends
+    at the analyst's R-20 decision, and a granted waiver lets the freeze
+    proceed. `r20_waiver` is that decision, `{date, reason, achieved_coverage}`,
+    and it is carried onto the set so the file records WHY coverage is short
+    rather than leaving a bare number to be rediscovered. Passing it is the
+    only way past the stop; the module still cannot issue one itself.
     """
     gone = {e.address for e in excluded}
     eligible = [p for p in discovered if p.address not in gone]
@@ -240,7 +248,8 @@ def build_freeze(
     coverage = (Decimal(run) / Decimal(discovery_total)).quantize(Decimal("0.0001"))
     if coverage < FREEZE_COVERAGE_TARGET:
         tail = [p.address for p in eligible if p not in chosen]
-        raise FreezeCoverageStop(coverage, discovery_total, tail)
+        if r20_waiver is None:
+            raise FreezeCoverageStop(coverage, discovery_total, tail)
 
     below = {p.address for p in eligible if p not in above}
     tail_excluded = [

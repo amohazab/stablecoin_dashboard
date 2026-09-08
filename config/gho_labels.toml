@@ -267,3 +267,18 @@ share = "1.549%"
 reason = "below the 1% marking threshold and not named on the sheet; each routes via 8.2 as an unlisted node"
 measured_at_block = 25934326
 date = 2026-09-08
+
+# ---- wallet registry (A5 / DET-76(c)) ---------------------------------------
+# tBTC's label is NOT in config: the run-time read IS the authority (P-3.37
+# binding 2). GHO calls the SAME resolver crvUSD does, on the same addresses -
+# the registry is a property of tBTC, not of the token holding it - so this row
+# is sourced to crvUSD's rather than re-derived, and any future correction to
+# one is a correction to both.
+[[wallet_registry]]
+node_address = "0x18084fba666a33d37592fa2633fd49a74dd93a88"
+symbol = "tBTC"
+bridge_address = "0x5e4861a80b55f035d899f66772117f00fa0e8e7b"
+registry_address = "0x46d52e41c2f300bc82217ce22b920c34995204eb"
+locator_read = "Bridge.activeWalletPubKeyHash()"
+source = "sourced to config/labels.toml's crvUSD row (P-3.37), unchanged: chain-verified hop walk 2026-09-04 at block 25906321: tBTC.owner() -> TBTCVault 0x9c070027cdc9dc8f82416b2e5314e11dfb4fe3cd (ContractName=TBTCVault); .bridge() -> 0x5e4861a80b55f035d899f66772117f00fa0e8e7b (TransparentUpgradeableProxy -> impl 0x7d43c925..., Bridge); .contractReferences()[2] -> 0x46d52e41c2f300bc82217ce22b920c34995204eb (TransparentUpgradeableProxy -> impl 0x420c99a4..., ContractName=WalletRegistry). Closure: WalletRegistry.walletOwner() returns the Bridge. P-3.32 route-2 pattern"
+date = 2026-09-04

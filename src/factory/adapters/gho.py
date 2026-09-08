@@ -23,6 +23,7 @@ from decimal import Decimal
 
 from eth_utils import keccak
 
+from factory.labels_runtime import resolve_wallet_registry_label
 from factory.logbook import is_first_run
 from factory.logs_pointer import get_logs
 from factory.provenance import AbsenceRead, AnalystSupplied, ContractRead
@@ -281,7 +282,8 @@ def read_inventory(rpc, gho: str, atoken: str) -> tuple[int, object, int]:
     return int(r.one()), r.provenance, 1
 
 
-def _nodes(cfg, weights, node_instance, rpc, pools, oracle_by_pool) -> tuple[list, int]:
+def _nodes(cfg, weights, node_instance, rpc, pools, oracle_by_pool,
+           resolved: dict | None = None) -> tuple[list, int]:
     """`CollateralNode` rows for every node carrying a config row, valued at the
     instance's own Aave oracle (DET-81). A config `unlabeled` row emits
     `unlisted` — the tree's label set is closed and §8.2 is where these belong
@@ -289,6 +291,7 @@ def _nodes(cfg, weights, node_instance, rpc, pools, oracle_by_pool) -> tuple[lis
     which wedge is unruled rather than hiding it inside a label.
     """
     n = 0
+    resolved = resolved or {}
     priced: dict[str, int] = {}
     dec: dict[str, int] = {}
     addrs = [a for a in weights if a in cfg.labels]
@@ -312,12 +315,22 @@ def _nodes(cfg, weights, node_instance, rpc, pools, oracle_by_pool) -> tuple[lis
     for a in addrs:
         row = cfg.labels[a]
         label = row.label
-        flags = []
+        flags: list[str] = []
+        extra_reads: dict = {}
         if label is None:
-            # A5: no config label, and this slice performs no run-time resolver
-            # for GHO's tBTC, so it is unlabeled-in-run and routes via §8.2.
-            label = "unlisted"
-            flags.append("A5: label resolved by a run-time read; not performed in this slice")
+            # A5: the READ is the label authority. GHO runs the same resolver
+            # crvUSD does, on its own `[[wallet_registry]]` row; an unreachable
+            # or non-closing read leaves the node unlabeled-in-run and routes
+            # via §8.2 — never a default label (P-3.37 binding 2).
+            got = resolved.get(a)
+            if got is None:
+                label = "unlisted"
+                flags.append("A5: run-time label read unavailable or closure broken; "
+                             "unlabeled-in-run, routed via 8.2")
+            else:
+                label, label_prov = got
+                extra_reads["label"] = label_prov
+                flags.append("A5: label from the run-time wallet-registry read")
         elif label == "unlabeled":
             label = "unlisted"
             flags.append(f"unlabeled: {row.reason} (share at classification {row.share})")
@@ -327,7 +340,7 @@ def _nodes(cfg, weights, node_instance, rpc, pools, oracle_by_pool) -> tuple[lis
             value=values[a], share_of_backing=Decimal(values[a]) / Decimal(total),
             flags=flags,
             reads={"balance": ContractRead(source_contract=a, function="balanceOf(address)",
-                                           args=[], block=rpc.run_block)},
+                                           args=[], block=rpc.run_block), **extra_reads},
             lineage=["collateral_read", "price_read"]))
     return sorted(rows, key=lambda r: r.address), n
 
@@ -415,7 +428,15 @@ def build(cfg, rpc, http_get=None, key: str = "", from_block: int = 0):
     pools = sorted(oracle_by_pool)
 
     weights = attribute_nodes(positions)
-    nodes, n = _nodes(cfg, weights, node_instance, rpc, pools, oracle_by_pool)
+    # A5: the same resolver crvUSD uses, on GHO's own `[[wallet_registry]]`
+    # rows. Nothing token-specific about it - the row carries the addresses.
+    resolved = {}
+    for wr in cfg.wallet_registries:
+        got = resolve_wallet_registry_label(rpc, wr)
+        reads += 2
+        if got is not None:
+            resolved[wr["node_address"]] = got
+    nodes, n = _nodes(cfg, weights, node_instance, rpc, pools, oracle_by_pool, resolved)
     reads += n
     admin, aptrs, n = read_admin_surface(rpc, gho, gsms, pools, http_get, key, from_block)
     reads += n

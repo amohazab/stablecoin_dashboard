@@ -5389,3 +5389,65 @@ Status: IN PROGRESS (opened 2026-09-08).
   `docs/context/rubic_v1.md`, `config/gho_labels.toml`; `PROGRESS.md`.
 - **Follow-ups spawned:** the GHO sheet's stale cbETH note, queued for the next
   signed sheet edit.
+
+## P-4.10 — GHO freeze under R-20 waiver; R7 by identity; the crvUSD run
+
+- **Date:** 2026-09-08
+- **Type:** implementation + decision
+- **Confirmed by:** Amin
+- **Content:**
+  **R-20 WAIVER — GRANTED BY AMIN, never self-issued (R-a3, P-3.09).** Record
+  verbatim: *{date: 2026-09-08, reason: "coverage unreachable at the $500k floor
+  on the declared Curve scope: eligible universe $1,454,471 across 18 pools, of
+  which the GHO/crvUSD pool 0x635ef005… is 92.1% alone; the next pool is
+  $80,166, one-sixth of the floor. GHO's exit liquidity is off-venue (P-4.04 R4;
+  §11.6 open point, X ≈ 0.94) and that disclosure, not this coverage figure,
+  describes it.", achieved_coverage: 0.9211}*. **Two homes and no third:** the
+  set file's header (the waiver is a property of THIS set, and every run reads
+  that file) and this entry (it is an analyst act).
+  **THE FREEZE.** Block **25934895**; catalog 1,592 rows over the four declared
+  classes → 25 GHO pools → 7 §5.4 exclusions, every one
+  `volatile_collateral_circular` → 18 eligible, **$1,454,471**. **|F| = 1**:
+  `0x635ef0056a597d13863b73825cca297236578595`, $1,339,642, paired crvUSD,
+  class `factory-stable-ng`. Coverage **0.9211**.
+  `config/frozen_set_gho.json` **1,923 B, `4351fd28`**; `events_gho.jsonl`
+  123 → 289 B, 1 → 2 lines, `70c2ea8c` → **`35d7d46f`**, line:
+  `{"date":"2026-09-08","freeze_block":25934895,"set_file_hash":"4351fd28","set_file_path":"config/frozen_set_gho.json","source":"P-4.10","token":"GHO","type":"freeze"}`.
+  **`freeze.py` CHANGED, forced:** R-a3 does not end at the stop, it ends at the
+  analyst's decision, and `build_freeze` had no way to express a granted waiver.
+  `r20_waiver` is now a parameter — the only way past the stop — and the module
+  still cannot issue one itself.
+  **BLOCK 2's THREE ITEMS.** DET-66's R7 resolves **by identity, not index**:
+  `gsms.available_liquidity` names table and field, the row is the one whose
+  `underlying_asset` is in that path's R3 — the match DET-66 already performs,
+  so no `[n]` enters a ruled field. The A5 resolver moved to
+  `labels_runtime.py` so GHO calls the SAME function crvUSD does — **body
+  byte-identical, and the two `_cr` helpers emit an identical `ContractRead`
+  for this call site, proven not asserted** — with GHO's `[[wallet_registry]]`
+  row sourced verbatim to crvUSD's. Heartbeats **owed**; `heartbeat_s` stays
+  None with `adapter_class` naming why. T-02 present-and-empty, matching
+  crvUSD, whose DET-32 is likewise unimplemented; X ≈ 0.94 is the §11.6
+  disclosure. **T-17's clock starts for GHO at freeze block 25934895.**
+  **THE crvUSD RUN — the live proof of P-4.05's machinery.** `run_block`
+  **25934920**, 2026-09-08 20:05:35 UTC, freshness 84 s, 96.5 s wall,
+  **22/22 pass, worst_level 0, zero triggers**; `sheet_hash d2114a96` chained
+  to the 2026-09-08 `intake_trigger` (DET-77 limb 2), `frozen_set_hash
+  80d87407` chained to the backfilled `freeze` (DET-10(a)); **`baseline_source`
+  flipped to `prior_bundle`** as P-3.47 follow-up 1 predicted; `bundle_hash`
+  `dfbcd558…`, `out/bundles/crvUSD/25934920.json` 63,969 B promoted;
+  `out/spotcheck/25934920.md` 10,956 B, zero `apikey`.
+  **THE STOP.** GHO cannot reach a bundle yet. With a frozen set in place
+  DET-10 evaluates for real, and GHO's adapter emits `pools = []`: (b)'s
+  exact-equality membership fails, (d)-ii has no `[[frozen_pool_index]]` row,
+  (c)/(e) have no detector inputs. crvUSD gets all of it from the pool pass
+  inside `run.py`, which `gho.py` cannot import — `run.py` imports `gho.py`.
+  **This is P-3.46 follow-up 5 arriving on schedule**, with two implementations
+  now existing; the extraction is deferred one session so tonight's crvUSD run
+  landed on unrefactored code (P-3.39's lesson). 111 tests; ruff clean.
+- **Artifacts:** `config/frozen_set_gho.json` (new), `config/gho_labels.toml`,
+  `out/logs/events_gho.jsonl`, `out/bundles/crvUSD/25934920.json` (new),
+  `out/spotcheck/25934920.md`; `src/factory/` `adapters/gho.py` · `freeze.py` ·
+  `labels_runtime.py` (new) · `run.py` · `validate/harness.py`; `PROGRESS.md`.
+- **Follow-ups spawned:** the pool-pass extraction, proven by re-assembling
+  crvUSD at 25934920 and asserting `bundle_hash == dfbcd558…`; GHO's
+  `[[frozen_pool_index]]` row for signature; GHO run 1, then run 2 ≥ 24 h after.

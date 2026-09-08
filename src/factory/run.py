@@ -27,6 +27,7 @@ from factory.discovery import (
 from factory.eventlog import last_event
 from factory.eventlog import read as read_event_log
 from factory.freeze import DUST_FLOOR_USD
+from factory.labels_runtime import resolve_wallet_registry_label
 from factory.logbook import is_first_run, load_prior
 from factory.provenance import AbsenceRead, AnalystSupplied, ContractRead
 from factory.reads import (
@@ -141,33 +142,6 @@ def resolve_ema_window(rpc, oracle: str, seen: set[str] | None = None,
             "but no dated config entry was ever created for it."
         )
     return best, hops
-
-
-def resolve_wallet_registry_label(rpc, entry: dict) -> tuple[str, ContractRead] | None:
-    """DET-76(c): the per-run read IS the label authority (P-3.37 binding 2).
-
-    Memo 4.4 branch 1 - reserves locatable on-chain without any disclosure ->
-    `terminal_other_layer` (verifiable on the Bitcoin chain, which this pipeline
-    does not read). Branch 2 - a custodian or committee disclosure is required
-    to locate them -> `recurses`, as WBTC. An unreachable read returns None:
-    unlabeled-in-run, routed via 8.2 / DET-08, never a default label (A5).
-    """
-    rb = rpc.run_block
-    locator = rpc.read([Call(entry["bridge_address"], "activeWalletPubKeyHash()",
-                             ("bytes20",))])[0]
-    if not locator.ok:
-        return None
-    pkh = locator.one()
-    if not any(pkh):                      # zero hash locates nothing
-        return None
-    owner = rpc.read([Call(entry["registry_address"], "walletOwner()", ("address",))])[0]
-    if not owner.ok or owner.one().lower() != entry["bridge_address"]:
-        return None                       # closure broken -> do not trust the branch
-    return "terminal_other_layer", _cr(entry["bridge_address"],
-                                       "activeWalletPubKeyHash()", rb)
-
-
-
 
 
 def _detectors(rows: list[PoolRow], prior_pools: dict[str, dict],
