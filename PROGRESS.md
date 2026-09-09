@@ -5551,3 +5551,44 @@ Status: IN PROGRESS (opened 2026-09-08).
   `out/spotcheck/GHO/25939006.md` (gitignored); `PROGRESS.md`.
 - **Follow-ups spawned:** Amin's spot-check of the ten items; GHO run 2 no
   earlier than the time above, then the done-condition verdict for Step 4B.
+
+## P-4.13 — Step 4C opened: the LUSD inventory, eight rulings
+
+- **Date:** 2026-09-09
+- **Type:** decision
+- **Confirmed by:** Amin
+- **Content:**
+  **READ-ONLY.** Block **25939186**, HEAD `e0df48e`, P-4.12's anchors
+  re-verified. **13 FIRST-RUN READ tags** (DET-75; registry parses 0 rows);
+  `FR-L01…L13` and the GHO stale-note fix — **two** rows, `aweETH` and
+  `acbETH`, not one — are drafted, signed at the edit. **ADDRESSES:** one
+  anchor (`LUSD`), five by getter; **CollSurplusPool is the gap** —
+  non-public, reverting on both callers, closing only in REVERSE. Immutable by
+  absence (EIP-1967 all-zero, `owner()` zero). **TROVES 73**, array-enumerated
+  in one `aggregate3`. **Identity exact on three legs, residual 0:** Σ debt =
+  AP+DP `getLUSDDebt()` = `totalSupply()` = 26,360,667.1497; Σ coll = AP+DP
+  `getETH()` = 72,676.8093 ETH. No tautology: interest 0 by absence scan;
+  redistribution and the 14,600 gas comp read separately. **POOLS:** nine
+  classes, 15 after dedup, **one above the $500k floor** ($11,515,141;
+  runner-up 48.4%), coverage **0.9792**; LUSD/crvUSD **$2,280** vs the sheet's
+  "active" (a FIRST-RUN READ expectation, not VERIFIED); bridged 1.79%. **THE
+  CONTROL FOUND A WRONG SCHEMA:** four of `Market`'s 20 fields are LLAMMA
+  leakage; R1 makes them optional, the nested-block fix to **Block D's queue
+  by name**, recorded not absorbed. **One defect, mine:** `run.py:511` passes
+  `token_address = CRVUSD` unconditionally, read at `harness.py:310` by
+  DET-62. **EIGHT RULINGS.** R1 `markets[]`, four fields optional, crvUSD
+  proven by the `dfbcd558` re-assembly; R2 ETH keyed `0xeeee…eeee`; R3 R7
+  names `redeemable_collateral_value`; R4 price = the `fetchPrice()` eth_call
+  simulation (`status` 0, `lastGoodPrice` lagging 0.71%), T-26 a
+  `DeviationHeartbeat`, staleness = block ts − `updatedAt`, heartbeat a dated
+  analyst row owed, no EMA scoping; R5 freeze the one pool, no waiver, floor
+  unchanged, classes `main`/`factory`; R6 CollSurplusPool on its reverse
+  closure; R7 four dated `[[bridge]]` rows drafted at the build; R8 DET-62's
+  `token_address` parameterized in C's wiring with a test. **First composite
+  in the repo:** 3CRV + DAI/USDC/USDT from 3pool `balances(i)`, crvUSD
+  analyzed-token paired; par at 1 LP unit (R-16), 3.83% disclosed.
+  **SEQUENCING:** GHO run 2 lands BEFORE the LUSD edit; GHO's chain does not
+  move between its runs.
+- **Artifacts:** `PROGRESS.md` alone.
+- **Follow-ups spawned:** GHO run 2; the LUSD signed edit with its
+  three-mirror/three-trigger machinery; the LUSD build; Block D's LLAMMA block.
