@@ -5514,3 +5514,40 @@ Status: IN PROGRESS (opened 2026-09-08).
   `out/logs/events_gho.jsonl`, `CLAUDE.md`, `tests/test_gho.py`; `PROGRESS.md`.
 - **Follow-ups spawned:** GHO run 1 as P-4.12, against this commit; run 2 no
   earlier than 24 h after run 1's block time.
+
+## P-4.12 — GHO run 1
+
+- **Date:** 2026-09-09
+- **Type:** implementation
+- **Confirmed by:** Amin
+- **Content:**
+  **GHO's first run, against commit `39e873d`** — the committed tree, no
+  tracked path dirty; the only `git status` line was the untracked
+  `out/rehearsal/GHO/`. `uv run python -m factory.run GHO`.
+  `run_block` **25939006**, `block_timestamp` 1788947147 =
+  **2026-09-09 09:45:47 UTC**, DET-83 freshness 83 s, 260.0 s wall,
+  ~16,500 pinned reads and 148 pointer requests.
+  **22/22 pass, worst_level 0, zero triggers.** `first_run` **true** with the
+  three literals present — the P-3.14 convention on a genuinely empty
+  `out/bundles/GHO/` — and `baseline_source` **`freeze_set_file`** with its
+  one-time note, which is the state P-3.43 said would be true exactly once.
+  `sheet_hash d2114a96`; `frozen_set_hash` **`36a681a7`** chained to the
+  P-4.11 correcting `freeze` event; `freeze_date` 2026-09-08. `bundle_hash`
+  **`64a9dcd6…`**, `raw_positions_hash` `44052e96…`;
+  `out/bundles/GHO/25939006.json` 52,811 B, **promoted last**, after
+  `out/spotcheck/GHO/25939006.md` (10,889 B, zero `apikey`) was written.
+  Tables: 8 facilitators, 2 GSMs, 19 nodes, 19 oracle rows, 9 admin rows,
+  3 redemption paths, 1 pool, 24 below floor. **No node is `unlisted`.**
+  **The ten spot-check items**, every address read from the bundle: 0 the pin
+  self-test; 1 `totalSupply()`; 2 the largest facilitator bucket; 3-4 a GSM's
+  available liquidity and exposure cap; 5 `hasRole(SWAP_FREEZER_ROLE, …)` on
+  the freezer discovered from role logs; 6 the Core instance's debt-token
+  supply, DET-82's comparand; 7 undrawn aGHO inventory; 8 the frozen pool's
+  GHO side; 9 the CCIP bridged amount; 10 GhoToken's EIP-1967 slot.
+  **Amin's spot-check is pending.** T-17's clock runs from freeze block
+  **25934895** (2026-09-08), unchanged by this run. **Run 2 is owed no earlier
+  than 2026-09-10 09:45:47 UTC**, 24 h after this run's block timestamp.
+- **Artifacts:** `out/bundles/GHO/25939006.json` (52,811 B, promoted);
+  `out/spotcheck/GHO/25939006.md` (gitignored); `PROGRESS.md`.
+- **Follow-ups spawned:** Amin's spot-check of the ten items; GHO run 2 no
+  earlier than the time above, then the done-condition verdict for Step 4B.
