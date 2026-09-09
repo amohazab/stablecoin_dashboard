@@ -1,12 +1,10 @@
-"""GHO adapter, build slice 1: facilitators, GSMs, the inventory reads.
+"""The GHO adapter: facilitators, GSMs, supply, positions, nodes, surfaces.
 
-WHAT THIS SLICE IS. P-4.04 R1 ruled GHO's origination surface: circulating GHO
-appears when a borrower draws against pledged collateral, the pre-minted
-undrawn balance is protocol-held inventory, and the three `*GhoDirectMinter`
-contracts are `facilitators[]` rows rather than `markets[]` rows. This module
-reads that surface. Positions, nodes, the admin surface, oracle rows and the
-pool pass are sessions 2 and 3, so `assemble` **stops** rather than returning a
-half-built bundle — see `GhoAdapterIncomplete`.
+P-4.04 R1 ruled GHO's origination surface: circulating GHO appears when a
+borrower draws against pledged collateral, the pre-minted undrawn balance is
+protocol-held inventory, and the three `*GhoDirectMinter` contracts are
+`facilitators[]` rows rather than `markets[]` rows. `assemble` returns a whole
+`Bundle` (P-4.11); nothing is owed.
 
 DISCOVERY. Two declared roots (`gho_roots.toml`) and nothing else: the
 facilitator set comes from `GhoToken.getFacilitatorsList()`, the live GSMs from
@@ -23,9 +21,16 @@ from decimal import Decimal
 
 from eth_utils import keccak
 
+from factory.discovery import (
+    AssemblyStopFromDiscovery,
+    build_pool_rows,
+    catalog_get,
+    last_run_ratios,
+)
 from factory.labels_runtime import resolve_wallet_registry_label
-from factory.logbook import is_first_run
-from factory.logs_pointer import get_logs
+from factory.logbook import is_first_run, load_prior
+from factory.logs_pointer import default_transport, get_logs
+from factory.logs_pointer import env as pointer_env
 from factory.provenance import AbsenceRead, AnalystSupplied, ContractRead
 from factory.rpc import Call
 from factory.schema import (
@@ -41,7 +46,6 @@ from factory.schema import (
     Gsm,
     Header,
     OracleRow,
-    PoolDetectors,
     PositionCompleteness,
     RedemptionPath,
     StabilizerBlock,
@@ -98,14 +102,13 @@ FREEZER_READS: tuple[tuple[str, str], ...] = (
 )
 
 
-class GhoAdapterIncomplete(Exception):
-    """Build slice 1 stops here BY CONSTRUCTION, not by failure.
+class GhoAdapterStop(Exception):
+    """A precondition the GHO bundle cannot be assembled without.
 
-    `Bundle` requires `nodes`, `oracle_rows`, `redemption_paths`, nine
-    `admin_surface` rows (DET-68) and `pool_detectors`; none of them exists
-    yet. Emitting placeholders to get a bundle past validation would be
-    fabricating the fields the gates check, so the adapter names what it built
-    and what it owes and stops. Sessions 2 and 3 delete this.
+    P-4.11 retires `GhoAdapterIncomplete`: nothing is owed any more, so the
+    class no longer means "this slice is unfinished". It is now the pre-harness
+    stop `run.py` re-raises as `AssemblyStop` - the same shape
+    `AssemblyStopFromDiscovery` takes for crvUSD (P-3.46 R1).
     """
 
 
@@ -188,7 +191,7 @@ def check_supply_identity(rows: list[Facilitator], total_supply: int) -> None:
     """
     total = sum(f.bucket_level for f in rows)
     if total != total_supply:
-        raise GhoAdapterIncomplete(
+        raise GhoAdapterStop(
             f"supply identity broken: sum of bucket levels {total} != "
             f"totalSupply {total_supply}. A facilitator is missing from the "
             "registry or a level was read wrong; never reconciled away."
@@ -224,7 +227,6 @@ def read_gsms(rpc, registry: str, http_get=None, key: str = "",
         g = by[a]
         freezer = None
         if http_get is not None:
-            from factory.logs_pointer import get_logs
             ptr = get_logs(a, [ROLE_GRANTED, "0x" + SWAP_FREEZER_ROLE.hex(), None],
                            from_block, rpc.run_block, http_get, key)
             holders = ["0x" + r.topics[2][-40:] for r in ptr.rows if len(r.topics) > 2]
@@ -347,7 +349,16 @@ def _nodes(cfg, weights, node_instance, rpc, pools, oracle_by_pool,
 
 def assemble(cfg, rpc, repo, token: str, http_get=None, key: str = "",
              from_block: int = 0):
-    """P-4.02's adapter signature — returns a full `Bundle` and its extras."""
+    """P-4.02's adapter signature — returns a full `Bundle` and its extras.
+
+    `execute()` is token-agnostic and passes no transport, so the adapter builds
+    its own POINTER transport here (two-argument, keyed) while the pool pass
+    uses `discovery.catalog_get` (one-argument). Injection still wins, which is
+    what keeps the walk stubbable in tests.
+    """
+    if http_get is None:
+        http_get = default_transport(repo)
+        key = key or pointer_env(repo, "ETHERSCAN_API_KEY")
     res = build(cfg, rpc, http_get=http_get, key=key, from_block=from_block)
     return res["bundle"], res
 
@@ -438,6 +449,24 @@ def build(cfg, rpc, http_get=None, key: str = "", from_block: int = 0):
             resolved[wr["node_address"]] = got
     nodes, n = _nodes(cfg, weights, node_instance, rpc, pools, oracle_by_pool, resolved)
     reads += n
+
+    # ---- the per-run pool pass, THE SAME CODE crvUSD runs (P-4.11) ----------
+    # GHO has no stabilizer, so `stabilizer_pools` is empty - the argument the
+    # extraction introduced exists precisely so that is expressible.
+    fs = json.loads(cfg.frozen_set_path.read_text(encoding="utf-8"))
+    # DET-10(a) limb 1: the header stamps the bytes of the set file this run
+    # read. Limb 2 is the gate's chain to the logged freeze event - the bundle
+    # never compares the file to itself (P-3.46).
+    fs_hash = hashlib.sha256(cfg.frozen_set_path.read_bytes()).hexdigest()[:8]
+    prior = load_prior(_BUNDLES, cfg.token, rpc.run_block)
+    prior_pools = ({p.address: {"tvl_at_par": p.tvl_at_par} for p in prior.pools}
+                   if prior else {})
+    try:
+        pool_rows, below_floor, pool_detectors = build_pool_rows(
+            rpc, cfg, fs, catalog_get, cfg.root("gho_token").address,
+            set(), prior_pools, rpc.run_block)
+    except AssemblyStopFromDiscovery as exc:
+        raise GhoAdapterStop(str(exc)) from exc
     admin, aptrs, n = read_admin_surface(rpc, gho, gsms, pools, http_get, key, from_block)
     reads += n
     pointers.extend(aptrs)
@@ -471,19 +500,20 @@ def build(cfg, rpc, http_get=None, key: str = "", from_block: int = 0):
                       block_timestamp=rpc.block_timestamp,
                       run_start_time=rpc.run_start_time, first_run=first,
                       pipeline_version="0.1.0", sheet_hash=cfg.sheet["sheet_hash"],
+                      frozen_set_hash=fs_hash, freeze_date=fs["freeze_date"],
                       raw_positions_hash=hashlib.sha256(raw.encode()).hexdigest()),
         markets=[], facilitators=facilitators, gsms=gsms,
         stabilizer=StabilizerBlock(operations=[], ceiling_aggregate=0,
                                    ceiling_aggregate_lineage=[]),
         supply=supply, nodes=nodes, oracle_rows=oracle_rows, redemption_paths=paths,
         admin_surface=admin, lend_markets=[],
-        pools=[], pool_detectors=PoolDetectors(baseline_source="freeze_set_file",
-                                               baseline_note="no GHO freeze yet"),
+        pools=pool_rows, pool_detectors=pool_detectors,
         static_metadata=StaticMetadata(
             audits="none", bug_bounty="none", last_material_change_audited="no",
             staleness_date="2026-09-01", counterparties=cfg.sheet["counterparties"]),
         counts=Counts(mint_market_count=sum(1 for f in facilitators
                                             if f.facilitator_class == "direct_minter"),
+                      below_floor_pool_count=below_floor,
                       lend_market_count=cfg.lend.market_count_field,
                       lend_market_count_note=(
                           "explicitly empty: GHO's Aave instances ARE the lending "
@@ -493,6 +523,8 @@ def build(cfg, rpc, http_get=None, key: str = "", from_block: int = 0):
         attribution_method=cfg.sheet["attribution_method"],
         first_run_literals=FirstRunLiterals() if first else None)
     return {"bundle": bundle, "positions": positions, "raw": raw,
+            "last_run_ratio": last_run_ratios(_BUNDLES, cfg.token,
+                                              cfg.frozen_set_path, rpc.run_block),
             "node_weights": weights, "node_instances": node_instance,
             "pointers": [p.record() for p in pointers], "reads": reads}
 
@@ -896,7 +928,10 @@ def redemption_paths(rpc, gsms: list, gho: str) -> tuple[list, int]:
             r4_rate="face_minus_fee(sell fee from GSM.getFeeStrategy())",
             r5_minimum="none", r6_gates=[{"kind": "capacity_limited", "param": None},
                                          {"kind": "pausable", "param": None}],
-            r7_capacity=str(g.available_liquidity), r8="enforceable_unless_paused",
+            # R7 by IDENTITY (ruled 2026-09-08): the path names the table and
+            # the field; the row is the one whose `underlying_asset` is this
+            # path's R3. A raw number here is not a resolvable field ref.
+            r7_capacity="gsms.available_liquidity", r8="enforceable_unless_paused",
             r9_legal_claim="no_pure_protocol",
             r10_provenance=ContractRead(source_contract=g.address,
                                         function="getFeeStrategy()", args=[],
@@ -911,7 +946,7 @@ def redemption_paths(rpc, gsms: list, gho: str) -> tuple[list, int]:
     return out, n
 
 
-__all__ = ["GhoAdapterIncomplete", "PROBE", "assemble", "attribute_nodes", "build",
+__all__ = ["GhoAdapterStop", "PROBE", "assemble", "attribute_nodes", "build",
            "borrower_ledger", "check_supply_identity", "read_admin_surface",
            "read_facilitators", "read_gsms", "read_instance", "read_inventory",
            "read_oracle_rows", "read_positions", "redemption_paths", "role_holders"]

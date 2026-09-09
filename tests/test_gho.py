@@ -6,7 +6,7 @@ from __future__ import annotations
 import pytest
 
 from factory.adapters.gho import (
-    GhoAdapterIncomplete,
+    GhoAdapterStop,
     check_supply_identity,
     read_facilitators,
     read_gsms,
@@ -141,7 +141,7 @@ def test_supply_identity_is_never_reconciled_away():
 
 def test_supply_identity_mismatch_stops():
     rows, _ = read_facilitators(FakeRpc(_fac_table()), GHO)
-    with pytest.raises(GhoAdapterIncomplete, match="supply identity broken"):
+    with pytest.raises(GhoAdapterStop, match="supply identity broken"):
         check_supply_identity(rows, 446 * E)
 
 

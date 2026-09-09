@@ -5451,3 +5451,66 @@ Status: IN PROGRESS (opened 2026-09-08).
 - **Follow-ups spawned:** the pool-pass extraction, proven by re-assembling
   crvUSD at 25934920 and asserting `bundle_hash == dfbcd558…`; GHO's
   `[[frozen_pool_index]]` row for signature; GHO run 1, then run 2 ≥ 24 h after.
+
+## P-4.11 — The pool pass extracted and proven; the set file re-serialized; GHO wired
+
+- **Date:** 2026-09-09
+- **Type:** implementation
+- **Confirmed by:** Amin
+- **Content:**
+  **THE EXTRACTION** (P-3.46 follow-up 5, forced once a second adapter needed
+  it — P-3.04's extract-from-two rule). `_detectors`, `_fs_members`,
+  `_last_run_ratios` and the 85-line `PoolRow` assembly moved from `run.py` to
+  **`discovery.py`**, the module BOTH adapters import; `run.py` 37,938 →
+  29,700 B. Six token-parameterizations, and nothing else changed while it
+  moved: the `CRVUSD` constant → `numeraire`; the inline keeper set →
+  `stabilizer_pools` (GHO passes `set()`); `run.py`'s `_cr` → `_cr_local`,
+  identical output for this call; `AssemblyStop` → `AssemblyStopFromDiscovery`,
+  which every caller already re-raises; `repo / BUNDLES` → `bundles_dir`; the
+  `try/except` dropped inside the module, where the raise IS the route.
+  **PROVEN:** crvUSD re-assembled at block 25934920 gives `bundle_hash
+  dfbcd558…`, equal — **re-run and equal again** after the transport move and
+  the promotion reorder. `run_start_time` is wall clock and sits in the hash
+  preimage, so it is pinned to the promoted bundle's value; equality is then a
+  test of everything else.
+  **THE SET FILE.** `freeze.serialise_set_file` written, because it did not
+  exist: P-3.43 finding (ii)'s untracked-writer gap was never closed for the
+  WRITER, so the shape lived only in a scratch script — which is how GHO's file
+  got three key names the reader does not read. Its shape is not chosen: it
+  reproduces `frozen_set_crvusd.json` **byte-for-byte** (P-3.15's pattern).
+  GHO's file re-serialized through it — `paired_assets`→`paired`,
+  `is_stabilizer_pool`→`stabilizer`, `reason`→`exclusion_reason`, everything
+  else asserted equal including the waiver — **`4351fd28` → `36a681a7`**,
+  1,923 → 1,981 B. Second `freeze` event, log **`35d7d46f` → `c2eaf890`**, 3
+  lines: `{"date":"2026-09-08","freeze_block":25934895,"set_file_hash":"36a681a7","set_file_path":"config/frozen_set_gho.json","source":"P-4.11 — serialization correction of the P-4.10 freeze; decision unchanged","token":"GHO","type":"freeze"}`.
+  DET-10(a) reads the last event; verified live. The scratch script was
+  **deleted** — one writer, and it cannot recur.
+  **TWO SIGNED ROWS** in `gho_roots.toml` (`cfff119a` → `6d0d5192`): the
+  `[[frozen_pool_index]]` pin (index 117, the same index P-3.46's crvUSD table
+  independently recorded) and a pin-only reuse of crvUSD's signed
+  `pool_factory_stable_ng` root — not a third discovery root.
+  **SIX BUILD DEFECTS, all mine, all found by running:** two transports with
+  different arities handed to each other (`catalog_get` one-arg vs the
+  pointer's two, now named apart, each owned by its module); DET-66's R7
+  emitter still writing a raw number after the resolver landed; GHO's header
+  never stamping `frozen_set_hash`/`freeze_date`; `execute()` passing no
+  pointer transport (`env`/`default_transport` moved to `logs_pointer.py`); no
+  GHO spot-check generator, so `execute` called crvUSD's — collision 9 closed;
+  and **promotion running before the sheet**, so a crash after the gate left a
+  PROMOTED bundle that then became the next run's prior. `execute()` now
+  promotes LAST. **The two bundles that defect produced are relocated to
+  `out/rehearsal/GHO/`** (P-3.38's precedent), leaving `out/bundles/GHO/` empty
+  — `is_first_run` True, `load_prior` None, verified.
+  **Dry harness pass: 22/22, worst level 0, zero triggers.** 111 tests; ruff
+  clean. **AS-COUNTED — the agent's:** a first extraction cut over-reached and
+  swallowed `_bridge_disclosure` and `_getter_of` (restored from git, redone
+  function-by-function); the first equality proof was mis-designed, letting
+  `run_start_time` float. **The design layer's:** P-4.10's commit list named
+  the gitignored spot-check file; this round's ruling assumed a committed
+  serializer existed.
+- **Artifacts:** `src/factory/` `discovery.py` · `run.py` · `freeze.py` ·
+  `logs_pointer.py` · `spotcheck.py` · `adapters/gho.py`;
+  `config/frozen_set_gho.json`, `config/gho_roots.toml`,
+  `out/logs/events_gho.jsonl`, `CLAUDE.md`, `tests/test_gho.py`; `PROGRESS.md`.
+- **Follow-ups spawned:** GHO run 1 as P-4.12, against this commit; run 2 no
+  earlier than 24 h after run 1's block time.

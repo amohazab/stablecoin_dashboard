@@ -14,6 +14,10 @@
 #
 # Anything reachable from these two is discovered per run. Anything not
 # reachable from them is a finding, not a config addition.
+#
+# The `pool_factory_stable_ng` root below is a PIN-ONLY reuse of crvUSD's signed
+# root for DET-10(d)-ii - not a third discovery root; GHO's discovery roots remain
+# GhoToken and the GSM registry.
 
 # EXPLICITLY EMPTY, not absent (P-3.17's three states): GHO originates through
 # its Aave instances, which ARE the lending venues; a third-party aGHO holding
@@ -34,3 +38,23 @@ address = "0x167527DB01325408696326e3580cd8e55D99Dc1A"
 role = "live-GSM enumeration; getGsmList()"
 source = "intake-sheets-cdp.md, GHO section, Redemption-rights R3 row [VERIFIED 2026-09-01: GSM registry 0x167527DB01325408696326e3580cd8e55D99Dc1A; source bgd-labs/aave-address-book main (GhoEthereum.sol)]"
 date = 2026-09-01
+
+[[root]]
+id = "pool_factory_stable_ng"
+address = "0x6A8cbed756804B16E05E741eDaBd5cB544AE21bf"
+role = "DET-10(d)-ii factory-side pin only: pool_list(index) for the frozen pool"
+source = "sourced to config/discovery_roots.toml's crvUSD row (P-3.23), unchanged - the registry is a property of Curve, not of the token; accepted there on its closure check (pool_count() = 1057 = API, pointer pool at index 510)"
+date = 2026-09-04
+
+# DET-10(d)-ii's factory-side pin, signed 2026-09-09 (P-4.11). Derived at the
+# freeze block: the pool's coins(i) are [GHO, crvUSD] so member index GHO = 0 and
+# crvUSD = 1; the Curve catalog lists it in factory-stable-ng; a pool_list walk of
+# that factory (pool_count() = 1057) finds it at index 117 - the same index
+# P-3.46's crvUSD pin table independently recorded for this pool.
+[[frozen_pool_index]]
+pool = "0x635ef0056a597d13863b73825cca297236578595"
+factory_root = "pool_factory_stable_ng"
+index = 117
+found_at_block = 25934895
+date = 2026-09-09
+method = "pool_list walk at the freeze block"

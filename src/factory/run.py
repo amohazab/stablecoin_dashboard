@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import hashlib
 import json
-import os
 import pathlib
 import sys
 import time
@@ -20,15 +19,16 @@ from factory.adapters.crvusd import discover_lend_markets
 from factory.config import Config, load
 from factory.discovery import (
     AssemblyStopFromDiscovery,
-    fetch_candidates,
-    still_enumerated,
-    value_candidates,
+    build_pool_rows,
+    catalog_get,
+    fs_members,
+    last_run_ratios,
 )
 from factory.eventlog import last_event
 from factory.eventlog import read as read_event_log
-from factory.freeze import DUST_FLOOR_USD
 from factory.labels_runtime import resolve_wallet_registry_label
 from factory.logbook import is_first_run, load_prior
+from factory.logs_pointer import env as _env
 from factory.provenance import AbsenceRead, AnalystSupplied, ContractRead
 from factory.reads import (
     EIP1967_IMPL_SLOT,
@@ -50,19 +50,17 @@ from factory.schema import (
     LendMarket,
     Market,
     OracleRow,
-    PoolDetectors,
-    PoolRow,
     PositionCompleteness,
     RedemptionPath,
     StabilizerBlock,
     StabilizerOperation,
     StaticMetadata,
     Supply,
-    ZeroedSideRow,
     finalise,
     serialise_for_disk,
 )
 from factory.spotcheck import write as write_spotcheck
+from factory.spotcheck import write_gho as write_spotcheck_gho
 from factory.validate.harness import TRIGGER_TABLE, run_harness
 
 PIPELINE_VERSION = "0.1.0"
@@ -144,61 +142,6 @@ def resolve_ema_window(rpc, oracle: str, seen: set[str] | None = None,
     return best, hops
 
 
-def _detectors(rows: list[PoolRow], prior_pools: dict[str, dict],
-               fs_pools: dict[str, dict]) -> PoolDetectors:
-    """DET-10(c), computed from `pools[]` alone — no second read of anything.
-
-    Named implementer defaults (P-3.43):
-      * the 10% denominator is the set file's `freeze_discovery_total`, held
-        fixed between refreshes so the threshold does not move weekly. It is
-        already baked into every row's `ratio_to_frozen_coverage`.
-      * the TVL-change baseline is the PRIOR RUN's per-pool `tvl_at_par`,
-        falling back to the set file's `freeze_tvl` when the prior carries no
-        `pools[]`. True exactly once — the first run after this field lands —
-        and DISCLOSED via `baseline_source`, never silent.
-
-    The below-floor list reports a frozen pool under the floor even when that
-    pool is floor-EXEMPT at selection (memo 5.5 / P-4 exempt stabilizer pools).
-    The exemption is a SELECTION rule; the detector is a disclosure, and (e)
-    gives below-floor detections no consequence beyond disclosure, so reporting
-    it costs nothing and hides nothing. All five of crvUSD's frozen pools are
-    keeper pools (P-3.28), which is why this is stated rather than assumed.
-    """
-    src = "prior_bundle" if prior_pools else "freeze_set_file"
-    note = None if prior_pools else (
-        "no prior pools[] — last-run figures fall back to the set file's "
-        "freeze_tvl; true this run only (P-3.43)")
-
-    new_above, below, moved = [], [], []
-    for r in rows:
-        if not r.in_frozen_set:
-            if (r.exclusion_reason == "added_since_freeze"
-                    and r.tvl_at_par >= DUST_FLOOR_USD):
-                new_above.append(r.address)
-            continue
-        if r.tvl_at_par < DUST_FLOOR_USD:
-            below.append(r.address)
-        base = (int(prior_pools[r.address]["tvl_at_par"])
-                if r.address in prior_pools else (r.freeze_tvl or 0))
-        if base and abs(Decimal(r.tvl_at_par - base)) / Decimal(base) > Decimal("0.50"):
-            moved.append(r.address)
-
-    # DET-10(e): every detection is disclosed on its row, or (e) fails.
-    by_addr = {r.address: r for r in rows}
-    for addr in new_above:
-        by_addr[addr].annotations.append("detector: new pool above the dust floor")
-    for addr in below:
-        by_addr[addr].annotations.append("detector: frozen pool below the dust floor")
-    for addr in moved:
-        by_addr[addr].annotations.append("detector: TVL change > 50% vs baseline")
-
-    return PoolDetectors(
-        new_pool_above_floor=sorted(new_above),
-        frozen_pool_below_floor=sorted(below),
-        frozen_pool_tvl_change_gt_50pct=sorted(moved),
-        baseline_source=src, baseline_note=note)
-
-
 def _getter_of(cfg: Config, factory: str) -> str:
     """The signed `market_getter` for a factory address (3.1b)."""
     for row in cfg.lend.rows:
@@ -239,7 +182,7 @@ def _bridge_disclosure(rows: list[Bridge]) -> str:
 def assemble(cfg: Config, rpc: RpcClient, repo: pathlib.Path, token: str,
              http_get=None) -> tuple[Bundle, dict]:
     rb = rpc.run_block
-    http_get = http_get or _http_get_json
+    http_get = http_get or catalog_get
     cf = cfg.root("controller_factory").address
     # The set file is READ here (its bytes hash into the header, DET-10(a)
     # limb 1) but is no longer COMPARED here: the self-comparison — the
@@ -453,92 +396,16 @@ def assemble(cfg: Config, rpc: RpcClient, repo: pathlib.Path, token: str,
                 provenance=AbsenceRead(contract=cf, method="selector_absence_scan",
                                        evidence="no matching selector", block=rb)))
 
-    # ---- per-run pool discovery (1b): memo 5.6's second half ----------------
-    # Route A (P-3.43): the Curve catalog is the pointer, the chain is the
-    # verdict. Runs AFTER the stabilizer block because DET-24 forces every
-    # keeper pool into F and the rows carry `is_stabilizer_pool`.
-    fs_pools = {q["address"].lower(): q for q in fs["pools"]}
-    fs_excluded = {q["address"].lower(): q["exclusion_reason"] for q in fs["excluded"]}
-    fs_total = int(fs["freeze_discovery_total"])
-    keeper_pools = {o.paired_pool_address for o in ops}
-    eligible = set(cfg.paired) | {CRVUSD}
-
+    # ---- per-run pool pass: EXTRACTED to `discovery.py` (P-4.11) ----------
+    # The 85 lines that used to sit here now live with the module both adapters
+    # import, so GHO runs the same code rather than a second copy. crvUSD passes
+    # its keeper pools as the stabilizer set; the rest was already Config-borne.
     try:
-        cands = fetch_candidates(http_get, fs['scope']['classes'])
-        discovered = value_candidates(rpc, cands, CRVUSD, eligible)
+        pool_rows, below_floor_count, detectors = build_pool_rows(
+            rpc, cfg, fs, http_get, CRVUSD,
+            {o.paired_pool_address for o in ops}, prior_pools, rb)
     except AssemblyStopFromDiscovery as exc:
         raise AssemblyStop(str(exc)) from exc
-
-    pool_rows, below_floor_count = [], 0
-    seen = set()
-    for d in discovered:
-        seen.add(d.address)
-        in_f = d.address in fs_pools
-        if not in_f and d.tvl_at_par < DUST_FLOOR_USD:
-            below_floor_count += 1          # counted, not listed (P-3.43)
-            continue
-        # R2 (P-3.46): "new" means the freeze did not know it, or knew it and
-        # excluded it ONLY for size. A structural freeze-time exclusion
-        # (self_referential_wrapper, volatile_collateral_circular, tail) is
-        # carried and is NOT new - a signed exclusion must not re-flag weekly.
-        reason = None
-        if not in_f:
-            prior_reason = fs_excluded.get(d.address)
-            reason = ("added_since_freeze"
-                      if prior_reason in (None, "below_dust_floor")
-                      else prior_reason)
-        pool_rows.append(PoolRow(
-            address=d.address, in_frozen_set=in_f,
-            paired_assets=list(d.paired_assets),
-            freeze_tvl=int(fs_pools[d.address]["tvl_at_par"]) if in_f else None,
-            tvl_at_par=d.tvl_at_par,
-            ratio_to_frozen_coverage=Decimal(d.tvl_at_par) / Decimal(fs_total),
-            is_stabilizer_pool=d.address in keeper_pools,
-            exclusion_reason=reason,
-            zeroed_sides=[ZeroedSideRow(address=z.address, units=z.units)
-                          for z in d.zeroed_sides],
-            reads={"balances": _cr(d.address, "balances(uint256)", rb)}))
-
-    # A frozen pool the pointer no longer lists still gets its row: (b)'s
-    # exact-equality membership must hold and (d)-ii evaluates FROM the row
-    # (P-3.46 R5). Its disappearance is an annotation, not an omission.
-    for addr, q in fs_pools.items():
-        if addr in seen:
-            continue
-        pool_rows.append(PoolRow(
-            address=addr, in_frozen_set=True, paired_assets=list(q["paired"]),
-            freeze_tvl=int(q["tvl_at_par"]), tvl_at_par=0,
-            ratio_to_frozen_coverage=Decimal(0),
-            is_stabilizer_pool=addr in keeper_pools,
-            annotations=["absent from the pointer source this run"],
-            reads={"balances": AbsenceRead(contract=addr,
-                                           method="selector_absence_scan",
-                                           evidence="not listed by the pointer",
-                                           block=rb)}))
-
-    # Disappearance, factory-side (ruled 2026-09-07): each frozen pool's signed
-    # `pool_list` index must still hold that pool. Uniform on all five - one
-    # code path, and it is the rubric's letter rather than the pool's
-    # self-report. A frozen pool with no signed index row is a CONFIG DEFECT,
-    # not a runtime state: present config or no run.
-    pins = {q["pool"].lower(): q for q in cfg.frozen_pool_index}
-    for row in pool_rows:
-        if not row.in_frozen_set:
-            continue
-        pin = pins.get(row.address)
-        if pin is None:
-            raise AssemblyStop(
-                f"no [[frozen_pool_index]] row for frozen pool {row.address}; "
-                "DET-10(d)-ii's factory-side test cannot be evaluated. Present "
-                "config or no run (ruled 2026-09-07).")
-        fac = cfg.root(pin["factory_root"]).address
-        if not still_enumerated(rpc, row.address, fac, int(pin["index"])):
-            row.annotations.append(
-                f"disappeared: {pin['factory_root']}.pool_list({pin['index']}) "
-                "no longer holds it")
-
-    pool_rows.sort(key=lambda r: r.address)
-    detectors = _detectors(pool_rows, prior_pools, fs_pools)
 
     # ---- lend markets (3.1b): enumerated ONLY to exclude, DET-07 ------------
     lend_rows = [
@@ -594,43 +461,10 @@ def assemble(cfg: Config, rpc: RpcClient, repo: pathlib.Path, token: str,
 
 
 
-def _http_get_json(url: str) -> dict:
-    """Transport for DET-62's confirmation legs. `requests` is already a
-    declared dependency (pyproject), so no lockfile change is involved."""
-    import requests
-    resp = requests.get(url, timeout=20)
-    resp.raise_for_status()
-    return resp.json()
-
-
-
 def _event_log(repo: pathlib.Path, token: str) -> pathlib.Path:
     """The per-token event log. `crvUSD` -> `out/logs/events_crvusd.jsonl`,
     the committed path unchanged (P-3.46)."""
     return repo / f"out/logs/events_{token.lower()}.jsonl"
-
-
-def _fs_members(fs_path: pathlib.Path) -> set[str]:
-    fs = json.loads(fs_path.read_text(encoding="utf-8"))
-    return {q["address"].lower() for q in fs["pools"]}
-
-
-def _last_run_ratios(repo: pathlib.Path, token: str, fs_path: pathlib.Path,
-                     run_block: int) -> dict[str, Decimal]:
-    """DET-10(d)-ii's "last-run share", with its NAMED one-time fallback.
-
-    Prior bundle's `pools[]` where it has one; otherwise the set file's
-    `freeze_tvl` over `freeze_discovery_total`. The fallback is true exactly
-    once - for the first run whose prior predates `pools[]` - and the bundle
-    discloses which was used via `pool_detectors.baseline_source` (P-3.43).
-    """
-    prior = load_prior(repo / BUNDLES, token, run_block)
-    if prior is not None and prior.pools:
-        return {p.address: p.ratio_to_frozen_coverage for p in prior.pools}
-    fs = json.loads(fs_path.read_text(encoding="utf-8"))
-    total = Decimal(int(fs["freeze_discovery_total"]))
-    return {q["address"].lower(): Decimal(int(q["tvl_at_par"])) / total
-            for q in fs["pools"]}
 
 
 # ---- token dispatch --------------------------------------------------------
@@ -673,7 +507,7 @@ def execute(repo: pathlib.Path, rpc_url: str, token: str) -> dict:
            # than imported inside the harness so the branch is stubbable; the
            # legs are read ONLY if the > 0.25 jump branch opens, so an ordinary
            # run makes zero HTTP calls for DET-62.
-           "http_get": _http_get_json,
+           "http_get": catalog_get,
            "token_address": CRVUSD,
            "etherscan_api_key": _env(repo, "ETHERSCAN_API_KEY"),
            # DET-10(a) and DET-77's second limb chain to the event log; the
@@ -683,29 +517,45 @@ def execute(repo: pathlib.Path, rpc_url: str, token: str) -> dict:
            # DET-10(b)'s comparand and (d)-ii's last-run ratios. Both come from
            # OUTSIDE the bundle so the gate compares the emitted table against
            # the signed set file and the prior run, never against itself.
-           "frozen_set_members": _fs_members(cfg.frozen_set_path),
-           "last_run_ratio": _last_run_ratios(repo, token, cfg.frozen_set_path,
-                                              bundle.header.run_block)}
+           "frozen_set_members": fs_members(cfg.frozen_set_path),
+           "last_run_ratio": last_run_ratios(repo / BUNDLES, token,
+                                             cfg.frozen_set_path,
+                                             bundle.header.run_block)}
     outcome = run_harness(bundle, ctx)            # raises => nothing below runs
 
     stamped, h = finalise(bundle)
     stamped.gate_results = [GateResult(entry_id=r.entry_id, result=r.result)
                             for r in outcome.results]
+
+    # PROMOTION IS LAST (ruled 2026-09-09, P-4.11). It used to be the first
+    # thing after the gate, so a failure in the sheet generator left a PROMOTED
+    # bundle behind - which is not a cosmetic mess: a file in
+    # `out/bundles/<token>/` is what `is_first_run` and `load_prior` read, so a
+    # crashed run silently became the next run's prior and flipped its
+    # first-run state. GHO's first invocation did exactly that. Everything that
+    # can still fail now runs BEFORE the write.
+    biggest = None
+    if extra.get("rows"):
+        biggest = max(extra["rows"], key=lambda r: r["gross_debt"])
+    # The sheet is per-token: crvUSD's ten items are LLAMMA-shaped and GHO's
+    # are facilitator/GSM-shaped, so the generator dispatches rather than one
+    # sheet pretending to cover both (P-4.11).
+    if token == "GHO":
+        sheet_path = write_spotcheck_gho(stamped, repo / "out/spotcheck/GHO",
+                                         gho=cfg.root("gho_token").address)
+    else:
+        sheet_path = write_spotcheck(
+            stamped, repo / "out/spotcheck", crvusd=CRVUSD,
+            controller_factory=cfg.root("controller_factory").address,
+            biggest_position=biggest)
+
+    (repo / "out/raw").mkdir(parents=True, exist_ok=True)
+    (repo / f"out/raw/{stamped.header.run_block}.json").write_text(
+        extra["raw"], encoding="utf-8", newline="")
     out = repo / BUNDLES / token
     out.mkdir(parents=True, exist_ok=True)
     (out / f"{stamped.header.run_block}.json").write_text(
         serialise_for_disk(stamped), encoding="utf-8", newline="")
-    (repo / "out/raw").mkdir(parents=True, exist_ok=True)
-    (repo / f"out/raw/{stamped.header.run_block}.json").write_text(
-        extra["raw"], encoding="utf-8", newline="")
-    # spot-check sheet (P-3.13, Method A). Gitignored; key is a placeholder.
-    biggest = None
-    if extra.get("rows"):
-        biggest = max(extra["rows"], key=lambda r: r["gross_debt"])
-    sheet_path = write_spotcheck(
-        stamped, repo / "out/spotcheck", crvusd=CRVUSD,
-        controller_factory=cfg.root("controller_factory").address,
-        biggest_position=biggest)
     return {"bundle": stamped, "hash": h, "outcome": outcome, "spotcheck": sheet_path,
             "seconds": round(time.time() - t0, 1)}
 
@@ -726,21 +576,6 @@ def execute(repo: pathlib.Path, rpc_url: str, token: str) -> dict:
 # an uncommitted one-liner), while `.env` is the ruled home for the key
 # (P-3.05; `.env.example`). Without it the documented invocation would not
 # run on this repo as configured.
-
-
-def _env(repo: pathlib.Path, name: str) -> str:
-    """Environment first, then the `<name>=` line of `.env` at the repo root.
-    Generalised from `_rpc_url` (0.5(c)) when DET-62's Etherscan leg needed
-    `ETHERSCAN_API_KEY` by the same route (P-3.19). Returns "" if unset."""
-    val = os.environ.get(name, "").strip()
-    if val:
-        return val
-    env = repo / ".env"
-    if env.exists():
-        for line in env.read_text(encoding="utf-8").splitlines():
-            if line.startswith(name + "="):
-                return line.split("=", 1)[1].strip()
-    return ""
 
 
 def _rpc_url(repo: pathlib.Path) -> str:

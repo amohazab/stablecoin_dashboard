@@ -8,6 +8,7 @@ figures are pointers and reconciliation legs only.
 
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass, field, replace
 from decimal import Decimal
 
@@ -181,6 +182,49 @@ class FrozenSet:
             if Decimal(run) >= target:
                 break
         return tuple(out)
+
+
+def serialise_set_file(fs: FrozenSet, waiver: dict | None = None) -> str:
+    """THE set-file writer. One owner, in the module that builds the set.
+
+    P-4.11: this did not exist. P-3.43 finding (ii) recorded that "the
+    enumeration that produced the signed set file was never in the tracked
+    tree — the artifact has no committed producer", and ruling 2 committed the
+    per-run discovery pass but not a WRITER. The shape therefore lived only in
+    whatever script wrote crvUSD's file at P-3.28, which is exactly how GHO's
+    first set file came out with three key names the reader does not read.
+
+    The shape here is not chosen: a standing test asserts this function
+    reproduces `config/frozen_set_crvusd.json` byte-for-byte from that file's
+    own contents (the P-3.15 reproduce-or-finding pattern), so the committed
+    artifact defines the format and any drift is a finding.
+
+    O-2 serialisation throughout: sorted keys, fixed separators, Decimals as
+    strings, never floats.
+    """
+    out = {
+        "chain_id": fs.chain_id,
+        "discovery_m": str(fs.discovery_m) if fs.discovery_m is not None else None,
+        "excluded": [{"address": e.address, "exclusion_reason": e.exclusion_reason}
+                     for e in fs.excluded],
+        "freeze_block": fs.freeze_block,
+        "freeze_coverage": str(fs.freeze_coverage),
+        "freeze_date": fs.freeze_date,
+        "freeze_discovery_total": fs.freeze_discovery_total,
+        "member2_target": fs.member2_target,
+        "pools": [{"address": p.address, "paired": list(p.paired_assets),
+                   "stabilizer": p.is_stabilizer_pool, "tvl_at_par": p.tvl_at_par,
+                   "zeroed_sides": [{"address": z.address, "units": z.units}
+                                    for z in p.zeroed_sides]} for p in fs.pools],
+        "scope": ({"classes": list(fs.scope.classes),
+                   "description": fs.scope.description,
+                   "par_eligibility": fs.scope.par_eligibility,
+                   "post_exclusion": fs.scope.post_exclusion} if fs.scope else None),
+    }
+    if waiver is not None:
+        out["r20_waiver"] = waiver
+    return json.dumps(out, sort_keys=True, separators=(",", ":"),
+                      ensure_ascii=False) + "\n"
 
 
 def classify_exclusions(

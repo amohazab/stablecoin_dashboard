@@ -22,6 +22,8 @@ the same `_env` helper DET-62's legs use and appears only in the request URL
 
 from __future__ import annotations
 
+import os
+import pathlib
 from dataclasses import dataclass, field
 
 from pydantic import BaseModel, ValidationError
@@ -138,4 +140,44 @@ def get_logs(address: str, topics: list[str | None], from_block: int,
                        len(out), reqs, windows, out)
 
 
-__all__ = ["BASE", "LogRow", "PointerError", "PointerRead", "get_logs"]
+def env(repo: pathlib.Path, name: str) -> str:
+    """Environment first, then the `<name>=` line of `.env` at the repo root.
+    Generalised from `_rpc_url` (0.5(c)) when DET-62's Etherscan leg needed
+    `ETHERSCAN_API_KEY` by the same route (P-3.19). Returns "" if unset."""
+    val = os.environ.get(name, "").strip()
+    if val:
+        return val
+    dotenv = repo / ".env"
+    if dotenv.exists():
+        for line in dotenv.read_text(encoding="utf-8").splitlines():
+            if line.startswith(name + "="):
+                return line.split("=", 1)[1].strip()
+    return ""
+
+
+
+
+def default_transport(repo: pathlib.Path):
+    """The pointer's own transport, keyed from `.env`. Two arguments — `(url,
+    params)` — because that is what Etherscan takes; the CATALOG transport in
+    `discovery.py` takes one. Handing one to the other broke GHO's first pool
+    pass, so they are named apart and each module owns its own (P-4.11).
+
+    The key reaches only the request; it is never returned or recorded
+    (P-3.39 binding 1).
+    """
+    key = env(repo, "ETHERSCAN_API_KEY")
+
+    def get(url: str, params: dict) -> dict:
+        import requests
+        p = dict(params)
+        p["apikey"] = key
+        r = requests.get(url, params=p, timeout=120)
+        r.raise_for_status()
+        return r.json()
+
+    return get
+
+
+__all__ = ["BASE", "LogRow", "PointerError", "PointerRead", "default_transport",
+           "env", "get_logs"]

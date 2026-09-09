@@ -58,6 +58,8 @@ SPARE = "https://eth.drpc.org"
 PIN_TEST_BLOCK = 24117248
 
 EIP1967_IMPL = "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc"
+# keccak("SWAP_FREEZER_ROLE"), for GHO item 5's hasRole calldata
+SWAP_FREEZER_ROLE_HEX = ("6dac4cc0544e34aa1a4ed2862f6de78290e3f18f00fe77179ee8ef34de9dfa24")
 
 
 def _calldata(signature: str, arg_addr: str | None = None) -> str:
@@ -263,4 +265,127 @@ def write(bundle: Bundle, out_dir: pathlib.Path, **kw) -> pathlib.Path:
     out_dir.mkdir(parents=True, exist_ok=True)
     p = out_dir / f"{bundle.header.run_block}.md"
     p.write_text(generate(bundle, **kw), encoding="utf-8", newline="")
+    return p
+
+
+def generate_gho(bundle: Bundle, gho: str) -> str:
+    """GHO's ten items, rev-2 transport (P-3.13 as amended at P-3.39).
+
+    The four bindings hold unchanged: no key in the file (the transports are
+    keyless by construction), both value forms, item 0 the standing pin
+    self-test, and **every address comes from the bundle** — no facilitator,
+    GSM, borrower or pool address is a constant in this generator, which is the
+    no-hardcoded-lists gate applied to tooling.
+    """
+    b = bundle
+    rb = b.header.run_block
+    L = [f"# Spot-check — GHO @ run_block {rb}",
+         "",
+         f"Bundle `{b.header.bundle_hash[:16]}…`, block **{rb}**, "
+         f"sheet `{b.header.sheet_hash}`, frozen set `{b.header.frozen_set_hash}`.",
+         "",
+         "Two keyless archive RPCs, **A and B must agree** — a single endpoint "
+         "could route back to the adapter's own upstream, so agreement between "
+         "two operators is what carries independence, not either one alone.",
+         "",
+         f"* A = `{PRIMARY}`",
+         f"* B = `{SECOND}` (spare: `{SPARE}`)",
+         "",
+         "**Item 0 first.** It proves the transport pins the block; until it "
+         "passes, no other answer means anything (P-3.39).",
+         "",
+         "| # | what | expected (decoded) | expected (raw hex) | A=B? | pass/fail |",
+         "|---|---|---|---|---|---|"]
+    cmds: list[str] = []
+
+    def item(i, what, decoded, raw, body=None):
+        L.append(f"| {i} | {what} | `{decoded}` | `{raw}` |  |  |")
+        if body:
+            cmds.append(f"# --- item {i} --- expect {raw}")
+            cmds.append('"item ' + str(i) + ' A"')
+            cmds.append(_cmd(PRIMARY, body))
+            cmds.append('"item ' + str(i) + ' B"')
+            cmds.append(_cmd(SECOND, body))
+            cmds.append("")
+
+    supply_call = _call_body(gho, _calldata("totalSupply()"), rb)
+    item(0, "PIN SELF-TEST — `totalSupply()` at the run block, then at "
+            f"{PIN_TEST_BLOCK}. **They must DIFFER.**",
+         "the two must differ", _hexint(b.supply.total_supply), supply_call)
+    cmds.append(f"# --- item 0, old block {PIN_TEST_BLOCK}: must DIFFER from the above")
+    cmds.append(_cmd(PRIMARY, _call_body(gho, _calldata("totalSupply()"), PIN_TEST_BLOCK)))
+    cmds.append("")
+
+    item(1, "GHO `totalSupply()`", f"{b.supply.total_supply}",
+         _hexint(b.supply.total_supply), supply_call)
+
+    # 2: the largest facilitator bucket - address FROM THE BUNDLE
+    fac = max(b.facilitators, key=lambda f: f.bucket_level)
+    item(2, f"`getFacilitatorBucket({fac.address[:10]}…)` level "
+            f"(largest of {len(b.facilitators)})",
+         f"cap {fac.bucket_capacity} / level {fac.bucket_level}",
+         _hexint(fac.bucket_capacity) + " then " + _hexint(fac.bucket_level),
+         _call_body(gho, _calldata("getFacilitatorBucket(address)", fac.address), rb))
+
+    # 3: a GSM's boxed underlying
+    if b.gsms:
+        g = max(b.gsms, key=lambda x: x.available_liquidity)
+        item(3, f"GSM `{g.address[:10]}…` `getAvailableLiquidity()`",
+             f"{g.available_liquidity}", _hexint(g.available_liquidity),
+             _call_body(g.address, _calldata("getAvailableLiquidity()"), rb))
+        item(4, f"GSM `{g.address[:10]}…` `getExposureCap()`",
+             f"{g.exposure_cap}", _hexint(g.exposure_cap),
+             _call_body(g.address, _calldata("getExposureCap()"), rb))
+        if g.freezer_address:
+            item(5, f"`hasRole(SWAP_FREEZER_ROLE, {g.freezer_address[:10]}…)` on that GSM "
+                    "— the freezer discovered from role logs, confirmed on-chain",
+                 "true", _hexint(1),
+                 _body("eth_call",
+                       f'{{"to":"{g.address}","data":"0x91d14854'
+                       f'{SWAP_FREEZER_ROLE_HEX}{g.freezer_address[2:].rjust(64, "0")}"}},'
+                       f'"0x{rb:x}"'))
+
+    # 6: the largest direct minter's drawn debt, read off its own debt token
+    mint = [f for f in b.facilitators if f.debt_token_address]
+    if mint:
+        m = max(mint, key=lambda f: f.gross_debt_sum or 0)
+        item(6, f"`{m.debt_token_address[:10]}…` `totalSupply()` — the instance's GHO "
+                "debt; DET-82 compares the position sum to exactly this",
+             f"{m.position_completeness.controller_total_debt}",
+             _hexint(m.position_completeness.controller_total_debt),
+             _call_body(m.debt_token_address, _calldata("totalSupply()"), rb))
+        item(7, f"`{m.atoken_address[:10]}…` GHO balance — undrawn inventory",
+             f"{m.inventory}", _hexint(m.inventory or 0),
+             _call_body(gho, _calldata("balanceOf(address)", m.atoken_address), rb))
+
+    # 8: the frozen pool's GHO-side balance
+    frozen = [p for p in b.pools if p.in_frozen_set]
+    if frozen:
+        item(8, f"frozen pool `{frozen[0].address[:10]}…` `balances(0)` — the GHO side "
+                "of the only pool in F",
+             "compare to the set file's tvl_at_par",
+             "(read; the sheet does not pre-state it)",
+             _call_body(frozen[0].address, _calldata("balances(uint256)") + "0" * 64, rb))
+
+    # 9: the bridged component
+    if b.supply.bridges:
+        br = b.supply.bridges[0]
+        item(9, f"CCIP pool `{br.bridge_address[:10]}…` GHO balance — the bridged "
+                "component, amount only (C-1)",
+             f"{br.amount}", _hexint(br.amount),
+             _call_body(gho, _calldata("balanceOf(address)", br.bridge_address), rb))
+
+    # 10: GhoToken's implementation slot
+    item(10, "GhoToken EIP-1967 implementation slot — the `upgrade` row's evidence",
+         "all-zero => immutable at the standard slot", "0x" + "0" * 64,
+         _storage_body(gho, EIP1967_IMPL, rb))
+
+    L += ["", "## Commands", "", "```powershell", *cmds, "```", ""]
+    return "\n".join(L)
+
+
+def write_gho(bundle: Bundle, out_dir: pathlib.Path, **kw) -> pathlib.Path:
+    out_dir.mkdir(parents=True, exist_ok=True)
+    p = out_dir / f"{bundle.header.run_block}.md"
+    p.write_text(generate_gho(bundle, **kw), encoding="utf-8", newline="")
     return p

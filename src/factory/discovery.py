@@ -29,6 +29,8 @@ called — see P-3.43-A1.
 
 from __future__ import annotations
 
+import json
+import pathlib
 from decimal import Decimal
 
 from pydantic import BaseModel, ValidationError
@@ -39,7 +41,10 @@ from factory.freeze import (
     ZeroedSide,
     par_value,
 )
+from factory.logbook import load_prior
+from factory.provenance import AbsenceRead, ContractRead
 from factory.rpc import Call
+from factory.schema import PoolDetectors, PoolRow, ZeroedSideRow
 
 # The seam P-3.43 anticipated turned out to be zero: `freeze.py` splits pure
 # computation from I/O already, so `par_value`, `DUST_FLOOR_USD` and the
@@ -48,6 +53,21 @@ from factory.rpc import Call
 # "detector flags never auto-update the set").
 
 CURVE_POOLS_URL = "https://api.curve.finance/api/getPools/ethereum/{registry}"
+
+
+def catalog_get(url: str) -> dict:
+    """The CATALOG transport - one argument, a plain GET.
+
+    P-4.11: moved here from `run.py`, because the catalog is this module's and
+    both adapters need it. It is NOT the log pointer's transport, which takes
+    `(url, params)`; handing one to the other is what broke GHO's first pool
+    pass. Two transports, two shapes, named apart. `requests` is already a
+    declared dependency (pyproject), so no lockfile change is involved.
+    """
+    import requests
+    resp = requests.get(url, timeout=20)
+    resp.raise_for_status()
+    return resp.json()
 
 
 class AssemblyStopFromDiscovery(Exception):
@@ -183,6 +203,203 @@ def still_enumerated(rpc, pool: str, factory: str, index: int) -> bool:
     return bool(r.ok and r.one().lower() == pool.lower())
 
 
+# ---------------------------------------------------- the per-run pool pass --
+# EXTRACTED FROM `run.py` (P-4.11, ruled at P-3.46 follow-up 5 and forced once a
+# second adapter needed it - P-3.04's "extract from two real implementations,
+# never guessed from one"). `run.py` imports `gho.py`, so a shared function
+# could not live there; `discovery.py` is the module BOTH adapters already
+# import, so it is the owner rather than a new one.
+#
+# EXTRACTION NOTES - every place the old code named crvUSD, and what it takes
+# now. Nothing else changed while it moved:
+#   1. the `CRVUSD` module constant            -> the `numeraire` argument
+#   2. `{o.paired_pool_address for o in ops}`  -> the `stabilizer_pools` argument
+#      (crvUSD passes its keeper pools; GHO has no stabilizer and passes set())
+#   3. `run.py`'s `_cr(...)` helper            -> `_cr_local` here, identical
+#      output for this call (`args=()` and `args=[]` both emit `args=[]`)
+#   4. `raise AssemblyStop(...)`               -> `AssemblyStopFromDiscovery`,
+#      which every caller already re-raises as `AssemblyStop`
+#   5. `repo / BUNDLES` in the ratios helper   -> the `bundles_dir` argument
+# `cfg.paired`, `cfg.frozen_pool_index`, `cfg.root(...)` and `fs["scope"]` were
+# already Config- or set-file-carried and are untouched.
+
+
+def _cr_local(contract: str, fn: str, block: int) -> ContractRead:
+    return ContractRead(source_contract=contract.lower(), function=fn, args=[],
+                        block=block)
+
+
+def build_pool_rows(rpc, cfg, fs: dict, http_get, numeraire: str,
+                    stabilizer_pools: set[str], prior_pools: dict[str, dict],
+                    rb: int) -> tuple[list, int, PoolDetectors]:
+    """memo 5.6's second half for any token: the frozen set's state plus full
+    discovery plus the three detectors. Returns `(pool_rows, below_floor_count,
+    detectors)`."""
+    # ---- per-run pool discovery (1b): memo 5.6's second half ----------------
+    # Route A (P-3.43): the Curve catalog is the pointer, the chain is the
+    # verdict. Runs AFTER the stabilizer block because DET-24 forces every
+    # keeper pool into F and the rows carry `is_stabilizer_pool`.
+    fs_pools = {q["address"].lower(): q for q in fs["pools"]}
+    fs_excluded = {q["address"].lower(): q["exclusion_reason"] for q in fs["excluded"]}
+    fs_total = int(fs["freeze_discovery_total"])
+    eligible = set(cfg.paired) | {numeraire}
+
+    # No try/except here any more: both callees already raise
+    # `AssemblyStopFromDiscovery`, and `run.py`'s wrapper caught it only to
+    # re-raise as `AssemblyStop`. Inside this module the raise IS the route.
+    cands = fetch_candidates(http_get, fs['scope']['classes'])
+    discovered = value_candidates(rpc, cands, numeraire, eligible)
+
+    pool_rows, below_floor_count = [], 0
+    seen = set()
+    for d in discovered:
+        seen.add(d.address)
+        in_f = d.address in fs_pools
+        if not in_f and d.tvl_at_par < DUST_FLOOR_USD:
+            below_floor_count += 1          # counted, not listed (P-3.43)
+            continue
+        # R2 (P-3.46): "new" means the freeze did not know it, or knew it and
+        # excluded it ONLY for size. A structural freeze-time exclusion
+        # (self_referential_wrapper, volatile_collateral_circular, tail) is
+        # carried and is NOT new - a signed exclusion must not re-flag weekly.
+        reason = None
+        if not in_f:
+            prior_reason = fs_excluded.get(d.address)
+            reason = ("added_since_freeze"
+                      if prior_reason in (None, "below_dust_floor")
+                      else prior_reason)
+        pool_rows.append(PoolRow(
+            address=d.address, in_frozen_set=in_f,
+            paired_assets=list(d.paired_assets),
+            freeze_tvl=int(fs_pools[d.address]["tvl_at_par"]) if in_f else None,
+            tvl_at_par=d.tvl_at_par,
+            ratio_to_frozen_coverage=Decimal(d.tvl_at_par) / Decimal(fs_total),
+            is_stabilizer_pool=d.address in stabilizer_pools,
+            exclusion_reason=reason,
+            zeroed_sides=[ZeroedSideRow(address=z.address, units=z.units)
+                          for z in d.zeroed_sides],
+            reads={"balances": _cr_local(d.address, "balances(uint256)", rb)}))
+
+    # A frozen pool the pointer no longer lists still gets its row: (b)'s
+    # exact-equality membership must hold and (d)-ii evaluates FROM the row
+    # (P-3.46 R5). Its disappearance is an annotation, not an omission.
+    for addr, q in fs_pools.items():
+        if addr in seen:
+            continue
+        pool_rows.append(PoolRow(
+            address=addr, in_frozen_set=True, paired_assets=list(q["paired"]),
+            freeze_tvl=int(q["tvl_at_par"]), tvl_at_par=0,
+            ratio_to_frozen_coverage=Decimal(0),
+            is_stabilizer_pool=addr in stabilizer_pools,
+            annotations=["absent from the pointer source this run"],
+            reads={"balances": AbsenceRead(contract=addr,
+                                           method="selector_absence_scan",
+                                           evidence="not listed by the pointer",
+                                           block=rb)}))
+
+    # Disappearance, factory-side (ruled 2026-09-07): each frozen pool's signed
+    # `pool_list` index must still hold that pool. Uniform on all five - one
+    # code path, and it is the rubric's letter rather than the pool's
+    # self-report. A frozen pool with no signed index row is a CONFIG DEFECT,
+    # not a runtime state: present config or no run.
+    pins = {q["pool"].lower(): q for q in cfg.frozen_pool_index}
+    for row in pool_rows:
+        if not row.in_frozen_set:
+            continue
+        pin = pins.get(row.address)
+        if pin is None:
+            raise AssemblyStopFromDiscovery(
+                f"no [[frozen_pool_index]] row for frozen pool {row.address}; "
+                "DET-10(d)-ii's factory-side test cannot be evaluated. Present "
+                "config or no run (ruled 2026-09-07).")
+        fac = cfg.root(pin["factory_root"]).address
+        if not still_enumerated(rpc, row.address, fac, int(pin["index"])):
+            row.annotations.append(
+                f"disappeared: {pin['factory_root']}.pool_list({pin['index']}) "
+                "no longer holds it")
+    pool_rows.sort(key=lambda r: r.address)
+    return pool_rows, below_floor_count, detectors(pool_rows, prior_pools, fs_pools)
+
+
+def detectors(rows: list[PoolRow], prior_pools: dict[str, dict],
+               fs_pools: dict[str, dict]) -> PoolDetectors:
+    """DET-10(c), computed from `pools[]` alone — no second read of anything.
+
+    Named implementer defaults (P-3.43):
+      * the 10% denominator is the set file's `freeze_discovery_total`, held
+        fixed between refreshes so the threshold does not move weekly. It is
+        already baked into every row's `ratio_to_frozen_coverage`.
+      * the TVL-change baseline is the PRIOR RUN's per-pool `tvl_at_par`,
+        falling back to the set file's `freeze_tvl` when the prior carries no
+        `pools[]`. True exactly once — the first run after this field lands —
+        and DISCLOSED via `baseline_source`, never silent.
+
+    The below-floor list reports a frozen pool under the floor even when that
+    pool is floor-EXEMPT at selection (memo 5.5 / P-4 exempt stabilizer pools).
+    The exemption is a SELECTION rule; the detector is a disclosure, and (e)
+    gives below-floor detections no consequence beyond disclosure, so reporting
+    it costs nothing and hides nothing. All five of crvUSD's frozen pools are
+    keeper pools (P-3.28), which is why this is stated rather than assumed.
+    """
+    src = "prior_bundle" if prior_pools else "freeze_set_file"
+    note = None if prior_pools else (
+        "no prior pools[] — last-run figures fall back to the set file's "
+        "freeze_tvl; true this run only (P-3.43)")
+
+    new_above, below, moved = [], [], []
+    for r in rows:
+        if not r.in_frozen_set:
+            if (r.exclusion_reason == "added_since_freeze"
+                    and r.tvl_at_par >= DUST_FLOOR_USD):
+                new_above.append(r.address)
+            continue
+        if r.tvl_at_par < DUST_FLOOR_USD:
+            below.append(r.address)
+        base = (int(prior_pools[r.address]["tvl_at_par"])
+                if r.address in prior_pools else (r.freeze_tvl or 0))
+        if base and abs(Decimal(r.tvl_at_par - base)) / Decimal(base) > Decimal("0.50"):
+            moved.append(r.address)
+
+    # DET-10(e): every detection is disclosed on its row, or (e) fails.
+    by_addr = {r.address: r for r in rows}
+    for addr in new_above:
+        by_addr[addr].annotations.append("detector: new pool above the dust floor")
+    for addr in below:
+        by_addr[addr].annotations.append("detector: frozen pool below the dust floor")
+    for addr in moved:
+        by_addr[addr].annotations.append("detector: TVL change > 50% vs baseline")
+
+    return PoolDetectors(
+        new_pool_above_floor=sorted(new_above),
+        frozen_pool_below_floor=sorted(below),
+        frozen_pool_tvl_change_gt_50pct=sorted(moved),
+        baseline_source=src, baseline_note=note)
+
+
+def fs_members(fs_path: pathlib.Path) -> set[str]:
+    fs = json.loads(fs_path.read_text(encoding="utf-8"))
+    return {q["address"].lower() for q in fs["pools"]}
+
+
+def last_run_ratios(bundles_dir: pathlib.Path, token: str,
+                    fs_path: pathlib.Path, run_block: int) -> dict[str, Decimal]:
+    """DET-10(d)-ii's "last-run share", with its NAMED one-time fallback.
+
+    Prior bundle's `pools[]` where it has one; otherwise the set file's
+    `freeze_tvl` over `freeze_discovery_total`. The fallback is true exactly
+    once - for the first run whose prior predates `pools[]` - and the bundle
+    discloses which was used via `pool_detectors.baseline_source` (P-3.43).
+    """
+    prior = load_prior(bundles_dir, token, run_block)
+    if prior is not None and prior.pools:
+        return {p.address: p.ratio_to_frozen_coverage for p in prior.pools}
+    fs = json.loads(fs_path.read_text(encoding="utf-8"))
+    total = Decimal(int(fs["freeze_discovery_total"]))
+    return {q["address"].lower(): Decimal(int(q["tvl_at_par"])) / total
+            for q in fs["pools"]}
+
+
 __all__ = ["CURVE_POOLS_URL", "AssemblyStopFromDiscovery", "PoolsResponse",
-           "fetch_candidates", "value_candidates", "still_enumerated",
+           "build_pool_rows", "detectors", "fetch_candidates", "fs_members",
+           "last_run_ratios", "still_enumerated", "value_candidates",
            "DUST_FLOOR_USD", "ZeroedSide", "Decimal"]
