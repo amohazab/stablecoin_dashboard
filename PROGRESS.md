@@ -5728,3 +5728,66 @@ Status: IN PROGRESS (opened 2026-09-08).
   `src/factory/schema.py`; `tests/test_schema.py`; `PROGRESS.md`.
 - **Follow-ups spawned:** the adapter, freeze and verdict as P-4.17;
   Block D's queue gains the nested-LLAMMA block by name.
+
+## P-4.17 — LUSD built and frozen: the control's verdict
+
+- **Date:** 2026-09-10
+- **Type:** implementation
+- **Confirmed by:** Amin
+- **Content:**
+  **THE ADAPTER** (`src/factory/adapters/lusd.py`, new). Closure from the
+  signed anchor, asserted to CLOSE on it - `TroveManager.lusdToken()` must
+  return the anchor - plus CollSurplusPool's reverse closure re-asserted per
+  run. 73 troves enumerated by `getTroveOwnersCount()` + `TroveOwners(i)` in
+  ONE `aggregate3`, never the sorted-list walk, which is N sequential round
+  trips and would drag an eighth contract into the set. The completeness
+  identity holds on THREE legs with residual 0: Σ trove debt = AP+DP
+  `getLUSDDebt()` = `totalSupply()`, and Σ coll = AP+DP `getETH()`.
+  Principal/interest without tautology: `accrued_interest_sum = 0` provenanced
+  by a five-selector absence scan, with redistribution (Σ 0) and the 14,600
+  gas comp disclosed as their own figures. One node at 100%; a
+  `DeviationHeartbeat` whose PRICE is a `fetchPrice()` eth_call SIMULATION -
+  what the protocol's next operation would use, status machine included - with
+  `lastGoodPrice`, `latestRoundData`, Tellor and `status` recorded beside it;
+  `reference_feed = no_reference_feed`, structural, because LUSD's PriceFeed
+  IS the Chainlink aggregator. ONE redemption path; nine admin rows, every
+  holder `none`, every provenance an absence read. **HARNESS.** DET-66's LUSD
+  clause replaces the LAST P-3.44 stub, and the fail-loud branch now OUTLIVES
+  the pilot: a fourth token raises rather than passing on the token-agnostic
+  checks. **R8:** DET-62's `token_address` is the run's own, with a test; an
+  empty address is a MISSING confirmation, never a request for whatever the
+  empty string resolves to. `run.py`'s last `OWED` row is deleted - `OWED` is
+  now empty and stays as the shape a fourth token will use - and a LUSD
+  spot-check generator lands with its ten items, every address read from the
+  bundle. **THE FREEZE** at block **25948081**, under the scope rule ALIGNED
+  with GHO's: every Curve class holding a LUSD pool at inventory - `main`,
+  `factory`, `factory-crypto`, `factory-stable-ng` - never the empty
+  `factory-eywa`, which would stop the run as a shape change. |F| = **1**
+  (`0xed279fdd…` LUSD/3CRV, $11,515,220), coverage **0.9798**, `discovery_m`
+  0.4459, 14 below floor, **no waiver needed**. Set file **`fa6eb720`** (2,059
+  B) through `serialise_set_file`; `events_lusd.jsonl` **`0fc1748c`**, 2
+  lines. An earlier freeze under a narrower two-class scope was RESTORED
+  rather than superseded - the log reverted to its committed one line and the
+  set file deleted - so the chain carries one freeze, not two. Signed
+  `[[frozen_pool_index]]`: index **16** of `pool_factory_old`, `pool_count()`
+  381, the pool at exactly one index, `factory()` REVERTING - the P-3.46 case
+  this test exists for. **DRY PASS: 22/22, worst level 0, zero triggers, 8.6 s
+  on 290 pinned reads and NO pointer request.** 114 tests, ruff clean.
+  **AS-COUNTED, the agent's:** the admin surface first probed absence by
+  CALLING each selector with ABI-encoded arguments for functions it was
+  asserting do not exist - incoherent, and unable to tell absent from
+  reverting; replaced by the F4 BYTECODE scan GHO established at P-4.08.
+  `Market.REQUIRED_READS` also wanted `collateral_price` and `decimals`, and
+  native ETH has no `decimals()` to call - it is an absence read. **The design
+  layer's:** R5's scope wording, narrower than the rule every other token
+  uses; and the kickoff's second redemption path, which the sheet's "holder
+  paths: 1" and DET-66's own stub both forbid. **THE VERDICT: yes — LUSD is a
+  small config and a thin adapter,** two config files and one module reading
+  290 pinned values in 8.6 s against GHO's ~16,500 in 260 s, and the only
+  place the common schema did not fit was four crvUSD-specific fields it
+  should never have carried.
+- **Artifacts:** `src/factory/` `adapters/lusd.py` (new) · `run.py` ·
+  `spotcheck.py` · `validate/harness.py`; `config/frozen_set_lusd.json`;
+  `out/logs/events_lusd.jsonl`; `tests/test_harness.py`; `PROGRESS.md`.
+- **Follow-ups spawned:** LUSD run 1 as P-4.18, then run 2 no earlier
+  than 24 h after run 1's block; the ETH/USD heartbeat, still owed.

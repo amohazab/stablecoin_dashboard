@@ -307,9 +307,17 @@ def fetch_supply_confirmations(ctx) -> dict[str, int | None]:
     """Read both legs. A leg that cannot be read is `None`, which DET-62 then
     treats as a missing confirmation (T-14, Level 3) - never as agreement."""
     get = ctx.get("http_get")
-    token = ctx.get("token_address", "")
+    # R8 (ruled P-4.13). `run.py` used to hand this the crvUSD constant
+    # UNCONDITIONALLY, so GHO's confirmation legs would have checked crvUSD's
+    # supply. Latent, never reached: the legs open only inside DET-62's > 0.25
+    # jump branch. The token's own address is now passed per run, and an EMPTY
+    # value is a missing confirmation (T-14) rather than a request for
+    # whatever token address the empty string resolves to (P-4.16).
+    token = ctx.get("token_address") or ""
     key = ctx.get("etherscan_api_key", "")
     out: dict[str, int | None] = {}
+    if not token:
+        return dict.fromkeys(SUPPLY_CONFIRMATION_LEGS, None)
     for leg, url in SUPPLY_CONFIRMATION_LEGS.items():
         if get is None:
             out[leg] = None
@@ -539,11 +547,24 @@ def det_66(b: Bundle, ctx) -> None:
             if not isinstance(m.r3_received, list) or not set(m.r3_received) <= boxed:
                 raise Level3(f"DET-66: GHO module path R3 must be a boxed asset; "
                              f"got {m.r3_received!r}")
+    elif token == "LUSD":
+        # P-4.16 replaces the last P-3.44 stub. The sheet rules "holder paths:
+        # 1 — the reference profile": ONE `direct_on_chain` path, open to
+        # anyone, paying native ETH. A trove owner repaying is the borrower
+        # closing their own position, not a holder redemption, and is NOT a
+        # second path (P-4.16).
+        if len(paths) != 1 or paths[0].r1_path != "direct_on_chain":
+            raise Level3(
+                "DET-66: LUSD requires exactly one direct_on_chain path; got "
+                f"{len(paths)} path(s) with R1 = {[p.r1_path for p in paths]}")
+        if paths[0].r2_who != "anyone":
+            raise Level3("DET-66: LUSD's path is open to anyone (sheet R2); got "
+                         f"{paths[0].r2_who!r}")
     else:
         raise NotYetImplemented(
             f"DET-66: the path-count clause for {token} is not implemented. "
-            "LUSD: exactly one direct_on_chain path. Ruled P-3.44; lands at "
-            "Step 4C. The per-path checks below are token-agnostic and apply.")
+            "No pilot token is unimplemented; a new token needs its clause "
+            "ruled before it runs (P-4.16).")
 
     # --- per-path field rules, token-agnostic --------------------------------
     for i, p in enumerate(paths):

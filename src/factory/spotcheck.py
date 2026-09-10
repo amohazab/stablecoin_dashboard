@@ -389,3 +389,121 @@ def write_gho(bundle: Bundle, out_dir: pathlib.Path, **kw) -> pathlib.Path:
     p = out_dir / f"{bundle.header.run_block}.md"
     p.write_text(generate_gho(bundle, **kw), encoding="utf-8", newline="")
     return p
+
+
+def generate_lusd(bundle: Bundle, lusd: str, extra: dict | None = None) -> str:
+    """LUSD's ten items, rev-2 transport (P-3.13 as amended at P-3.39).
+
+    The four bindings hold: no key in the file, both value forms, item 0 the
+    standing pin self-test, and **every address comes from the bundle** - the
+    trove system, the pools, the escrow and the feed are all read off the
+    emitted tables, never written as constants here.
+    """
+    b = bundle
+    rb = b.header.run_block
+    m = b.markets[0]
+    L = [f"# Spot-check - LUSD @ run_block {rb}",
+         "",
+         f"Bundle `{b.header.bundle_hash[:16]}...`, block **{rb}**, "
+         f"sheet `{b.header.sheet_hash}`, frozen set `{b.header.frozen_set_hash}`.",
+         "",
+         "Two keyless archive RPCs, **A and B must agree** - a single endpoint "
+         "could route back to the adapter's own upstream, so agreement between "
+         "two operators is what carries independence, not either one alone.",
+         "",
+         f"* A = `{PRIMARY}`",
+         f"* B = `{SECOND}` (spare: `{SPARE}`)",
+         "",
+         "**Item 0 first.** It proves the transport pins the block; until it "
+         "passes, no other answer means anything (P-3.39).",
+         "",
+         "| # | what | expected (decoded) | expected (raw hex) | A=B? | pass/fail |",
+         "|---|---|---|---|---|---|"]
+    cmds: list[str] = []
+
+    def item(i, what, decoded, raw, body=None):
+        L.append(f"| {i} | {what} | `{decoded}` | `{raw}` |  |  |")
+        if body:
+            cmds.append(f"# --- item {i} --- expect {raw}")
+            cmds.append('"item ' + str(i) + ' A"')
+            cmds.append(_cmd(PRIMARY, body))
+            cmds.append('"item ' + str(i) + ' B"')
+            cmds.append(_cmd(SECOND, body))
+            cmds.append("")
+
+    supply_call = _call_body(lusd, _calldata("totalSupply()"), rb)
+    item(0, "PIN SELF-TEST - `totalSupply()` at the run block, then at "
+            f"{PIN_TEST_BLOCK}. **They must DIFFER.**",
+         "the two must differ", _hexint(b.supply.total_supply), supply_call)
+    cmds.append(f"# --- item 0, old block {PIN_TEST_BLOCK}: must DIFFER from the above")
+    cmds.append(_cmd(PRIMARY, _call_body(lusd, _calldata("totalSupply()"), PIN_TEST_BLOCK)))
+    cmds.append("")
+
+    item(1, "LUSD `totalSupply()`", f"{b.supply.total_supply}",
+         _hexint(b.supply.total_supply), supply_call)
+
+    tm = m.address
+    item(2, f"TroveManager `{tm[:10]}...` `getTroveOwnersCount()` - the "
+            "enumeration this run walked",
+         f"{m.n_positions}", _hexint(m.n_positions),
+         _call_body(tm, _calldata("getTroveOwnersCount()"), rb))
+
+    # 3: one trove, address FROM THE RUN's own owner list
+    troves = (extra or {}).get("troves") or []
+    if troves:
+        t = max(troves, key=lambda x: x["debt"])
+        item(3, f"largest trove `{t['owner'][:10]}...` `getEntireDebtAndColl` - "
+                "debt then coll",
+             f"debt {t['debt']} / coll {t['coll']}",
+             _hexint(t["debt"]) + " then " + _hexint(t["coll"]),
+             _call_body(tm, _calldata("getEntireDebtAndColl(address)", t["owner"]), rb))
+
+    ap = m.reads["collateral"].source_contract
+    item(4, f"ActivePool `{ap[:10]}...` `getETH()` - with DefaultPool this is "
+            "the whole of backing",
+         f"{m.external_collateral_sum}", _hexint(m.external_collateral_sum),
+         _call_body(ap, _calldata("getETH()"), rb))
+
+    item(5, f"`getTCR(price)` at this run's price - compare to `system_tcr` "
+            f"{b.system_tcr}",
+         "> 1.60 keeps the (d) near-bound quiet", "(read; decimal 1e18)",
+         None)
+
+    pf = b.oracle_rows[0].update_condition.provenance[1].source_contract
+    item(6, f"PriceFeed `{pf[:10]}...` `status()` - 0 = chainlinkWorking",
+         "0", _hexint(0), _call_body(pf, _calldata("status()"), rb))
+
+    item(7, f"PriceFeed `{pf[:10]}...` `lastGoodPrice()` - the protocol's last "
+            "recorded price; it LAGS the feed by design",
+         "compare to the sheet's disclosure line", "(read)",
+         _call_body(pf, _calldata("lastGoodPrice()"), rb))
+
+    frozen = [p for p in b.pools if p.in_frozen_set]
+    if frozen:
+        item(8, f"frozen pool `{frozen[0].address[:10]}...` `balances(0)` - the "
+                "LUSD side of the only pool in F",
+             "compare to the set file's tvl_at_par",
+             "(read; the sheet does not pre-state it)",
+             _call_body(frozen[0].address, _calldata("balances(uint256)") + "0" * 64, rb))
+
+    if b.supply.bridges:
+        br = max(b.supply.bridges, key=lambda x: x.amount)
+        item(9, f"largest escrow `{br.bridge_address[:10]}...` LUSD balance - "
+                "the bridged component, amount only (C-1)",
+             f"{br.amount}", _hexint(br.amount),
+             _call_body(lusd, _calldata("balanceOf(address)", br.bridge_address), rb))
+
+    item(10, "LUSDToken EIP-1967 implementation slot - the `upgrade` row's "
+             "evidence, and the whole admin surface's premise",
+         "all-zero => immutable at the standard slot", "0x" + "0" * 64,
+         _storage_body(lusd, EIP1967_IMPL, rb))
+
+    L += ["", "## Commands", "", "```powershell", *cmds, "```", ""]
+    return "\n".join(L)
+
+
+def write_lusd(bundle: Bundle, out_dir: pathlib.Path, **kw) -> pathlib.Path:
+    out_dir.mkdir(parents=True, exist_ok=True)
+    p = out_dir / f"{bundle.header.run_block}.md"
+    p.write_text(generate_lusd(bundle, **kw), encoding="utf-8", newline="")
+    return p

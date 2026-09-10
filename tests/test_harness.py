@@ -187,15 +187,21 @@ def test_det66_r1_none_implication_is_enforced():
         run_harness(a_bundle(redemption_paths=[bad]), a_ctx())
 
 
-def test_det66_lusd_still_raises_not_yet_implemented():
-    """The ruled fail-loud dispatch survives GHO's clause landing: a token whose
-    path-count clause is not built raises rather than passing. Asserted on
-    `det_66` directly so the exception type is pinned, not just its harness
-    consequence. GHO's branch was deleted at P-4.08 when its clause landed,
-    exactly as P-3.44 said Step 4 would; LUSD's remains until 4C."""
+def test_det66_lusd_clause_requires_exactly_one_direct_path():
+    """P-4.16 replaces the last P-3.44 stub. The sheet rules "holder paths: 1",
+    so a second path fails - a trove owner repaying is the borrower closing
+    their own position, not a holder redemption."""
     lusd = a_bundle(header=a_bundle().header.model_copy(update={"token": "LUSD"}))
-    with pytest.raises(NotYetImplemented, match="LUSD"):
-        det_66(lusd, a_ctx())
+    with pytest.raises(Level3, match="exactly one direct_on_chain"):
+        det_66(lusd, a_ctx())          # the fixture carries R1 = none
+
+
+def test_det66_fails_loud_for_a_token_with_no_clause():
+    """The ruled fail-loud dispatch OUTLIVES the three pilot clauses: a fourth
+    token raises rather than passing on the token-agnostic checks alone."""
+    other = a_bundle(header=a_bundle().header.model_copy(update={"token": "USDe"}))
+    with pytest.raises(NotYetImplemented, match="USDe"):
+        det_66(other, a_ctx())
 
 
 def test_det66_gho_clause_counts_module_paths_against_live_gsms():
@@ -533,14 +539,38 @@ def test_execute_unknown_token_stops_before_any_rpc(tmp_path):
 
     `tmp_path` holds no `config/` and the URL is unroutable: if dispatch did
     NOT come first, this would fail on a config or transport error instead.
-    GHO's reminder was deleted at P-4.06 when its adapter landed, exactly as
-    P-4.02 said 4B would; LUSD's remains until 4C.
+    GHO's reminder was deleted at P-4.06 and LUSD's at P-4.16, exactly as
+    P-4.02 said 4B and 4C would. `OWED` is now EMPTY, so the guard is asserted
+    on an unknown token instead - which is the branch that outlives the pilot.
     """
-    for token, step in (("LUSD", "Step 4C"),):
-        with pytest.raises(AssemblyStop) as exc:
-            execute(tmp_path, "http://rpc.invalid", token)
-        assert token in str(exc.value) and step in str(exc.value)
+    with pytest.raises(AssemblyStop) as exc:
+        execute(tmp_path, "http://rpc.invalid", "USDe")
+    assert "USDe" in str(exc.value) and "pilot tokens" in str(exc.value)
 
     with pytest.raises(AssemblyStop) as exc:
         execute(tmp_path, "http://rpc.invalid", "crvUSDD")
     assert "unknown token" in str(exc.value)
+
+
+def test_det62_supply_confirmation_uses_the_run_s_own_token(monkeypatch):
+    """R8 (ruled P-4.13). `run.py` handed the harness the crvUSD constant
+    UNCONDITIONALLY, so GHO's confirmation legs would have asked about crvUSD.
+    Latent - the legs open only inside DET-62's > 0.25 jump branch - and fixed
+    before a third token could inherit it (P-4.16).
+    """
+    from factory.validate.harness import fetch_supply_confirmations
+    asked: list[str] = []
+
+    def fake_get(url):
+        asked.append(url)
+        return {"result": "1", "total_supply": "1"}
+
+    fetch_supply_confirmations({"http_get": fake_get, "token_address": "0xabc",
+                                "etherscan_api_key": "k"})
+    assert asked and all("0xabc" in u for u in asked)
+
+    # an ABSENT address is a missing confirmation, never a request for whatever
+    # the empty string resolves to
+    asked.clear()
+    out = fetch_supply_confirmations({"http_get": fake_get, "token_address": ""})
+    assert asked == [] and set(out.values()) == {None}

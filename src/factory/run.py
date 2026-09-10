@@ -15,6 +15,7 @@ import time
 from decimal import Decimal
 
 from factory.adapters import gho as gho_adapter
+from factory.adapters import lusd as lusd_adapter
 from factory.adapters.crvusd import discover_lend_markets
 from factory.config import Config, load
 from factory.discovery import (
@@ -61,6 +62,7 @@ from factory.schema import (
 )
 from factory.spotcheck import write as write_spotcheck
 from factory.spotcheck import write_gho as write_spotcheck_gho
+from factory.spotcheck import write_lusd as write_spotcheck_lusd
 from factory.validate.harness import TRIGGER_TABLE, run_harness
 
 PIPELINE_VERSION = "0.1.0"
@@ -474,8 +476,26 @@ def _event_log(repo: pathlib.Path, token: str) -> pathlib.Path:
 # and the step that owes it. The lookup runs BEFORE the config load and
 # before `RpcClient` is constructed, so an unbuilt adapter cannot reach the
 # network. Steps 4B and 4C delete their `OWED` row when the adapter lands.
-ASSEMBLIES = {"crvUSD": assemble, "GHO": gho_adapter.assemble}
-OWED = {"LUSD": "Step 4C"}
+ASSEMBLIES = {"crvUSD": assemble, "GHO": gho_adapter.assemble,
+              "LUSD": lusd_adapter.assemble}
+# EMPTY at P-4.16: the three pilot adapters all exist. The dict stays because
+# the shape is the contract - a fourth token (USDe, Step 10) gets a row here
+# and stops before any RPC call until its adapter lands.
+OWED: dict[str, str] = {}
+
+
+# R8's helper. The token address is a per-token fact, so it comes from that
+# token's own signed root - crvUSD's is the module constant it has always been,
+# and a token with no such root returns "" rather than a wrong address, which
+# `fetch_supply_confirmations` reads as a MISSING confirmation (P-4.16).
+_TOKEN_ROOT = {"GHO": "gho_token", "LUSD": "lusd_token"}
+
+
+def _token_address(cfg: Config, token: str) -> str:
+    if token == "crvUSD":
+        return CRVUSD
+    root_id = _TOKEN_ROOT.get(token)
+    return cfg.roots[root_id].address if root_id in cfg.roots else ""
 
 
 def _assembly_for(token: str):
@@ -508,7 +528,8 @@ def execute(repo: pathlib.Path, rpc_url: str, token: str) -> dict:
            # legs are read ONLY if the > 0.25 jump branch opens, so an ordinary
            # run makes zero HTTP calls for DET-62.
            "http_get": catalog_get,
-           "token_address": CRVUSD,
+           # R8 (P-4.13): the TOKEN'S OWN address, never crvUSD's constant.
+           "token_address": _token_address(cfg, token),
            "etherscan_api_key": _env(repo, "ETHERSCAN_API_KEY"),
            # DET-10(a) and DET-77's second limb chain to the event log; the
            # harness does no file I/O of its own (P-3.43 ruling 1).
@@ -543,6 +564,10 @@ def execute(repo: pathlib.Path, rpc_url: str, token: str) -> dict:
     if token == "GHO":
         sheet_path = write_spotcheck_gho(stamped, repo / "out/spotcheck/GHO",
                                          gho=cfg.root("gho_token").address)
+    elif token == "LUSD":
+        sheet_path = write_spotcheck_lusd(stamped, repo / "out/spotcheck/LUSD",
+                                          lusd=cfg.root("lusd_token").address,
+                                          extra=extra)
     else:
         sheet_path = write_spotcheck(
             stamped, repo / "out/spotcheck", crvusd=CRVUSD,

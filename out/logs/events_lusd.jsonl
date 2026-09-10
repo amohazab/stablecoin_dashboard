@@ -1,1 +1,2 @@
 {"date":"2026-09-10","set_file_hash":null,"sheet_hash":"c7298252","source":"P-4.15","token":"LUSD","type":"intake_trigger"}
+{"date":"2026-09-10","freeze_block":25948081,"set_file_hash":"fa6eb720","set_file_path":"config/frozen_set_lusd.json","source":"P-4.16 — LUSD freeze, |F| = 1 at coverage 0.9798, no R-20 waiver","token":"LUSD","type":"freeze"}
