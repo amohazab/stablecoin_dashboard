@@ -5791,3 +5791,40 @@ Status: IN PROGRESS (opened 2026-09-08).
   `out/logs/events_lusd.jsonl`; `tests/test_harness.py`; `PROGRESS.md`.
 - **Follow-ups spawned:** LUSD run 1 as P-4.18, then run 2 no earlier
   than 24 h after run 1's block; the ETH/USD heartbeat, still owed.
+
+## P-4.18 — LUSD run 1
+
+- **Date:** 2026-09-10
+- **Type:** implementation
+- **Confirmed by:** Amin
+- **Content:**
+  **LUSD's first run, against commit `d019e52`** — tree clean but for the
+  untracked `out/rehearsal/GHO/`. `uv run python -m factory.run LUSD`.
+  `run_block` **25948170**, `block_timestamp` 1789057535 =
+  **2026-09-10 16:25:35 UTC**, DET-83 freshness 84 s, **8.7 s wall on 290
+  pinned reads and ZERO pointer requests** — the control's cost, against GHO's
+  ~16,500 reads and 260 s. **22/22 pass, worst_level 0, zero triggers.**
+  DET-86: `first_run` **true** on a genuinely empty `out/bundles/LUSD/`, all
+  three literals present, `baseline_source` **`freeze_set_file`** with its
+  one-time note — the state P-3.43 said would be true exactly once per token.
+  `sheet_hash c7298252`; `frozen_set_hash` **`fa6eb720`** chained to the
+  P-4.17 `freeze` event; `freeze_date` 2026-09-10. `bundle_hash`
+  **`0e79d272…`**, `raw_positions_hash` `cc4c2b34…`;
+  `out/bundles/LUSD/25948170.json` **17,601 B** against GHO's 52,811,
+  **promoted after** `out/spotcheck/LUSD/25948170.md` (9,843 B, zero `apikey`).
+  R1 is visible in the artifact: all four LLAMMA fields serialise `null` here
+  and still carry values on crvUSD. One market (73 troves, interest 0), one
+  node (ETH, `terminal`, share 1), one oracle row, one path, nine admin rows,
+  one pool, 14 below floor. **The ten items**, every address read from the
+  bundle: 0 the pin self-test; 1 `totalSupply()`; 2 `getTroveOwnersCount()`;
+  3 the largest trove's `getEntireDebtAndColl`; 4 ActivePool `getETH()`;
+  5 `getTCR` against the emitted `system_tcr`; 6 PriceFeed `status()`;
+  7 `lastGoodPrice()`, which lags by design; 8 the frozen pool's LUSD side;
+  9 the largest escrow's balance; 10 LUSDToken's EIP-1967 slot.
+  **Amin's spot-check is pending.** T-17's clock runs from freeze block
+  **25948081** (2026-09-10), 2 days of the 100-day bound. **Run 2 is owed no
+  earlier than 2026-09-11 16:25:35 UTC.**
+- **Artifacts:** `out/bundles/LUSD/25948170.json` (promoted);
+  `out/spotcheck/LUSD/25948170.md` (gitignored); `PROGRESS.md`.
+- **Follow-ups spawned:** Amin's spot-check; LUSD run 2 ≥ 24 h after this
+  block; then Step 4's closing entry.
