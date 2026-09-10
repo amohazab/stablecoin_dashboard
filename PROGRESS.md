@@ -5592,3 +5592,46 @@ Status: IN PROGRESS (opened 2026-09-08).
 - **Artifacts:** `PROGRESS.md` alone.
 - **Follow-ups spawned:** GHO run 2; the LUSD signed edit with its
   three-mirror/three-trigger machinery; the LUSD build; Block D's LLAMMA block.
+
+## P-4.14 — GHO run 2; the Step 4B done-condition
+
+- **Date:** 2026-09-10
+- **Type:** implementation
+- **Confirmed by:** Amin
+- **Content:**
+  **GHO run 2** against `62ce275`, no tracked path dirty. `run_block`
+  **25946240**, `block_timestamp` 1789034303 = **2026-09-10 09:58:23 UTC**,
+  DET-83 freshness 82 s, 459.8 s wall, 2,150 live positions. **22/22 pass,
+  worst_level 0, zero triggers.** `first_run` **false**, literals null,
+  **`baseline_source` `prior_bundle`** — the one-time set-file fallback is
+  spent. `bundle_hash` **`be82e530…`**, `raw_positions_hash` `d6dd7504…`;
+  `out/bundles/GHO/25946240.json` 52,568 B, **promoted after**
+  `out/spotcheck/GHO/25946240.md` (10,889 B, zero `apikey`).
+  **DET-86 located the prior at 25939006 and the delta checks ran for the
+  first time:** supply unchanged (jump 0.0, DET-62's legs never opened), mint
+  count 3 → 3, composition shift 0.0081, the F pool's ratio 0.9211260 →
+  0.9211074, all three detector lists empty.
+  **THE DONE-CONDITION, three legs.** (i) **MET** — two runs **24.21 h**
+  apart, 2026-09-09 09:45:47 and 2026-09-10 09:58:23 UTC, both 22/22 at worst
+  level 0. (ii) **MET** — Amin verified all ten run-1 items at 25939006
+  against Etherscan, 0-10 PASS. (iii) **MET** — Amin verified all ten run-2
+  items at 25946240 against Etherscan, PASS, no mismatch.
+  Present-and-empty, as ruled: the oracle heartbeats (FR-G13, dated analyst
+  row, owed); **T-02** — DET-32 unimplemented for GHO as for crvUSD, X ≈ 0.94
+  standing as the §11.6 open point, not a computed field; the Fluid pointer
+  queued (P-4.04 R4). **T-17:** `freeze_date` 2026-09-08 against `run_date`
+  2026-09-10 — 2 days of the 100-day bound.
+  **AS-COUNTED, the agent's:** the first invocation died on a raw
+  `ChunkedEncodingError` and wrote nothing — fail-closed held. It is
+  attributable: `discovery.fetch_candidates` wraps its transport into
+  `AssemblyStopFromDiscovery`, `logs_pointer.get_logs` wraps nothing, so the
+  break was the Etherscan pointer. **A defect, mine:** the pointer transport
+  has no fail-closed wrapper naming the condition, and no retry. Flagged, not
+  fixed — no code changed this session. Re-invoked unchanged; that run is the
+  one above.
+  **STEP 4B DONE** — two runs 24.21 h apart, both 22/22 at worst level 0, both
+  matching Amin's spot-check; unbuilt items disclosed present-and-empty.
+- **Artifacts:** `out/bundles/GHO/25946240.json` (promoted);
+  `out/spotcheck/GHO/25946240.md` (gitignored); `PROGRESS.md`.
+- **Follow-ups spawned:** pointer transport retry / named stop on transport
+  error — Step 8, with the cron; the LUSD signed edit.
