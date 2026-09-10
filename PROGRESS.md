@@ -5635,3 +5635,43 @@ Status: IN PROGRESS (opened 2026-09-08).
   `out/spotcheck/GHO/25946240.md` (gitignored); `PROGRESS.md`.
 - **Follow-ups spawned:** pointer transport retry / named stop on transport
   error — Step 8, with the cron; the LUSD signed edit.
+
+## P-4.15 — The signed LUSD intake edit; the three-mirror machinery
+
+- **Date:** 2026-09-10
+- **Type:** decision + implementation
+- **Confirmed by:** Amin
+- **Content:**
+  **TWO SIGNATURE LINES, one event:** the sheet edit, and the rubric's
+  sheets-line refresh — DET-87's `rubric_change`, a hash change rather than a
+  claim. **THREE HUNKS.** GHO's `aweETH`/LRT row → `terminal_other_layer`, its
+  `acbETH` row → `recurses`, both from memo §4.5, replacing `**row needed** —
+  memo open point 2`; **no `[ANALYST-SUPPLIED]` marker for cbETH's cadence** —
+  minting a dated fact with no source is worse than carrying it owed. Third,
+  LUSD's `first_run_reads[]` registry, 13 rows FR-L01…FR-L13, in the sheet's
+  own form. Both GHO tags survive, so GHO stays at 46. **ARTIFACTS.** Sheet
+  **`d2114a96` → `c7298252`**, 62,935 → 67,353 B, 366 → 384 lines, CR 0;
+  identities **34 = 34, 46 = 46, 13 = 13**; the crvUSD section byte-identical,
+  the GHO section differing in exactly two rows. Rubric **`bb874d04` →
+  `4a8be241`**, 83,457 B unchanged; memo and checklist untouched. Mirrors
+  `crvusd_sheet.toml` **`a75ca7ea` → `d0bc6a3f`** and `gho_sheet.toml`
+  **`1dcec1db` → `e608c9d2`** — rows equal OBJECT-FOR-OBJECT, only
+  `sheet_hash` moved, byte counts unchanged; `lusd_sheet.toml` **created
+  `05dcf0f5`**, 5,185 B, 13 rows, `attribution_method = "direct"` — ONE
+  COLLATERAL, nothing to apportion. Logs `events_crvusd` **`2a6cd3a7` →
+  `2615bfd8`** (5 lines), `events_gho` **`c2eaf890` → `b5306f4c`** (4),
+  `events_lusd` **created `af4e9440`** (1), all three `intake_trigger` at
+  `c7298252`, 2026-09-10; LUSD's `set_file_hash` is null, so **DET-10(a) fails
+  closed for LUSD until its freeze**. **TESTS:** `test_discovery`'s pinned
+  `d2114a96` → `c7298252`; `test_schema`'s reproduce test covers three
+  mirrors, its identity test gains `LUSD == 13`. 111 passed — assertions added
+  to existing tests; ruff clean. **`TOKEN_FILES`** gains LUSD; `load(config,
+  "LUSD")` raises `FileNotFoundError` on `lusd_roots.toml` today. **GHO's
+  chain moved only after its pair closed at P-4.14**, never mid-pair.
+- **Artifacts:** `docs/context/` `intake-sheets-cdp.md` · `rubic_v1.md`;
+  `config/` three `*_sheet.toml` mirrors; `out/logs/` three `events_*.jsonl`;
+  `src/factory/` `config.py` · `mirror.py`; `tests/` `test_discovery.py` ·
+  `test_schema.py`; `PROGRESS.md`.
+- **Follow-ups spawned:** the LUSD build — `lusd_roots.toml`;
+  `lusd_labels.toml` with the composite and four bridge rows; schema
+  R1/R2/R3; the adapter; the DET-62 fix; the freeze; run 1.

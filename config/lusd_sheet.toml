@@ -1,0 +1,111 @@
+# DERIVED MIRROR - NOT AUTHORITATIVE (P-3.04 binding).
+# Source of truth: docs/context/intake-sheets-cdp.md, LUSD section.
+# Derived from sheet version sha256_first8 = c7298252 (signed 2026-09-04, P-3.12).
+# DET-77's sheet_hash check binds this mirror to that source; drift is caught
+# mechanically, never trusted away. Regenerated, never hand-patched.
+schema_version = 1
+sheet_hash = "c7298252"
+
+near_bound_threshold = 0.80
+counterparties = "n/a - archetype #1 holds no off-chain counterparties"
+attribution_method = "direct"
+member2_target = ""   # null until the R-a1 refresh (Step 6/7); nothing consumes it in Step 3
+
+# first_run_reads[] - 13 rows mirrored from the stamped sheet.
+# status stays "open" until a stamped sheet edit retires the prose tag (P-3.14).
+
+[[first_run_read]]
+tag_id = "FR-L01"
+sheet_location = "LUSD § Contracts to read"
+bundle_field_path = "`markets[0].address` plus `config/lusd_roots.toml`"
+read_spec = "anchor `LUSD` analyst-supplied and dated; `LUSD.troveManagerAddress()`, then `TM.activePool()`, `TM.defaultPool()`, `TM.stabilityPool()`, `TM.priceFeed()`, `TM.sortedTroves()` and `TM.lusdToken()` closing back on the anchor; CSP by reverse closure"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-L02"
+sheet_location = "LUSD § Pool set"
+bundle_field_path = "`pools[]`, `frozen_set`"
+read_spec = "Curve API catalog as POINTER per declared registry class, `pool.balances(i)` at par on-chain as VERDICT (the P-3.28 pattern); 3CRV routes to the composite pass-through (memo §4.3), crvUSD to the analyzed-token rule (memo §4.1)"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-L03"
+sheet_location = "LUSD § Pool set — off-venue"
+bundle_field_path = "`offvenue_share`"
+read_spec = "DET-32 `X = 1 − curve/total` over the disclosed Ethereum DEX venue set; Curve-only modeling in Step 4 (P-4.04 R4), so present-and-empty"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-L04"
+sheet_location = "LUSD § Pool set — bridged"
+bundle_field_path = "`supply.bridges[]`"
+read_spec = "`LUSD.balanceOf(escrow)` per SIGNED bridge row — amount only; `bridge_type` from the DET-33 menu, never inferred from a balance (C-1)"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-L05"
+sheet_location = "LUSD § Oracle sources"
+bundle_field_path = "`oracle_rows[0].feed_or_source`"
+read_spec = "`TM.priceFeed()`, then `PF.priceAggregator()`, `PF.tellorCaller()`, `PF.status()` and `PF.lastGoodPrice()`; the aggregator's `latestRoundData()` and `decimals()`; the price itself from a `PF.fetchPrice()` eth_call simulation at `run_block` (P-4.13 R4)"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-L06"
+sheet_location = "LUSD § Redemption-rights R10"
+bundle_field_path = "`redemption_paths[0].r10_provenance`"
+read_spec = "TroveManager address by FR-L01's closure; `redeemCollateral` selector present in `eth_getCode(TM)`"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-L07"
+sheet_location = "LUSD § Admin surface — `mint` A2"
+bundle_field_path = "`admin_surface[mint].holder`"
+read_spec = "the only minter is the immutable `LUSD.borrowerOperationsAddress()`; holder `none` evidenced by a selector-absence scan over `eth_getCode(LUSD)` for any setter or role-grant function (F4 shape)"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-L08"
+sheet_location = "LUSD § Admin surface — `mint` A6"
+bundle_field_path = "`admin_surface[mint].upgradeability`"
+read_spec = "EIP-1967 implementation slot on LUSD; all-zero => `immutable`, recorded as an absence read"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-L09"
+sheet_location = "LUSD § Admin surface — `mint` A8"
+bundle_field_path = "`admin_surface[mint].reads`"
+read_spec = "provenance of the FR-L07 and FR-L08 reads"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-L10"
+sheet_location = "LUSD § Admin surface — `upgrade` A2"
+bundle_field_path = "`admin_surface[upgrade].holder`"
+read_spec = "EIP-1967 admin slot on each of the seven contracts; all-zero => `none`, recorded as absence reads"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-L11"
+sheet_location = "LUSD § Admin surface — `pause` A2"
+bundle_field_path = "`admin_surface[pause].holder`"
+read_spec = "selector-absence scan over `eth_getCode` of the seven for `pause`, `unpause` and `setPaused`; ownership renounced, evidenced by a storage-slot read of the owner slot returning zero"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-L12"
+sheet_location = "LUSD § Qualifier block"
+bundle_field_path = "`admin_surface[].holder_type` all `none`"
+read_spec = "the nine A1 rows jointly; the qualifier is asserted only if every row's holder is `none` under FR-L07 to FR-L11's absence evidence"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-L13"
+sheet_location = "LUSD § Audit status"
+bundle_field_path = "`static_metadata.last_material_change_audited`"
+read_spec = "`no` by construction — no code change is possible; evidenced by FR-L08's and FR-L10's zero slots rather than asserted"
+status = "open"
+
+# ---- Deferred by ruling, present-and-empty -------------------------------
+# sell_side_capacity - per volatile node; lands at the R-a1 refresh (R-a4).
+# m4_fields[]        - Step 6.
+# bias_table[]       - Step 6 (Appendix C seed).

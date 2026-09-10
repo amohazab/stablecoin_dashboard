@@ -246,6 +246,9 @@ def test_mirror_generator_reproduces_the_committed_mirror():
     gho = (REPO / "config/gho_sheet.toml").read_text(encoding="utf-8")
     assert generate(sheet, "GHO") == gho, (
         "mirror diff is a FINDING, never patched over")
+    lusd = (REPO / "config/lusd_sheet.toml").read_text(encoding="utf-8")
+    assert generate(sheet, "LUSD") == lusd, (
+        "mirror diff is a FINDING, never patched over")
 
 
 def test_mirror_preserves_det75_identity():
@@ -254,6 +257,8 @@ def test_mirror_preserves_det75_identity():
         parse_first_run_reads(sheet, "crvUSD")) == 34
     assert count_first_run_tags(sheet, "GHO") == len(
         parse_first_run_reads(sheet, "GHO")) == 46
+    assert count_first_run_tags(sheet, "LUSD") == len(
+        parse_first_run_reads(sheet, "LUSD")) == 13
 
 
 def test_det10c_detector_fields_are_required_at_the_model():

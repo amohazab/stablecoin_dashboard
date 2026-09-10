@@ -108,6 +108,14 @@ TOKEN_FILES: dict[str, dict[str, str]] = {
                "sheet": "crvusd_sheet.toml", "frozen_set": "frozen_set_crvusd.json"},
     "GHO": {"roots": "gho_roots.toml", "labels": "gho_labels.toml",
             "sheet": "gho_sheet.toml", "frozen_set": "frozen_set_gho.json"},
+    # P-4.15: declared with the sheet edit so `lusd_sheet.toml` is loadable and
+    # the mirror's reproduce test can cover three tokens. `lusd_roots.toml` and
+    # `lusd_labels.toml` are the BUILD session's and do not exist yet, so
+    # `load(config_dir, "LUSD")` raises FileNotFoundError today. That is the
+    # honest state: the declaration says which files LUSD will read, not that
+    # they are there.
+    "LUSD": {"roots": "lusd_roots.toml", "labels": "lusd_labels.toml",
+             "sheet": "lusd_sheet.toml", "frozen_set": "frozen_set_lusd.json"},
 }
 
 

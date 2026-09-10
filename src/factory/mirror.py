@@ -82,7 +82,12 @@ def extract_cbbtc_disclosure(sheet_path: pathlib.Path, token: str) -> dict[str, 
 # (P-4.06): crvUSD is `direct` as it has always been; GHO is `per_position`,
 # which is P-4.04 R2's Route A, and the sheet's own "Primary: pro-rata per
 # position". Nothing else in the header varies by token.
-ATTRIBUTION_METHOD = {"crvUSD": "direct", "GHO": "per_position"}
+# LUSD is `direct` for a different reason than crvUSD's: not one method per
+# market, but ONE COLLATERAL. Every trove's collateral is ETH, so the whole of
+# backing attributes to the single §4.5 ETH node with nothing to apportion -
+# the pro-rata denominator GHO needs (P-4.04 R2) does not exist here. Added at
+# P-4.15 because `generate(sheet, "LUSD")` cannot render without it.
+ATTRIBUTION_METHOD = {"crvUSD": "direct", "GHO": "per_position", "LUSD": "direct"}
 
 
 def generate(sheet_path: pathlib.Path, token: str) -> str:

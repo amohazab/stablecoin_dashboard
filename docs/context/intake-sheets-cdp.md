@@ -174,8 +174,8 @@ Note: PegKeeper pools and Curve pools are markets, not redemption (§5); holder 
 | aUSDT → USDT | USDT | `recurses` (Tether) |
 | aDAI / aUSDS / asDAI → DAI/USDS | DAI/USDS | `recurses_truncated` (Sky) [FIRST-RUN READ: attribution] |
 | aLINK, aAAVE, other governance tokens | governance/volatile | `terminal` |
-| aweETH / other LRTs | LRT | **row needed** — memo open point 2 [FIRST-RUN READ: attribution] |
-| acbETH | cbETH | **row needed** — memo open point 2 [FIRST-RUN READ: attribution] |
+| aweETH / other LRTs | LRT | `terminal_other_layer` — memo §4.5 LRT-family row (ruled 2026-09-02; §11 item 2 resolved) [FIRST-RUN READ: attribution] |
+| acbETH | cbETH | `recurses` — memo §4.5 cbETH row (ruled 2026-09-02; §11 item 2 resolved); disclosure cadence re-scoped to this sheet by that row and still owed [FIRST-RUN READ: attribution] |
 | GSM boxed USDC / USDT | USDC / USDT | `recurses` |
 | Any other | — | unlisted → §8.2 quarantine rule |
  
@@ -364,3 +364,21 @@ Expected verifiability result: 100% `terminal`. Any second node is an unlisted n
 **Audit status (memo §14):** audits [VERIFIED 2026-09-01: Trail of Bits (with invariants), Coinspect (2021-03) — coinspect.com; TokenBrice summary]; bug bounty [ANALYST-SUPPLIED 2026-09-01: Curve: bug bounty program stated on docs (platform/max not surfaced); GHO: Immunefi (LlamaRisk Mar 2026); Liquity: active bounty (TokenBrice) — max values first-run analyst entry]; last material change audited: n/a — immutable, no changes since deployment [FIRST-RUN READ: live value]. Staleness date: set at Phase B. Never scored.
  
 **Counterparty enumeration (memo §14):** n/a — archetype #1 holds no off-chain counterparties.
+ 
+**`first_run_reads[]` (DET-75 / R-45)** — registry of every FIRST-RUN READ tag on this sheet's LUSD section, resolved to a concrete read. **Count identity: 13 literal tags = 13 open rows.** All reads at `run_block`. Liquity v1 has no factory and no registry: the set is reached by CONTRACT CLOSURE from one analyst-supplied anchor, the LUSD token itself, every other address being a getter on a contract already in the set (memo §9's analyst-supplied branch). Shorthand: **LUSD** = 0x5f98805A4E8be255a32880FDeC7F6728C6568bA0 · **TM** = TroveManager, from `LUSD.troveManagerAddress()` · **AP / DP / SP / PF / ST** = `TM.activePool()` / `TM.defaultPool()` / `TM.stabilityPool()` / `TM.priceFeed()` / `TM.sortedTroves()` · **CSP** = CollSurplusPool, reached in REVERSE — `collSurplusPool` is non-public on both TroveManager and BorrowerOperations, so CSP's own `troveManagerAddress()`, `activePoolAddress()` and `borrowerOperationsAddress()` are its closure evidence. `sheet_location` is a section anchor rather than a line number, so the registry survives later edits.
+ 
+| tag_id | sheet_location | bundle_field_path | read_spec | status |
+|---|---|---|---|---|
+| FR-L01 | LUSD § Contracts to read | `markets[0].address` plus `config/lusd_roots.toml` | anchor `LUSD` analyst-supplied and dated; `LUSD.troveManagerAddress()`, then `TM.activePool()`, `TM.defaultPool()`, `TM.stabilityPool()`, `TM.priceFeed()`, `TM.sortedTroves()` and `TM.lusdToken()` closing back on the anchor; CSP by reverse closure | open |
+| FR-L02 | LUSD § Pool set | `pools[]`, `frozen_set` | Curve API catalog as POINTER per declared registry class, `pool.balances(i)` at par on-chain as VERDICT (the P-3.28 pattern); 3CRV routes to the composite pass-through (memo §4.3), crvUSD to the analyzed-token rule (memo §4.1) | open |
+| FR-L03 | LUSD § Pool set — off-venue | `offvenue_share` | DET-32 `X = 1 − curve/total` over the disclosed Ethereum DEX venue set; Curve-only modeling in Step 4 (P-4.04 R4), so present-and-empty | open |
+| FR-L04 | LUSD § Pool set — bridged | `supply.bridges[]` | `LUSD.balanceOf(escrow)` per SIGNED bridge row — amount only; `bridge_type` from the DET-33 menu, never inferred from a balance (C-1) | open |
+| FR-L05 | LUSD § Oracle sources | `oracle_rows[0].feed_or_source` | `TM.priceFeed()`, then `PF.priceAggregator()`, `PF.tellorCaller()`, `PF.status()` and `PF.lastGoodPrice()`; the aggregator's `latestRoundData()` and `decimals()`; the price itself from a `PF.fetchPrice()` eth_call simulation at `run_block` (P-4.13 R4) | open |
+| FR-L06 | LUSD § Redemption-rights R10 | `redemption_paths[0].r10_provenance` | TroveManager address by FR-L01's closure; `redeemCollateral` selector present in `eth_getCode(TM)` | open |
+| FR-L07 | LUSD § Admin surface — `mint` A2 | `admin_surface[mint].holder` | the only minter is the immutable `LUSD.borrowerOperationsAddress()`; holder `none` evidenced by a selector-absence scan over `eth_getCode(LUSD)` for any setter or role-grant function (F4 shape) | open |
+| FR-L08 | LUSD § Admin surface — `mint` A6 | `admin_surface[mint].upgradeability` | EIP-1967 implementation slot on LUSD; all-zero => `immutable`, recorded as an absence read | open |
+| FR-L09 | LUSD § Admin surface — `mint` A8 | `admin_surface[mint].reads` | provenance of the FR-L07 and FR-L08 reads | open |
+| FR-L10 | LUSD § Admin surface — `upgrade` A2 | `admin_surface[upgrade].holder` | EIP-1967 admin slot on each of the seven contracts; all-zero => `none`, recorded as absence reads | open |
+| FR-L11 | LUSD § Admin surface — `pause` A2 | `admin_surface[pause].holder` | selector-absence scan over `eth_getCode` of the seven for `pause`, `unpause` and `setPaused`; ownership renounced, evidenced by a storage-slot read of the owner slot returning zero | open |
+| FR-L12 | LUSD § Qualifier block | `admin_surface[].holder_type` all `none` | the nine A1 rows jointly; the qualifier is asserted only if every row's holder is `none` under FR-L07 to FR-L11's absence evidence | open |
+| FR-L13 | LUSD § Audit status | `static_metadata.last_material_change_audited` | `no` by construction — no code change is possible; evidenced by FR-L08's and FR-L10's zero slots rather than asserted | open |

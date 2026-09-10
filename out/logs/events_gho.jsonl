@@ -1,3 +1,4 @@
 {"date":"2026-09-08","set_file_hash":null,"sheet_hash":"d2114a96","source":"P-4.05","token":"GHO","type":"intake_trigger"}
 {"date":"2026-09-08","freeze_block":25934895,"set_file_hash":"4351fd28","set_file_path":"config/frozen_set_gho.json","source":"P-4.10","token":"GHO","type":"freeze"}
 {"date":"2026-09-08","freeze_block":25934895,"set_file_hash":"36a681a7","set_file_path":"config/frozen_set_gho.json","source":"P-4.11 — serialization correction of the P-4.10 freeze; decision unchanged","token":"GHO","type":"freeze"}
+{"date":"2026-09-10","set_file_hash":"36a681a7","sheet_hash":"c7298252","source":"P-4.15","token":"GHO","type":"intake_trigger"}

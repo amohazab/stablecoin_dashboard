@@ -1,10 +1,10 @@
 # DERIVED MIRROR - NOT AUTHORITATIVE (P-3.04 binding).
 # Source of truth: docs/context/intake-sheets-cdp.md, GHO section.
-# Derived from sheet version sha256_first8 = d2114a96 (signed 2026-09-04, P-3.12).
+# Derived from sheet version sha256_first8 = c7298252 (signed 2026-09-04, P-3.12).
 # DET-77's sheet_hash check binds this mirror to that source; drift is caught
 # mechanically, never trusted away. Regenerated, never hand-patched.
 schema_version = 1
-sheet_hash = "d2114a96"
+sheet_hash = "c7298252"
 
 near_bound_threshold = 0.80
 counterparties = "n/a - archetype #1 holds no off-chain counterparties"
