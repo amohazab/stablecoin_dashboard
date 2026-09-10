@@ -28,6 +28,12 @@ from factory.provenance import (  # noqa: F401
     Provenance,
 )
 
+# R2 (ruled P-4.13): native ETH is keyed `0xeeee...eeee`, Curve's convention and
+# already present in this repo's catalog data. NO CHANGE WAS NEEDED HERE - the
+# pattern admits it as written, and `eth_getCode` at that address is empty. The
+# ruling is a naming convention, not a type relaxation: the key is a NAME, and
+# nothing may read a balance or code at it. LUSD's ETH figure comes from
+# ActivePool.getETH() + DefaultPool.getETH() (P-4.16).
 Address = Annotated[str, StringConstraints(pattern=r"^0x[0-9a-f]{40}$")]
 
 # ---------------------------------------------------------------- header ----
@@ -82,14 +88,34 @@ class PositionCompleteness(BaseModel):
 
 
 class Market(BaseModel):
+    """One origination unit of a CDP that mints against posted collateral.
+
+    R1 (ruled P-4.13). FOUR OF THESE FIELDS WERE LLAMMA LEAKAGE. `Market` was
+    written from crvUSD alone, and LUSD - the simplicity control, whose whole
+    job is to ask whether the common schema fits a second CDP - has 16 of the
+    20 exactly, and no analogue at all for `amm_address`, `monetary_policy_
+    address`, `a_coefficient` and `slot_base_verified`: a trove system has no
+    AMM, no per-market rate contract, no LLAMMA `A`, and no band storage slot
+    to verify. They are OPTIONAL from here, so LUSD carries `markets[]` with
+    one row rather than a third table, and DET-01/03/04/07/82 keep iterating
+    one list. crvUSD sets all four exactly as before and its bundle does not
+    move a byte - asserted by re-assembling block 25934920 to `bundle_hash
+    dfbcd558...` (P-3.15's pattern).
+
+    THE HONEST FIX IS NOT THIS ONE. These four belong in a nested optional
+    LLAMMA block, so the shape says which fields are one mechanism's rather
+    than leaving four holes in a common model. That is Block D's queue, by
+    name (P-4.13). Recorded here so the compromise is visible in the type.
+    """
+
     address: Address                                        # controller
-    amm_address: Address
+    amm_address: Address | None = None                      # R1: LLAMMA-only
     collateral_address: Address
-    monetary_policy_address: Address
+    monetary_policy_address: Address | None = None          # R1: LLAMMA-only
     symbol: str                                             # display only
     origination_class: Literal["mint", "lend"]              # DET-07
     decimals: int
-    a_coefficient: int
+    a_coefficient: int | None = None                        # R1: LLAMMA-only
     n_positions: int
     principal_sum: int                                      # DET-03
     accrued_interest_sum: int
@@ -100,7 +126,7 @@ class Market(BaseModel):
     external_collateral_sum: int
     external_collateral_value: int                          # DET-81, priced
     position_completeness: PositionCompleteness
-    slot_base_verified: int
+    slot_base_verified: int | None = None                   # R1: LLAMMA-only
     reads: dict[str, Provenance]
     lineage: list[Lineage]
 
@@ -542,6 +568,23 @@ class Bundle(BaseModel):
     facilitators: list[Facilitator] = []
     gsms: list[Gsm] = []
     pools: list[PoolRow] = []
+    # R3 (ruled P-4.13). DET-66 resolves R7 either by a DOTTED PATH FROM THE
+    # BUNDLE ROOT or, for GHO, by row identity. LUSD's R7 - "ActivePool +
+    # DefaultPool ETH at oracle price" - resolves by neither: it is a figure
+    # over two contracts, and `markets.external_collateral_value` is a table,
+    # not a path. Rather than admit a third resolver or an index, the adapter
+    # EMITS the number the path names. Optional, because only a token whose R7
+    # is this shape carries it; `reads` is required whenever it is present.
+    redeemable_collateral_value: int | None = None
+    redeemable_collateral_reads: dict[str, Provenance] = {}
+    # FLAGGED ADDITION, not covered by R3 (P-4.16, awaiting Amin's ruling).
+    # DET-66's R6 requires `state_conditional(C)` to name a field that resolves
+    # from the bundle root, by the same resolver R3 addresses. LUSD's gate is
+    # the sheet's `state_conditional(TCR < MCR)`, and NO bundle field carried a
+    # system TCR. Emitting it is the same shape of fix R3 already is; the
+    # alternatives were to misclassify the gate as `capacity_limited` (loses the
+    # condition) or to point C at an unrelated field (false). Reversible.
+    system_tcr: Decimal | None = None
     pool_detectors: PoolDetectors
     static_metadata: StaticMetadata
     counts: Counts
@@ -557,6 +600,11 @@ class Bundle(BaseModel):
             raise ValueError("DET-68: nine A1 powers required")
         if self.first_run_literals is None and self.header.first_run:
             raise ValueError("first_run bundle must carry its literals")
+        # R3: the scalar is optional, its provenance is not. A figure DET-66
+        # will resolve against must say where it came from (C-2).
+        if self.redeemable_collateral_value is not None and \
+                not self.redeemable_collateral_reads:
+            raise ValueError("redeemable_collateral_value without provenance")
         # P-4.06 queued this move: the identity was enforced in the adapter
         # while no GHO bundle existed to hang it on. It lives here now.
         if self.facilitators:

@@ -5675,3 +5675,56 @@ Status: IN PROGRESS (opened 2026-09-08).
 - **Follow-ups spawned:** the LUSD build — `lusd_roots.toml`;
   `lusd_labels.toml` with the composite and four bridge rows; schema
   R1/R2/R3; the adapter; the DET-62 fix; the freeze; run 1.
+
+## P-4.16 — LUSD config signed; schema R1/R2/R3 and `system_tcr`; the proof standard
+
+- **Date:** 2026-09-10
+- **Type:** decision + implementation
+- **Confirmed by:** Amin
+- **Content:**
+  **CONFIG, SIGNED.** `lusd_roots.toml` **`6a896703`** (5,179 B): ONE analyst
+  anchor (the LUSD token) plus CollSurplusPool, which NO forward getter
+  reaches - `collSurplusPool` is non-public on both TroveManager and
+  BorrowerOperations - and which rests on its own three reverse getters; the
+  five derived contracts named as never-configurable; a pin-only reuse of
+  crvUSD's signed `pool_factory_old`; `lend_factory = []`; and the signed
+  `[[frozen_pool_index]]` row. `lusd_labels.toml` **`1ea371d5`** (6,971 B):
+  ETH keyed `0xeeee…eeee`, THE REPO'S FIRST COMPOSITE (3CRV
+  `composite_passthrough`, its DAI/USDC/USDT constituents read per run from
+  3pool `balances(i)` because memo §4.3 makes composition a run-block field
+  and forbids labelling the LP token itself), crvUSD analyzed-set, four dated
+  `[[bridge]]` rows. `PairedAsset.label` is `str`, so no widening:
+  `composite_passthrough` is first READ at Step 5. The ETH/USD heartbeat is
+  OWED - no row exists, and the oracle row carries `heartbeat_s = None`.
+  **SCHEMA.** **R1:** `Market`'s `amm_address`, `monetary_policy_address`,
+  `a_coefficient` and `slot_base_verified` become optional, so LUSD carries
+  `markets[]` with one row and DET-01/03/04/07/82 keep iterating ONE list. The
+  honest fix is a nested optional LLAMMA block - four holes in a common model
+  is a compromise, not a design - and that is **Block D's queue, by name**;
+  the type says so. **R2** needed no type change and is recorded as a naming
+  convention in `schema.py`. **R3 and `system_tcr`:** two declared root
+  additions, because DET-66 resolves R7 and R6's `C` only by a dotted path
+  from the bundle root - LUSD's R7 spans two contracts and its gate is `TCR <
+  MCR`. A model validator makes the scalar optional and its PROVENANCE
+  mandatory: a figure DET-66 resolves against must say where it came from
+  (C-2). **THE PROOF, in its recorded form:** R1 byte-clean under a
+  counterfactual that restores the pre-P-4.15 `sheet_hash`; R3 moves the hash
+  as `pools`/`facilitators` did before it (P-3.46, P-4.06). Re-assembled at
+  25934920 with `run_start_time` and `sheet_hash` pinned, the FULL diff is
+  `header.sheet_hash` plus the three declared additions - all null or empty on
+  crvUSD - and NOTHING else; excluding them leaves 0 differences and
+  reproduces **`dfbcd558…`** byte-equal. This is now the standing standard for
+  a schema change. Its regression test is the STORE: every stored bundle must
+  still load through `PriorBundle`, which is what P-3.46 broke once and killed
+  a run before its first read. **AS-COUNTED, the agent's:** `lend_factory =
+  []` written at the FOOT of the roots file landed inside the last `[[root]]`
+  table - a bare TOML key after a table header belongs to that table - so the
+  loader read `not_configured` instead of `explicit_empty`, which is the
+  Morpho double-count guard. Caught by the loader before any run; the reason
+  is recorded in the file so it cannot recur. **The design layer's:** the
+  `dfbcd558` re-assembly was unmeetable the moment P-4.15 re-stamped the
+  sheet, one session before it was set as this session's gate.
+- **Artifacts:** `config/lusd_roots.toml` · `config/lusd_labels.toml`;
+  `src/factory/schema.py`; `tests/test_schema.py`; `PROGRESS.md`.
+- **Follow-ups spawned:** the adapter, freeze and verdict as P-4.17;
+  Block D's queue gains the nested-LLAMMA block by name.

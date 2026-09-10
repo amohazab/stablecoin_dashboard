@@ -251,6 +251,24 @@ def test_mirror_generator_reproduces_the_committed_mirror():
         "mirror diff is a FINDING, never patched over")
 
 
+def test_every_stored_bundle_still_loads_as_a_prior():
+    """R3's regression test (ruled P-4.16).
+
+    A `Bundle` field addition moves every future `bundle_hash` - it enters the
+    model dump and so the preimage. That is a recorded shape change with
+    precedent (`pools`/`pool_detectors`/`lend_markets` at P-3.46,
+    `facilitators`/`gsms` at P-4.06), and the thing that must NOT break is the
+    STORE: `load_prior` reads every shape ever written. P-3.46 is the reason -
+    making `pool_detectors` required once made every stored bundle
+    undeserializable and killed a run before its first read.
+    """
+    from factory.schema import PriorBundle
+    stored = sorted((REPO / "out/bundles").glob("*/*.json"))
+    assert stored, "no promoted bundles to regression-test against"
+    for f in stored:
+        PriorBundle(**json.loads(f.read_text(encoding="utf-8")))
+
+
 def test_mirror_preserves_det75_identity():
     sheet = REPO / "docs/context/intake-sheets-cdp.md"
     assert count_first_run_tags(sheet, "crvUSD") == len(

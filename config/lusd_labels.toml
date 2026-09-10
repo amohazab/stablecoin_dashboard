@@ -1,0 +1,122 @@
+# LUSD label config — SIGNED 2026-09-10 (P-4.16).
+
+schema_version = 1
+
+# ---- §4 node rows (DET-02) --------------------------------------------------
+# ONE node. Liquity v1 accepts ETH and nothing else, so any second node is an
+# adapter bug and routes to §8.2 quarantine (LUSD sheet).
+#
+# NATIVE ETH HAS NO CONTRACT, and the schema is address-keyed by the first hard
+# gate — so ETH needs a key. Ruled P-4.13 R2 to Curve's own convention,
+# 0xEeee...EEeE, which this repo's catalog data already carries. `eth_getCode`
+# at that address is EMPTY (verified, block 25946704): the key is a NAME, never
+# a contract to read. The ETH figure comes from ActivePool.getETH() +
+# DefaultPool.getETH(), never from a balance at this address.
+[[node]]
+address = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+symbol = "ETH"
+label = "terminal"
+node_class = "volatile"
+lst_discount_applies = false
+label_source = "memo 4.5 `ETH (native)` row, which names LUSD explicitly; LUSD sheet node table"
+date = 2026-09-10
+
+# ---- paired assets (DET-11) -------------------------------------------------
+# THE REPO'S FIRST COMPOSITE (memo §4.3). 3CRV is an LP token, not a stable.
+# The memo's rule: an LP token whose constituents are ALL §4-labeled passes
+# through pro-rata to those constituents AT THE POOL'S CURRENT COMPOSITION — a
+# data field read at the run's block. So the composition is NOT recorded here:
+# the three constituent rows below give the labels, and 3pool `balances(i)` at
+# `run_block` gives the weights. Memo §4.3 explicitly REJECTS labeling the LP
+# token `recurses_truncated`, so it carries no four-state label of its own.
+# Guard: if any constituent were unlisted, the LP token would be unlisted.
+[[paired_asset]]
+address = "0x6c3f90f043a72fa612cbac8115ee7e52bde6e490"
+symbol = "3CRV"
+label = "composite_passthrough"
+label_source = "memo 4.5 `Basepool LP tokens (3CRV-type) as paired assets` row, which names LUSD; pass-through rule memo 4.3"
+note = "Composite. Par-eligible at 1 LP UNIT (R-16: no external price enters par valuation), which understates the side by 3.8% against get_virtual_price() 1.039824 at block 25946704 — disclosed, not corrected (P-4.13). Constituents: DAI, USDC, USDT rows below; weights read per run from 3pool 0xbebc44782c7db0a1a60cb6fe97d0b483032ff1c7 balances(i)."
+date = 2026-09-10
+
+[[paired_asset]]
+address = "0x6b175474e89094c44da98b954eedeac495271d0f"
+symbol = "DAI"
+label = "recurses_truncated"
+label_source = "memo 4.5 `DAI / USDS (incl. sDAI/sUSDS via 4.3)` row — Sky reserves, not analyzed"
+note = "3CRV constituent (memo 4.3 composite pass-through), not a direct LUSD pair"
+date = 2026-09-10
+
+[[paired_asset]]
+address = "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+symbol = "USDC"
+label = "recurses"
+label_source = "memo 4.5 USDC row — Circle attestation; same row config/labels.toml signed at P-3.24"
+note = "3CRV constituent (memo 4.3 composite pass-through)"
+date = 2026-09-10
+
+[[paired_asset]]
+address = "0xdac17f958d2ee523a2206206994597c13d831ec7"
+symbol = "USDT"
+label = "recurses"
+label_source = "memo 4.5 USDT row — Tether attestation; same row config/labels.toml signed at P-3.24"
+note = "3CRV constituent (memo 4.3 composite pass-through)"
+date = 2026-09-10
+
+[[paired_asset]]
+address = "0xf939E0A03FB07F59A73314E73794Be0E57ac1b4E"
+symbol = "crvUSD"
+label = "recurses_truncated"
+label_source = "memo 4.1 analyzed-set linking rule; symmetric to the GHO row in config/gho_labels.toml (P-4.08)"
+note = "Analyzed-set token: Level 1 'analyzed token, tree pending' until crvUSD's tree publishes at Step 5, and NOT shocked in Member 2 (memo 6.2.5). Its only LUSD pool, 0x9978c6b08d28d3b74437c917c5dd7c026df9d55c, held $2,280 at par at block 25939186 — far below the floor and outside F."
+date = 2026-09-10
+
+# ---- bridges (DET-33 / C-1) -------------------------------------------------
+# Four L1 escrows. `bridge_type` comes from the DET-33 menu and is established
+# from the CONTRACT'S IDENTITY — never inferred from a balance (C-1). Each row
+# was verified by reading the proxy's ContractName and, where the standard slot
+# answers, its implementation's ContractName; the LUSD balance is recorded as
+# evidence of relevance, not as the basis of the type. Amounts are read per run.
+# Total across the four was 471,732 LUSD = 1.79% of supply at block 25939186.
+[[bridge]]
+address = "0x99C9fc46f92E8a1c0deC1b1747d010903E884bE1"
+name = "Optimism L1StandardBridge"
+bridge_type = "lock_and_mint"
+verification = "L1ChugSplashProxy -> EIP-1967 impl 0xb37a11aadf167b2f0b8dd85372de4bc66cd4a891 ContractName=L1StandardBridge; LUSD balance 240,664.69 at block 25946704"
+source = "canonical OP Stack L1 escrow; same address signed for crvUSD in config/discovery_roots.toml (P-3.35), re-verified 2026-09-10"
+date = 2026-09-10
+
+[[bridge]]
+address = "0xa3A7B6F88361F48403514059F1f16C8E78d60EeC"
+name = "Arbitrum L1 ERC20 Gateway"
+bridge_type = "lock_and_mint"
+verification = "TransparentUpgradeableProxy -> EIP-1967 impl 0xb4299a1f5f26ff6a98b7ba35572290c359fde900 ContractName=L1ERC20Gateway; LUSD balance 208,376.58 at block 25946704"
+source = "canonical Arbitrum L1 gateway; same address signed for crvUSD in config/discovery_roots.toml (P-3.35), re-verified 2026-09-10"
+date = 2026-09-10
+
+[[bridge]]
+address = "0x3154Cf16ccdb4C6d922629664174b904d80F2C35"
+name = "Base L1StandardBridge"
+bridge_type = "lock_and_mint"
+verification = "L1ChugSplashProxy -> EIP-1967 impl 0x61525eaacddb97d9184afc205827e6a4fd0bf62a ContractName=L1StandardBridge; LUSD balance 20,608.52 at block 25946704"
+source = "canonical OP Stack L1 escrow; same address signed for crvUSD in config/discovery_roots.toml (P-3.35), re-verified 2026-09-10"
+date = 2026-09-10
+
+[[bridge]]
+address = "0x40ec5B33f54e0E8A33A975908C5BA1c14e5BbbDf"
+name = "Polygon PoS ERC20 Predicate"
+bridge_type = "lock_and_mint"
+verification = "ContractName=ERC20PredicateProxy; implementation NOT at the EIP-1967 slot (slot reads zero) — this proxy uses Polygon's own pattern, so the implementation was not confirmed by the route the other three use. LUSD balance 2,081.59 at block 25946704"
+source = "canonical Polygon PoS ERC20 predicate; NOT among crvUSD's three signed escrows — new to this file"
+date = 2026-09-10
+
+# ---- ETH/USD heartbeat: OWED, deliberately absent --------------------------
+# T-26's heartbeat for the Chainlink ETH/USD feed is off-chain metadata and
+# needs a dated analyst value (data.chain.link). None was supplied at signature,
+# so NO ROW EXISTS and the oracle row carries `heartbeat_s = None` with its
+# adapter class naming why (P-4.13 R4, FR-L05). Present-and-empty, never zero.
+
+# ---- reference feeds: none, by structure ------------------------------------
+# DET-55's gap column compares a protocol oracle against an independent market
+# feed. LUSD's PriceFeed IS the Chainlink ETH/USD aggregator, so there is no
+# second feed to compare it to and the row carries `no_reference_feed` —
+# a structural fact, not a missing config row.

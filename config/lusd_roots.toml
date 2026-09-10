@@ -1,0 +1,84 @@
+# LUSD discovery roots — SIGNED 2026-09-10 (P-4.16).
+#
+# THE HARD GATE, and why two analyst rows satisfy it. "No hardcoded market /
+# pool / collateral / stabilizer lists. Discovery from factory, registry or
+# regulator contracts — or a staleness-tracked analyst-supplied list." Liquity
+# v1 has NO factory and NO registry: the seven contracts were deployed once and
+# wired once by `setAddresses`, which then renounced ownership. Memo §9's
+# analyst-supplied branch is the ruled route (LUSD sheet, Contracts to read).
+#
+# The list is kept AS SHORT AS THE CHAIN ALLOWS: one anchor, plus the one
+# address no getter reaches. Every other contract is DERIVED per run and must
+# never appear here — see the derivation block below.
+
+schema_version = 1
+
+# ---- lend factories: EXPLICIT EMPTY, never not_configured (P-3.17) ---------
+# Liquity v1 has no lend factory and no lend market. The three-state
+# distinction is the Morpho double-count guard: an absent list must never
+# render as "no lend markets exist".
+#
+# THIS KEY MUST PRECEDE EVERY `[[root]]` TABLE. A bare key after a table header
+# belongs to that table in TOML, so writing it at the foot of the file put it
+# INSIDE the last root and the loader read `not_configured` (found at P-4.16 by
+# the loader, before any run).
+lend_factory = []
+
+[[root]]
+id = "lusd_token"
+address = "0x5f98805A4E8be255a32880FDeC7F6728C6568bA0"
+role = "numeraire + closure anchor; totalSupply(), balanceOf(), troveManagerAddress(), stabilityPoolAddress(), borrowerOperationsAddress()"
+derivation_route = "analyst anchor"
+closure_evidence = "the closure CLOSES on this address rather than resting on it: TroveManager.lusdToken() returns 0x5f98805a... at block 25939186, and TroveManager was itself reached from LUSD.troveManagerAddress()"
+source = "intake-sheets-cdp.md, LUSD section, Contracts to read [FIRST-RUN READ: addresses per Liquity deployment registry]; sheet version c7298252, FR-L01"
+date = 2026-09-10
+
+[[root]]
+id = "coll_surplus_pool"
+address = "0x3D32e8b97Ed5881324241Cf03b2DA5E2EBcE5521"
+role = "redemption/liquidation surplus custody; getETH() — recorded, NEVER backing: the ETH here is claimable by former trove owners"
+derivation_route = "reverse closure"
+closure_evidence = "no forward getter reaches it — `collSurplusPool` is non-public on both TroveManager and BorrowerOperations and REVERTS on each. Its own three getters, read at block 25939186, return contracts already in the set: borrowerOperationsAddress() -> 0x24179cd81c9e782a4096035f7ec97fb8b783e007, troveManagerAddress() -> 0xa39739ef8b0231dbfa0dcda07d7e29faabcf4bb2, activePoolAddress() -> 0xdf9eb223bafbe5c5271415c75aecd68c21fe3d7f. Wired by the same one-shot setAddresses call (P-4.13 R6)"
+source = "intake-sheets-cdp.md, LUSD section, Contracts to read; the address itself rests on the reverse closure above and on nothing else"
+date = 2026-09-10
+
+# DERIVED PER RUN — never configured, never a row here (P-4.13 R6):
+#   TroveManager   <- LUSD.troveManagerAddress()
+#   ActivePool     <- TroveManager.activePool()
+#   DefaultPool    <- TroveManager.defaultPool()
+#   StabilityPool  <- TroveManager.stabilityPool()
+#   PriceFeed      <- TroveManager.priceFeed()
+#
+# SortedTroves is reachable by TroveManager.sortedTroves() and is deliberately
+# NOT read: enumeration uses TroveManager's own getTroveOwnersCount() and
+# TroveOwners(i), which batch into ONE aggregate3 where the sorted-list walk is
+# N sequential round trips. GasPool is never read either — it closes neither
+# forward nor in reverse, and the gas-compensation figure is
+# TroveManager.LUSD_GAS_COMPENSATION() times the trove count.
+
+# ---- Curve enumeration: PIN-ONLY REUSE, not a third discovery root ----------
+# The address crvUSD signed at P-3.35 and GHO reused at P-4.11. Not re-derived:
+# the registry is a property of Curve, not of the token.
+[[root]]
+id = "pool_factory_old"
+address = "0xB9fC157394Af804a3578134A6585C0dc9cc990d4"
+role = "Curve pool enumeration (pool_count/pool_list) for DET-10(d)-ii"
+derivation_route = "pin-only reuse of a signed root"
+closure_evidence = "pool_count() = 381 at block 25946704 — the same count recorded at its 2026-09-04 signature in config/discovery_roots.toml"
+source = "sourced to config/discovery_roots.toml's `pool_factory_old` row (P-3.35), unchanged"
+date = 2026-09-10
+
+# ---- DET-10(d)-ii disappearance test: the frozen pool's factory index -------
+# SIGNED 2026-09-10 (P-4.16). `factory()` REVERTS on this pool, which is
+# precisely the case P-3.46 ruled the factory-SIDE test for: the factory is
+# asked what it lists rather than the pool being asked to vouch for itself.
+# The index is stable because `pool_list` is append-only in this factory - the
+# same property crvUSD's rows rest on.
+[[frozen_pool_index]]
+pool = "0xed279fdd11ca84beef15af5d39bb4d4bee23f0ca"
+factory_root = "pool_factory_old"
+index = 16
+found_at_block = 25948081
+date = 2026-09-10
+method = "pool_list walk at freeze time: pool_count() = 381, the pool appears at exactly one index (16), and still_enumerated() confirms it; pool.factory() reverts"
+member_coins = ["0x5f98805a4e8be255a32880fdec7f6728c6568ba0", "0x6c3f90f043a72fa612cbac8115ee7e52bde6e490"]
