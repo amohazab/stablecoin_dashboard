@@ -429,11 +429,20 @@ class AdminRow(BaseModel):
     holder_type: Literal["eoa", "multisig", "dao_governance", "timelock",
                          "contract_automated", "none"]
     delay_seconds: int | None = None
-    delay_bucket: Literal["none", "<24h", "1-7d", ">7d"] | None = None
+    # DET-68's printed bucket literals verbatim - `1–7d` with the EN DASH
+    # (P-5.01 R15(a)); the ASCII hyphen this set carried until then matched
+    # nothing the rubric prints.
+    delay_bucket: Literal["none", "<24h", "1–7d", ">7d"] | None = None
     veto_address: Address | None = None
     upgradeability: Literal["immutable", "proxy_upgradeable"] | None = None
     scope: list[Address] = []
-    provenance: Provenance
+    provenance: Provenance                                   # DET-68 A8: the holder read
+    # C-2's map (P-3.08) for a row with a second provenanced value. Today one
+    # key, `delay_seconds`, carrying the dated analyst row an off-chain-governed
+    # holder's A4 comes from (P-5.01 R13). `delay_bucket` is a DET-68 replay,
+    # not a read, so it has no entry. Moving `provenance` itself in here is
+    # P-4.01 #22, not done (P-5.02).
+    reads: dict[str, Provenance] = {}
     live_model_input: bool = False
     consumed_by: list[str] = []
 

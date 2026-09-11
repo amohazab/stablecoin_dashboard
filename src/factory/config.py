@@ -140,6 +140,11 @@ class Config:
     # facilitator the selector probe returns `unresolved`; absence keeps it.
     facilitator_classes: dict[str, dict] = field(default_factory=dict)
     unlabeled_by_threshold: dict | None = None
+    # DET-68 A4 for off-chain-governed holders (P-5.01 R13): dated analyst rows
+    # keyed by lower-cased HOLDER ADDRESS, never by holder type - two crvUSD
+    # holders share `dao_governance` with different delays. Absent is not an
+    # error here; the adapter stops on a holder that needs a row and has none.
+    admin_delays: dict[str, dict] = field(default_factory=dict)
 
     def root(self, root_id: str) -> Root:
         if root_id not in self.roots:
@@ -238,8 +243,17 @@ def load(config_dir: Path, token: str) -> Config:
             raise ValueError(f"duplicate facilitator_class address: {a}")
         fac_cls[a] = {"facilitator_class": f["facilitator_class"],
                       "classified_on": _date(f["classified_on"]), "source": f["source"]}
+    admin_delays = {}
+    for d in list(roots_raw.get("admin_delay", [])) + list(labels_raw.get("admin_delay", [])):
+        a = d["holder_address"].lower()
+        if a in admin_delays:
+            raise ValueError(f"duplicate admin_delay holder_address: {a}")
+        admin_delays[a] = {"holder_name": d["holder_name"],
+                           "delay_seconds": int(d["delay_seconds"]),
+                           "delay_bucket": d["delay_bucket"],
+                           "source": d["source"], "date": _date(d["date"])}
     return Config(token=token, frozen_set_path=config_dir / files["frozen_set"],
-                  facilitator_classes=fac_cls,
+                  facilitator_classes=fac_cls, admin_delays=admin_delays,
                   unlabeled_by_threshold=labels_raw.get("unlabeled_by_threshold"),
                   roots=roots, labels=labels, paired=paired, lend=lend, sheet=sheet_raw,
                   bridges=bridges, reference_feeds=refs, por_feeds=pors,

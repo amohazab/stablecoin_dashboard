@@ -279,7 +279,7 @@ def read_admin_surface(rpc, s: dict[str, str], csp: str) -> tuple[list[AdminRow]
                 block=rpc.run_block)
             up = None
         rows.append(AdminRow(power=power, holder_address=None, holder_type="none",
-                             delay_seconds=None, delay_bucket=None,
+                             delay_seconds=0, delay_bucket="none",  # R14, P-5.01
                              upgradeability=up, scope=[], provenance=prov,
                              live_model_input=False, consumed_by=[]))
     return rows, reads

@@ -5956,3 +5956,43 @@ Status: IN PROGRESS (opened 2026-09-11).
 - **Follow-ups spawned:** C0, then the tree; C1 GHO tail + A4 + `det_68` + run
   3; C2 GSM identity + boxed node; C3 staleness + GHO sheet + mirror; C4 3pool
   composition + rename.
+
+## P-5.02 — C0 applied: A4 from dated rows; crvUSD run 5
+
+- **Date:** 2026-09-11
+- **Type:** implementation
+- **Confirmed by:** Amin
+- **Content:**
+  **SCHEMA:** `AdminRow.reads: dict[str, Provenance]`, C-2's map (P-3.08), one
+  key `delay_seconds` (`AnalystSupplied`); `provenance` stays the A8 holder
+  read; bucket literal `1–7d`, en dash. **PROOF (P-4.16):** crvUSD
+  re-assembled at 25934920, `run_start_time`/`sheet_hash` pinned, 88.2 s,
+  nothing written to `out/`; 31 leaves differ — 27 A4/`reads`, `bundle_hash`,
+  and P-4.16's three proven root additions the P-4.10 bundle predates;
+  stripped, `dfbcd558…` reproduces exactly. `PriorBundle` loads all 8 stored
+  bundles. **LOADER** `config.py`: `[[admin_delay]]` by lower-cased
+  `holder_address`, duplicates rejected. **EMITTERS:** `run.py` `_admin_delay`
+  looks up the discovered holder, `AssemblyStop` naming it if no row; `none`
+  holders 0/`none`; `lusd.py:282` likewise. **ROWS:** two signed in
+  `discovery_roots.toml` (`b4cc70eb`, 13,879 B). Tests 114 → 116; ruff clean.
+  **RUN 5** (`3d8ddeb` + the C0 files, uncommitted, per the ruled order):
+  block 25956063, 2026-09-11 18:50:11 UTC, freshness 82 s, 86.4 s; **22/22,
+  level 0, no triggers**; `sheet_hash` d2114a96 → **c7298252**, first crvUSD
+  run on P-4.15's sheet, nothing fired; `frozen_set_hash` 80d87407;
+  `prior_bundle`; `bundle_hash` **`6b081bf8…`**; 65,919 B; spot-check zero
+  `apikey`. **Rows:** mint/set_ceiling/set_oracle/set_parameters `0xb7400d2e…`
+  604800 `1–7d`; pause `0x467947ee…` 0 `none`, both `dao_governance` with
+  `reads` [`delay_seconds`]; four `none` 0 `none` []. **vs 25934920:** max
+  Δshare wstETH +0.0139; no node in/out; counts 9/52/96 and supply unchanged.
+  **AS-COUNTED, design layer:** the crvUSD perimeter literal (9 controllers /
+  8 collaterals; third class `0x370a449f…`, P-3.39); C0.2's location, `run.py`
+  not the adapter; "no stored bundle carries a bucket value" (GHO's carry
+  `none`); R13 first keyed by holder type, and "GHO conforms" — both caught at
+  the gate. **Noted:** crvUSD's admin surface is in `run.py`, GHO's and LUSD's
+  in adapters. **R2:** the tree changes no `Bundle` shape; C0 did.
+- **Artifacts:** `src/factory/` `schema.py` · `config.py` · `run.py` ·
+  `adapters/lusd.py`; `config/discovery_roots.toml`; `tests/test_harness.py`;
+  `out/bundles/crvUSD/25956063.json`; `PROGRESS.md`.
+- **Follow-ups spawned:** P-4.01 **#22** `provenance` into `reads["holder"]`,
+  three emitters. **Flagged → C1:** `gho.py:746` returns ASCII `"1-7d"`. Next:
+  the tree, from 25956063.

@@ -287,3 +287,25 @@ bridge_type = "lock_and_mint"
 verification = "L1ChugSplashProxy -> impl L1StandardBridge; crvUSD balance 372,820 at block 25905900"
 source = "docs.curve.finance FastBridge/supported-chains (2026-09-04): minted on Ethereum only; native bridges + LayerZero"
 date = 2026-09-04
+
+# ---- admin delays (DET-68 A4 / DET-70) --------------------------------------
+# ANALYST-SUPPLIED, keyed by HOLDER ADDRESS — never by holder type: two crvUSD
+# holders share `dao_governance` and have different delays (P-5.02). Off-chain
+# governance delays have no on-chain getter; the sheet verified them and these
+# rows emit them. One owner: the sheet's crvUSD §13 table; each row cites its
+# line and is superseded by any signed sheet edit that changes it (P-5.01 R13).
+[[admin_delay]]
+holder_address = "0xb7400d2ea0f6dc1d7b153aa430b9e572f28afb79"
+holder_name = "Curve DAO ownership agent"
+delay_seconds = 604800
+delay_bucket = "1–7d"
+source = "intake-sheets-cdp.md, crvUSD §13, `mint` row A4 [VERIFIED 2026-09-01: 7-day vote (30% quorum / 51% support for ownership votes); execution permissionless immediately after the vote passes — no post-vote timelock. Raw 604,800s; bucket 1–7d (at edge)]"
+date = 2026-09-01
+
+[[admin_delay]]
+holder_address = "0x467947ee34af926cf1dcac093870f613c96b1e0c"
+holder_name = "Emergency DAO agent (5-of-9 multisig 0x6d447e544d01a59cb0774763bf15526574cfffed behind it)"
+delay_seconds = 0
+delay_bucket = "none"
+source = "intake-sheets-cdp.md, crvUSD §13, `pause` row [VERIFIED 2026-09-01: Emergency DAO can kill PegKeeper Provide/Withdraw via regulator.set_killed …] and `mint` row A5 [VERIFIED 2026-09-01: Emergency DAO 5-of-9 multisig 0x6d447e54… (agent 0x467947EE…); powers limited to emergency actions]; a Safe executes on signatures — no vote period, no timelock"
+date = 2026-09-01

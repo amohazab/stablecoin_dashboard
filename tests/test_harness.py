@@ -18,8 +18,9 @@ from factory.discovery import still_enumerated
 from factory.eventlog import FreezeEvent, IntakeTriggerEvent, last_event
 from factory.logbook import Logbook, is_first_run, load_prior
 from factory.provenance import AbsenceRead
-from factory.run import AssemblyStop, execute
+from factory.run import AssemblyStop, _admin_delay, execute
 from factory.schema import (
+    AdminRow,
     Counts,
     LogEntry,
     PoolDetectors,
@@ -574,3 +575,46 @@ def test_det62_supply_confirmation_uses_the_run_s_own_token(monkeypatch):
     asked.clear()
     out = fetch_supply_confirmations({"http_get": fake_get, "token_address": ""})
     assert asked == [] and set(out.values()) == {None}
+
+
+def test_admin_delay_off_chain_holder_without_a_row_stops():
+    """R13 (P-5.01): an off-chain-governed holder's A4 comes from a dated row
+    keyed by its ADDRESS; a holder with no row stops, never emits a null."""
+    from factory.config import load
+    cfg = load(pathlib.Path(__file__).resolve().parents[1] / "config", "crvUSD")
+    with pytest.raises(AssemblyStop) as exc:
+        _admin_delay(cfg, "0x" + "ab" * 20)
+    assert "0x" + "ab" * 20 in str(exc.value) and "admin_delay" in str(exc.value)
+
+
+def test_crvusd_nine_admin_rows_take_their_a4_forms():
+    """R13/R14 against the repo config and the nine holders of a promoted crvUSD
+    bundle: the ownership agent 604800 / `1–7d`, the Emergency DAO agent 0 /
+    `none` - two holders sharing `dao_governance`, keyed apart by address - and
+    every `none` holder 0 / `none`. `reads` carries only `delay_seconds`."""
+    from factory.config import load
+    root = pathlib.Path(__file__).resolve().parents[1]
+    cfg = load(root / "config", "crvUSD")
+    stored = json.loads((root / "out/bundles/crvUSD/25934920.json").read_text(encoding="utf-8"))
+    forms = {}
+    for r in stored["admin_surface"]:
+        if r["holder_type"] == "none":
+            row = AdminRow(power=r["power"], holder_address=None, holder_type="none",
+                           delay_seconds=0, delay_bucket="none",
+                           provenance=AbsenceRead(**r["provenance"]))
+        else:
+            row = AdminRow(power=r["power"], holder_address=r["holder_address"],
+                           holder_type=r["holder_type"], provenance=r["provenance"],
+                           **_admin_delay(cfg, r["holder_address"]))
+            assert set(row.reads) == {"delay_seconds"}
+            assert row.reads["delay_seconds"].kind == "analyst_supplied"
+        forms[r["power"]] = (row.delay_seconds, row.delay_bucket)
+    week = (604800, "1–7d")
+    assert forms == {"mint": week, "set_ceiling": week, "set_oracle": week,
+                     "set_parameters": week, "pause": (0, "none"), "upgrade": (0, "none"),
+                     "freeze_asset": (0, "none"), "blacklist_address": (0, "none"),
+                     "seize": (0, "none")}
+    with pytest.raises(ValueError):   # R15(a): the ASCII hyphen is no longer a member
+        AdminRow(power="mint", holder_address=None, holder_type="none",
+                 delay_seconds=604800, delay_bucket="1-7d",
+                 provenance=AbsenceRead(**stored["admin_surface"][2]["provenance"]))

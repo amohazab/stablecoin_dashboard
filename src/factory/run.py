@@ -144,6 +144,21 @@ def resolve_ema_window(rpc, oracle: str, seen: set[str] | None = None,
     return best, hops
 
 
+def _admin_delay(cfg: Config, holder: str) -> dict:
+    """DET-68 A4 for an off-chain-governed holder, from its dated
+    `[[admin_delay]]` row, looked up by the HOLDER ADDRESS this run discovered
+    (P-5.01 R13). No row is a stop, never a null: the delay of a key that can
+    rewrite backing is not optional."""
+    row = cfg.admin_delays.get(holder.lower())
+    if row is None:
+        raise AssemblyStop(f"DET-68 A4: admin holder {holder} has no [[admin_delay]] "
+                           "row; an off-chain-governed holder's delay is never null "
+                           "(P-5.01 R13)")
+    return {"delay_seconds": row["delay_seconds"], "delay_bucket": row["delay_bucket"],
+            "reads": {"delay_seconds": AnalystSupplied(source=row["source"],
+                                                       date=row["date"])}}
+
+
 def _getter_of(cfg: Config, factory: str) -> str:
     """The signed `market_getter` for a factory address (3.1b)."""
     for row in cfg.lend.rows:
@@ -384,16 +399,20 @@ def assemble(cfg: Config, rpc: RpcClient, repo: pathlib.Path, token: str,
             admin.append(AdminRow(power=p, holder_address=cf_admin,
                                   holder_type="dao_governance", scope=[cf, reg],
                                   veto_address=veto,
-                                  provenance=_cr(cf, "admin()", rb)))
+                                  provenance=_cr(cf, "admin()", rb),
+                                  **_admin_delay(cfg, cf_admin)))
         elif p == "pause":
             admin.append(AdminRow(power=p, holder_address=e_admin,
                                   holder_type="dao_governance", scope=[reg],
                                   provenance=_cr(reg, "emergency_admin()", rb),
                                   live_model_input=True,
-                                  consumed_by=["DET-45 is_killed"]))
+                                  consumed_by=["DET-45 is_killed"],
+                                  **_admin_delay(cfg, e_admin)))
         else:
+            # R14 (P-5.01): no holder -> DET-68's replay `0 -> none`, never null.
             admin.append(AdminRow(
                 power=p, holder_address=None, holder_type="none",
+                delay_seconds=0, delay_bucket="none",
                 upgradeability="immutable" if (p == "upgrade" and immutable) else None,
                 provenance=AbsenceRead(contract=cf, method="selector_absence_scan",
                                        evidence="no matching selector", block=rb)))
