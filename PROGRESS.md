@@ -40,7 +40,7 @@ Record: out/step3-evidence.md; src/factory/; config/. Post-pair application
 DONE at P-3.47 (2026-09-08).
 
 ## Step 4 — GHO + LUSD adapters
-Status: IN PROGRESS (opened 2026-09-08).
+Status: DONE (opened 2026-09-08; done-condition met 2026-09-11, P-4.20). Record: src/factory/; config/; out/.
 
 ## P-3.01 — Block 0.1 anomaly dispositions; Python stack ruling; checksum task
 - **Date:** 2026-09-03
@@ -5866,3 +5866,45 @@ Status: IN PROGRESS (opened 2026-09-08).
   `out/spotcheck/LUSD/25955393.md` (gitignored); `PROGRESS.md`.
 - **Follow-ups spawned:** Amin's run-2 spot-check, then Step 4's closing entry
   as P-4.20.
+
+## P-4.20 — Step 4 closed: three adapters, one harness
+
+- **Date:** 2026-09-11
+- **Type:** decision
+- **Confirmed by:** Amin
+- **Content:**
+  **STEP 4 IS DONE.** Three adapters, ONE memo and ONE harness, each meeting
+  brief §8.3's condition on its own evidence: **crvUSD** (P-3.41) 55.73 h
+  apart, both 20/20; **GHO** (P-4.14) 24.21 h, both 22/22 at worst level 0;
+  **LUSD** (P-4.19 + here) 24.17 h at blocks 25948170 and 25955393, both 22/22
+  at worst level 0. All three spot-checked by Amin; LUSD 0-10 PASS at BOTH
+  blocks, item 8 identical on both transports at 1,788,294.60 LUSD. Leg (iii)
+  met; **Step 4C DONE**. **BLOCK D — extracted from TWO implementations, never
+  guessed from one (P-3.04).** The pool pass into `discovery.py` (P-4.11,
+  proven by re-assembly); the A5 resolver into `labels_runtime.py` (P-4.10);
+  the set-file serializer into `freeze.py` (P-4.11, proven byte-for-byte);
+  `DeviationHeartbeat`, built for GHO at P-4.08 and REUSED unchanged by LUSD;
+  and `Market` made honest by R1, four LLAMMA fields optional, the
+  nested-block fix **queued by name**. Nothing else was extracted on the
+  strength of one caller. **THE SCHEMA-GENERALITY VERDICT: GHO needed a
+  sibling table, LUSD needed four fields nulled, and nothing needed a
+  redesign.** **PRESENT-AND-EMPTY, across three tokens.** Heartbeats: GHO's
+  per-feed list and LUSD's ETH/USD value, dated analyst rows, still owed - the
+  rows carry `heartbeat_s = None` and name their adapter class, never zero.
+  **T-02 / DET-32** unimplemented for all three; X ~ 0.94 stands as the §11.6
+  open point, pending Step 6's P5 pointer. The parked queue (**P-4.01**); the
+  Fluid open point (**P-4.04 R4**). The GHO sheet's stale cbETH note - and its
+  LRT sibling - FIXED at P-4.15. Step-8: the Etherscan pointer transport has
+  no retry and no named stop on a transport error — with the cron. **T-17
+  CLOCKS**, all far inside the 100-day bound: crvUSD 2026-09-04, GHO
+  2026-09-08, LUSD 2026-09-10. **ENTRY LENGTH:** P-4.16 (52) and P-4.17 (62)
+  are the ceiling, not P-4.10 — content ruled in line by line. **STEP 5'S
+  FIRST RULING, named now because the tree publishes percentages:** the
+  `supply_ruled` DENOMINATOR (P-4.01 #3). Every adapter sets it to
+  `total_supply` today; a tree reporting shares of backing must say which
+  supply it is a share OF - GHO's 699M ceiling against 186M drawn makes that
+  unavoidable.
+- **Artifacts:** `PROGRESS.md` (the `## Step 4` status line); `CLAUDE.md`
+  ("Where implementation stands").
+- **Follow-ups spawned:** Step 5, the verifiability module, opening on the
+  `supply_ruled` denominator; the heartbeats; the Step-8 transport line.
