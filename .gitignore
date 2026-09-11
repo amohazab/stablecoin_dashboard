@@ -9,3 +9,5 @@ __pycache__/
 out/raw/
 # May contain a substituted API key (P-3.13 binding 1)
 out/spotcheck/
+# Aborted runs and failing trees - never promoted, never committed (P-3.38, P-5.03)
+out/rehearsal/

@@ -16,7 +16,7 @@ from dataclasses import dataclass
 from decimal import Decimal
 
 from factory.provenance import AbsenceRead, AnalystSupplied, ContractRead
-from factory.schema import Bundle, GateResult
+from factory.schema import Bundle, GateResult, VerifiabilityTree
 
 # Trigger table, mirrored from rubric §3. DET-12 compares this to the printed
 # table row-for-row at S0; a mismatch means the pipeline does not start.
@@ -47,7 +47,7 @@ class NotYetImplemented(Exception):
 @dataclass
 class Check:
     entry_id: str
-    stage: str            # "S0" | "S1"
+    stage: str            # "S0" | "S1" | "S2" (S2 takes `(bundle, tree)`; factory.tree)
     level_on_fail: int
     fn: Callable
 
@@ -761,6 +761,135 @@ def det_10(b: Bundle, ctx) -> tuple[str, int] | None:
     return None
 
 
+# --------------------------------------------------------------- S2 --------
+# The tree's four entries (P-5.01 R6). Each takes `(bundle, tree)` and is run
+# by `factory.tree` through `run_tree_checks`, never by `run_harness`, so an
+# ordinary run is unchanged. DET-17/DET-18 are S3 - Step 7.
+
+TREE_TOL = Decimal("1e-6")
+DET11_LABELS = {"terminal", "terminal_other_layer", "recurses", "recurses_truncated",
+                "composite", "linked", "unlabeled"}
+TREE_LABELS = ("terminal", "terminal_other_layer", "recurses", "recurses_truncated",
+               "unlisted")
+
+
+def _share_sum(s) -> Decimal:
+    return sum((getattr(s, k) for k in TREE_LABELS), Decimal(0))
+
+
+def det_14(b: Bundle, t: VerifiabilityTree) -> None:
+    """Backed-branch composition sums: (a) the sum of node values IS
+    `backing_value`, exact; (b) classified shares + U = 1, each label replaying
+    from the node values and from the bundle's own `share_of_backing`, 1e-6."""
+    backing = sum(n.value for n in b.nodes)
+    if t.root.backing_value != backing:
+        raise Level3(f"DET-14(a): backing_value {t.root.backing_value} != sum of node "
+                     f"values {backing}")
+    if abs(_share_sum(t.shares) - 1) > TREE_TOL:
+        raise Level3(f"DET-14(b): shares sum to {_share_sum(t.shares)}")
+    for label in TREE_LABELS:
+        by_value = Decimal(sum(n.value for n in b.nodes if n.label == label)) / Decimal(backing)
+        by_share = sum((n.share_of_backing for n in b.nodes if n.label == label), Decimal(0))
+        got = getattr(t.shares, label)
+        if abs(got - by_value) > TREE_TOL or abs(got - by_share) > TREE_TOL:
+            raise Level3(f"DET-14(b): {label} {got} replays as {by_value} / {by_share}")
+
+
+def det_19(b: Bundle, t: VerifiabilityTree) -> None:
+    """Denominator discipline: every share and bar is over `backing_value` and
+    replays against it; nothing is over `supply_ruled`; the stabilizer line is
+    an amount with its pending literal (R1)."""
+    backing = Decimal(sum(n.value for n in b.nodes))
+    want = {"terminal": ("terminal",), "terminal_other_layer": ("terminal_other_layer",),
+            "disclosure_dependent": ("recurses", "recurses_truncated")}
+    if [x.name for x in t.bars] != list(want):
+        raise Level3(f"DET-19: bars {[x.name for x in t.bars]} not in DET-17 order")
+    for bar in t.bars:
+        if bar.denominator != "backing_value":
+            raise Level3(f"DET-19: bar {bar.name} over {bar.denominator}")
+        v = Decimal(sum(n.value for n in b.nodes if n.label in want[bar.name])) / backing
+        if abs(bar.share - v) > TREE_TOL:
+            raise Level3(f"DET-19: bar {bar.name} {bar.share} replays as {v}")
+    for key in ("shares", "bars", "truncated_share", "truncated_nodes.share",
+                "staleness.D.share"):
+        if t.denominators.get(key) != "backing_value":
+            raise Level3(f"DET-19: {key} declares {t.denominators.get(key)!r}")
+    if "supply_ruled" in t.denominators.values():
+        raise Level3("DET-19: a figure declared over supply_ruled (R1 forbids it)")
+    if (t.denominators.get("root.stabilizer_debt") != "pending (P-4.01 #3)"
+            or t.root.stabilizer_literal
+            != "share of supply: denominator pending (P-4.01 #3)"):
+        raise Level3("DET-19: stabilizer line must be an amount, denominator pending")
+
+
+def det_70(b: Bundle, t: VerifiabilityTree) -> None:
+    """Token-level qualifier: `qualifier[]` and the banner replay exactly from
+    `admin_surface`; a qualifying row needs a bucket; the shares are identical
+    with the qualifier block removed."""
+    from factory.tree import QUALIFYING, fold_shares, qualifier_of
+    rows, banner = qualifier_of(b)
+    for q in rows:
+        if q.delay_bucket is None:
+            raise Level3(f"DET-70: qualifying row {q.power} has no delay_bucket")
+    if t.qualifier != rows:
+        raise Level3("DET-70: qualifier[] does not replay from admin_surface")
+    if t.banner != banner:
+        raise Level3(f"DET-70: banner {t.banner!r} != replay {banner!r}")
+    neutral = b.model_copy(update={"admin_surface": [
+        r.model_copy(update={"holder_type": "none", "holder_address": None})
+        if r.power in QUALIFYING else r for r in b.admin_surface]})
+    if fold_shares(neutral)[1] != t.shares:
+        raise Level3("DET-70: shares move when the qualifier block is removed")
+
+
+def det_11(b: Bundle, t: VerifiabilityTree) -> str | None:
+    """Paired-asset labeling, row form. A `composite` row with no constituents
+    skips the sum clause under a RECORDED scope condition (R6), returned."""
+    frozen = {(p.address, a) for p in b.pools if p.in_frozen_set for a in p.paired_assets}
+    if {(r.pool, r.address) for r in t.paired_assets} != frozen:
+        raise Level3("DET-11: paired rows do not cover the frozen pools' paired assets")
+    scope = None
+    for r in t.paired_assets:
+        if r.label not in DET11_LABELS:
+            raise Level3(f"DET-11: {r.address} label {r.label!r} outside the DET-11 set")
+        if r.label == "unlabeled":
+            # DET-11 assigns this branch its level BY q (>= 5% Level 2, < 5%
+            # Level 1, the row disclosed and the pool still modeled). q is
+            # Step 6's, so no level is chosen here - recorded, never raised.
+            scope = ("unlabeled paired asset: q owed at s = 2% on K-subset(0.90) — "
+                     "T-18, Step 6; consequence per DET-11 branch, undetermined")
+        if r.label == "composite":
+            if r.constituents is None:
+                scope = "composite constituent sum skipped: constituents owed (F4, C4)"
+            elif abs(sum(Decimal(str(c["weight"])) for c in r.constituents) - 1) > TREE_TOL:
+                raise Level3(f"DET-11: {r.address} constituent weights do not sum to 1")
+        if r.label == "linked":
+            if not r.source_tree or "@" not in r.source_tree or r.linked_shares is None:
+                raise Level3(f"DET-11: {r.address} linked without source_tree or shares")
+            if abs(_share_sum(r.linked_shares) - 1) > TREE_TOL:
+                raise Level3(f"DET-11: {r.address} linked shares do not sum to 1")
+    if t.paired_assets and (t.concentration is None or not t.concentration.label):
+        raise Level3("DET-11: concentration line missing")
+    return scope
+
+
+def run_tree_checks(bundle: Bundle, tree: VerifiabilityTree) -> list[GateResult]:
+    """The four S2 entries in DET-85's fail-closed shape: an exception is
+    `error`, never `pass`. Every entry yields a result, so a rehearsal tree
+    records WHICH failed; `factory.tree` routes on them (R2)."""
+    results = []
+    for chk in (c for c in CHECKS if c.stage == "S2"):
+        try:
+            scope = chk.fn(bundle, tree)
+            results.append(GateResult(entry_id=chk.entry_id, result="pass",
+                                      scope_condition=scope if isinstance(scope, str) else None))
+        except Level3:
+            results.append(GateResult(entry_id=chk.entry_id, result="fail"))
+        except Exception:                                   # DET-85 fail-closed
+            results.append(GateResult(entry_id=chk.entry_id, result="error"))
+    return results
+
+
 CHECKS: list[Check] = [
     Check("DET-02", "S0", 3, det_02), Check("DET-12", "S0", 3, det_12),
     Check("DET-77", "S0", 3, det_77),
@@ -775,6 +904,9 @@ CHECKS: list[Check] = [
     Check("DET-68", "S1", 3, det_68), Check("DET-08", "S1", 2, det_08),
     Check("DET-10", "S1", 3, det_10),
     Check("DET-82", "S1", 3, det_82),
+    # S2 - the tree (P-5.01 R6); Level 2 = the report is not published.
+    Check("DET-14", "S2", 2, det_14), Check("DET-19", "S2", 2, det_19),
+    Check("DET-70", "S2", 2, det_70), Check("DET-11", "S2", 2, det_11),
 ]
 
 

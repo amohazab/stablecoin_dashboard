@@ -5996,3 +5996,44 @@ Status: IN PROGRESS (opened 2026-09-11).
 - **Follow-ups spawned:** P-4.01 **#22** `provenance` into `reads["holder"]`,
   three emitters. **Flagged → C1:** `gho.py:746` returns ASCII `"1-7d"`. Next:
   the tree, from 25956063.
+
+## P-5.03 — The tree module: fold, four S2 checks, rehearsal routing
+
+- **Date:** 2026-09-11
+- **Type:** implementation
+- **Confirmed by:** Amin
+- **Content:**
+  **MODEL:** `VerifiabilityTree` in `schema.py` per R3, a sibling — `Bundle`
+  untouched; `finalise_tree` hashes all but `tree_hash` (O-2). **MODULE**
+  `src/factory/tree.py`: `fold(bundle, cfg, linked, analyzed)`, no RPC; `emit`
+  runs the checks and writes `out/trees/<TOKEN>/<block>.json` on 4/4, else
+  `out/rehearsal/<TOKEN>/tree-<block>.json`; `main` folds the latest promoted
+  bundle and resolves R5's links. **Named defaults:** `value_scale` 1 / 10^8 /
+  10^18; crvUSD's perimeter counts templated from `markets[]`; analyzed-set
+  rows matched by token address; concentration over `freeze_tvl`, multi-paired
+  pools partitioned (P-3.26).
+  **CHECKS** (`harness.py`, S2, Level 2, `(bundle, tree)`): DET-14 (a) exact,
+  (b) 1e-6 against node values and `share_of_backing`; DET-19 bars replay over
+  `backing_value`, nothing over `supply_ruled`; DET-70 qualifier and banner
+  replay, a null bucket fails, shares unmoved with qualifying holders removed;
+  DET-11 row form and concentration line, `composite` sum and `unlabeled` both
+  passed under recorded scope conditions. `run_harness` and `factory.run`
+  untouched. **`len(CHECKS)` 22 → 26.**
+  **TESTS** `tests/test_tree.py`: a fold per token (1e-6); DET-14/19/70
+  replays — pre-C0 25934920 fails DET-70; rehearsal routing. **116 → 123**,
+  ruff clean; dry fold 4/4 ×3. **Bytes:** `schema.py` 30,767 → 34,900;
+  `tree.py` 14,866; `harness.py` 38,888 → 46,342; `test_tree.py` 4,009;
+  `.gitignore` + `out/rehearsal/`.
+  **AS-COUNTED:** design layer, §3's "reuse `promote()`" (flagged below);
+  agent, `det_11` first raised on `unlabeled`, a level DET-11 assigns only by
+  q — corrected to a scope-conditioned pass.
+  **FLAGGED, no fix:** crvUSD's spot-check goes to `out/spotcheck/<block>.md`,
+  GHO's and LUSD's to `out/spotcheck/<TOKEN>/<block>.md`. LUSD's 25955393
+  predates R14, A4 null — harmless, qualifying set empty. `out/rehearsal/` was
+  not gitignored, against R2. No `promote()` exists; `emit` is the first coded
+  route to rehearsal. LUSD's crvUSD pool is outside F, so R5 links on GHO's
+  tree alone.
+- **Artifacts:** `src/factory/schema.py`, `src/factory/tree.py` (new),
+  `src/factory/validate/harness.py`, `tests/test_tree.py` (new), `.gitignore`,
+  `PROGRESS.md`.
+- **Follow-ups spawned:** P-5.04 — the three trees and the link.

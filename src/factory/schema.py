@@ -694,6 +694,134 @@ class PriorBundle(BaseModel, extra="ignore"):
     pools: list[PriorPool] = []
 
 
+# ------------------------------------------------- verifiability tree -------
+# P-5.01 R2/R3: a SIBLING artifact folded from a promoted bundle, never a field
+# on `Bundle` - so `Bundle`'s shape and `bundle_hash` do not move. Every share
+# and bar is over `backing_value` (R1, DET-19); `supply_ruled` appears only as
+# an amount on the root line.
+
+
+class TreeRoot(BaseModel):
+    backing_value: int                   # DET-14(a): sum of nodes[].value
+    # Named implementer default (R3): the unit `nodes[].value` is carried in,
+    # per adapter - crvUSD whole USD (P-3.34), GHO AaveOracle base 1e8 (P-4.07),
+    # LUSD 1e18 (P-4.17). The tree never converts; rendering divides.
+    value_scale: int
+    backed_supply: int                   # = supply.origination_sum (R1)
+    supply_ruled: int
+    residual: int
+    perimeter: str
+    stabilizer_debt: int                 # sum of stabilizer.operations[].current_debt
+    stabilizer_literal: str = "share of supply: denominator pending (P-4.01 #3)"
+
+
+class TreeShares(BaseModel):
+    terminal: Decimal
+    terminal_other_layer: Decimal
+    recurses: Decimal
+    recurses_truncated: Decimal
+    unlisted: Decimal                    # U, inside the denominator (R-6)
+
+
+class TreeBar(BaseModel):
+    name: Literal["terminal", "terminal_other_layer", "disclosure_dependent"]
+    share: Decimal
+    denominator: Literal["backing_value"] = "backing_value"
+
+
+class TruncatedNode(BaseModel):
+    address: Address
+    symbol: str
+    share: Decimal
+    reason: str                          # memo 4.1's reason string
+
+
+class StalenessNode(BaseModel):
+    address: Address
+    symbol: str
+    share: Decimal
+    last_disclosure_date: str | None
+    staleness_days: int | None
+
+
+class StalenessWorst(BaseModel):
+    symbol: str
+    days: int
+    share: Decimal
+
+
+class TreeStaleness(BaseModel):
+    D: list[StalenessNode]
+    weighted_days: Decimal | None
+    worst: StalenessWorst | None
+    companion: str | None
+    # Present-and-empty (R3, F3): never a number where an input is null.
+    status: str | None
+
+
+class QualifierRow(BaseModel):
+    power: str
+    holder_type: str
+    signer_disclosure: str               # "n/a" - named default, no A3 field (F6)
+    delay_bucket: str | None
+    veto: Address | None
+
+
+class PairedAssetRow(BaseModel):
+    pool: Address
+    address: Address
+    symbol: str | None
+    label: str
+    source: str | None
+    source_tree: str | None = None       # R5: "<token>@<run_block>" when linked
+    linked_shares: TreeShares | None = None
+    constituents: list[dict[str, Any]] | None = None
+    note: str | None = None
+
+
+class ConcentrationLine(BaseModel):
+    largest_paired_asset: Address
+    share_of_exit_depth: Decimal         # freeze_tvl-weighted over F
+    label: str
+    disclosure_source: str | None
+
+
+class VerifiabilityTree(BaseModel):
+    token: str
+    run_block: int
+    source_bundle_hash: str
+    tree_hash: str = ""                  # sha256 over everything but itself
+    root: TreeRoot
+    shares: TreeShares
+    bars: list[TreeBar]
+    truncated_share: Decimal
+    truncated_nodes: list[TruncatedNode]
+    unclassified_literal: str | None
+    staleness: TreeStaleness
+    qualifier: list[QualifierRow]
+    banner: str
+    denominators: dict[str, str]
+    paired_assets: list[PairedAssetRow]
+    concentration: ConcentrationLine | None
+    checks: list[GateResult] = []
+    flags: list[str] = []
+
+
+def finalise_tree(tree: VerifiabilityTree) -> VerifiabilityTree:
+    """`tree_hash` over the tree with `tree_hash` excluded - the bundle's own
+    convention (`finalise`), same O-2 serialisation."""
+    payload = tree.model_dump(mode="python", exclude={"tree_hash"})
+    h = hashlib.sha256(json.dumps(payload, sort_keys=True, separators=(",", ":"),
+                                  ensure_ascii=False, default=_default)
+                       .encode("utf-8")).hexdigest()
+    return tree.model_copy(update={"tree_hash": h})
+
+
+def serialise_tree(tree: VerifiabilityTree) -> str:
+    return json.dumps(tree.model_dump(mode="python"), sort_keys=True,
+                      separators=(",", ":"), ensure_ascii=False, default=_default)
+
+
 def _default(o: Any) -> Any:
     if isinstance(o, Decimal):
         return str(o)                                        # O-2: never a float
