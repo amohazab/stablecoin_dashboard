@@ -507,3 +507,55 @@ def write_lusd(bundle: Bundle, out_dir: pathlib.Path, **kw) -> pathlib.Path:
     p = out_dir / f"{bundle.header.run_block}.md"
     p.write_text(generate_lusd(bundle, **kw), encoding="utf-8", newline="")
     return p
+
+
+# ------------------------------------------------------------ the tree ------
+# P-5.04: the analyst's check of a TREE is a label check, not a read check -
+# every node's label against its config row and the memo row that row cites,
+# the qualifying holders on Etherscan, and the paired rows against their
+# config source. No transport, so no item 0; every figure comes from the tree
+# or the bundle it folded.
+
+
+def generate_tree(bundle: Bundle, tree, cfg, labels_file: str) -> str:
+    t, b = tree, bundle
+    scale = t.root.value_scale
+    per_node = {n.address: n for n in b.nodes}
+    out = [f"# Tree spot-check — {t.token} @ {t.run_block}", "",
+           f"- tree_hash `{t.tree_hash}`", f"- source_bundle_hash `{t.source_bundle_hash}`",
+           "- checks: " + ", ".join(f"{r.entry_id} {r.result}" for r in t.checks),
+           f"- value_scale {scale} (divide `value` by it for USD)", "",
+           "## Nodes — label vs config row vs memo row", "",
+           "| address | symbol | label | config row | memo row (config `label_source`) "
+           "| value | share of backing |", "|---|---|---|---|---|---|---|"]
+    for a in sorted(per_node):
+        n = per_node[a]
+        row = cfg.labels.get(a)
+        src = row.label_source if row else "— no config row —"
+        cfg_ref = f"`config/{labels_file}` [[node]] {a[:10]}…" if row else "—"
+        out.append(f"| `{a}` | {n.symbol} | `{n.label}` | {cfg_ref} | {src} | "
+                   f"{n.value} | {n.share_of_backing} |")
+    out += ["", "## Qualifying admin rows (DET-70) — verify holders on Etherscan", ""]
+    q = [r for r in b.admin_surface if r.power in ("mint", "upgrade", "set_oracle", "seize")
+         and r.holder_type != "none"]
+    if not q:
+        out.append("None: " + t.banner)
+    else:
+        out += ["| power | holder_address | holder_type | delay_seconds | delay_bucket | veto |",
+                "|---|---|---|---|---|---|"]
+        out += [f"| {r.power} | `{r.holder_address}` | {r.holder_type} | {r.delay_seconds} | "
+                f"{r.delay_bucket} | {r.veto_address or '—'} |" for r in q]
+        out += ["", f"Banner: {t.banner}"]
+    out += ["", "## Paired assets (DET-11) — label vs config source", "",
+            "| pool | address | symbol | label | config source | source_tree |",
+            "|---|---|---|---|---|---|"]
+    out += [f"| `{p.pool}` | `{p.address}` | {p.symbol} | `{p.label}` | {p.source} | "
+            f"{p.source_tree or '—'} |" for p in t.paired_assets]
+    return "\n".join(out) + "\n"
+
+
+def write_tree(bundle: Bundle, tree, cfg, labels_file: str, out_dir: pathlib.Path) -> pathlib.Path:
+    out_dir.mkdir(parents=True, exist_ok=True)
+    p = out_dir / f"tree-{tree.run_block}.md"
+    p.write_text(generate_tree(bundle, tree, cfg, labels_file), encoding="utf-8", newline="")
+    return p

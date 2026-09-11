@@ -43,7 +43,7 @@ DONE at P-3.47 (2026-09-08).
 Status: DONE (opened 2026-09-08; done-condition met 2026-09-11, P-4.20). Record: src/factory/; config/; out/.
 
 ## Step 5 — Verifiability module
-Status: IN PROGRESS (opened 2026-09-11).
+Status: DONE (opened 2026-09-11; done-condition met 2026-09-11, P-5.04). Record: src/factory/tree.py; out/trees/.
 
 ## P-3.01 — Block 0.1 anomaly dispositions; Python stack ruling; checksum task
 - **Date:** 2026-09-03
@@ -6037,3 +6037,48 @@ Status: IN PROGRESS (opened 2026-09-11).
   `src/factory/validate/harness.py`, `tests/test_tree.py` (new), `.gitignore`,
   `PROGRESS.md`.
 - **Follow-ups spawned:** P-5.04 — the three trees and the link.
+
+## P-5.04 — The three trees, the mutual link, Step 5 closed
+
+- **Date:** 2026-09-11
+- **Type:** implementation
+- **Confirmed by:** Amin
+- **Content:**
+  **TREES**, each **4/4**, shares = the bundle's `share_of_backing`.
+  **crvUSD@25956063** (4,780 B, `495e1fae…`) 3.6672 / 56.5070 / 39.8259, trunc
+  0, U 0, Σ 151,790,063 (1) — R11's figures were Inventory A's 25934920.
+  **GHO@25946240** (5,643 B, `5ae38e4e…`) 30.5230 / 40.7306 / 28.7464, trunc
+  7.9152, U 0, Σ 49,830,858,491,193,839 (10^8). **LUSD@25955393** (2,548 B,
+  `8c37249e…`) 100 / 0 / 0, Σ 186,586,616,348,573,144,396,590,655 (10^18).
+  **ROOT** (backed / ruled / residual, stabilizer): crvUSD 86,669,986.01 /
+  2,104,809,204.98 / 2,018,139,218.97, 10,961,235.57; GHO 186,487,108.60 /
+  699,000,000 / 512,512,891.40, 0; LUSD 26,299,049.28 both, 0, 0. **BANNERS:**
+  crvUSD mint, set_oracle — dao_governance + 1–7d; GHO the same,
+  contract_automated + none; LUSD immutable.
+  **LINK (R5):** in pool `0x635ef005…` GHO's tree carries crvUSD `linked`
+  `crvUSD@25956063` and crvUSD's carries GHO `linked` `GHO@25946240`, five
+  shares each; tree-pending flags dropped in the trees only. **Both link;
+  LUSD's crvUSD pool is outside F, so LUSD does not.** **Ordering artifact:**
+  crvUSD first folded before GHO's tree existed (`a42f254d…`), re-folded once
+  it did — only the GHO row, its flag and `tree_hash` moved. **R5 extended:**
+  as ruled it named crvUSD's published tree; it now reads any analyzed token
+  with a published tree, and `LINKABLE` widened to GHO is its code form. Links
+  name `token@block`, never a hash: no cycle. The link reads `out/trees/`,
+  written only on 4/4 (named default). **Queued with #6:** DET-11's
+  `@<publication date>` vs R5's `@<run_block>`, interpretive.
+  **SHEETS** `out/spotcheck/<TOKEN>/tree-<block>.md` (gitignored); 123 tests;
+  ruff clean. **C4 gains** memo §4.3's guard: an unlisted constituent makes
+  the LP token `unlisted`. **P-4.01 #23:** `LINKABLE` is hardcoded — a new
+  analyzed token's tree does not link until added; its "tree pending" flag is
+  then false and silent (USDe, Step 10).
+  **STEP 5 IS DONE.** crvUSD fully classified — U 0, truncated 0, every node
+  resolved from the memo table; GHO's split defensible and non-trivial at
+  30.5230 / 40.7306 / 28.7464 with 7.9152 truncated; LUSD the trivial control.
+  **Present-and-empty:** staleness inputs on nine nodes; GHO's 1.549% tail;
+  the GSM boxed assets; the composite's constituents; `supply_ruled` parked at
+  P-4.01 #3, so the tree publishes amounts, not shares of supply. **Step 6
+  inherits** the stress module, the tree's numbers, T-02/DET-32 (P5).
+- **Artifacts:** the three `out/trees/` files; `src/factory/tree.py` (15,252
+  B); `src/factory/spotcheck.py` (25,056 → 27,893 B); `CLAUDE.md`;
+  `PROGRESS.md` (`## Step 5` status line, this entry).
+- **Follow-ups spawned:** C1–C4; Step 6.

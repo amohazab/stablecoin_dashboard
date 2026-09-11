@@ -48,9 +48,11 @@ IMMUTABLE_BANNER = "No admin power can alter backing — immutable."
 VALUE_SCALE = {"crvUSD": 1, "GHO": 10**8, "LUSD": 10**18}
 
 # R5: before Step 9, "last published tree" = the latest artifact in
-# `out/trees/<token>/`. Ruled for crvUSD's rows only (GHO's and LUSD's crvUSD
-# paired assets); the other analyzed-set rows stay `recurses_truncated` + L1.
-LINKABLE = ("crvUSD",)
+# `out/trees/<token>/`. Ruled first for crvUSD's rows, widened to GHO at
+# P-5.04 once GHO's tree existed: each tree links the other by `token@block`,
+# never by hash, so the pair converges in one re-fold. LUSD is in no frozen
+# pool's paired assets, so it has nothing to link.
+LINKABLE = ("crvUSD", "GHO")
 
 
 def _perimeter(b: Bundle) -> str:
@@ -290,7 +292,12 @@ def main(repo: pathlib.Path, token: str) -> tuple[pathlib.Path, bool, Verifiabil
     cfg = load(repo / "config", token)
     tree = fold(bundle, cfg, resolve_links(repo, token), analyzed_set(repo))
     path, ok = emit(repo, bundle, tree)
-    return path, ok, VerifiabilityTree.model_validate_json(path.read_text(encoding="utf-8"))
+    written = VerifiabilityTree.model_validate_json(path.read_text(encoding="utf-8"))
+    from factory.config import TOKEN_FILES
+    from factory.spotcheck import write_tree
+    write_tree(bundle, written, cfg, TOKEN_FILES[token]["labels"],
+               repo / "out/spotcheck" / token)             # gitignored (P-3.13)
+    return path, ok, written
 
 
 if __name__ == "__main__":
