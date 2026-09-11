@@ -5828,3 +5828,41 @@ Status: IN PROGRESS (opened 2026-09-08).
   `out/spotcheck/LUSD/25948170.md` (gitignored); `PROGRESS.md`.
 - **Follow-ups spawned:** Amin's spot-check; LUSD run 2 ≥ 24 h after this
   block; then Step 4's closing entry.
+
+## P-4.19 — LUSD run 2; the Step 4C done-condition
+
+- **Date:** 2026-09-11
+- **Type:** implementation
+- **Confirmed by:** Amin
+- **Content:**
+  **LUSD run 2** against `6b84400`, no tracked path dirty. `run_block`
+  **25955393**, `block_timestamp` 1789144547 = **2026-09-11 16:35:47 UTC**,
+  DET-83 freshness 76 s, **8.7 s on 290 pinned reads and zero pointer
+  requests** — the same cost as run 1, which is the control's point.
+  **22/22 pass, worst_level 0, zero triggers.** `first_run` **false**,
+  literals null, **`baseline_source` `prior_bundle`** — the one-time set-file
+  fallback spent. `bundle_hash` **`b648d54b…`**, `raw_positions_hash`
+  `6033f26b…`; `out/bundles/LUSD/25955393.json` 17,360 B, **promoted after**
+  `out/spotcheck/LUSD/25955393.md` (9,843 B, zero `apikey`).
+  **DET-86 located the prior at 25948170 and every delta check ran against
+  real history for the first time on this token:** supply 26,358,688.55 →
+  26,299,049.28 LUSD, jump **0.00226**, so DET-62's confirmation legs never
+  opened; mint count 1 → 1 and troves 73 → 73; composition shift **0**; the F
+  pool's ratio 0.9798021 → 0.9796938 with all three detector lists empty;
+  below floor 14 → 14. Supply and debt moved together to the wei — a
+  repayment, not a redistribution — and the identity held on all three legs.
+  `system_tcr` 6.7122 → 7.0948, still multiples clear of the 1.60 bound.
+  **THE DONE-CONDITION, three legs.** (i) **MET** — two runs **24.17 h**
+  apart, 2026-09-10 16:25:35 and 2026-09-11 16:35:47 UTC, both 22/22 at worst
+  level 0. (ii) **MET** — Amin verified all ten run-1 items at 25948170
+  against Etherscan, 0-10 PASS. (iii) **PENDING** — Amin's spot-check of run
+  2. Step 4C waits on (iii) alone; the verdict lands in P-4.20.
+  Present-and-empty, as ruled: LUSD's ETH/USD heartbeat (dated analyst row,
+  owed; the oracle row carries `heartbeat_s = None` and names its adapter
+  class) and **T-02**, DET-32 being unimplemented for all three tokens.
+  **T-17:** `freeze_date` 2026-09-10 against `run_date` 2026-09-11 — 1 day of
+  the 100-day bound.
+- **Artifacts:** `out/bundles/LUSD/25955393.json` (promoted);
+  `out/spotcheck/LUSD/25955393.md` (gitignored); `PROGRESS.md`.
+- **Follow-ups spawned:** Amin's run-2 spot-check, then Step 4's closing entry
+  as P-4.20.
