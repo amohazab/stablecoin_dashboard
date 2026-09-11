@@ -42,6 +42,9 @@ DONE at P-3.47 (2026-09-08).
 ## Step 4 — GHO + LUSD adapters
 Status: DONE (opened 2026-09-08; done-condition met 2026-09-11, P-4.20). Record: src/factory/; config/; out/.
 
+## Step 5 — Verifiability module
+Status: IN PROGRESS (opened 2026-09-11).
+
 ## P-3.01 — Block 0.1 anomaly dispositions; Python stack ruling; checksum task
 - **Date:** 2026-09-03
 - **Type:** flag-disposition
@@ -5908,3 +5911,48 @@ Status: DONE (opened 2026-09-08; done-condition met 2026-09-11, P-4.20). Record:
   ("Where implementation stands").
 - **Follow-ups spawned:** Step 5, the verifiability module, opening on the
   `supply_ruled` denominator; the heartbeats; the Step-8 transport line.
+
+## P-5.01 — Step 5 opened: the inventory, sixteen rulings
+
+- **Date:** 2026-09-11
+- **Type:** decision
+- **Confirmed by:** Amin
+- **Content:**
+  **INVENTORY A**, read-only at `6b84400`; anchors re-verified at `f2d5048`:
+  `dfbcd558` / `be82e530` / `b648d54b`, `len(CHECKS)` 22. **Fold** (bars ·
+  truncated · U · Σ value, scale): crvUSD@25934920 3.5681/55.0158/41.4161 · 0
+  · 0 · 152,514,359 (1); GHO@25946240 30.5230/40.7306/28.7464 · 7.9152 · 0 ·
+  49,830,858,491,193,839 (10^8); LUSD@25955393 100/0/0 · 0 · 0 · (10^18)
+  (Inventory A at 25948170: identical shares); residual ÷ `supply_ruled`
+  95.27% / 73.32% / 0. **F1** `gho.py:299`, `:314-315,342`, `config.py:243` ·
+  **F2** `gsms[].underlying_asset` `0xd4fa2d31…` / `0x7bc34850…` · **F3**
+  `mirror.py:68` · **F4** LUSD `pools[0].reads` · **F5** `config.py:95` ·
+  **F6** `schema.py:432`, A4 null ×27 · **F7** no `backing_value` · **F8**
+  DET-08 alone in `CHECKS`. **As-counted:** four briefs on 2026-09-11 stopped
+  at the P-4.20 gate and wrote nothing — correct behaviour.
+  **RULINGS.** R1 shares over `backing_value` only, nothing over
+  `supply_ruled`; a root line of amounts — `backed_supply`, `supply_ruled`,
+  `residual`, `perimeter`, stabilizer debt with its pending literal. R2
+  sibling artifact `out/trees/<TOKEN>/<run_block>.json` from `factory.tree`,
+  no RPC, `Bundle` unchanged, a failing tree to `out/rehearsal/`. R3
+  `VerifiabilityTree` in `schema.py`; `value_scale` a named default. R4
+  `composite_passthrough` read as DET-11 `composite`, flagged. R5 crvUSD's
+  latest committed tree is "last published"; GHO/LUSD emit `linked` in the
+  tree only. R6 DET-14/19/70/11 on `(bundle, tree)`, run by `factory.tree`;
+  `CHECKS` 22 → 26. R7 GHO's tail as real `unlisted` nodes (C1). R8 GSM
+  identity walk, then DET-28's node (C2). R9 staleness inputs (C3). R10 3pool
+  `paired_composition` (C4). R11 "≈ 100%" read as fully classified. R12 C0
+  precedes the tree. R13 A4 of off-chain-governed holders from dated
+  `[[admin_delay]]` rows keyed by holder address; no row stops. R14 `none`
+  holders emit `0`/`"none"`. R15 bucket literals verbatim; `det_68`'s A4
+  clause lands in C1 — 27 nulls passed since P-3.44, open by ruling. R16 the
+  Emergency DAO's `dao_governance` is an implementer default (`run.py:390`,
+  `b5d4e32`; P-3.30 and P-3.38 silent; sheet's `pause` A2 blank) → #21.
+  **QUEUE (P-4.01):** #18 `gho.py:303/:313`; #19 pool-read index; #20 label
+  closed set; #21 Emergency DAO A2; #6 + DET-15(b)'s GHO O. **Intake-edit:**
+  GHO "GSM boxed USDC / USDT".
+- **Artifacts:** `PROGRESS.md` — `## Step 5` heading and status line; this
+  entry.
+- **Follow-ups spawned:** C0, then the tree; C1 GHO tail + A4 + `det_68` + run
+  3; C2 GSM identity + boxed node; C3 staleness + GHO sheet + mirror; C4 3pool
+  composition + rename.
