@@ -105,6 +105,12 @@ def a_bundle(first_run=True, **kw):
                               label_source_address=COL, node_class="volatile",
                               lst_discount_applies=False, value=6_865_146,
                               share_of_backing=Decimal("0.0455"),
+                              # B-3b: DET-52 is S1, so a volatile node without
+                              # a sell-side parameter is Level 3 and no bundle
+                              # fixture can omit it any more.
+                              sell_side_capacity={"value": "34.3750",
+                                                  "source": "fixture",
+                                                  "date": "2026-09-12"},
                               reads={"balance": cr("balanceOf(address)", COL)},
                               lineage=["collateral_read"])],
         oracle_rows=[OracleRow(

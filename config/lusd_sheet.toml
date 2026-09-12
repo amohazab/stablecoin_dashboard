@@ -1,10 +1,10 @@
 # DERIVED MIRROR - NOT AUTHORITATIVE (P-3.04 binding).
 # Source of truth: docs/context/intake-sheets-cdp.md, LUSD section.
-# Derived from sheet version sha256_first8 = c7298252 (signed 2026-09-04, P-3.12).
+# Derived from sheet version sha256_first8 = ad7c35c2 (signed 2026-09-04, P-3.12).
 # DET-77's sheet_hash check binds this mirror to that source; drift is caught
 # mechanically, never trusted away. Regenerated, never hand-patched.
 schema_version = 1
-sheet_hash = "c7298252"
+sheet_hash = "ad7c35c2"
 
 near_bound_threshold = 0.80
 counterparties = "n/a - archetype #1 holds no off-chain counterparties"
@@ -109,3 +109,9 @@ status = "open"
 # sell_side_capacity - per volatile node; lands at the R-a1 refresh (R-a4).
 # m4_fields[]        - Step 6.
 # bias_table[]       - Step 6 (Appendix C seed).
+
+[[sell_side_capacity]]
+address = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+value = "exempt — Stability Pool depositors receive collateral; no forced sale"
+source = "memo §6.3 sell-side bound; DET-52"
+date = 2026-09-12

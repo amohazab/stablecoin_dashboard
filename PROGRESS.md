@@ -6762,3 +6762,96 @@ Status: IN PROGRESS (opened 2026-09-12).
 - **Follow-ups spawned:** B-3b, gated on the 19 sell-side values: the signed
   edit applied from the drafted file, hashes, mirrors, set files, events,
   three re-runs, promotions, tree and stress re-folds, DET-50 and DET-52 green.
+
+## P-6.07 — B-3b: the signed edit, three fill events, the 19 values, three re-runs; DET-50 and DET-52 green
+
+- **Date:** 2026-09-13
+- **Type:** decision + implementation
+- **Confirmed by:** Amin
+- **Content:**
+  **TWO SIGNATURES.** (1) The SHEET EDIT, sections 1-8 per token: the
+  `m4_fields[]` passages, Appendix C's nine bias rows with their four ★, the
+  three sell-side tables, F12 in all three places (§5.10 venue line, FR-G14's
+  read spec, R4's rate cell) plus R10's `buyAsset`, F14 at the node row and R3
+  cell, R9's new line, R8's note, and LUSD's Member-2 expectation corrected
+  from USDC to USDT. (2) The `rubric_change` (DET-87): A-9 to A-12 and the
+  header sheets-line. **STAMPS:** sheet **c7298252 → ad7c35c2**, rubric
+  **4a8be241 → c5846eaa**, memo `17553d7b` and checklist `54620383`
+  **byte-identical**. Mirrors: rows object-identical but FR-G14, which is §4
+  itself; P-3.15's reproduce test green.
+  **THE 19 VALUES — Amin's, 2026-09-12, in each node's own units**, one source
+  on every row: *"Paraswap prices API v6.2, Ethereum mainnet, ~2% price impact
+  into USDC by bisection against a small reference quote; tools/sell_side.py
+  run by Amin, 2026-09-12"*.
+  | node | crvUSD | GHO |  | node | crvUSD | GHO |
+  |---|---|---|---|---|---|---|
+  | WETH | 13750.0000 | 13750.0000 |  | sfrxETH | 10.2539 | — |
+  | wstETH | 609.3750 | 609.3750 |  | LBTC | 17.8125 | — |
+  | WBTC | 131.2500 | 131.2500 |  | AAVE | — | 3750.0000 |
+  | weETH | 5000.0000 | 5000.0000 |  | rETH | — | 968.7500 |
+  | cbBTC | 34.3750 | 34.3750 |  | LINK | — | 425000.0000 |
+  | tBTC | 28.1250 | 28.1250 |  | cbETH | — | 87.8906 |
+  |  |  |  |  | USCC | — | **0** |
+  **USCC's zero is a VALUE, not an absence** — "no route on Paraswap — 404 no
+  routes with enough liquidity" rides in its source, the row is complete, and
+  DET-52 passes on it. LUSD carries the exempt literal, no numeric. LBTC joined
+  crvUSD's volatile-node line, which listed seven: it entered `labels.toml` on
+  2026-09-04, after that line was written.
+  **THREE `intake_trigger` EVENTS, dated 2026-09-13**, each carrying
+  `sheet_hash ad7c35c2` and its set-file hash — crvUSD **9ebdd282**, GHO
+  **062b5a0c**, LUSD **8bebc8a0** — `member2_target` null → USDT on all three,
+  leaf-diff proven the only moved key. **Values dated 2026-09-12, the events
+  appended 2026-09-13; DET-52's `≥ freeze_date` satisfied; R-a4's ordering
+  satisfied by sequence within B-3b.**
+  **DET-52 IS S1**, so it runs in each adapter's gate: the runs read **23/23**,
+  the stress folds **6/6**, not 7/7. `len(CHECKS)` **32 → 33**. Its stale-date
+  branch has NO TRIGGER ROW — the entry assigns Level 2, §3's table is closed
+  (DET-12) and carries none, so `det_10`(c)'s precedent holds: recorded in the
+  scope line, no level invented, **queued as P-4.01 #28**. Every date is at or
+  after its `freeze_date`, so it does not fire.
+  **THREE RE-RUNS, 23/23, level 0, no triggers:** crvUSD 25963950 `427b1116`
+  82.4 s · LUSD 25963959 `5bc7631b` **22.7 s** (P-4.19 took 8.7 s on the same
+  read shape — reported, not investigated) · GHO 25963961 `8d75681e` 222.2 s.
+  **P-4.16.** crvUSD at 25956063, three header fields pinned: **undeclared
+  differences 0** — the `set_parameters` marks, five `is_killed` reads,
+  `stability_pool_deposits`, eight `sell_side_capacity` triples, nothing else.
+  **LUSD cannot meet it and I do not claim it does:** 18 undeclared leaves, all
+  `delay_bucket`/`delay_seconds` on nine admin rows, are **P-5.02's** — the
+  baseline bundle is P-4.19's and the `lusd.py` change one entry later, LUSD
+  not having been re-run since. GHO by declared delta: two nodes
+  (`waEthUSDT` **$18,599,995.14**, `waEthUSDC` **$0.0346**), oracle rows
+  19 → 21, `pause` marked, both stamps moved, **DET-28 flag absent**, 12 stored
+  bundles still loading through `PriorBundle`.
+  **GHO's `backing_value`, correcting my own projection** of +≈$21.8M /
+  +4.37%: measured **$498,308,584.91 → $535,881,064.37, +7.5400%**, which is
+  **+3.8074% market and positions** over 17,721 blocks on the 19 common nodes
+  plus **+$18,599,995.18 C2**, 3.4709% of the new total. The USDT side fell
+  from 18,516,099.67 to 15,831,354.07 SHARES, converting at 1.17512 to
+  18,603,480.13 USDT — a real on-chain change, checked precisely because
+  $18.6M sits close enough to the unconverted $18.5M to look like a lost
+  conversion. **DET-65 quiet:** largest share move **0.01323** on WETH.
+  **TREES** 4/4 — `9dd54a5b` · `10a79c76` · `54034c88`. **STRESS** without
+  `--allow-stale-sheet`, `stale_sheet false`, 6/6, still rehearsal on zero
+  cells — `c03cca37` · `cc50336d` · `eedd6feb`. **THE REPLAY RETURNS USDT ON
+  EVERY CLEAN FOLD**, DET-50 on its identity limb: shares 0.3848
+  `paired_direct` / 0.9854 `gsm_venue` / 0.4778 `composite_constituent`, moved
+  from 0.4771 / 0.9883 / 0.5216 with the blocks — **the target did not move**.
+  **149 tests**, ruff clean. `tools/sell_side.py` is ANALYST TOOLING, the
+  reproduction of the 19 values; no pipeline path imports or runs it.
+  **AS-COUNTED, the Builder's:** the set files were first written with
+  `write_text`, turning LF into CRLF, so hashes computed over the STRING
+  disagreed with the bytes — crvUSD's first re-run died on `DET-10(a):
+  frozen_set_hash bc974937 != last logged 9ebdd282`, the gate working exactly
+  as designed; rewritten as LF, the hashes matched the events already written.
+  The F12 note cited P-6.01 R4 where the direction was ruled at R15. And two
+  more turns ended on a promise of text — the fifth, the signature file's parts
+  2/3 and 3/3; the sixth, this entry's own draft.
+- **Artifacts:** `docs/context/intake-sheets-cdp.md` ·
+  `docs/context/rubic_v1.md` · `config/{crvusd,gho,lusd}_sheet.toml` ·
+  `config/frozen_set_{crvusd,gho,lusd}.json` · `out/logs/events_*.jsonl` ·
+  `src/factory/validate/harness.py` · `tools/sell_side.py` (new) ·
+  `tests/{test_schema,test_discovery,test_stress}.py`; three bundles, three
+  trees, three rehearsal stress artifacts.
+- **Follow-ups spawned:** B-4 — crvUSD's cells, opening with R11's sizing gate:
+  a read-count estimate on the union of tick ranges, stopping for an
+  is-it-worth-it ruling above ~7,200 reads.

@@ -4,7 +4,7 @@
 **Date:** 2026-09-03.
 **Checksum algorithm (declared 2026-09-03):** SHA-256, first 8 hex digits, over the raw bytes of the LF-normalized file (line endings pinned by `.gitattributes`, so on-disk bytes and hash input are identical on every platform).
  
-**Governing artifacts (checksums):** `archetype-memo-1-cdp.md` 17553d7b · `intake-sheets-cdp.md` c7298252 · `phase-b-checklist.md` 54620383 — all at status "Phase B COMPLETE — 2026-09-02".
+**Governing artifacts (checksums):** `archetype-memo-1-cdp.md` 17553d7b · `intake-sheets-cdp.md` ad7c35c2 · `phase-b-checklist.md` 54620383 — all at status "Phase B COMPLETE — 2026-09-02".
  
 **Historical checksums — unreproducible, retained (2026-09-03):** the previous values `f65f5f72` · `976085c9` · `6c7c6708` reproduce under no tested scheme: 0 of 3 files matched across 126 scheme × byte-form combinations (14 schemes — CRC-32, Adler-32, and first-8/last-8 of MD5, SHA-1, SHA-256, SHA3-256, BLAKE2b, BLAKE2s — over 9 byte forms). The three values were authored during the Step-2 design sessions in a chat environment where no byte-level hash of the repository files was ever computed; the working explanation is that the stamps were authored, not machine-computed over these bytes. Pre-import drift is not excluded by evidence, but under either explanation the values are unrecoverable. Provenance boundary: commit 5aef7c4 (2026-09-03), clean tree for `docs/context/` — bytes as committed are the earliest verifiable state. Retained, never deleted.
 **Place in the pipeline (brief §7):** deterministic checks in plain code run first, in stage order; then one LLM-as-judge call with structured output. generate → evaluate → one revision → ship or quarantine.
@@ -468,6 +468,10 @@ All rows have a computing owner. Non-computable properties are in Appendix A. Ju
 - **E-3** §12 R8 rule second line: separate pausable's string from capacity_limited's note (I-2).
 - **E-4** memo header "18 analyst-supplied values" → "tags" (O17).
 - **O19** memo §4 "structural grade" phrase has no defining section — define or remove (R-52).
+- **A-9** §5.5 / DET-29(b) K = 95% reads as the full frozen set F by construction, not the prefix (P-6.01 R5).
+- **A-10** §6.2.5 / DET-50 counts §5.10 venue contributions in the exit-depth share, the boxed asset resolving through §4.3; and the share is measured at the fill block on the set in force, not "at freeze" — no depth exists at a freeze block (P-6.01 R6, R7; P-3.09-A1).
+- **A-11** §3b / DET-24's comparand is the recorded scope condition, `pool_composition_at_block` having no bundle field (P-6.01 R-B2.5).
+- **A-12** §6.3 H1 / DET-45: the regulator's `is_killed` is global; the flag applies to every keeper (P-6.01 R8).
 ## 6. Evaluation-loop contract
  
 1. Deterministic stages run in order S0 → S1 → S2 → S3; a failure at a stage stops at that stage's consequence (Level 3 / Level 2); S3 data-consistency failures are Level 2; DET-13 runs last.

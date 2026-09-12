@@ -75,7 +75,9 @@ def test_the_sheet_stop_fires_and_the_dev_flag_routes_to_rehearsal(tmp_path):
     b, t = latest_bundle(REPO, "LUSD"), latest_tree(REPO, "LUSD")
     path, ok = emit(tmp_path, b, t, _report(stale=True))
     assert not ok
-    assert path == tmp_path / "out/rehearsal/LUSD/stress-25955393.json"
+    # the block is DERIVED, never pinned: a pinned one breaks on every re-run
+    # of the adapter, which is exactly what B-3b's three re-runs did.
+    assert path == tmp_path / f"out/rehearsal/LUSD/stress-{b.header.run_block}.json"
     written = StressReport.model_validate_json(path.read_text(encoding="utf-8"))
     assert written.header.stale_sheet is True
 
@@ -94,7 +96,7 @@ def test_a_zero_cell_report_is_never_promotable(tmp_path):
     assert r.cells == [] and r.header.stale_sheet is False
     path, ok = emit(tmp_path, b, t, r)
     assert not ok
-    assert path == tmp_path / "out/rehearsal/LUSD/stress-25955393.json"
+    assert path == tmp_path / f"out/rehearsal/LUSD/stress-{b.header.run_block}.json"
     written = StressReport.model_validate_json(path.read_text(encoding="utf-8"))
     assert written.cells == [] and len(written.checks) == 6      # +DET-50, B-3a
 
@@ -164,20 +166,23 @@ def test_det20_requires_the_kill_read_on_every_stabilizer_row():
             "stabilizer": b.stabilizer.model_copy(update={"operations": [stripped]})}), {})
 
 
-def test_the_sell_side_parameter_is_inert_until_the_sheet_carries_rows():
-    """DET-52's plumbing lands at B-3a and arms at B-3b. Today every mirror is
-    row-free, so a volatile node gets None and no bundle shape depends on a
-    value that does not exist yet."""
-    import datetime as _dt
-
+def test_the_sell_side_parameter_is_armed_and_volatile_only():
+    """DET-52's plumbing, live since B-3b's signed edit put 19 rows on the
+    sheet. Until then `cfg.sell_side` was empty and every node got `None`;
+    now the rows load, and the two rules that remain are: only a VOLATILE node
+    carries one, and a node the sheet does not list gets `None` rather than a
+    default — which is what makes DET-52's Level 3 reachable."""
     from factory.config import load, sell_side_for
     cfg = load(REPO / "config", "GHO")
-    assert cfg.sell_side == {}
+    assert len(cfg.sell_side) == 11
     weth = "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
-    assert sell_side_for(cfg, weth, "volatile") is None
-    assert sell_side_for(cfg, weth, "stable") is None
-    filled = cfg.__class__(**{**cfg.__dict__, "sell_side": {
-        weth: {"value": "12000 WETH", "source": "s", "date": _dt.date(2026, 9, 12)}}})
-    got = sell_side_for(filled, weth, "volatile")
-    assert got["value"] == "12000 WETH" and got["source"] == "s"
-    assert sell_side_for(filled, weth, "stable") is None   # volatile nodes only
+    got = sell_side_for(cfg, weth, "volatile")
+    assert got["value"] == "13750.0000" and got["date"] == "2026-09-12"
+    assert "Paraswap" in got["source"]
+    assert sell_side_for(cfg, weth, "stable") is None       # volatile only
+    assert sell_side_for(cfg, "0x" + "f" * 40, "volatile") is None   # unlisted
+    # USCC's zero is a VALUE, not an absence: the row is complete and passes.
+    uscc = sell_side_for(cfg, "0x14d60e7fdc0d71d8611742720e4c50e7a974020c", "volatile")
+    assert uscc["value"] == "0" and "no route" in uscc["source"]
+    assert len(load(REPO / "config", "crvUSD").sell_side) == 8
+    assert len(load(REPO / "config", "LUSD").sell_side) == 1

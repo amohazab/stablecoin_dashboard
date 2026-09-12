@@ -63,10 +63,46 @@ Discovery by factory/controller address class [VERIFIED 2026-09-01: mint = Contr
 **Pool set (exit liquidity):** Rule: memo §5. Frozen set established at first run by three-way discovery; §5.4 exclusions apply (crvUSD/wstETH, crvUSD/WETH-type pools excluded as circular; PegKeeper pools included in full). Expected pools [FIRST-RUN READ: discovery; expected incl. PegKeeper pools USDC/USDT/pyUSD/frxUSD (frxUSD needs §4 row)], crvUSD/USDe or other synthetic pairs [RE-SCOPED TO INTAKE: frxUSD and any other keeper paired asset gets its §4 row at freeze; unlabeled → §8.2 (memo §9 stabilizer instance, P4)], any tricrypto-style pools (paired with volatile assets)]. Off-venue share and bridged/L2 supply disclosed per §5.1–5.2 [FIRST-RUN READ: bridge contract balances; lock-vs-burn per bridge].
  
 **Stress hooks (memo §6.3):**
-- H1 crash path — **state-conditional capacity (memo §6.3 H1, ruled 2026-09-02).** Per keeper, per run: (1) regulator `is_killed` Provide flag → killed keeper contributes zero; (2) read α, β (`regulator.alpha()`, `regulator.beta()`), each keeper's `debt()` and crvUSD balance; deployable = (α + β·Σ√r_others)² × (debt + balance) − debt. Capacity = Σ over live keepers. **Metric 4 prints both:** effective deployable headroom vs. naive ceiling − debt. Counterfactual: discretionary kill mid-crash → zero. Verified 2026-09-01: regulator 0x36a04CAffc681fa179558B2Aaba30395CDdd855f, deployed α = 0.5, β = 0.25 (source + Etherscan); USDT ceiling $135M (Curve News July 2026); other ceilings `ControllerFactory.debt_ceiling(pk)` per run.
+- H1 crash path — **state-conditional capacity (memo §6.3 H1, ruled 2026-09-02).** Per keeper, per run: (1) regulator `is_killed` Provide flag → killed keeper contributes zero; [ANALYST-SUPPLIED 2026-09-12: `PegKeeper.is_killed()` REVERTS on all five keepers; the flag is ONE regulator-level value applied to every keeper. Verified source, `Peg Keeper Regulator` vyper 0.3.10 at 0x36a04CAffc681fa179558B2Aaba30395CDdd855f, lines 65-67: `enum Killed: Provide  # 1 / Withdraw  # 2` — a bit flag, decoded into `is_killed_provide` / `is_killed_withdraw` with the regulator's own read as provenance. Live value 0 at 25956063. P-6.01 R8; P-6.06 R-B3.3.] (2) read α, β (`regulator.alpha()`, `regulator.beta()`), each keeper's `debt()` and crvUSD balance; deployable = (α + β·Σ√r_others)² × (debt + balance) − debt. Capacity = Σ over live keepers. **Metric 4 prints both:** effective deployable headroom vs. naive ceiling − debt. Counterfactual: discretionary kill mid-crash → zero. Verified 2026-09-01: regulator 0x36a04CAffc681fa179558B2Aaba30395CDdd855f, deployed α = 0.5, β = 0.25 (source + Etherscan); USDT ceiling $135M (Curve News July 2026); other ceilings `ControllerFactory.debt_ceiling(pk)` per run.
 - H1 depeg path (Member 2) — primary: V2 gating effective, no new mint, LP share stuck in depegging asset (metric 4). Counterfactual: V1 contagion mint sized by headroom. [VERIFIED 2026-09-01: see memo §6.3 H1 — four-condition block incl. cross-pool worst_price_threshold 0.03%; discretionary kill switch exists (admin or Emergency DAO). Source: PegKeeperRegulator.vy (curvefi/curve-stablecoin master) + verified deploy 0x36a04CAffc681fa179558B2Aaba30395CDdd855f (Etherscan)]
+- PegKeeper `price_deviation` — RECORDED, not modeled (P-6.01 R9): a metric-4 disclosure line, no model term. [ANALYST-SUPPLIED 2026-09-12: verified 0.05% on 2026-09-01; the live read at 25956063 is 1e18. The two are not reconciled here — the value is disclosed at the run block and enters no capacity term. The 2026-09-01 verification stands as written; this note records the divergence rather than resolving it.]
 - LLAMMA band depth + arbitrage appetite as primary capacity [FIRST-RUN READ: AMM.A(), Controller.n (per loan), AMM.bands_x/bands_y]. Arbitrage sell-side bounded by the §6.3 collateral-sell-side parameter per node.
-- Volatile nodes for Member 1: WETH, wstETH, sfrxETH, weETH (LST/LRT axis applies), WBTC, tBTC, cbBTC. Cells: 47.
+- Volatile nodes for Member 1: WETH, wstETH, sfrxETH, weETH (LST/LRT axis applies), WBTC, tBTC, cbBTC, LBTC. Cells: 47. [ANALYST-SUPPLIED 2026-09-12: LBTC added — live mint-market collateral found at first contact 2026-09-04 (P-3.28), after this line was written; `labels.toml` has carried its row since 2026-09-08.]
+
+**Metric-4 field set (DET-38; `m4_fields[]`)** — the PER-TOKEN UNION: every cell carries every key, and a key not applicable to a cell's member carries `0` with a `reason` literal naming it (e.g. `reason = "not applicable — Member 1"`), the form DET-51 already uses for `redemption_capacity` on the crash path.
+
+crvUSD (18): effective, naive, is_killed, alpha, beta, provide_allowed, withdraw_allowed, burn_capacity, stabilizer_debt_post_cell, ceiling_aggregate, utilization_post_cell, pegkeeper_lp_share, paired_units_held, pool_tilt_post_cell, exit_depth_cell, lp_flight_share, oracle_spot_gap, counterfactual_ref.
+
+NAMED DEFAULTS (implementer, not rubric): `pegkeeper_lp_share`, `paired_units_held` and `pool_tilt_post_cell` are the Builder's names for the three quantities DET-27 describes in prose without naming — "metric 4 prints quantities only (LP share, paired-asset units held, pool tilt post-cell)". Every other key is the rubric's own identifier. `sp_balance_read` is a lineage key (DET-51 Member-1 capacity), not an `m4` key, and is deliberately absent.
+
+**stock-only capacity — direction of error per mechanism** (DET-53; `bias_table[]`, Appendix C seed)
+
+| Mechanism | Token | Direction | Reason |
+|---|---|---|---|
+| Collateral-sell-side bound ★ | crvUSD, GHO | overstates | full bound treated as immediately absorbable |
+| GSM cap headroom (H2.i) ★ | GHO | overstates | full cap headroom treated as instantly mintable |
+| Liquidator recycling (H5) ★ | GHO | understates | no multi-round capital recycling |
+| Stability Pool refills (H3) ★ | LUSD | understates | no SP deposits between liquidation waves |
+| PegKeeper effective headroom (H1) | crvUSD | overstates | full effective headroom treated as deployed within the window; peer co-deployment dynamics omitted — runs conservative |
+| H4 redemption capacity | LUSD | overstates | full schedule capacity treated as immediately available; base-rate decay (regenerative, 12h half-life) omitted — runs conservative |
+| H5 liquidator appetite (composite) | GHO | both | two named opposite-sign terms; DET-47 `binding_side` states per cell which dominates |
+| Pool exit depth — no LP inflow | all | understates | no LP inflow modeled |
+| Pool exit depth — LP sticky at flight-0 | all | overstates | static composition; spread disclosed by the LP-flight grid |
+
+★ = mandatory literal (DET-53).
+
+**Collateral-sell-side capacity (memo §6.3, §11.13; DET-52)** — "amount of [node] absorbable into stable markets within the shock window at ≤ 2% impact".
+
+| Tag | Address | Value | Source | Date |
+|---|---|---|---|---|
+| SS-WETH | 0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2 | 13750.0000 | Paraswap prices API v6.2, Ethereum mainnet, ~2% price impact into USDC by bisection against a small reference quote; tools/sell_side.py run by Amin, 2026-09-12 | 2026-09-12 |
+| SS-wstETH | 0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0 | 609.3750 | Paraswap prices API v6.2, Ethereum mainnet, ~2% price impact into USDC by bisection against a small reference quote; tools/sell_side.py run by Amin, 2026-09-12 | 2026-09-12 |
+| SS-sfrxETH | 0xac3e018457b222d93114458476f3e3416abbe38f | 10.2539 | Paraswap prices API v6.2, Ethereum mainnet, ~2% price impact into USDC by bisection against a small reference quote; tools/sell_side.py run by Amin, 2026-09-12 | 2026-09-12 |
+| SS-weETH | 0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee | 5000.0000 | Paraswap prices API v6.2, Ethereum mainnet, ~2% price impact into USDC by bisection against a small reference quote; tools/sell_side.py run by Amin, 2026-09-12 | 2026-09-12 |
+| SS-WBTC | 0x2260fac5e5542a773aa44fbcfedf7c193bc2c599 | 131.2500 | Paraswap prices API v6.2, Ethereum mainnet, ~2% price impact into USDC by bisection against a small reference quote; tools/sell_side.py run by Amin, 2026-09-12 | 2026-09-12 |
+| SS-cbBTC | 0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf | 34.3750 | Paraswap prices API v6.2, Ethereum mainnet, ~2% price impact into USDC by bisection against a small reference quote; tools/sell_side.py run by Amin, 2026-09-12 | 2026-09-12 |
+| SS-LBTC | 0x8236a87084f8b84306f72007f36f2618a5634494 | 17.8125 | Paraswap prices API v6.2, Ethereum mainnet, ~2% price impact into USDC by bisection against a small reference quote; tools/sell_side.py run by Amin, 2026-09-12 | 2026-09-12 |
+| SS-tBTC | 0x18084fba666a33d37592fa2633fd49a74dd93a88 | 28.1250 | Paraswap prices API v6.2, Ethereum mainnet, ~2% price impact into USDC by bisection against a small reference quote; tools/sell_side.py run by Amin, 2026-09-12 | 2026-09-12 |
 - Member 2 target stable: set at pool-set freeze (memo §6.2.5) — expected USDC or USDT (set at first freeze; not a Phase B item). Forced-sell numerator zero by construction → structural-insulation finding; Member 2 told via exit-depth curve + metric 4 (PegKeeper LP share).
 **Quarantine instances (memo §8.1):**
 - (c) Market-count: mint-market count from the controller factory. Addition with known node → L1; removal → L2. Lend-market count changes are logged but do not trigger (excluded by the supply-origination gate).
@@ -176,7 +212,7 @@ Note: PegKeeper pools and Curve pools are markets, not redemption (§5); holder 
 | aLINK, aAAVE, other governance tokens | governance/volatile | `terminal` |
 | aweETH / other LRTs | LRT | `terminal_other_layer` — memo §4.5 LRT-family row (ruled 2026-09-02; §11 item 2 resolved) [FIRST-RUN READ: attribution] |
 | acbETH | cbETH | `recurses` — memo §4.5 cbETH row (ruled 2026-09-02; §11 item 2 resolved); disclosure cadence re-scoped to this sheet by that row and still owed [FIRST-RUN READ: attribution] |
-| GSM boxed USDC / USDT | USDC / USDT | `recurses` |
+| GSM boxed waEthUSDC / waEthUSDT | USDC / USDT via memo §4.3 | `recurses` [ANALYST-SUPPLIED 2026-09-12: the GSMs' `UNDERLYING_ASSET()` is `waEthUSDC` 0xd4fa2d31b7968e448877f69a96de69f5de8cd23e and `waEthUSDT` 0x7bc3485026ac48b6cf9baf0a377477fff5703af8 — `StataTokenV2` (ERC-4626) behind proxies on verified implementation 0x487c2c53c0866f0a73ae317bd1a28f63adcd9ad1, NOT bare USDC/USDT. The walk wrapper → aToken → underlying closes at USDC and USDT and is a production read every run; balances are SHARES and convert at `convertToAssets` (1.185074933 / 1.174832582 at 25946240). Memo §4.3 pass-through, no level consumed. P-6.05; Inventory B F14.] |
 | Any other | — | unlisted → §8.2 quarantine rule |
  
 Expected verifiability result (Step-5 done-condition): a defensible non-trivial split — meaningful `recurses` weight via stables and WBTC, one `recurses_truncated` slice, remainder `terminal` / `terminal_other_layer`.
@@ -193,9 +229,47 @@ Expected verifiability result (Step-5 done-condition): a defensible non-trivial 
 - H5 liquidator appetite — capacity = min(GHO sourceable = §5 buy-side depth + GSM mint headroom; collateral sellable = §6.3 analyst parameter per node), within the liquidation bonus; binding side reported per cell (metric 4). [FIRST-RUN READ: PoolDataProvider reads]
 - Facilitator bucket caps bound recovery minting only (metric 4) [FIRST-RUN READ: GhoToken reads; bucket steward 0x46Aa1063e5265b43663E81329333B47c517A5409].
 - Volatile nodes for Member 1: WETH, wstETH/rETH (LST axis), WBTC, governance tokens, LRTs/cbETH if present. Stable nodes shocked only in Member 2. Cells: 47.
+
+**Metric-4 field set (DET-38; `m4_fields[]`)** — the PER-TOKEN UNION: every cell carries every key, and a key not applicable to a cell's member carries `0` with a `reason` literal naming it (e.g. `reason = "not applicable — Member 1"`), the form DET-51 already uses for `redemption_capacity` on the crash path.
+
+GHO (9): gho_sourceable, collateral_sellable, gsm_mint_headroom, binding_side, facilitator_bucket_levels, freezer_state, exit_depth_cell, lp_flight_share, counterfactual_ref.
+
+NAMED DEFAULTS (implementer, not rubric): `pegkeeper_lp_share`, `paired_units_held` and `pool_tilt_post_cell` are the Builder's names for the three quantities DET-27 describes in prose without naming — "metric 4 prints quantities only (LP share, paired-asset units held, pool tilt post-cell)". Every other key is the rubric's own identifier. `sp_balance_read` is a lineage key (DET-51 Member-1 capacity), not an `m4` key, and is deliberately absent.
+
+**stock-only capacity — direction of error per mechanism** (DET-53; `bias_table[]`, Appendix C seed)
+
+| Mechanism | Token | Direction | Reason |
+|---|---|---|---|
+| Collateral-sell-side bound ★ | crvUSD, GHO | overstates | full bound treated as immediately absorbable |
+| GSM cap headroom (H2.i) ★ | GHO | overstates | full cap headroom treated as instantly mintable |
+| Liquidator recycling (H5) ★ | GHO | understates | no multi-round capital recycling |
+| Stability Pool refills (H3) ★ | LUSD | understates | no SP deposits between liquidation waves |
+| PegKeeper effective headroom (H1) | crvUSD | overstates | full effective headroom treated as deployed within the window; peer co-deployment dynamics omitted — runs conservative |
+| H4 redemption capacity | LUSD | overstates | full schedule capacity treated as immediately available; base-rate decay (regenerative, 12h half-life) omitted — runs conservative |
+| H5 liquidator appetite (composite) | GHO | both | two named opposite-sign terms; DET-47 `binding_side` states per cell which dominates |
+| Pool exit depth — no LP inflow | all | understates | no LP inflow modeled |
+| Pool exit depth — LP sticky at flight-0 | all | overstates | static composition; spread disclosed by the LP-flight grid |
+
+★ = mandatory literal (DET-53).
+
+**Collateral-sell-side capacity (memo §6.3, §11.13; DET-52)** — "amount of [node] absorbable into stable markets within the shock window at ≤ 2% impact".
+
+| Tag | Address | Value | Source | Date |
+|---|---|---|---|---|
+| SS-wstETH | 0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0 | 609.3750 | Paraswap prices API v6.2, Ethereum mainnet, ~2% price impact into USDC by bisection against a small reference quote; tools/sell_side.py run by Amin, 2026-09-12 | 2026-09-12 |
+| SS-WETH | 0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2 | 13750.0000 | Paraswap prices API v6.2, Ethereum mainnet, ~2% price impact into USDC by bisection against a small reference quote; tools/sell_side.py run by Amin, 2026-09-12 | 2026-09-12 |
+| SS-WBTC | 0x2260fac5e5542a773aa44fbcfedf7c193bc2c599 | 131.2500 | Paraswap prices API v6.2, Ethereum mainnet, ~2% price impact into USDC by bisection against a small reference quote; tools/sell_side.py run by Amin, 2026-09-12 | 2026-09-12 |
+| SS-AAVE | 0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9 | 3750.0000 | Paraswap prices API v6.2, Ethereum mainnet, ~2% price impact into USDC by bisection against a small reference quote; tools/sell_side.py run by Amin, 2026-09-12 | 2026-09-12 |
+| SS-weETH | 0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee | 5000.0000 | Paraswap prices API v6.2, Ethereum mainnet, ~2% price impact into USDC by bisection against a small reference quote; tools/sell_side.py run by Amin, 2026-09-12 | 2026-09-12 |
+| SS-cbBTC | 0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf | 34.3750 | Paraswap prices API v6.2, Ethereum mainnet, ~2% price impact into USDC by bisection against a small reference quote; tools/sell_side.py run by Amin, 2026-09-12 | 2026-09-12 |
+| SS-tBTC | 0x18084fba666a33d37592fa2633fd49a74dd93a88 | 28.1250 | Paraswap prices API v6.2, Ethereum mainnet, ~2% price impact into USDC by bisection against a small reference quote; tools/sell_side.py run by Amin, 2026-09-12 | 2026-09-12 |
+| SS-USCC | 0x14d60e7fdc0d71d8611742720e4c50e7a974020c | 0 | Paraswap prices API v6.2, Ethereum mainnet, ~2% price impact into USDC by bisection against a small reference quote; tools/sell_side.py run by Amin, 2026-09-12 — no route on Paraswap — 404 no routes with enough liquidity | 2026-09-12 |
+| SS-rETH | 0xae78736cd615f374d3085123a210448e74fc6393 | 968.7500 | Paraswap prices API v6.2, Ethereum mainnet, ~2% price impact into USDC by bisection against a small reference quote; tools/sell_side.py run by Amin, 2026-09-12 | 2026-09-12 |
+| SS-LINK | 0x514910771af9ca656af840dff83e8264ecf986ca | 425000.0000 | Paraswap prices API v6.2, Ethereum mainnet, ~2% price impact into USDC by bisection against a small reference quote; tools/sell_side.py run by Amin, 2026-09-12 | 2026-09-12 |
+| SS-cbETH | 0xbe9895146f7af43049ca1c1ae358b0541ea49704 | 87.8906 | Paraswap prices API v6.2, Ethereum mainnet, ~2% price impact into USDC by bisection against a small reference quote; tools/sell_side.py run by Amin, 2026-09-12 | 2026-09-12 |
 - Member 2 target stable: set at pool-set freeze (memo §6.2.5; set at first freeze, not a Phase B item). Forced-sell numerator = GSM-facilitator bucket level for the shocked boxed asset + the §11.1 pro-rata slice attributed to shocked stable-collateral nodes (aUSDC/aUSDT/aDAI-type as applicable), full slice, not value-weighted.
 - Paired-asset notes: GHO/crvUSD-type pools — crvUSD linked to its last published tree (memo §4.1), not shocked in Member 2; any 3CRV-type composite paired asset passes through pro-rata (memo §4.3).
-**§5.10 venue line:** GSM counts as a deterministic exit venue — depth = boxed balance, price = 1 − fee, included at s = 2% iff sell fee < 2% [VERIFIED 2026-09-01: 0.2% at launch (AIP-8); current first-run read]; listed separately from pool depth; removed from exit depth when the freezer trips (Member 2 primary).
+**§5.10 venue line:** GSM counts as a deterministic exit venue — depth = boxed balance, price = 1 − fee, included at s = 2% iff sell fee < 2% [VERIFIED 2026-09-01: 0.2% at launch (AIP-8); current first-run read] [ANALYST-SUPPLIED 2026-09-12: the exit fee is the GSM's **BUY** fee, `getFeeStrategy().getBuyFee(amount)`, not its sell fee: a GHO holder leaving into the boxed asset BUYS that asset. Live at 25946240 — sell fee 0, buy fee 0.1% (USDC GSM) and 0.15% (USDT GSM); the artifact's `fee_exit` carries these. P-6.01 R15; Inventory B F12.]; listed separately from pool depth; removed from exit depth when the freezer trips (Member 2 primary).
  
 **Quarantine instances (memo §8.1):**
 - (c) Market-count: enabled-collateral count with non-zero GHO backing; GSM count; facilitator count. Addition with known node → L1; removal → L2.
@@ -210,9 +284,9 @@ Expected verifiability result (Step-5 done-condition): a defensible non-trivial 
 | Field | Path 1 — GSM (per instance) | Path 2 — Aave facilitator |
 |---|---|---|
 | R1 path | `module_on_chain` | `none` |
-| R2 who | `anyone` [VERIFIED 2026-09-01: GSM sellAsset is permissionless per GSM design (docs.gho.xyz); freezer/seize are the only gates] | `no_one` |
-| R3 received | boxed asset address [VERIFIED 2026-09-01: GSM_USDC 0x3A3868898305f04beC7FEa77BecFf04C13444112, GSM_USDT 0x882285E62656b9623AF136Ce3078c6BdCc33F5E3 (current, yield-bearing stata-based variants per Pharos Jul 2026); GSM registry 0x167527DB01325408696326e3580cd8e55D99Dc1A; GHO 0x40D16FC0246aD3160Ccc09B8D0D3A2cD28aE6C2f; FlashMinter 0xb639D208Bcf0589D54FaC24E655C79EC529762B8; CCIP token pool 0x06179f7C1be40863405f374E7f5F8806c728660A. Source: bgd-labs/aave-address-book main (GhoEthereum.sol, AaveV3Ethereum.sol, GovernanceV3Ethereum.sol)] | — |
-| R4 rate | `face_minus_fee(sell fee [FIRST-RUN READ: live value])` | — |
+| R2 who | `anyone` [VERIFIED 2026-09-01: GSM sellAsset is permissionless per GSM design (docs.gho.xyz); freezer/seize are the only gates [ANALYST-SUPPLIED 2026-09-12: the HOLDER's exit function is `buyAsset` — the holder buys the boxed asset with GHO; `sellAsset` is the MINT direction. P-6.01 R15; Inventory B F12.]] | `no_one` |
+| R3 received | boxed asset address [VERIFIED 2026-09-01: GSM_USDC 0x3A3868898305f04beC7FEa77BecFf04C13444112, GSM_USDT 0x882285E62656b9623AF136Ce3078c6BdCc33F5E3 (`StataTokenV2` ERC-4626 wrappers on verified impl 0x487c2c53c0866f0a73ae317bd1a28f63adcd9ad1, passing through to USDC/USDT per memo §4.3 — P-6.05); GSM registry 0x167527DB01325408696326e3580cd8e55D99Dc1A; GHO 0x40D16FC0246aD3160Ccc09B8D0D3A2cD28aE6C2f; FlashMinter 0xb639D208Bcf0589D54FaC24E655C79EC529762B8; CCIP token pool 0x06179f7C1be40863405f374E7f5F8806c728660A. Source: bgd-labs/aave-address-book main (GhoEthereum.sol, AaveV3Ethereum.sol, GovernanceV3Ethereum.sol)] | — |
+| R4 rate | `face_minus_fee(buy fee [FIRST-RUN READ: live value])` | — |
 | R5 minimum | `none` [FIRST-RUN READ: live value] | — |
 | R6 gates | `capacity_limited` + `pausable` (freezer / swap-freeze roles [VERIFIED 2026-09-01: automatic (Chainlink Automation keeper) + Aave DAO as second freezer; bounds 0.99/1.01 freeze, 0.995/1.005 unfreeze on original instance — see memo §6.3 H2]) | — |
 | R7 capacity | GSM boxed-asset balance (data field) | — |
@@ -259,7 +333,7 @@ Note: Path 1 can close (freezer, §6.3 H2) — this is why paths are recorded se
 | FR-G11 | GHO § Stress hooks — facilitator caps | `facilitators[].{bucket_capacity, bucket_level}` | `GHO.getFacilitatorBucket(a)` over every facilitator | open |
 | FR-G12 | GHO § Quarantine instances (d) | `near_bound[]` | `GSM.getExposureCap()` vs `GSM.getAvailableUnderlyingExposure()`; `GHO.getFacilitatorBucket(a)` level ÷ capacity | open |
 | FR-G13 | GHO § Oracle sources | `oracle_rows[].heartbeat_s` | heartbeat is not on-chain state — dated per-feed analyst value in the DET-04 form (data.chain.link) | open |
-| FR-G14 | GHO § Redemption-rights R4 | `redemption_paths[i].r4_rate` | `GSM.getFeeStrategy()` -> strategy `getSellFee(amount)` | open |
+| FR-G14 | GHO § Redemption-rights R4 | `redemption_paths[i].r4_rate` | `GSM.getFeeStrategy()` -> strategy `getBuyFee(amount)` | open |
 | FR-G15 | GHO § Redemption-rights R5 | `redemption_paths[i].r5_minimum` | `GSM.getFeeStrategy()`; minimum absent => `none`, recorded as an absence read | open |
 | FR-G16 | GHO § Admin-power surface — header | `admin_surface[]` | the nine A1 rows below, every read at `run_block` | open |
 | FR-G17 | GHO § Admin surface — `mint` A2 | `admin_surface[mint].holder` | GhoToken `RoleGranted` / `RoleRevoked` logs as POINTER (Etherscan v2 `logs/getLogs`), `GHO.hasRole(FACILITATOR_MANAGER_ROLE / BUCKET_MANAGER_ROLE, holder)` at `run_block` as VERDICT (P-4.04 R5) | open |
@@ -323,7 +397,35 @@ Expected verifiability result: 100% `terminal`. Any second node is an unlisted n
 - H4 redemption arbitrage — Member 2 only: capacity = LUSD redeemable before the dynamic fee exceeds 2% [VERIFIED 2026-09-01: BETA=2; decay 0.999037758833783/min (12h half-life); floor 0.5%; cap = must be < redeemed amount — TroveManager.sol]. Crash-path effect excluded (conservative; noted in memo).
 - Member 2 — no boxed asset, no stabilizer pool; only §5 pool set paired stables affected.
 - Volatile node for Member 1: ETH only; LST axis does not apply. Cells: 23.
-- Member 2 target stable: set at first freeze (not a Phase B item) — expected USDC via the 3CRV composite. Forced-sell numerator zero by construction → structural-insulation finding; Member 2 told via exit-depth curve (H4 redemption capacity is the notable line). Joint cell checks the `state_conditional` gate (H4 capacity zero if TCR < MCR).
+
+**Metric-4 field set (DET-38; `m4_fields[]`)** — the PER-TOKEN UNION: every cell carries every key, and a key not applicable to a cell's member carries `0` with a `reason` literal naming it (e.g. `reason = "not applicable — Member 1"`), the form DET-51 already uses for `redemption_capacity` on the crash path.
+
+LUSD (9): sp_effective_cell, redistributed_debt, redistributed_positions_below_100, tcr_post, recovery_mode_flag, redemption_capacity, exit_depth_cell, lp_flight_share, counterfactual_ref.
+
+NAMED DEFAULTS (implementer, not rubric): `pegkeeper_lp_share`, `paired_units_held` and `pool_tilt_post_cell` are the Builder's names for the three quantities DET-27 describes in prose without naming — "metric 4 prints quantities only (LP share, paired-asset units held, pool tilt post-cell)". Every other key is the rubric's own identifier. `sp_balance_read` is a lineage key (DET-51 Member-1 capacity), not an `m4` key, and is deliberately absent.
+
+**stock-only capacity — direction of error per mechanism** (DET-53; `bias_table[]`, Appendix C seed)
+
+| Mechanism | Token | Direction | Reason |
+|---|---|---|---|
+| Collateral-sell-side bound ★ | crvUSD, GHO | overstates | full bound treated as immediately absorbable |
+| GSM cap headroom (H2.i) ★ | GHO | overstates | full cap headroom treated as instantly mintable |
+| Liquidator recycling (H5) ★ | GHO | understates | no multi-round capital recycling |
+| Stability Pool refills (H3) ★ | LUSD | understates | no SP deposits between liquidation waves |
+| PegKeeper effective headroom (H1) | crvUSD | overstates | full effective headroom treated as deployed within the window; peer co-deployment dynamics omitted — runs conservative |
+| H4 redemption capacity | LUSD | overstates | full schedule capacity treated as immediately available; base-rate decay (regenerative, 12h half-life) omitted — runs conservative |
+| H5 liquidator appetite (composite) | GHO | both | two named opposite-sign terms; DET-47 `binding_side` states per cell which dominates |
+| Pool exit depth — no LP inflow | all | understates | no LP inflow modeled |
+| Pool exit depth — LP sticky at flight-0 | all | overstates | static composition; spread disclosed by the LP-flight grid |
+
+★ = mandatory literal (DET-53).
+
+**Collateral-sell-side capacity (memo §6.3; DET-52)** — LUSD is exempt.
+
+| Tag | Address | Value | Source | Date |
+|---|---|---|---|---|
+| SS-ETH | 0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee | exempt — Stability Pool depositors receive collateral; no forced sale | memo §6.3 sell-side bound; DET-52 | 2026-09-12 |
+- Member 2 target stable: set at first freeze (not a Phase B item) — expected USDC via the 3CRV composite. [ANALYST-SUPPLIED 2026-09-12: the computed target is **USDT** 0xdac17f958d2ee523a2206206994597c13d831ec7 at 52.16% of exit depth at s = 2%, against USDC's 23.26% and DAI's 24.58%, from the 3pool composition read at 25955393 (P-6.04 C4). The "expected USDC" reading predates the depth solver; the fill is computed, never assumed (P-6.01 R7).] Forced-sell numerator zero by construction → structural-insulation finding; Member 2 told via exit-depth curve (H4 redemption capacity is the notable line). Joint cell checks the `state_conditional` gate (H4 capacity zero if TCR < MCR).
 **Quarantine instances (memo §8.1):**
 - (c) Market-count: immutable protocol; any change in the contract set or collateral count → L3 (adapter bug by definition).
 - (d) Mechanism near bound → L1: TCR within 10pp of the Recovery Mode threshold, i.e., TCR < 160% given the 150% threshold [VERIFIED 2026-09-01: CCR = 150% — LiquityBase.sol]. Mirrored in the monitoring brief.

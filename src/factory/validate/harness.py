@@ -1016,6 +1016,44 @@ def det_31(b: Bundle, t: VerifiabilityTree, r: StressReport) -> None:
                          f"{g.implied_price} outside [{lo}, {hi}]")
 
 
+def det_52(b: Bundle, ctx) -> str | None:
+    """Collateral-sell-side bound as a disclosed assumption (R-26), S1.
+
+    "every `node_class = volatile` node of crvUSD and GHO has
+    `sell_side_capacity {value, source, date}` … a volatile node without a
+    parameter = Level 3". LUSD's one volatile node carries the entry's literal
+    instead of a number, which is why the check tests PRESENCE and the three
+    keys rather than numeracy — the exempt row is a complete parameter.
+
+    THE STALE-DATE BRANCH HAS NO TRIGGER. The entry says "`date ≥ freeze_date`
+    else Level 2", but §3's table is closed (DET-12) and carries no row for a
+    sell-side parameter dated before the freeze. `det_10`'s (c) clause set the
+    precedent for exactly this gap: no consequence is invented at runtime, the
+    condition is recorded in the scope line, and the missing row goes on the
+    rubric-amendment queue. All 19 values are dated 2026-09-12, at or after
+    every `freeze_date`, so the branch does not fire today.
+    """
+    missing, stale = [], []
+    for n in b.nodes:
+        if n.node_class != "volatile":
+            continue
+        p = n.sell_side_capacity
+        if not p or not all(p.get(k) for k in ("value", "source", "date")):
+            missing.append(n.symbol)
+        elif b.header.freeze_date and p["date"] < b.header.freeze_date:
+            stale.append(f"{n.symbol} {p['date']}")
+    if missing:
+        raise Level3(f"DET-52: volatile node(s) without a sell-side parameter "
+                     f"{sorted(missing)} — the bound is a disclosed assumption, "
+                     "never a default")
+    if stale:
+        return (f"sell-side parameter(s) dated before freeze_date "
+                f"{b.header.freeze_date}: {sorted(stale)} — the entry assigns "
+                "Level 2 but §3's closed table has no trigger for it; queued to "
+                "the rubric-amendment log, no level invented here")
+    return None
+
+
 def det_50(b: Bundle, t: VerifiabilityTree, r: StressReport) -> str | None:
     """Target stable, compound tail, joint cell — the TARGET limb only (B-3a).
 
@@ -1122,6 +1160,7 @@ CHECKS: list[Check] = [
     Check("DET-68", "S1", 3, det_68), Check("DET-08", "S1", 2, det_08),
     Check("DET-10", "S1", 3, det_10),
     Check("DET-82", "S1", 3, det_82),
+    Check("DET-52", "S1", 3, det_52),
     # S2 - the tree (P-5.01 R6); Level 2 = the report is not published.
     Check("DET-14", "S2", 2, det_14), Check("DET-19", "S2", 2, det_19),
     Check("DET-70", "S2", 2, det_70), Check("DET-11", "S2", 2, det_11),

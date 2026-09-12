@@ -3,3 +3,4 @@
 {"date":"2026-09-05","set_file_hash":"80d87407","sheet_hash":"a6d8f12a","source":"backfilled 2026-09-07 from P-3.38","token":"crvUSD","type":"intake_trigger"}
 {"date":"2026-09-08","set_file_hash":"80d87407","sheet_hash":"d2114a96","source":"P-4.05","token":"crvUSD","type":"intake_trigger"}
 {"date":"2026-09-10","set_file_hash":"80d87407","sheet_hash":"c7298252","source":"P-4.15","token":"crvUSD","type":"intake_trigger"}
+{"date":"2026-09-13","set_file_hash":"9ebdd282","sheet_hash":"ad7c35c2","source":"P-6.07 — member2_target 0xdac17f958d2ee523a2206206994597c13d831ec7 filled from stress 74a6018c; 19 sell-side values signed 2026-09-12","token":"crvUSD","type":"intake_trigger"}
