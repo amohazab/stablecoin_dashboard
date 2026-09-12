@@ -6414,3 +6414,69 @@ Status: IN PROGRESS (opened 2026-09-12).
   `docs/context/`, no adapter, no `out/bundles/` change.
 - **Follow-ups spawned:** B-1 — `StressReport` and the `factory.stress`
   skeleton.
+
+## P-6.03 — B-1: `StressReport`, the `factory.stress` skeleton, the two stops
+
+- **Date:** 2026-09-12
+- **Type:** implementation
+- **Confirmed by:** Amin
+- **Content:**
+  **MODELS** (`schema.py`, after the tree's): `StressHeader`, `DepthPoint`,
+  `ExitDepth`, `Mechanism`, `MetricReading`, `MetricOne`, `MetricTwo`,
+  `MetricThree`, `CounterfactualLine`, `Cell`, `StressReport`, plus
+  `finalise_stress` / `serialise_stress` — the tree's pair, not the
+  bundle's three. **Required now:** the whole `header`, `value_scale`, the
+  `exit_depth` and `mechanism` containers, `lp_flight_literal`. **Optional
+  until its block:** `member2_target` (B-3), every `ExitDepth` field but the
+  literal (B-2), every `Mechanism` field (B-4/5/6), `cells` non-empty (B-4
+  on), `reference_points`, `assumptions`. **Inside `Cell` nothing is
+  optional** — a cell is only ever constructed complete, so optionality
+  lives at the report level. `value_scale` is copied from
+  `tree.root.value_scale`, never recomputed: `tree.VALUE_SCALE` stays the
+  one owner of the per-token unit.
+  **FIVE IMPLEMENTER DEFAULTS**, each named in code beside what it decides:
+  (1) cell IDs `M1-s20-d0-lp0` / `M2-t0.97-lp30` / `M2-compound` / `JOINT`,
+  DET-37 asserting uniqueness and the 47/47/23 count rather than trusting
+  the scheme; (2) `LP_FLIGHT_LITERAL` carries §6.1.4's content, the rendered
+  wording being DET-36's at Step 7; (3) `finalise_stress` excludes a NESTED
+  key, `{"header": {"stress_hash"}}` — `serialise(bundle)`'s form, the stamp
+  sitting in the header unlike the tree's top-level `tree_hash`; (4)
+  `sensitivity_rows` / `gsm_venues` / `reference_points` stay untyped until
+  DET-30/35/48's field sets are ruled; (5) **`Check` gains `consumer: str =
+  "tree"`** — the STAGE stays the rubric's closed map, and `consumer` says
+  which module runs the row, two modules now owning S2 entries with
+  different arities (`fn(bundle, tree)` vs `fn(bundle, tree, report)`); the
+  default leaves the four existing S2 rows untouched and `run_harness`'s
+  `("S0","S1")` filter keeps `factory.run` unreachable from either.
+  **TWO STOPS, both pure so neither needs a fixture repo.**
+  `assert_raw_hash` hashes the dump's **file bytes as written** against
+  `raw_positions_hash` — each adapter hashes the exact string it then
+  writes, so re-encoding would test our own encoder rather than P-3.05's
+  integrity link, which this is the first code to exercise.
+  `assert_sheet_coherent` raises on a stamp mismatch unless
+  `--allow-stale-sheet`, a DEV flag stamping `stale_sheet` and forcing
+  rehearsal; the cron never passes it. **Named addition beyond the
+  proposal:** `load_inputs` also asserts `tree.source_bundle_hash ==
+  bundle.header.bundle_hash`, so "its tree" is a fact — a bundle promoted
+  without a re-fold would otherwise pair silently with an old tree.
+  **ROUTING:** `out/stress/<TOKEN>/<block>.json` needs every check passing,
+  a NON-EMPTY cell set and a coherent pairing; anything else goes to
+  `out/rehearsal/<TOKEN>/stress-<block>.json`, and the routing is the only
+  write. Named defaults: a zero-cell report is never promotable — it has
+  computed nothing — and the CLI exits 1 on rehearsal, `factory.tree`'s
+  convention. **FOUR DRY INVOCATIONS, all as stated in advance:** crvUSD and
+  LUSD match `c7298252`, 0 cells → rehearsal, `out/stress/` never created;
+  GHO stops on "sheet stamps disagree: bundle d2114a96, mirror c7298252",
+  nothing written; GHO with the flag → rehearsal carrying `stale_sheet
+  true`, `value_scale 100000000`, `member2_target null`. **127 tests**
+  (123 + 4), ruff clean, **`len(CHECKS)` 26 unchanged** — 3 S0 / 19 S1 /
+  4 S2, every S2 row `consumer = "tree"`. `.gitignore` unchanged: no broad
+  `out/` pattern, so `out/stress/` is committed like `out/trees/`.
+  **As-counted, the Builder's:** the P-6.03 draft was announced as a
+  following message and not sent; second occurrence after P-6.02.
+- **Artifacts:** `src/factory/schema.py` · `src/factory/stress.py` (new) ·
+  `src/factory/validate/harness.py` · `tests/test_stress.py` (new). No
+  config, no `docs/context/`, no adapter, no `out/bundles/` change; nothing
+  written to `out/stress/`.
+- **Follow-ups spawned:** B-2 — the depth solver; DET-24, DET-29(b)(c),
+  DET-30, DET-31 and DET-35 activate.

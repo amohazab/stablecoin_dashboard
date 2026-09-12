@@ -16,7 +16,7 @@ from dataclasses import dataclass
 from decimal import Decimal
 
 from factory.provenance import AbsenceRead, AnalystSupplied, ContractRead
-from factory.schema import Bundle, GateResult, VerifiabilityTree
+from factory.schema import Bundle, GateResult, StressReport, VerifiabilityTree
 
 # Trigger table, mirrored from rubric §3. DET-12 compares this to the printed
 # table row-for-row at S0; a mismatch means the pipeline does not start.
@@ -47,9 +47,17 @@ class NotYetImplemented(Exception):
 @dataclass
 class Check:
     entry_id: str
-    stage: str            # "S0" | "S1" | "S2" (S2 takes `(bundle, tree)`; factory.tree)
+    stage: str            # "S0" | "S1" | "S2" — the rubric's stage map, closed
     level_on_fail: int
     fn: Callable
+    # NAMED IMPLEMENTER DEFAULT (ruled 2026-09-12, P-6.01 R2). The STAGE stays
+    # the rubric's; `consumer` says which module runs the row, because two
+    # modules own S2 entries with different arities: `factory.tree` calls
+    # `fn(bundle, tree)` and `factory.stress` calls `fn(bundle, tree, report)`.
+    # Defaulting to "tree" leaves the four existing S2 rows untouched, and
+    # `run_harness`'s ("S0", "S1") filter keeps `factory.run` unreachable from
+    # either consumer.
+    consumer: str = "tree"
 
 
 @dataclass
@@ -876,9 +884,28 @@ def run_tree_checks(bundle: Bundle, tree: VerifiabilityTree) -> list[GateResult]
     `error`, never `pass`. Every entry yields a result, so a rehearsal tree
     records WHICH failed; `factory.tree` routes on them (R2)."""
     results = []
-    for chk in (c for c in CHECKS if c.stage == "S2"):
+    for chk in (c for c in CHECKS if c.stage == "S2" and c.consumer == "tree"):
         try:
             scope = chk.fn(bundle, tree)
+            results.append(GateResult(entry_id=chk.entry_id, result="pass",
+                                      scope_condition=scope if isinstance(scope, str) else None))
+        except Level3:
+            results.append(GateResult(entry_id=chk.entry_id, result="fail"))
+        except Exception:                                   # DET-85 fail-closed
+            results.append(GateResult(entry_id=chk.entry_id, result="error"))
+    return results
+
+
+def run_stress_checks(bundle: Bundle, tree: VerifiabilityTree,
+                      report: StressReport) -> list[GateResult]:
+    """The stress entries, same fail-closed shape as `run_tree_checks`: an
+    exception is `error`, never `pass`, and every entry yields a result so a
+    rehearsal artifact records WHICH failed. EMPTY at B-1 — the Step-6 entries
+    land from B-2 on, and `len(CHECKS)` is unchanged by this block."""
+    results = []
+    for chk in (c for c in CHECKS if c.stage == "S2" and c.consumer == "stress"):
+        try:
+            scope = chk.fn(bundle, tree, report)
             results.append(GateResult(entry_id=chk.entry_id, result="pass",
                                       scope_condition=scope if isinstance(scope, str) else None))
         except Level3:

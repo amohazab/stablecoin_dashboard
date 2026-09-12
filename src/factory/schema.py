@@ -853,3 +853,151 @@ def finalise(bundle: Bundle) -> tuple[Bundle, str]:
     stamped = bundle.model_copy(deep=True)
     stamped.header.bundle_hash = h
     return stamped, h
+
+
+# ------------------------------------------------------- the stress report ---
+# P-6.01 R2/R3: a SIBLING artifact again - folded from a promoted bundle, its
+# tree and its raw dump, so `Bundle`'s shape and `bundle_hash` do not move.
+# Amounts are integer base units at the tree's own `value_scale`; ratios are
+# `Decimal` serialised as strings (O-2). B-1 builds the container and the
+# routing only: everything below `header` is present-and-empty until its block.
+
+
+class StressHeader(BaseModel):
+    token: str
+    run_block: int
+    source_bundle_hash: str
+    source_tree_hash: str
+    # R3: the bundle's stamp and the mirror's, carried SIDE BY SIDE so a stale
+    # pairing is a fact in the artifact rather than something inferred later.
+    bundle_sheet_hash: str
+    mirror_sheet_hash: str
+    stale_sheet: bool = False
+    pipeline_version: str
+    stress_hash: str = ""          # filled last, over everything else
+
+
+class DepthPoint(BaseModel):
+    s: Decimal
+    depth: int
+    per_pool: dict[Address, int] = {}
+
+
+class ExitDepth(BaseModel):
+    """B-2's home. `lp_flight_literal` is the only field required now - the
+    section 6.1.4 text is a constant, not a computed figure. `sensitivity_rows`
+    and `gsm_venues` stay untyped until DET-30's and DET-35's field sets are
+    ruled at B-2; guessing them a block early is what the R1 `Market` leakage
+    cost (P-4.13)."""
+
+    depth_curve: list[DepthPoint] = []
+    k_subsets: dict[str, list[Address]] = {}          # keys "80" / "90" / "95"
+    sensitivity_rows: list[dict[str, Any]] = []
+    gsm_venues: list[dict[str, Any]] = []
+    lp_flight_literal: str
+    reads: dict[str, Provenance] = {}
+
+
+class Mechanism(BaseModel):
+    """ONE model with optional fields - the `Market`/R1 pattern (P-4.13), not
+    three models. crvUSD's four, GHO's two and LUSD's three sit together and a
+    token fills only its own; nothing is required until its block."""
+
+    effective_headroom: int | None = None             # crvUSD, B-4
+    naive_headroom: int | None = None
+    provide_allowed: dict[Address, int] = {}
+    withdraw_allowed: dict[Address, int] = {}
+    h2_routing: dict[Address, str] = {}               # GHO, B-5
+    binding_side: dict[str, str] = {}
+    sp_balance: int | None = None                     # LUSD, B-6
+    base_rate: int | None = None
+    redemption_capacity: int | None = None
+
+
+class MetricReading(BaseModel):
+    ratio: Decimal
+    share_below_100: Decimal
+
+
+class MetricOne(BaseModel):
+    """DET-39: two readings and the gap between them; post is the headline."""
+
+    pre: MetricReading
+    post: MetricReading
+    gap: Decimal
+
+
+class MetricTwo(BaseModel):
+    bad_debt: int
+    pct_supply: Decimal                               # over `supply_ruled` (R1)
+
+
+class MetricThree(BaseModel):
+    ratio: Decimal
+    forced_sell_volume: int
+    exit_depth: int
+
+
+class CounterfactualLine(BaseModel):
+    """DET-44. A line under metric 4, NEVER a cell axis (memo section 6.3)."""
+
+    id: str
+    assumption_text: str
+    metric_affected: str
+    value_primary: Decimal | int | None = None
+    value_counterfactual: Decimal | int | None = None
+    approximation_flag: bool = False
+
+
+class Cell(BaseModel):
+    """NOTHING here is optional: a cell is only ever constructed complete, so
+    optionality lives at the report level (`cells = []`) rather than inside a
+    row. `id` follows the named default `M1-s20-d0-lp0` / `M2-t0.97-lp30` /
+    `M2-compound` / `JOINT`; DET-37 asserts uniqueness and the 47/47/23 count
+    rather than trusting the scheme."""
+
+    id: str
+    member: Literal["M1", "M2", "M2_COMPOUND", "JOINT"]
+    shock: Decimal | None
+    lst: Decimal | None
+    lp: Decimal
+    target: Decimal | None
+    m1: MetricOne
+    m2: MetricTwo
+    m3: MetricThree
+    m4: dict[str, Any]                                # = the sheet's m4_fields[]
+    counterfactual_lines: list[CounterfactualLine] = []
+    lineage: list[Lineage] = []
+
+
+class StressReport(BaseModel):
+    header: StressHeader
+    # Copied from `tree.root.value_scale`, never recomputed: `tree.VALUE_SCALE`
+    # stays the one owner of the per-token unit (P-6.01 R2).
+    value_scale: int
+    member2_target: Address | None = None             # from the set file; B-3
+    exit_depth: ExitDepth
+    mechanism: Mechanism
+    cells: list[Cell] = []
+    reference_points: list[dict[str, Any]] = []       # DET-48, B-4
+    assumptions: dict[str, str] = {}                  # DET-57, B-7
+    checks: list[GateResult] = []
+    flags: list[str] = []
+
+
+def finalise_stress(report: StressReport) -> StressReport:
+    """`stress_hash` over the report with `stress_hash` excluded. The exclusion
+    is NESTED - the stamp lives in `header`, unlike the tree's top-level
+    `tree_hash` - so this takes `serialise(bundle)`'s form, not
+    `finalise_tree`'s."""
+    payload = report.model_dump(mode="python", exclude={"header": {"stress_hash"}})
+    h = hashlib.sha256(json.dumps(payload, sort_keys=True, separators=(",", ":"),
+                                  ensure_ascii=False, default=_default)
+                       .encode("utf-8")).hexdigest()
+    return report.model_copy(update={
+        "header": report.header.model_copy(update={"stress_hash": h})})
+
+
+def serialise_stress(report: StressReport) -> str:
+    return json.dumps(report.model_dump(mode="python"), sort_keys=True,
+                      separators=(",", ":"), ensure_ascii=False, default=_default)
