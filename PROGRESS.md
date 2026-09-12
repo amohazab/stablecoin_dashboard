@@ -6362,3 +6362,55 @@ Status: IN PROGRESS (opened 2026-09-12).
 - **Artifacts:** `PROGRESS.md`. No code change.
 - **Follow-ups spawned:** B-4 implements DET-45 against the memo formula citing
   P-3.21 and this amendment; the metric-4 disclosure lines land with it.
+
+## P-6.02 — C0 applied: the pending literal retired; three re-folds
+
+- **Date:** 2026-09-12
+- **Type:** implementation
+- **Confirmed by:** Amin
+- **Content:**
+  **R1 APPLIED (P-6.01).** `TreeRoot.stabilizer_literal` REMOVED from
+  `schema.py` — the field, not its default: a field nothing emits, reads or
+  checks is not present-and-empty. `tree.py`
+  `denominators["root.stabilizer_debt"]` `"pending (P-4.01 #3)"` → `"amount"`,
+  matching its four `root.*` siblings. `det_19` per **ruling (ii)** — the
+  literal assertion goes, the sentinel keeps its shape with the ruled value, so
+  every key in `denominators` stays under an assertion; it now asserts bars in
+  DET-17 order, each bar over `backing_value` replaying at 1e-6, the five share
+  keys over `backing_value`, no denominator `supply_ruled`, and
+  `root.stabilizer_debt` = `amount`. **Outside the confirmed diff, named before
+  applying and accepted at the ruling:** `det_19`'s docstring line 801, which
+  read "an amount with its pending literal (R1)". 3 files, +4 −7.
+  **DELTAS PROVEN, not asserted:** the three trees were snapshotted before any
+  edit and the new artifacts flattened leaf-by-leaf against them. Per token
+  exactly three leaves move — `root.stabilizer_literal` REMOVED (key absent,
+  never changed in place), `denominators.root.stabilizer_debt` → `'amount'`,
+  `tree_hash`; leaf counts 134→133, 139→138, 70→69, **changed-in-place = 2 on
+  every token and nothing else**; `shares`, `bars`, every `root` amount,
+  `banner`, `qualifier`, `paired_assets`, `concentration`, `staleness`,
+  `truncated_*`, `flags`, `checks`, `source_bundle_hash` byte-identical.
+  **HASHES, 4/4 each:** crvUSD `495e1fae` → **`6bec63f5`**; GHO `5ae38e4e` →
+  **`a3f834b9`**; LUSD `8c37249e` → **`e18138c1`**. **P-5.04's ordering
+  artifact did not recur, proven:** crvUSD, then GHO, then crvUSD a third time
+  → `6bec63f5` unchanged; `resolve_links` carries only `token@run_block` and
+  the five shares, neither of which C0 moves. **As-counted, design layer:** the
+  confirmed re-fold order named the two link-bearing tokens and omitted LUSD;
+  the Builder folded it, fourth invocation, three trees — LUSD is outside
+  `LINKABLE` and in no frozen pool's paired assets, so its fold moves nothing.
+  **TESTS 123, unchanged, and no test file changed** — nothing pinned either
+  string or any `tree_hash`; `ruff check src tests` clean.
+  **As-counted, the Builder's:** P-6.01 was reported at 58 content lines and
+  measured 143 on the appended bytes; accepted at P-6.02 by ruling.
+  **As-counted, design layer:** confirmation of P-6.02 was issued before any
+  draft had been shown; the Builder stopped rather than append against unread
+  text (the P-3.36 shape, roles swapped). **Noted, not fixed:**
+  `adapters/gho.py:281`'s docstring still calls the `supply_ruled` denominator
+  P-4.01 #3, stale now that R1 closes it — an adapter file, so it rides B-3's
+  re-run. **Delivery:** items 4 and 5 of the C0 proposal did not reach Amin and
+  were supplied in the implementation report instead.
+- **Artifacts:** `src/factory/schema.py` · `src/factory/tree.py` ·
+  `src/factory/validate/harness.py`; `out/trees/crvUSD/25956063.json` ·
+  `out/trees/GHO/25946240.json` · `out/trees/LUSD/25955393.json`. No config, no
+  `docs/context/`, no adapter, no `out/bundles/` change.
+- **Follow-ups spawned:** B-1 — `StressReport` and the `factory.stress`
+  skeleton.

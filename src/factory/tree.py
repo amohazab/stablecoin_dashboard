@@ -226,7 +226,7 @@ def fold(bundle: Bundle, cfg: Config, linked: dict | None = None,
                       "concentration.share_of_exit_depth": "frozen_set_freeze_tvl",
                       "root.backing_value": "amount", "root.backed_supply": "amount",
                       "root.supply_ruled": "amount", "root.residual": "amount",
-                      "root.stabilizer_debt": "pending (P-4.01 #3)"},
+                      "root.stabilizer_debt": "amount"},
         paired_assets=paired, concentration=concentration, flags=flags)
 
 

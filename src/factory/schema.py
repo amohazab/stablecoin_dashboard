@@ -712,7 +712,6 @@ class TreeRoot(BaseModel):
     residual: int
     perimeter: str
     stabilizer_debt: int                 # sum of stabilizer.operations[].current_debt
-    stabilizer_literal: str = "share of supply: denominator pending (P-4.01 #3)"
 
 
 class TreeShares(BaseModel):

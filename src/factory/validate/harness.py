@@ -798,7 +798,7 @@ def det_14(b: Bundle, t: VerifiabilityTree) -> None:
 def det_19(b: Bundle, t: VerifiabilityTree) -> None:
     """Denominator discipline: every share and bar is over `backing_value` and
     replays against it; nothing is over `supply_ruled`; the stabilizer line is
-    an amount with its pending literal (R1)."""
+    an amount (P-6.01 R1 retired the pending literal)."""
     backing = Decimal(sum(n.value for n in b.nodes))
     want = {"terminal": ("terminal",), "terminal_other_layer": ("terminal_other_layer",),
             "disclosure_dependent": ("recurses", "recurses_truncated")}
@@ -816,10 +816,8 @@ def det_19(b: Bundle, t: VerifiabilityTree) -> None:
             raise Level3(f"DET-19: {key} declares {t.denominators.get(key)!r}")
     if "supply_ruled" in t.denominators.values():
         raise Level3("DET-19: a figure declared over supply_ruled (R1 forbids it)")
-    if (t.denominators.get("root.stabilizer_debt") != "pending (P-4.01 #3)"
-            or t.root.stabilizer_literal
-            != "share of supply: denominator pending (P-4.01 #3)"):
-        raise Level3("DET-19: stabilizer line must be an amount, denominator pending")
+    if t.denominators.get("root.stabilizer_debt") != "amount":
+        raise Level3("DET-19: the stabilizer line is an amount")
 
 
 def det_70(b: Bundle, t: VerifiabilityTree) -> None:
