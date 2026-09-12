@@ -896,6 +896,145 @@ def run_tree_checks(bundle: Bundle, tree: VerifiabilityTree) -> list[GateResult]
     return results
 
 
+# --------------------------------------------- S2, consumer "stress" --------
+# B-2's five (P-6.04). Each takes `(bundle, tree, report)` and is run by
+# `factory.stress` alone; `run_harness`'s ("S0","S1") filter and
+# `run_tree_checks`' consumer filter both keep them unreachable elsewhere.
+
+S_EXPECTED = (Decimal("0.005"), Decimal("0.01"), Decimal("0.02"), Decimal("0.05"))
+DET31_EPSILON = Decimal("0.0005")                      # R-17's symmetric ε
+
+
+def _frozen(b: Bundle) -> list[str]:
+    return sorted(r.address for r in b.pools if r.in_frozen_set)
+
+
+def det_24(b: Bundle, t: VerifiabilityTree, r: StressReport) -> str:
+    """Stabilizer pools enter exit depth IN FULL (P-4): no LP-share carve-out,
+    and no stabilizer pool may be missing from F.
+
+    R-B2.5's IMPLEMENTABLE FORM, ruled 2026-09-12. DET-24's letter compares the
+    solver's inputs to `pool_composition_at_block`, and NO SUCH FIELD EXISTS on
+    `StabilizerOperation` — `det_20` requires only three read keys. So (a) is
+    asserted as PROVENANCE rather than as value equality: every frozen pool's
+    per-coin balance carries a `balances(i)` contract read at `run_block`, which
+    is the only source the solver has, and no LP-share term appears anywhere in
+    `exit_depth`. The rubric's wording is queued to B-3's amendment log; the
+    scope condition returned here records the narrowing on the artifact.
+    """
+    for addr in _frozen(b):
+        keys = [k for k in r.exit_depth.reads if k.startswith(f"{addr}.balances(")]
+        if not keys:
+            raise Level3(f"DET-24: no balances read recorded for frozen pool {addr}")
+        for k in keys:
+            read = r.exit_depth.reads[k]
+            if not isinstance(read, ContractRead) or read.block != b.header.run_block:
+                raise Level3(f"DET-24: {k} is not a contract read at run_block")
+    frozen = set(_frozen(b))
+    for op in b.stabilizer.operations:
+        if op.paired_pool_address not in frozen:
+            raise Level3(f"DET-24: stabilizer pool {op.paired_pool_address} is not "
+                         "in the frozen set; no exclusion reason is permitted")
+    for row in b.pools:
+        if row.in_frozen_set and row.exclusion_reason is not None:
+            raise Level3(f"DET-24: frozen pool {row.address} carries an "
+                         f"exclusion_reason {row.exclusion_reason!r}")
+    return ("DET-24(a) asserted as provenance, not value equality: "
+            "`pool_composition_at_block` does not exist on the bundle (R-B2.5)")
+
+
+def det_29bc(b: Bundle, t: VerifiabilityTree, r: StressReport) -> None:
+    """K-subset selection replay. `"95"` is F by construction (R5); `"80"` and
+    `"90"` are the shortest prefix by `tvl_at_par` at `run_block`, ties broken
+    on ascending address."""
+    from factory.stress import k_subsets
+    frozen = [row for row in b.pools if row.in_frozen_set]
+    want = k_subsets(frozen)
+    got = r.exit_depth.k_subsets
+    if set(got) != {"80", "90", "95"}:
+        raise Level3(f"DET-29(b): k_subsets keys {sorted(got)}")
+    if sorted(got["95"]) != _frozen(b):
+        raise Level3("DET-29(b): the 95 subset is not F")
+    for k in ("80", "90"):
+        if sorted(got[k]) != sorted(want[k]):
+            raise Level3(f"DET-29(b): subset {k} does not replay: {sorted(got[k])} "
+                         f"vs {sorted(want[k])}")
+        if not set(got[k]) <= set(got["95"]):
+            raise Level3(f"DET-29(b): subset {k} is not a subset of F")
+    head = next((p for p in r.exit_depth.depth_curve if p.s == Decimal("0.02")), None)
+    if head is None or sorted(head.per_pool) != sorted(got["90"]):
+        raise Level3("DET-29(b): the headline modeled set is not K-subset(0.90)")
+
+
+def det_30(b: Bundle, t: VerifiabilityTree, r: StressReport) -> None:
+    """Sensitivity table: exactly three rows, headline cell only."""
+    rows = r.exit_depth.sensitivity_rows
+    if [x.k for x in rows] != ["80", "90", "95"]:
+        raise Level3(f"DET-30: rows {[x.k for x in rows]} not in 80/90/95 order")
+    frozen = set(_frozen(b))
+    for x in rows:
+        if not set(x.pools) <= frozen:
+            raise Level3(f"DET-30: row {x.k} names a pool outside F")
+    if sorted(rows[2].pools) != sorted(frozen):
+        raise Level3("DET-30: row 95 is not F")
+    if not rows[0].depth_at_2pct <= rows[1].depth_at_2pct <= rows[2].depth_at_2pct:
+        raise Level3(f"DET-30: depth not non-decreasing across K: "
+                     f"{[x.depth_at_2pct for x in rows]}")
+    head = next((p for p in r.exit_depth.depth_curve if p.s == Decimal("0.02")), None)
+    if head is None or rows[1].depth_at_2pct != head.pool_depth:
+        raise Level3("DET-30: row 90 does not equal the headline pool depth")
+
+
+def det_31(b: Bundle, t: VerifiabilityTree, r: StressReport) -> None:
+    """Depth curve: four points, s = 2% the headline, and the `get_dy` ground
+    truth within ε = 0.05% on EVERY F pool (R-17)."""
+    curve = r.exit_depth.depth_curve
+    if [p.s for p in curve] != list(S_EXPECTED):
+        raise Level3(f"DET-31: points {[str(p.s) for p in curve]} != the four ruled")
+    for a, c in zip(curve, curve[1:], strict=False):   # offset slice: 4 vs 3
+        if c.total < a.total or c.pool_depth < a.pool_depth:
+            raise Level3(f"DET-31: depth decreases from s={a.s} to s={c.s}")
+    for p in curve:
+        if sum(p.per_pool.values()) != p.pool_depth:
+            raise Level3(f"DET-31: per-pool depths do not sum at s={p.s}")
+        if p.total != p.pool_depth + p.gsm_contribution:
+            raise Level3(f"DET-31: total != pool_depth + gsm at s={p.s}")
+    modeled = set(r.exit_depth.k_subsets.get("90", []))
+    seen = {g.pool for g in r.exit_depth.ground_truth}
+    if seen != modeled:
+        raise Level3(f"DET-31: ground truth missing for {sorted(modeled - seen)}")
+    for g in r.exit_depth.ground_truth:
+        lo, hi = Decimal("0.98") - DET31_EPSILON, Decimal("0.98") + DET31_EPSILON
+        if not (lo <= g.implied_price <= hi) or not g.within_epsilon:
+            raise Level3(f"DET-31: {g.pool} implied marginal price "
+                         f"{g.implied_price} outside [{lo}, {hi}]")
+
+
+def det_35(b: Bundle, t: VerifiabilityTree, r: StressReport) -> str | None:
+    """§5.10's deterministic venue. One row per live GSM; R-19's STRICT
+    inclusion test; the contribution never inside the pool-depth line."""
+    venues = {v.gsm: v for v in r.exit_depth.gsm_venues}
+    if set(venues) != {g.address for g in b.gsms}:
+        raise Level3(f"DET-35: venue rows {sorted(venues)} != live GSMs "
+                     f"{sorted(g.address for g in b.gsms)}")
+    for g in b.gsms:
+        v = venues[g.address]
+        if v.boxed_asset != g.underlying_asset:
+            raise Level3(f"DET-35: {g.address} boxed asset mismatch")
+        if v.enters == (g.is_frozen or g.is_seized):
+            raise Level3(f"DET-35: {g.address} inclusion contradicts frozen/seized")
+    for p in r.exit_depth.depth_curve:
+        want = sum(v.balance for v in r.exit_depth.gsm_venues
+                   if v.enters and v.fee_exit < p.s)
+        if p.gsm_contribution != want:
+            raise Level3(f"DET-35: gsm contribution at s={p.s} is "
+                         f"{p.gsm_contribution}, R-19 gives {want}")
+    frozen_now = [g.address for g in b.gsms if g.is_frozen or g.is_seized]
+    if frozen_now:
+        return f"T-21 GSM frozen/seized at base: {sorted(frozen_now)}"
+    return None
+
+
 def run_stress_checks(bundle: Bundle, tree: VerifiabilityTree,
                       report: StressReport) -> list[GateResult]:
     """The stress entries, same fail-closed shape as `run_tree_checks`: an
@@ -932,6 +1071,12 @@ CHECKS: list[Check] = [
     # S2 - the tree (P-5.01 R6); Level 2 = the report is not published.
     Check("DET-14", "S2", 2, det_14), Check("DET-19", "S2", 2, det_19),
     Check("DET-70", "S2", 2, det_70), Check("DET-11", "S2", 2, det_11),
+    # S2 - the stress module (P-6.04, B-2). Same stage, different consumer.
+    Check("DET-24", "S2", 2, det_24, "stress"),
+    Check("DET-29bc", "S2", 2, det_29bc, "stress"),
+    Check("DET-30", "S2", 2, det_30, "stress"),
+    Check("DET-31", "S2", 2, det_31, "stress"),
+    Check("DET-35", "S2", 2, det_35, "stress"),
 ]
 
 

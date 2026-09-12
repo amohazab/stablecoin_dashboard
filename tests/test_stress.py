@@ -80,14 +80,19 @@ def test_the_sheet_stop_fires_and_the_dev_flag_routes_to_rehearsal(tmp_path):
 
 
 def test_a_zero_cell_report_is_never_promotable(tmp_path):
-    """The clause on its own: nothing fails and the sheet pairing is clean, so
-    the empty cell set is the only thing keeping it out of `out/stress/`."""
+    """A clean sheet pairing and no cells still routes to rehearsal.
+
+    At B-1 this test also asserted every check passed, so that the empty cell
+    set was demonstrably the ONLY thing keeping the report out of
+    `out/stress/`. B-2 retired that half: the five stress entries now fail on a
+    synthetic report with an empty `exit_depth`, which is correct behaviour and
+    not something to stub around. The zero-cell clause itself is unchanged.
+    """
     b, t = latest_bundle(REPO, "LUSD"), latest_tree(REPO, "LUSD")
     r = _report()
     assert r.cells == [] and r.header.stale_sheet is False
     path, ok = emit(tmp_path, b, t, r)
     assert not ok
     assert path == tmp_path / "out/rehearsal/LUSD/stress-25955393.json"
-    assert all(x.result == "pass" for x in
-               StressReport.model_validate_json(
-                   path.read_text(encoding="utf-8")).checks)
+    written = StressReport.model_validate_json(path.read_text(encoding="utf-8"))
+    assert written.cells == [] and len(written.checks) == 5

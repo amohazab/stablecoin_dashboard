@@ -878,22 +878,84 @@ class StressHeader(BaseModel):
 
 
 class DepthPoint(BaseModel):
+    """Named implementer default (R-B2, ruled 2026-09-12): the GSM term is
+    NEVER inside `pool_depth` (DET-35 lists it separately); the headline
+    `exit_depth` is `total` at s = 0.02. Amounts are the analyzed token's own
+    base units — R-B2.1, not `value_scale`."""
+
     s: Decimal
-    depth: int
+    pool_depth: int
     per_pool: dict[Address, int] = {}
+    gsm_contribution: int = 0
+    total: int
+
+
+class GsmVenue(BaseModel):
+    """DET-35 / §5.10. `fee_exit` is the fee on stablecoin -> boxed asset,
+    which is the GSM's BUY fee, not its sell fee (Inventory B F12)."""
+
+    gsm: Address
+    boxed_asset: Address
+    fee_exit: Decimal
+    balance: int                                      # in the token's base units
+    enters: bool
+    reason: str
+
+
+class SensitivityRow(BaseModel):
+    k: str                                            # "80" / "90" / "95"
+    pools: list[Address]
+    depth_at_2pct: int
+    share_of_F: Decimal
+
+
+class DepthConcentration(BaseModel):
+    """§5.3's concentration line recomputed on the DEPTH basis (Inventory B
+    F18). The tree's own `concentration` stays freeze-TVL-weighted and is
+    untouched; which one a report renders is Step 7's question."""
+
+    largest_paired_asset: Address
+    share_of_exit_depth: Decimal
+    label: str
+    disclosure_source: str | None = None
+
+
+class GroundTruth(BaseModel):
+    """DET-31's `get_dy` ground truth, RECORDED during the fold so the harness
+    stays pure. The comparison needs an `eth_call` at `run_block` and
+    `run_stress_checks` is given no RPC — as `run_tree_checks` is not — so the
+    evidence is written into the artifact and `det_31` asserts over it. Named
+    addition beyond the B-2 proposal (2026-09-12)."""
+
+    pool: Address
+    dx: int                                           # the pipeline's own depth
+    ddx: int
+    onchain_dy_at_dx: int
+    onchain_dy_at_dx_plus: int
+    implied_price: Decimal
+    within_epsilon: bool
 
 
 class ExitDepth(BaseModel):
-    """B-2's home. `lp_flight_literal` is the only field required now - the
-    section 6.1.4 text is a constant, not a computed figure. `sensitivity_rows`
-    and `gsm_venues` stay untyped until DET-30's and DET-35's field sets are
-    ruled at B-2; guessing them a block early is what the R1 `Market` leakage
-    cost (P-4.13)."""
+    """B-2's home. `lp_flight_literal` is the section 6.1.4 text, a constant
+    rather than a computed figure."""
 
+    ground_truth: list[GroundTruth] = []
+    # R-B2.6: the metapool's second rate is the base pool's virtual price at
+    # `run_block`, and it is real content rather than a decimals scale — so it
+    # is RECORDED beside the reads rather than left implicit. Keyed by metapool
+    # address; empty for every single-asset pool.
+    base_virtual_price: dict[Address, int] = {}
+    # C4, closed at B-2 (R-B2.8): base pool -> {constituent -> balance at
+    # `run_block`}. RAW BALANCES ONLY, nothing derived — the composite's
+    # pass-through weights and LUSD's Member-2 target are computed from these
+    # at B-3, never here. `{}` for a token with no metapool in F.
+    base_pool_composition: dict[Address, dict[Address, int]] = {}
     depth_curve: list[DepthPoint] = []
     k_subsets: dict[str, list[Address]] = {}          # keys "80" / "90" / "95"
-    sensitivity_rows: list[dict[str, Any]] = []
-    gsm_venues: list[dict[str, Any]] = []
+    sensitivity_rows: list[SensitivityRow] = []
+    gsm_venues: list[GsmVenue] = []
+    concentration: DepthConcentration | None = None
     lp_flight_literal: str
     reads: dict[str, Provenance] = {}
 

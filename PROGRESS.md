@@ -6480,3 +6480,129 @@ Status: IN PROGRESS (opened 2026-09-12).
   written to `out/stress/`.
 - **Follow-ups spawned:** B-2 — the depth solver; DET-24, DET-29(b)(c),
   DET-30, DET-31 and DET-35 activate.
+
+## P-6.04 — B-2: the depth solver; DET-24, 29(b)(c), 30, 31, 35 activate
+
+- **Date:** 2026-09-12
+- **Type:** implementation
+- **Confirmed by:** Amin
+- **Content:**
+  **THE PORT** (`src/factory/depth.py`, new, pure), written against the
+  VERIFIED SOURCE of each deployed implementation and cited by address:
+  `plain_v6` `Vyper_contract` vyper 0.3.7 impl `0x67fe41a9…`; `ng`
+  `CurveStableSwapNG` vyper 0.3.10, whose `get_dy` DELEGATES, so the ported
+  form is `CurveStableSwapNGViews` `0xff530428…` VERSION 1.2.0; `metapool`
+  `Vyper_contract` vyper 0.2.8 impl `0x5f890841…`. Three rounding differences
+  were read off the source, not recalled: `get_D`'s inner term divides by `x`
+  then by `n**n` once (`plain_v6`/`ng`) or by `x * n` per coin (`metapool`);
+  all three fee BEFORE the `xp`→token conversion; `ng`'s fee is dynamic over
+  the midpoint balances. **REPRODUCTION EXACT — integer delta 0 on all seven
+  pool-instances at three sizes each**, from recorded state in
+  `tests/fixtures_depth_recorded.json`.
+  **THE STOP, AND R-B2.6.** LUSD/3CRV first returned depth 0 at s ≤ 2% and
+  DET-31 failed. Not a port error: under R4's "3CRV at 1.00" the marginal
+  price at zero size is 0.97158, already past the bound. **0.97158 × 1.039824
+  = 1.01028** — the whole deficit is the LP-unit valuation. **Ruled: the bound
+  and DET-31's implied price are evaluated in the pool's own RATE-SCALED
+  (`xp`) space** — decimals rates for plain, `stored_rates` for NG, and the
+  base pool's `get_virtual_price()` for the metapool's received side, which is
+  §6.1.3's par applied through §4.3's composite pass-through. The
+  "understates by `virtual_price − 1`" disclosure is withdrawn for depth;
+  `base_virtual_price` is recorded instead. **The six single-asset pools are
+  untouched, proven by leaf diff:** crvUSD 321 leaves and GHO 153, ONE changed
+  each, `header.stress_hash`, moving only because `ExitDepth` gained the new
+  field — because `rates[k]` IS `10**(36 − decimals[k])` there, which a test
+  now pins.
+  **RESULTS.** crvUSD at s = 2%: **19,890,066.60 crvUSD** (USDT 9,490,084.06 ·
+  frxUSD 5,756,735.66 · USDC 4,643,246.89); K80 = K90 = {`0x13e12bb0`,
+  `0x390f3595`, `0x4dece678`}, K95 = F; sensitivity 19,890,066.60 /
+  19,890,066.60 / **21,074,669.19**, rows 80 and 90 identical and printed so
+  (R5); concentration USDT **0.47713** on the depth basis against the tree's
+  freeze-TVL 0.56851, which is untouched. GHO: pool **256,678.69** +
+  GSM **18,516,099.69** = 18,772,778.39 at s = 2%; both GSMs enter all four
+  points, `fee_exit` 0.001 and 0.0015 read as the BUY fee (F12), neither
+  frozen nor seized, no T-21. LUSD post-fix: **8,803,721.20 LUSD** at s = 2%,
+  ground truth 0.98000000185, within ε. **GROUND TRUTH ✓ ON ALL FOUR MODELED
+  POOLS.**
+  **CHECKS.** DET-24, DET-29bc, DET-30, DET-31, DET-35 at Level 2, all
+  `consumer = "stress"`; `len(CHECKS)` **26 → 31** (3 S0 / 19 S1 / 9 S2, S2 =
+  4 tree + 5 stress). **5/5 on every token.** DET-24 carries R-B2.5's recorded
+  scope condition — asserted as provenance, not value equality, because
+  `pool_composition_at_block` does not exist on the bundle; the rubric's
+  wording is queued to B-3.
+  **NINE ADDITIONS ACCEPTED AT THE RULING:** `ExitDepth.ground_truth` recorded
+  in the artifact so the harness stays pure; `DepthPoint` split into
+  `pool_depth` / `gsm_contribution` / `total`; `gsm_enters` extracted for
+  R-19's strictness; `main`'s `rpc` parameter refusing any block but the
+  bundle's; the two-coin and no-index-row stops — **shape discovery for
+  non-NG pools now depends on `[[frozen_pool_index]]`, so P-4.01 #11's
+  retirement has a consumer**; four DET-35 reads; `withdraw_one_coin`
+  implemented and unit-tested but consumed by nothing, its
+  `calc_withdraw_one_coin` ground truth deferred to B-4 with its first
+  consumption; the zero-cell test's retired half; the corrected
+  unbracketed-depth test. **READS 76 / 20 / 27, all at `run_block`.**
+  **137 tests** (127 + 10), ruff clean; three artifacts to rehearsal on zero
+  cells, `out/stress/` never created.
+  **CLOSED AT THE RULING:** the depth concentration label now follows P-5.01
+  R4's mapping (R-B2.7), flagged not silent; C4's 3pool composition is
+  recorded in the artifact from four production reads (R-B2.8) — DAI
+  39,420,570.33 · USDC 37,303,006.77 · USDT 83,664,616.08, raw — so **C4 is
+  closed**; its use for LUSD's Member-2 target is B-3.
+  **AS-COUNTED, design layer:** depth units given as "base units at
+  `value_scale`" (R-B2.1); the `LP.minter()` base-pool route, which reverts
+  (R-B2.2); "3CRV at 1.00" for the depth bound (R-B2.6). **The Builder's:**
+  a multi-part report ended on a promise of part 2 — third occurrence after
+  the P-6.02 and P-6.03 drafts; and the stated expectation of O(10⁶) for
+  GHO's pool depth came in at O(10⁵), high by an order of magnitude.
+- **Artifacts:** `src/factory/depth.py` (new) · `src/factory/stress.py` ·
+  `src/factory/schema.py` · `src/factory/validate/harness.py`;
+  `tests/test_depth.py` (new) · `tests/fixtures_depth_recorded.json` (new) ·
+  `tests/test_stress.py`. No config, `docs/context/`, adapter or
+  `out/bundles/` change.
+- **Follow-ups spawned:** C2 before B-5 and before GHO's fill event; then
+  B-3: the three fill events, the signed intake edit and the 19 sell-side
+  values.
+
+## P-6.01-A1 — AMEND P-6.01 — R4's base-pool route and its 3CRV valuation
+
+- **Date:** 2026-09-12
+- **Type:** AMEND
+- **Confirmed by:** Amin
+- **Content:**
+  P-6.01's **R4** reads, in part: *"3CRV counted at 1.00 per §6.1.3 with one
+  disclosure sentence … the 3pool reached by `LP.minter()` and recorded as a
+  derived read"*. Both clauses are amended; the ruling's substance stands.
+  **(1) The route.** `LP.minter()` on `0x6c3f90f0…` **reverts** at 25955393,
+  as do the metapool's `base_pool()`, `BASE_POOL()`, `base_coins(i)` and
+  `base_virtual_price()`. **Amended (R-B2.2): the base pool is reached by
+  `pool_factory_old.get_base_pool(0xed279fdd…)` → `0xbebc4478…`, confirmed by
+  `is_meta()` = True**, both at 25955393 — a root already signed in
+  `lusd_roots.toml` for DET-10(d)-ii, so no config event and no new root. The
+  Curve AddressProvider → main-registry route also resolves and is NOT
+  implemented: it would add a discovery root to buy nothing.
+  **R4's substance is untouched — "never hardcoded" stands**, and is now met
+  by a registry read rather than by a token's self-report.
+  **(2) The valuation.** R4 counted 3CRV at 1.00 for the DEPTH BOUND. Applied,
+  it made LUSD's depth **zero** at s ≤ 2%: the pool's marginal price at zero
+  trade size is 0.97158 in LP units, already past 0.98, because each 3CRV LP
+  unit was counted as 1.00 against a virtual price of 1.039824 —
+  **0.97158 × 1.039824 = 1.01028**, LUSD above par with real depth before the
+  bound. **Amended (R-B2.6): the bound and DET-31's implied price are
+  evaluated in the pool's own rate-scaled `xp` space**, so the metapool's
+  received side carries the base pool's `get_virtual_price()` and the
+  CONSTITUENTS count at 1.00 — §6.1.3's par applied through §4.3's composite
+  pass-through, rather than par applied to the wrapper. The
+  "understates by `virtual_price − 1`" disclosure is withdrawn for depth and
+  `base_virtual_price` is recorded in the artifact instead. `tvl_at_par` at
+  the freeze is unaffected: it ranks K-subsets and nothing else.
+  **What else stands.** R4's other clauses are unaffected — three invariant
+  shapes, bisection on `dx`, single-sided withdrawal of the scarce asset, and
+  the port as OWED OUTPUT under R-17 rather than gold-plating. The six
+  single-asset pools are arithmetically untouched by (2), proven by leaf diff:
+  one changed leaf each, `header.stress_hash`.
+  **No retroactive consequence:** no artifact existed under either clause —
+  B-2 is the first block to consume them, and both were corrected before
+  anything was promoted. **P-6.01 stands unedited**, per rule 2.
+- **Artifacts:** `PROGRESS.md`. The code change it describes lands under
+  P-6.04.
+- **Follow-ups spawned:** none beyond P-6.04's.
