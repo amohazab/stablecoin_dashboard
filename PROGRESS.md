@@ -45,6 +45,9 @@ Status: DONE (opened 2026-09-08; done-condition met 2026-09-11, P-4.20). Record:
 ## Step 5 — Verifiability module
 Status: DONE (opened 2026-09-11; done-condition met 2026-09-11, P-5.04). Record: src/factory/tree.py; out/trees/.
 
+## Step 6 — CDP stress module
+Status: IN PROGRESS (opened 2026-09-12).
+
 ## P-3.01 — Block 0.1 anomaly dispositions; Python stack ruling; checksum task
 - **Date:** 2026-09-03
 - **Type:** flag-disposition
@@ -6082,3 +6085,280 @@ Status: DONE (opened 2026-09-11; done-condition met 2026-09-11, P-5.04). Record:
   B); `src/factory/spotcheck.py` (25,056 → 27,893 B); `CLAUDE.md`;
   `PROGRESS.md` (`## Step 5` status line, this entry).
 - **Follow-ups spawned:** C1–C4; Step 6.
+
+## P-6.01 — Step 6 opened: Inventory B, eighteen rulings
+
+- **Date:** 2026-09-12
+- **Type:** decision
+- **Confirmed by:** Amin
+- **Content:**
+  **INVENTORY B**, read-only at `6121958`; tree clean, `uv sync --frozen` no
+  changes, 123 tests, ruff clean, `len(CHECKS) = 26` (3 S0 / 19 S1 / 4 S2).
+  Bundles `6b081bf8` / `be82e530` / `b648d54b`; trees `495e1fae` / `5ae38e4e` /
+  `8c37249e`, each 4/4; set files `80d87407` / `36a681a7` / `fa6eb720` at
+  freeze dates 2026-09-04 / -09-08 / -09-10; `member2_target` null in all three
+  (`""` in the three mirrors). **All three raw dumps present, each SHA-256 equal
+  to its bundle's `raw_positions_hash`** (512 / 2,150 / 73 rows). Archive
+  confirmed at all three blocks.
+  **EXIT DEPTH (F1–F18).** No per-coin pool balance and no pool math parameter
+  is stored anywhere — `PoolRow` carries `tvl_at_par` plus a `balances(uint256)`
+  provenance stub with no index; `A`, `fee`, `offpeg_fee_multiplier`,
+  `stored_rates`, virtual price and implementation class are absent. crvUSD's F
+  spans TWO classes: `0x390f3595`/`0x4dece678` are v6.0.1 plain (no
+  `stored_rates`, no `N_COINS`), the other three v7.0.0 NG. Solver adds ~10–12
+  reads per pool (crvUSD ≈ 55, GHO ≈ 11, LUSD ≈ 11 + 3pool ≈ 10).
+  **`get_dy(int128,int128,uint256)` answers on all seven F pools; the uint256
+  overload reverts on every one** — DET-31's Level-3 clause does not fire.
+  LUSD/3CRV: `base_pool()`/`BASE_POOL()`/`base_virtual_price()` all revert; the
+  3pool address exists only as prose in `lusd_labels.toml`. **Σ par over
+  crvUSD's F is 55,035,670 at 25956063 against 84,973,622 at freeze — −35%,
+  with the USDT pool −51.9%**; `detectors()` baselines on the prior run, so the
+  drift never fired. K80 = K90 = K95 = {USDT, frxUSD, USDC} (95.71%) → R5.
+  GSM state present, **no fee value stored**; live sell fee 0 / buy fee 0.1%
+  (USDC GSM) and 0.15% (USDT GSM) — FR-G14 and the sheet's R4 read the mint
+  direction → R15. **USDC GSM holds 0.029 boxed units against a 175M cap; the
+  USDT GSM holds 18,516,099.67 against 85M** — exit depth is nearly all USDT,
+  mint capacity nearly all USDC. Boxed assets are stata wrappers
+  (`0xd4fa2d31…` / `0x7bc34850…`), not USDC/USDT → C2. **No DefiLlama `/pools`
+  fetch exists in the run path** and no `offvenue_share` field exists → R16,
+  P-3.11-A1. GHO's F contains one paired asset, crvUSD, `linked` → R7.
+  **POSITIONS (F19–F31).** crvUSD's raw rows are
+  `{controller, user, collateral, stablecoin_in_position, gross_debt,
+  principal}` — **no bands, and `run.py` discards N**; FR-14's
+  `band_range_occupied` / `collateral_in_bands` are not fields on any model, and
+  DET-75's field-existence clause has no implementation → #25, #26. Every read
+  R11 needs answers live: `read_user_tick_numbers`, `bands_x`/`bands_y`/
+  `p_oracle_up`, `active_band`, `get_p` vs `price_oracle`, `loan_discount` 9%,
+  `liquidation_discount` 6%. GHO rows carry the collateral dict by reserve plus
+  `gho_debt_base`/`total_debt_base`; **`nodes[].liquidation_params` does not
+  exist**, `getReserveConfigurationData` is per (instance, reserve), and
+  `getEModeCategoryData` no longer decodes while
+  `getEModeCategoryCollateralConfig` does → R12. The 15 sub-1% tail reserves
+  have no node and no price. LUSD: `system_tcr` 7.0948 and
+  `redeemable_collateral_value` present; `L_ETH()` = `L_LUSDDebt()` = 0;
+  **`getTotalLUSDDeposits()` has provenance but its value lives only inside
+  `bridge_disclosure` prose** (7,571,427.27 LUSD) → R18; `baseRate()` 0.1131%
+  and the whole H4 schedule readable; **the three Tellor constants are genuine
+  contract reads** — 14400 s, 50%, 5%.
+  **HOOKS (F32–F40).** α 0.5 / β 0.25 and the per-keeper figures are present;
+  `is_killed_provide`/`is_killed_withdraw` are **hardcoded `False` in
+  `run.py:300`, never read** — a defect (R8), and
+  `reads.KEEPER_REQUIRED_READS` is consumed by nothing. `provide_allowed` = 0
+  and `withdraw_allowed` = 2²⁵⁶−1 on all five keepers → R10, P-3.21-A1.
+  DET-69's marked set is wrong in both directions: crvUSD marks only `pause`,
+  GHO marks nothing → R18. H2 is complete but for the `checkUpkeep` probe;
+  **both freezers answer, bands 0.99/1.01, so routing resolves
+  `freezer_effective` on both GSMs**. `ema_window_s` present on all nine crvUSD
+  rows; the standing oracle-vs-spot gap is 3.4% on wstETH → R13.
+  **SHEET AND CELLS (F41–F46).** The three mirrors carry the three deferrals as
+  generator output. **19 `sell_side_capacity` rows owed — crvUSD 8 (all nodes
+  volatile), GHO 11 of 19; LUSD exempt.** Cells 47 / 47 / 23; crvUSD and LUSD
+  both `structurally_insulated` (no stable node, `gsm_count = 0`); the mutual
+  `linked` pair is live at `crvUSD@25956063` ↔ `GHO@25946240`. Of the 27
+  Step-6 entries **none is in `CHECKS` today**; target `len(CHECKS)` 26 → 53.
+  **TWO FLAGS, both stopped at their point, both dispositioned here.**
+  (i) **The per-keeper `is_killed` the rulings assume does not exist:**
+  `PegKeeper.is_killed()` reverts on all five keepers and the regulator exposes
+  one global `is_killed()` = 0 at 25956063 → **R8**. (ii) **`price_deviation`
+  contradicts a Phase-B `[VERIFIED]` value:** verified 0.05%
+  (PegKeeperRegulator.vy + verified deploy, 2026-09-01); **live 1e18 = 100% at
+  block 25956063** — the spam guard is effectively disabled;
+  `worst_price_threshold` reads 0.03% and matches → **R9**.
+  **RULINGS (Amin's, as stated).** **R1** `supply_ruled` = rubric 0.6 verbatim,
+  no GHO netting; the pending literal and the `root.stabilizer_debt` sentinel
+  retire, `det_19` moves with them, every "% of supply" names `supply_ruled`;
+  P-4.01 #3 closes. **R2** `uv run python -m factory.stress <TOKEN>` →
+  `out/stress/<TOKEN>/<run_block>.json`, `StressReport` + `finalise_stress` in
+  `schema.py`, `Bundle` untouched, pinned reads at the bundle's own block
+  (R-13 holds), failures to `out/rehearsal/`, checks at stage S2 so
+  `factory.run` is unreachable; inline-in-`run` rejected. **R3**
+  `StressReport.header` carries `source_bundle_hash`, `bundle_sheet_hash`,
+  `mirror_sheet_hash`; a mismatch is `AssemblyStop` unless
+  `--allow-stale-sheet`, a dev flag that stamps `stale_sheet = true` and forces
+  rehearsal routing, never used by the cron. **R4** depth solver confirmed as
+  owed output under R-17: three invariant shapes, bisection on `dx`,
+  single-sided withdrawal of the scarce asset, 3CRV at 1.00 with the
+  `virtual_price − 1` disclosure, the 3pool reached by `LP.minter()` and never
+  hardcoded. **R5** K = 95% is F by construction; K80/K90 by DET-29(b)'s
+  shortest prefix; identical rows print as identical; DET-29(b)'s letter queued
+  to B-3's rubric amendment. **R6** `member2_target` filled by one logged
+  `intake_trigger` per token on the existing set at the current promoted block,
+  set-file hash re-stamped, `freeze_date`s and T-17 clocks untouched →
+  P-3.09-A1. **R7** DET-50 counts §5.10 venue contributions in the exit-depth
+  share and the boxed asset resolves through §4.3, so **C2 lands before B-5 and
+  before GHO's fill event**; targets computed, never assumed. **R8** the
+  regulator's global `is_killed()` applies to every keeper, bit semantics
+  confirmed from the P-3.21 source copy and cited in code;
+  `is_killed_provide`/`is_killed_withdraw` become the decoded bits with
+  provenance; `run.py:300` is a defect fixed at B-3's re-run; `det_20` gains
+  `is_killed`. **R9** `price_deviation` recorded, not modeled: a dated
+  correction note at B-3, a metric-4 disclosure line, no model term. **R10**
+  DET-45 replays the **ungated** formula as primary (Member 1 is above peg by
+  scenario); `provide_allowed`/`withdraw_allowed` are read and stored under
+  metric 4 as base-state disclosures with the gate reason, and
+  `withdraw_allowed` satisfies DET-27 → P-3.21-A1; no divergence stop is owed.
+  **R11** crvUSD liquidation = band-linear conversion, with a **sizing gate**:
+  B-4 opens with a read-count estimate on the union of tick ranges and stops
+  for an is-it-worth-it ruling above ~7,200 reads. **R12** one liquidation
+  skeleton for all three tokens, capacity absorbing ascending by CR (named
+  default), with the GHO per-(instance, reserve) LT/bonus, per-position
+  `getUserEMode`, `getAssetPrice` as the price basis, and the tail reserves
+  excluded with one sentence. **R13** `EMA_lag` as the bounded upper bound,
+  `approximation_flag = true`, the run-block oracle-vs-spot gap printed beside
+  it and never folded in. **R14** DET-48 prints "reference point unavailable"
+  in the pilot; the round-history walk is queued and cannot cover weETH / LBTC
+  / sfrxETH regardless. **R15** one signed intake edit at B-3 carrying
+  `m4_fields[]`, `bias_table[]`, the 19 `sell_side_capacity` rows, the F12 fee
+  direction, the F14 stata identity, and the R5/R7/R8/R9 wording, with rubric
+  re-stamp, mirror regeneration, one `intake_trigger` per token and test pins;
+  values are Amin's, never the Builder's. **R16** DET-32 moves to Step 7; until
+  then the literal is T-22's "off-venue share: not computed", never ≈ 0.94 →
+  P-3.11-A1. **R17** done-condition: per token, the full cell set on a bundle
+  whose `sheet_hash` equals the mirror's, every Step-6 check passing incl.
+  DET-31 ground truth, R-29 monotonicity and DET-44's required IDs, plus one
+  hand-verified spot-check sheet; no two-run requirement. **R18** adapter-side
+  fixes ride B-3's re-run and nothing else: R8's kill read, DET-69's marks, and
+  the SP balance as a numeric `Supply` field.
+  **QUEUE (P-4.01):** **#24** the regulator's `set_parameters` holder
+  (`REG.admin()` `0x40907540…`) differs from the row's `CF.admin()`
+  `0xb7400d2e…` — DET-68 row accuracy; **#25** DET-75's field-existence clause
+  has no implementation; **#26** FR-14's mirror rows name bundle fields that do
+  not exist; **#27** Chainlink round-history reference points.
+  **BLOCKS:** C0 (R1 applied) · B-1 (schema + skeleton) · B-2 (solver; DET-24,
+  29(b)(c), 30, 31, 35) · C2 + C4 · B-3 (fill events, signed edit, sell-side
+  values, R18, three re-runs; DET-50, 52) · B-4 (crvUSD; DET-23(c), 25, 26, 27,
+  37–45, 48, 49, 69) · B-5 (GHO; DET-46, 47) · B-6 (LUSD; DET-51) · B-7
+  (spot-check, artifacts, R17, close).
+  **AS-COUNTED:** the Inventory B copy Amin received carried no BEGIN marker and
+  was truncated mid-sentence in at least eight places (F19/F20, D-1, D-2, D-8,
+  all of D-10, D-11, the block plan after B-1, the head of the sell-side table,
+  the activation table after DET-51); the rulings above were taken on the full
+  text and cover every point regardless. Output protocol ruled the same day:
+  every report, proposal and entry is delivered in chat, never to a file.
+- **Artifacts:** `PROGRESS.md` — the `## Step 6` heading and status line, and
+  this entry. No code, config or `docs/context/` change.
+- **Follow-ups spawned:** C0, then B-1; C2 + C4 before B-5; the B-3 signed edit
+  carrying R5/R7/R8/R9's wording, DET-29(b)'s and DET-50's rubric amendments,
+  and Amin's 19 sell-side values.
+
+## P-3.09-A1 — AMEND P-3.09 — R-a1's "refreshed set" reads "the set in force at the fill event"
+
+- **Date:** 2026-09-12
+- **Type:** AMEND
+- **Confirmed by:** Amin
+- **Content:**
+  P-3.09's R-a1 reads: *"`member2_target` null at the Step-3 freeze; filled at
+  the Step-6 freeze REFRESH, one logged event … target = the `recurses` paired
+  stable with the largest share of exit depth **of the refreshed set**"*.
+  **Amended (P-6.01 R6): "of the refreshed set" reads "of the set in force at
+  the fill event".** The fill rides one logged `intake_trigger` per token on the
+  EXISTING frozen set, computed by the Step-6 depth solver at that token's
+  current promoted block, with the set-file hash re-stamped and DET-10(a)'s
+  chain intact. `freeze_date`s and the T-17 clocks are untouched.
+  **Why the refresh is not required to carry it.** R-a1 bound the fill to a
+  freeze-class event and `intake_trigger` is already one of the two event types
+  its own text names, so only the phrase describing WHICH set is measured
+  moves. A refresh would not change the measured set in any case: all five of
+  crvUSD's frozen pools are DET-24-forced keeper pools and floor-exempt, and
+  GHO and LUSD each have |F| = 1.
+  **Recorded honestly against that reasoning:** Inventory B found Σ par over
+  crvUSD's F at 55,035,670 at block 25956063 against 84,973,622 at the
+  2026-09-04 freeze — **−35%, with the USDT pool down 51.9%** — and the
+  `frozen_pool_tvl_change_gt_50pct` detector baselines on the prior run, so a
+  drift spread across runs never fires it. The amendment accepts that the
+  Step-6 depth figures are computed on a materially shallower set than the
+  freeze recorded, and discloses it rather than refreshing to hide it.
+  **What is unaffected.** P-3.09's endorsement by name of the refusal to
+  substitute TVL share for exit depth stands — the fill still comes from the
+  s = 2% solver, never from `tvl_at_par`. R-a2's T-17 plan, R-a3's waiver
+  contingency and R-a4's ordering (fill event → Amin's dated values → DET-52
+  active) all stand, with "freeze" in R-a4 reading as the fill event.
+  `[[frozen_pool_index]]` retirement stays parked at P-4.01 #11.
+  **No retroactive consequence:** `member2_target` is null in all three set
+  files and is consumed by nothing, so no artifact and no run outcome depended
+  on the amended phrase. **P-3.09 stands unedited**, per rule 2.
+- **Artifacts:** `PROGRESS.md`. No code change.
+- **Follow-ups spawned:** the three fill events at B-3; DET-50's rubric
+  interpretation (P-6.01 R7) queued to the B-3 edit's amendment log.
+
+## P-3.11-A1 — AMEND P-3.11 — the per-run DefiLlama fetch P5's closure rested on does not exist
+
+- **Date:** 2026-09-12
+- **Type:** AMEND
+- **Confirmed by:** Amin
+- **Content:**
+  P-3.11 closed P5 "resolved-with-source" on this premise: *"**Source:** the
+  DefiLlama `/pools` payload **already fetched per run** for DET-09's three-way
+  discovery."* **The premise is false as built.** Inventory B found no
+  `yields.llama.fi` reference anywhere in `src/`: `discovery.fetch_candidates`
+  fetches only the Curve API catalog; the harness's two HTTP legs are DET-62's
+  and open only inside the > 0.25 jump branch; `stablecoins.llama.fi` appears
+  only as prose in `spotcheck.py`'s item 10, executed by hand. DET-09's three
+  legs were computed **once, at the freeze**, by the untracked script P-3.43
+  finding (ii) recorded, and only the scalar `discovery_m` survives, in the set
+  file. There is also **no `offvenue_share` field on `Bundle`**, though all
+  three mirrors' `bundle_field_path` name one.
+  **Amended (P-6.01 R16): DET-32 is built at Step 7 as a new fetch, a new
+  bundle field and a new Check** — not as a computation over a payload
+  already in hand. Until then the ruled runtime path is the printed literal
+  **"off-venue share: not computed" with T-22 Level 1**, which P-3.11 itself
+  retained as a runtime path rather than retiring; GHO's ≈ 0.94 remains a dated
+  analyst observation (P-4.04 R4, memo §11.6 open point) and **is never printed
+  as a computed X**.
+  **What stands.** P-3.11's substance is unaffected: X is computed from a
+  mainnet-only ratio with L2 DEX liquidity never entering; no substitute
+  aggregator and no partial X from one side of the ratio; DET-74 class-I
+  `{value, source, date}` provenance with > 92 d routing to T-16; the
+  T-02 / T-22 routing and the §11.6 dated open-point entry; and the `exit_depth`
+  lineage checked positively free of `offvenue_*`. Only the sourcing premise and
+  the step placement move.
+  **No retroactive consequence:** DET-32 was never in `CHECKS`, `offvenue_share`
+  was present-and-empty across all three tokens by ruling (P-4.10, P-4.20), and
+  no published figure depended on it. **P-3.11 stands unedited**, per rule 2.
+- **Artifacts:** `PROGRESS.md`. No code change.
+- **Follow-ups spawned:** Step 7 builds the fetch, the field and the Check; the
+  field addition takes the P-4.16 proof standard, since it moves `bundle_hash`.
+
+## P-3.21-A1 — AMEND P-3.21 — the external view does exist; it is a disclosure, not a competing owner
+
+- **Date:** 2026-09-12
+- **Type:** AMEND
+- **Confirmed by:** Amin
+- **Content:**
+  P-3.21 records: *"`_get_max_ratio` is `@internal` — not externally callable.
+  **C-5's external-view fork therefore does not arise**; its internal-function
+  branch applies unchanged."* The first clause is correct and the conclusion is
+  too narrow. `_get_max_ratio` is indeed internal, but **`provide_allowed(address)`
+  and `withdraw_allowed(address)` are external and answer**: read at block
+  25956063, `provide_allowed(pk)` = **0** on all five keepers and
+  `withdraw_allowed(pk)` = **2²⁵⁶−1** on all five. An external view of the
+  gated quantity exists after all.
+  **Amended (P-6.01 R10): the ungated formula replay owns DET-45; the gated
+  views are recorded as base-state disclosures.** Member 1 assumes crvUSD above
+  peg — liquidation converts collateral into crvUSD demand — so the
+  `aggregator.price() < 1` condition that returns 0 today is open by scenario.
+  The capacity term stays the memo formula per P-3.21's verdict, with the A-5
+  ceiling clause and the floor at 0. `provide_allowed` and `withdraw_allowed`
+  are read at `run_block` and printed under metric 4 with the gate reason
+  (`aggregator.price() < 1` at this block), and `withdraw_allowed` satisfies
+  DET-27's state-read clause.
+  **No divergence stop is owed, and the reason is stated so the exemption is not
+  reusable.** C-5 rules that a divergence between contract output and ruled
+  formula is flag-and-stop in either direction. These two are **not the same
+  quantity**: DET-45's `allowed_i` is unconditional capacity arithmetic, while
+  `provide_allowed` is that arithmetic gated by four price conditions. A stop
+  would be owed if the two disagreed with the gates open; they are not compared
+  with the gates closed.
+  **What stands.** P-3.21's verdict is untouched: the A4 orientation is `j ≠ i`,
+  confirmed from the deployed source's `continue` on the self-match; the
+  evidence quoted there stands; `_get_max_ratio` is internal; Step 6
+  reimplements per the memo citing P-3.21; and C-5's flag-and-stop rule remains
+  in force for a genuine contract-vs-formula divergence.
+  **Recorded beside it, separately dispositioned at P-6.01 R8:** the same probe
+  found that `PegKeeper.is_killed()` reverts on all five keepers and the
+  regulator's `is_killed()` is a single global flag, not the per-keeper pair
+  DET-45 and memo §6.3 H1 both specify. That is a ruling on the memo's wording,
+  not on this entry. **P-3.21 stands unedited**, per rule 2.
+- **Artifacts:** `PROGRESS.md`. No code change.
+- **Follow-ups spawned:** B-4 implements DET-45 against the memo formula citing
+  P-3.21 and this amendment; the metric-4 disclosure lines land with it.
