@@ -19,7 +19,6 @@ from factory.reads import (
     absence_evidence,
     aggregate_positions,
     check_admin_surface,
-    check_keeper_reads,
     loan_slot,
     unlisted_weight_level,
     verify_slot_layout,
@@ -115,15 +114,10 @@ def test_det82_tolerance_and_breach():
     assert breached.det82_relative_diff > Decimal("1e-9")
 
 
-# --- C-2 keeper read completeness -------------------------------------------
-
-
-def test_keeper_reads_require_the_full_key_set():
-    with pytest.raises(ValueError, match="missing provenance"):
-        check_keeper_reads({"current_debt": 1, "balance": 1})
-    check_keeper_reads({k: 1 for k in
-                        ("current_debt", "balance", "debt_ceiling",
-                         "is_killed", "alpha", "beta")})
+# --- C-2 keeper read completeness: RETIRED at B-3a --------------------------
+# `check_keeper_reads` is deleted (R-B3.3). Its key set could never be met: it
+# mixed per-operation reads with block-level regulator ones. `det_20` owns the
+# per-operation set and `test_harness.py` exercises it, `is_killed` included.
 
 
 # --- DET-68 admin surface ----------------------------------------------------

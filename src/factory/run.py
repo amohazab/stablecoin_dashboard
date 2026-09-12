@@ -17,7 +17,7 @@ from decimal import Decimal
 from factory.adapters import gho as gho_adapter
 from factory.adapters import lusd as lusd_adapter
 from factory.adapters.crvusd import discover_lend_markets
-from factory.config import Config, load
+from factory.config import Config, load, sell_side_for
 from factory.discovery import (
     AssemblyStopFromDiscovery,
     build_pool_rows,
@@ -34,6 +34,7 @@ from factory.provenance import AbsenceRead, AnalystSupplied, ContractRead
 from factory.reads import (
     EIP1967_IMPL_SLOT,
     aggregate_positions,
+    decode_killed,
     loan_slot,
     verify_slot_layout,
 )
@@ -280,6 +281,25 @@ def assemble(cfg: Config, rpc: RpcClient, repo: pathlib.Path, token: str,
             lineage=["debt_read", "position_netting", "collateral_read", "price_read"]))
 
     # ---- stabilizer ---------------------------------------------------------
+    # R8 / R-B3.3: the kill switch is ONE regulator-level flag applied to every
+    # keeper, not a per-keeper read - `PegKeeper.is_killed()` reverts on all
+    # five. It is a vyper enum, i.e. a bit flag, from the VERIFIED source of the
+    # deployed regulator (`Peg Keeper Regulator`, vyper 0.3.10, 0x36a04caf…),
+    # lines 65-67:
+    #
+    #     enum Killed:
+    #         Provide  # 1
+    #         Withdraw  # 2
+    #
+    # and `is_killed: public(Killed)` (line 84) returns those bits. The guards
+    # read `if self.is_killed in Killed.Provide` (line 192) and
+    # `... in Killed.Withdraw` (line 232), so bit 0 kills Provide and bit 1
+    # kills Withdraw, independently. Both keepers' flags therefore carry the
+    # SAME provenance - the regulator's own read - which is why it is taken once
+    # here rather than per operation.
+    killed_raw = rpc.read([Call(reg, "is_killed()", ("uint256",))])[0]
+    killed_provide, killed_withdraw = decode_killed(int(killed_raw.one()))
+    killed_prov = _cr(reg, "is_killed()", rb)
     ops = []
     for i in range(64):
         r = rpc.read([Call(reg, "peg_keepers(uint256)",
@@ -297,10 +317,11 @@ def assemble(cfg: Config, rpc: RpcClient, repo: pathlib.Path, token: str,
             current_debt=debt, balance=bal,
             utilization=None if ceil_ == 0 else Decimal(debt) / Decimal(ceil_),
             utilization_na_reason="ceiling_zero" if ceil_ == 0 else None,
-            is_killed_provide=False, is_killed_withdraw=False,
+            is_killed_provide=killed_provide, is_killed_withdraw=killed_withdraw,
             reads={"current_debt": _cr(pk, "debt()", rb),
                    "balance": _cr(CRVUSD, "balanceOf(address)", rb, (pk,)),
-                   "debt_ceiling": _cr(cf, "debt_ceiling(address)", rb, (pk,))},
+                   "debt_ceiling": _cr(cf, "debt_ceiling(address)", rb, (pk,)),
+                   "is_killed": killed_prov},
             lineage=["stabilizer_debt"]))
     alpha, beta = (int(x.one()) for x in rpc.read([
         Call(reg, "alpha()", ("uint256",)), Call(reg, "beta()", ("uint256",))]))
@@ -349,6 +370,8 @@ def assemble(cfg: Config, rpc: RpcClient, repo: pathlib.Path, token: str,
             label_source_address=addr,
             node_class=row.node_class if row else "volatile",
             lst_discount_applies=bool(row.lst_discount_applies) if row else False,
+            sell_side_capacity=sell_side_for(cfg, addr,
+                                          row.node_class if row else "volatile"),
             value=val, share_of_backing=Decimal(val) / Decimal(total_value),
             reads=({"collateral": _cr(addr, "balanceOf(address)", rb)}
                    | ({"label": resolved_prov} if resolved_prov else {})),
@@ -396,9 +419,16 @@ def assemble(cfg: Config, rpc: RpcClient, repo: pathlib.Path, token: str,
             # holds actual veto power over each function is a permission-level
             # question, queued for a future intake edit.
             veto = e_admin if p in VETO_ROWS else None
+            # DET-69 (R18): `set_parameters` IS a live model input — it is the
+            # power that moves the regulator's α and β, DET-45's two formula
+            # constants. The other three powers here move no modeled quantity.
+            live = p == "set_parameters"
             admin.append(AdminRow(power=p, holder_address=cf_admin,
                                   holder_type="dao_governance", scope=[cf, reg],
                                   veto_address=veto,
+                                  live_model_input=live,
+                                  consumed_by=(["DET-45 alpha", "DET-45 beta"]
+                                               if live else []),
                                   provenance=_cr(cf, "admin()", rb),
                                   **_admin_delay(cfg, cf_admin)))
         elif p == "pause":

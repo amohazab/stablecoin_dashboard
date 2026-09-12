@@ -21,6 +21,7 @@ from decimal import Decimal
 
 from eth_utils import keccak
 
+from factory.config import sell_side_for
 from factory.discovery import (
     AssemblyStopFromDiscovery,
     build_pool_rows,
@@ -328,8 +329,10 @@ def boxed_asset_walk(rpc, gsms: list) -> tuple[list[dict], int]:
 def read_inventory(rpc, gho: str, atoken: str) -> tuple[int, object, int]:
     """Undrawn protocol-held inventory for one instance: the GHO SITTING IN the
     aToken contract, `GHO.balanceOf(aGHO)`. Reading `aGHO.balanceOf(aGHO)`
-    instead returns zero — the aToken does not hold itself. Amounts only; the
-    `supply_ruled` denominator is P-4.01 #3 and is not answered here (F4).
+    instead returns zero — the aToken does not hold itself. Amounts only: the
+    `supply_ruled` denominator was ruled at C0/R1 (P-6.02) and is `totalSupply`
+    for every pilot token, so this read feeds a numerator and settles nothing
+    about the denominator. The stale P-4.01 #3 pointer is retired here (R18).
     """
     r = rpc.read([Call(gho, "balanceOf(address)", ("uint256",), (atoken,))])[0]
     return int(r.one()), r.provenance, 1
@@ -443,6 +446,7 @@ def _nodes(cfg, weights, node_instance, rpc, pools, oracle_by_pool,
         rows.append(CollateralNode(
             address=a, symbol=row.symbol, label=label, label_source_address=a,
             node_class=row.node_class, lst_discount_applies=row.lst_discount_applies,
+            sell_side_capacity=sell_side_for(cfg, a, row.node_class),
             value=values[a], share_of_backing=Decimal(values[a]) / Decimal(total),
             flags=flags,
             reads={"balance": ContractRead(source_contract=a, function="balanceOf(address)",
@@ -931,7 +935,12 @@ def read_admin_surface(rpc, gho: str, gsms: list, pools: list[str], http_get, ke
             prov = AbsenceRead(contract=(next(iter(acl.values())) if acl else gho),
                                method="selector_absence_scan",
                                evidence=f"no live {rname} holder", block=rpc.run_block)
-        r, k = row(power, h, prov, scope=sorted(acl))
+        # DET-69 (R18): GHO marked nothing. `pause` is the live model input —
+        # the EMERGENCY_ADMIN role is what the §6.3 H2 freezer routing turns on
+        # (DET-46), so the row that names its holder feeds a modeled quantity.
+        live = power == "pause"
+        r, k = row(power, h, prov, scope=sorted(acl), live_model_input=live,
+                   consumed_by=["DET-46 freezer"] if live else [])
         n += k
         rows.append(r)
 

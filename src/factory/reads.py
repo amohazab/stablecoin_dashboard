@@ -199,17 +199,32 @@ def aggregate_positions(
     )
 
 
-# --- group 3: keeper read completeness (C-2) ---------------------------------
-KEEPER_REQUIRED_READS = frozenset(
-    {"current_debt", "balance", "debt_ceiling", "is_killed", "alpha", "beta"}
-)
+# --- group 3: the regulator's kill flag (R8 / R-B3.3) ------------------------
+def decode_killed(raw: int) -> tuple[bool, bool]:
+    """`(is_killed_provide, is_killed_withdraw)` from the regulator's flag.
+
+    From the VERIFIED source of the deployed `Peg Keeper Regulator` (vyper
+    0.3.10, `0x36a04caf…`), lines 65-67:
+
+        enum Killed:
+            Provide  # 1
+            Withdraw  # 2
+
+    A vyper enum is a bit flag, so the two are independent and `3` means both.
+    The guards read `if self.is_killed in Killed.Provide` (line 192) and
+    `... in Killed.Withdraw` (line 232) — membership, not equality, which is
+    why a naive `== 1` test would miss a both-killed state.
+    """
+    return bool(raw & 1), bool(raw & 2)
 
 
-def check_keeper_reads(reads: dict) -> None:
-    """DET-20 / C-2: provenance per DET-named read, as a set equality."""
-    missing = KEEPER_REQUIRED_READS - set(reads)
-    if missing:
-        raise ValueError(f"keeper reads missing provenance for: {sorted(missing)}")
+# --- RETIRED at B-3a (R-B3.3) ------------------------------------------------
+# `KEEPER_REQUIRED_READS` and `check_keeper_reads` lived here with no caller in
+# `src/`. Their key set mixed per-OPERATION reads (`current_debt`, `balance`,
+# `debt_ceiling`, `is_killed`) with BLOCK-level regulator reads (`alpha`,
+# `beta`), so no keeper row could ever satisfy it as a set equality. `det_20`
+# owns the per-operation set, `is_killed` included; keeping a second, wrong
+# copy beside it is the two-copies-drift the one-owner rule forbids.
 
 
 # --- group 4: admin surface (F4 absence shapes) ------------------------------

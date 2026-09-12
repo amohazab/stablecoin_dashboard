@@ -52,6 +52,34 @@ def parse_first_run_reads(sheet_path: pathlib.Path, token: str) -> list[dict[str
     return rows
 
 
+def parse_sell_side(sheet_path: pathlib.Path, token: str) -> list[dict[str, str]]:
+    """DET-52's per-volatile-node parameter rows out of the stamped sheet.
+
+    Shape, one row per node in the token's section:
+
+        | SS-<symbol> | <address> | <value> | <source> | <date> |
+
+    A row whose value cell is empty is NOT emitted — P-4.15's rule that an
+    analyst input without its source and date is left owed rather than minted,
+    which is also what keeps DET-52 inert until every row is real. Returns []
+    until the B-3b signed edit lands the table, so the mirror is byte-identical
+    in the meantime.
+    """
+    rows = []
+    for line in _section(sheet_path, token):
+        if not line.startswith("| SS-"):
+            continue
+        parts = [c.strip() for c in line.strip().strip("|").split(" | ")]
+        if len(parts) != 5:
+            raise ValueError(f"malformed sell-side row: {line[:60]}")
+        _tag, address, value, source, date = parts
+        if not (value and source and date):
+            continue
+        rows.append({"address": address.strip("`").lower(), "value": value,
+                     "source": source, "date": date})
+    return rows
+
+
 def count_first_run_tags(sheet_path: pathlib.Path, token: str) -> int:
     """DET-75's identity counts literal tags in the `<token>` section only."""
     return sum(ln.count("[FIRST-RUN READ:") for ln in _section(sheet_path, token))
@@ -108,6 +136,12 @@ def generate(sheet_path: pathlib.Path, token: str) -> str:
         "near_bound_threshold = 0.80",
         'counterparties = "n/a - archetype #1 holds no off-chain counterparties"',
         f'attribution_method = "{ATTRIBUTION_METHOD[token]}"',
+        # R-B3.6 retires this line in favour of a pointer at the set file, which
+        # DET-50 makes the one owner ("recorded in the set file at freeze") and
+        # which `factory.stress` already reads directly. The REPLACEMENT lands
+        # at B-3b, not here: changing it now would move all three mirror files,
+        # and B-3a writes no mirror. Kept verbatim so the generator still
+        # reproduces the committed mirrors byte-for-byte (P-3.15).
         'member2_target = ""   # null until the R-a1 refresh (Step 6/7); '
         "nothing consumes it in Step 3",
     ]
@@ -143,4 +177,13 @@ def generate(sheet_path: pathlib.Path, token: str) -> str:
         "# bias_table[]       - Step 6 (Appendix C seed).",
         "",
     ]
+    for r in parse_sell_side(sheet_path, token):
+        out += [
+            "[[sell_side_capacity]]",
+            f'address = "{r["address"]}"',
+            f'value = "{r["value"]}"',
+            f'source = "{r["source"]}"',
+            f'date = {r["date"]}',
+            "",
+        ]
     return "\n".join(out)

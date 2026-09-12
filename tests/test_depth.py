@@ -150,3 +150,31 @@ def test_an_unbracketed_depth_raises_rather_than_returning_the_edge(monkeypatch)
     monkeypatch.setattr(d, "_below_bound", lambda *a, **k: False)
     with pytest.raises(DepthError, match="not bracketed"):
         d.pool_depth(p, raw["i"], raw["j"], int(Decimal("0.98") * S_DEN), S_DEN)
+
+
+# --- B-3a: the Member-2 selector ---------------------------------------------
+
+
+def _cand(asset: str, depth: int, label: str, basis: str = "paired_direct"):
+    from factory.schema import Member2Candidate
+    return Member2Candidate(asset=asset, depth_at_2pct=depth, share=Decimal(0),
+                            label=label, basis=basis)
+
+
+def test_member2_takes_the_largest_recurses_not_the_largest_candidate():
+    """DET-50 + §6.2.5: a `linked` analyzed token is not shocked and a
+    truncated label is not the `recurses` the entry names, so the largest
+    candidate overall can lose to a smaller eligible one — which is exactly
+    GHO's shape if the GSM venue were absent."""
+    from factory.stress import select_member2
+    a, b, c = "0x" + "a" * 40, "0x" + "b" * 40, "0x" + "c" * 40
+    assert select_member2([_cand(a, 100, "linked"), _cand(b, 90, "recurses_truncated"),
+                           _cand(c, 10, "recurses")]) == c
+    assert select_member2([_cand(a, 100, "linked")]) is None
+    assert select_member2([]) is None
+
+
+def test_member2_ties_break_on_ascending_address():
+    from factory.stress import select_member2
+    a, b = "0x" + "a" * 40, "0x" + "b" * 40
+    assert select_member2([_cand(b, 50, "recurses"), _cand(a, 50, "recurses")]) == a

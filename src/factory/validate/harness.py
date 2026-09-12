@@ -237,8 +237,14 @@ def det_07(b: Bundle, ctx) -> None:
 
 
 def det_20(b: Bundle, ctx) -> None:
-    """Stabilizer rows complete; ceilings per-run reads (C-2 key set)."""
-    required = {"current_debt", "balance", "debt_ceiling"}
+    """Stabilizer rows complete; ceilings per-run reads (C-2 key set).
+
+    `is_killed` joins the set at B-3a (R8): DET-45 requires the Provide and
+    Withdraw flags WITH provenance, and until B-3a they were hardcoded `False`
+    on every keeper. The provenance is the regulator's, not the keeper's - one
+    global flag, per the verified source quoted in `run.py`.
+    """
+    required = {"current_debt", "balance", "debt_ceiling", "is_killed"}
     for op in b.stabilizer.operations:
         missing = required - set(op.reads)
         if missing:
@@ -1010,6 +1016,54 @@ def det_31(b: Bundle, t: VerifiabilityTree, r: StressReport) -> None:
                          f"{g.implied_price} outside [{lo}, {hi}]")
 
 
+def det_50(b: Bundle, t: VerifiabilityTree, r: StressReport) -> str | None:
+    """Target stable, compound tail, joint cell — the TARGET limb only (B-3a).
+
+    The entry has three limbs. This one replays the selection: the recorded
+    candidate table must pick the artifact's `member2_target`, and the value the
+    fold copied out of the set file must be that same address — identity, not
+    re-selection, which is the entry's own wording ("not re-selected per run").
+    The replay runs against `exit_depth.member2_candidates`, RECORDED at fold
+    for exactly this reason: the harness takes no config and reads no chain.
+
+    DORMANT until the cells exist (B-4/5/6), named here rather than silently
+    unimplemented: the compound-tail limb (every `recurses` paired stable at
+    0.93, LP 0, once, with the DET-42 literal) and the joint-cell limb (axes
+    exactly (−0.50, 0.93, LST 0, LP 0), linked paired assets unshocked). A
+    zero-cell report cannot fail either, so asserting them now would assert
+    nothing; the scope condition says so on every pass.
+    """
+    from factory.stress import select_member2
+
+    cands = r.exit_depth.member2_candidates
+    if not cands:
+        if r.member2_target is not None:
+            raise Level3(f"DET-50: {b.header.token} carries a member2_target "
+                         "with no candidate table to justify it")
+        return "no candidates: no paired asset carries depth at s = 2%"
+    want = select_member2(cands)
+    if r.member2_target is None and want is not None:
+        # PRESENT-AND-EMPTY, on P-3.09 R-a1's own precedent: "nothing in Step 3
+        # consumes the field, so its null is not a DET-77 failure". The fill is
+        # one logged `intake_trigger` at B-3b and nothing consumes the target
+        # until the Member-2 cells exist, so a null here is an OWED fill, not a
+        # broken one — and the scope condition records which address the fill
+        # must carry, so the artifact commits to it before the event is written.
+        # The moment a cell exists, the branch below is the only passing one.
+        if r.cells:
+            raise Level3("DET-50: cells exist with no member2_target; the fill "
+                         "event was never logged")
+        return f"target owed: fill event lands {want}; set file carries null"
+    if r.member2_target != want:
+        raise Level3(f"DET-50: member2_target {r.member2_target} != the "
+                     f"largest `recurses` share {want} in the recorded table")
+    if want is None:
+        return "no eligible `recurses` candidate; target null"
+    top = next(c for c in cands if c.asset == want)
+    return (f"target {want} at share {top.share} via {top.basis}; compound-tail "
+            "and joint-cell limbs dormant until the cells exist (B-4/5/6)")
+
+
 def det_35(b: Bundle, t: VerifiabilityTree, r: StressReport) -> str | None:
     """§5.10's deterministic venue. One row per live GSM; R-19's STRICT
     inclusion test; the contribution never inside the pool-depth line."""
@@ -1077,6 +1131,7 @@ CHECKS: list[Check] = [
     Check("DET-30", "S2", 2, det_30, "stress"),
     Check("DET-31", "S2", 2, det_31, "stress"),
     Check("DET-35", "S2", 2, det_35, "stress"),
+    Check("DET-50", "S2", 2, det_50, "stress"),
 ]
 
 

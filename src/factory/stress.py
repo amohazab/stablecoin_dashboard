@@ -46,6 +46,7 @@ from factory.schema import (
     GroundTruth,
     GsmVenue,
     Mechanism,
+    Member2Candidate,
     SensitivityRow,
     StressHeader,
     StressReport,
@@ -153,7 +154,7 @@ def _cr(contract: str, fn: str, block: int, args=()) -> ContractRead:
 
 def read_pool_states(rpc, cfg, pools: list[str], numeraire: str,
                      reads: dict, base_vps: dict,
-                     base_comp: dict) -> dict[str, PoolState]:
+                     base_comp: dict, base_dec: dict) -> dict[str, PoolState]:
     """Every pool's math inputs at the bundle's own `run_block` (R-13). Shape
     is DISCOVERED, never configured: a pool answering `offpeg_fee_multiplier()`
     is NG; otherwise its signed factory root's `is_meta()` decides metapool vs
@@ -220,6 +221,7 @@ def read_pool_states(rpc, cfg, pools: list[str], numeraire: str,
                 # exist so B-3 can pick LUSD's Member-2 target by constituent
                 # share without a second discovery pass.
                 comp: dict[str, int] = {}
+                cdec: dict[str, int] = {}
                 for m in range(8):
                     bc = rpc.read([Call(base, "coins(uint256)", ("address",), (m,))])[0]
                     if not bc.ok:
@@ -227,10 +229,17 @@ def read_pool_states(rpc, cfg, pools: list[str], numeraire: str,
                     ca = bc.one().lower()
                     comp[ca] = int(rpc.read([Call(base, "balances(uint256)",
                                                   ("uint256",), (m,))])[0].one())
+                    # B-3a: the constituents' scales are READ, never tabled. A
+                    # 6-dp and an 18-dp balance cannot be compared for §4.3's
+                    # pro-rata weights otherwise, and a decimals table keyed by
+                    # address is the hardcoded-list shape the gates forbid.
+                    cdec[ca] = int(rpc.read([Call(ca, "decimals()", ("uint8",))])[0].one())
                     reads[f"{base}.coins({m})"] = _cr(base, "coins(uint256)", rb, (m,))
                     reads[f"{base}.balances({m})"] = _cr(base, "balances(uint256)",
                                                          rb, (m,))
+                    reads[f"{ca}.decimals()"] = _cr(ca, "decimals()", rb)
                 base_comp[base] = comp
+                base_dec[base] = cdec
                 for s in ("A()", "fee()"):
                     rpc.read([Call(base, s, ("uint256",))])
                     reads[f"{base}.{s}"] = _cr(base, s, rb)
@@ -357,9 +366,86 @@ def gsm_enters(v: GsmVenue, s: Decimal) -> bool:
     return v.enters and v.fee_exit < s
 
 
+def _label_of(cfg, asset: str, flags: list) -> str:
+    """The asset's DET-11/§4 label, with R-B2.7's mapping applied once."""
+    row = cfg.paired.get(asset) or cfg.labels.get(asset)
+    label = getattr(row, "label", None) or "unlabeled"
+    if label == "composite_passthrough":
+        label = "composite"
+        msg = ("config literal composite_passthrough read as DET-11 composite "
+               "(R4, P-5.01; R-B2.7)")
+        if msg not in flags:
+            flags.append(msg)
+    return label
+
+
+def member2_candidates(bundle, frozen, per_pool_2: dict, venues: list,
+                       cfg, base_comp: dict, base_dec: dict,
+                       flags: list) -> list[Member2Candidate]:
+    """DET-50's candidate table at s = 2% (R-B3.1).
+
+    Three bases, each keeping the asset's OWN label: a pool's paired asset
+    directly; a `composite` paired asset expanded pro-rata to its constituents
+    by `base_pool_composition`, normalised to 18 dp so a 6-dp and an 18-dp
+    constituent compare (memo §4.3); and every ENTERING §5.10 GSM venue, at its
+    UNDERLYING rather than the wrapper (R7 + §4.3, C2's walk).
+
+    Selection is `select_member2`; this function only measures. The split keeps
+    the artifact honest about `linked` assets, which are recorded here and
+    excluded there.
+    """
+    out: dict[tuple[str, str], int] = {}
+    for r in frozen:
+        d = per_pool_2.get(r.address, 0)
+        if not r.paired_assets or d == 0:
+            continue
+        each = d // len(r.paired_assets)
+        for a in r.paired_assets:
+            # A composite paired asset is the LP token; the composition is keyed
+            # by the BASE POOL it wraps, so the expansion is keyed off the label
+            # and there is exactly one base pool per metapool in F.
+            base = (next(iter(base_comp), None)
+                    if _is_composite(cfg, a, flags) else None)
+            if base is None:
+                out[(a, "paired_direct")] = out.get((a, "paired_direct"), 0) + each
+                continue
+            cons, dec = base_comp[base], base_dec.get(base, {})
+            norm = {c: v * 10 ** (18 - dec[c]) for c, v in cons.items()}
+            tot = sum(norm.values()) or 1
+            for c, v in norm.items():
+                k = (c, "composite_constituent")
+                out[k] = out.get(k, 0) + each * v // tot
+    for v in venues:
+        if v.enters:
+            k = (v.underlying, "gsm_venue")
+            out[k] = out.get(k, 0) + v.balance
+    total = sum(out.values()) or 1
+    return sorted(
+        (Member2Candidate(asset=a, depth_at_2pct=d, share=Decimal(d) / Decimal(total),
+                          label=_label_of(cfg, a, flags), basis=b)
+         for (a, b), d in out.items()),
+        key=lambda c: (-c.depth_at_2pct, c.asset))
+
+
+def _is_composite(cfg, asset: str, flags: list) -> bool:
+    return _label_of(cfg, asset, flags) == "composite"
+
+
+def select_member2(cands: list[Member2Candidate]) -> str | None:
+    """DET-50: the `recurses` candidate with the largest share; ties break on
+    ascending address (named default, DET-29(b)'s precedent). `linked` and
+    `recurses_truncated` are not eligible — §6.2.5 does not shock an analyzed
+    CDP token, and a truncated label is not the `recurses` the entry names."""
+    elig = [c for c in cands if c.label == "recurses"]
+    if not elig:
+        return None
+    return sorted(elig, key=lambda c: (-c.depth_at_2pct, c.asset))[0].asset
+
+
 def build_exit_depth(bundle, states: dict[str, PoolState], numeraire: str,
                      venues: list[GsmVenue], cfg, reads: dict, base_vps: dict,
-                     base_comp: dict, flags: list, rpc=None) -> ExitDepth:
+                     base_comp: dict, base_dec: dict, flags: list,
+                     rpc=None) -> ExitDepth:
     """The curve on K-subset(0.90) (DET-31), the three sensitivity rows
     (DET-30), and the concentration line on the depth basis (F18)."""
     frozen = [r for r in bundle.pools if r.in_frozen_set]
@@ -393,6 +479,8 @@ def build_exit_depth(bundle, states: dict[str, PoolState], numeraire: str,
         rows.append(SensitivityRow(k=k, pools=sorted(ks[k]), depth_at_2pct=d,
                                    share_of_F=share))
     per_pool_2 = depth_at[Decimal("0.02")][0]
+    cands = member2_candidates(bundle, frozen, per_pool_2, venues, cfg,
+                               base_comp, base_dec, flags)
     by_asset: dict[str, int] = {}
     for r in frozen:
         d = per_pool_2.get(r.address, 0)
@@ -405,13 +493,12 @@ def build_exit_depth(bundle, states: dict[str, PoolState], numeraire: str,
         total_d = sum(by_asset.values())
         top = sorted(by_asset.items(), key=lambda kv: (-kv[1], kv[0]))[0][0]
         row = cfg.paired.get(top)
-        label = row.label if row else "unlabeled"
-        if label == "composite_passthrough":
-            # R-B2.7: P-5.01 R4's mapping applies here exactly as in the tree —
-            # the rubric's literal wins, and the mapping is flagged, not silent.
-            label = "composite"
-            flags.append("config literal composite_passthrough read as DET-11 "
-                         "composite (R4, P-5.01; R-B2.7)")
+        # R-B2.7's mapping has ONE owner, `_label_of` — it is flagged there and
+        # the flag is added once. B-3a found the duplicate the hard way: this
+        # block carried its own copy of the mapping, so LUSD's artifact grew a
+        # second identical `flags` entry the moment the candidate table started
+        # resolving labels too.
+        label = _label_of(cfg, top, flags)
         conc = DepthConcentration(
             largest_paired_asset=top,
             share_of_exit_depth=Decimal(by_asset[top]) / Decimal(total_d),
@@ -420,7 +507,8 @@ def build_exit_depth(bundle, states: dict[str, PoolState], numeraire: str,
     truth = (record_ground_truth(rpc, states, per_pool_2, numeraire, reads)
              if rpc is not None else [])
     return ExitDepth(ground_truth=truth, base_virtual_price=base_vps,
-                     base_pool_composition=base_comp, depth_curve=curve,
+                     base_pool_composition=base_comp,
+                     member2_candidates=cands, depth_curve=curve,
                      k_subsets=ks, sensitivity_rows=rows, gsm_venues=venues,
                      concentration=conc, lp_flight_literal=LP_FLIGHT_LITERAL,
                      reads=reads)
@@ -437,13 +525,14 @@ def fold(inputs: dict, rpc=None) -> StressReport:
         reads: dict = {}
         base_vps: dict = {}
         base_comp: dict = {}
+        base_dec: dict = {}
         numeraire = _token_address(cfg, b.header.token)
         frozen = sorted(r.address for r in b.pools if r.in_frozen_set)
         states = read_pool_states(rpc, cfg, frozen, numeraire, reads, base_vps,
-                                  base_comp)
+                                  base_comp, base_dec)
         venues = gsm_venues(b, rpc, reads)
         exit_depth = build_exit_depth(b, states, numeraire, venues, cfg, reads,
-                                      base_vps, base_comp, flags, rpc)
+                                      base_vps, base_comp, base_dec, flags, rpc)
         flags += [f"T-21 GSM {v.gsm} {v.reason} — venue closed in every cell"
                   for v in venues if not v.enters]
     return StressReport(

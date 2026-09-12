@@ -145,11 +145,33 @@ class Config:
     # holders share `dao_governance` with different delays. Absent is not an
     # error here; the adapter stops on a holder that needs a row and has none.
     admin_delays: dict[str, dict] = field(default_factory=dict)
+    # DET-52 (B-3a): `{address: {value, source, date}}` from the mirror's
+    # `[[sell_side_capacity]]` rows, which the generator emits only for a sheet
+    # row carrying all three cells. EMPTY until B-3b's signed edit lands Amin's
+    # 19 values, which is what keeps the check inert rather than half-armed.
+    sell_side: dict[str, dict] = field(default_factory=dict)
 
     def root(self, root_id: str) -> Root:
         if root_id not in self.roots:
             raise KeyError(f"discovery root '{root_id}' absent from config")
         return self.roots[root_id]
+
+
+def sell_side_for(cfg, address: str, node_class: str) -> dict | None:
+    """DET-52's parameter for one node, from the mirror, or None.
+
+    Only volatile nodes carry one, and only once the sheet does: `cfg.sell_side`
+    is empty until B-3b's signed edit, so this returns None everywhere today and
+    the bundles stay shape-compatible. Shared by both adapters that have
+    volatile nodes; LUSD's single node routes through the same path.
+    """
+    if node_class != "volatile":
+        return None
+    row = cfg.sell_side.get(address)
+    if row is None:
+        return None
+    return {"value": row["value"], "source": row["source"],
+            "date": str(row["date"])}
 
 
 def _date(v) -> _dt.date:
@@ -252,7 +274,15 @@ def load(config_dir: Path, token: str) -> Config:
                            "delay_seconds": int(d["delay_seconds"]),
                            "delay_bucket": d["delay_bucket"],
                            "source": d["source"], "date": _date(d["date"])}
+    sell_side = {}
+    for r in sheet_raw.get("sell_side_capacity", []):
+        a = r["address"].lower()
+        if a in sell_side:
+            raise ValueError(f"duplicate sell_side_capacity address: {a}")
+        sell_side[a] = {"value": r["value"], "source": r["source"],
+                        "date": _date(r["date"])}
     return Config(token=token, frozen_set_path=config_dir / files["frozen_set"],
+                  sell_side=sell_side,
                   facilitator_classes=fac_cls, admin_delays=admin_delays,
                   unlabeled_by_threshold=labels_raw.get("unlabeled_by_threshold"),
                   roots=roots, labels=labels, paired=paired, lend=lend, sheet=sheet_raw,

@@ -24,6 +24,7 @@ from decimal import Decimal
 
 from eth_utils import function_signature_to_4byte_selector
 
+from factory.config import sell_side_for
 from factory.discovery import (
     AssemblyStopFromDiscovery,
     build_pool_rows,
@@ -383,6 +384,7 @@ def build(cfg, rpc, http_get=catalog_get):
         address=ETH, symbol=row.symbol, label=row.label,
         label_source_address=ETH, node_class=row.node_class,
         lst_discount_applies=row.lst_discount_applies,
+        sell_side_capacity=sell_side_for(cfg, ETH, row.node_class),
         value=coll * price // 10 ** 18, share_of_backing=Decimal(1),
         reads={"balance": _cr(ap, "getETH()", rb),
                "price": _cr(pf, "fetchPrice()", rb)},
@@ -463,6 +465,7 @@ def build(cfg, rpc, http_get=catalog_get):
             "increment, which is a REDISTRIBUTION and not interest"),
         bridges=bridge_rows, origination_sum=gross,
         residual=total_supply - gross, stabilizer_over_supply=Decimal(0),
+        stability_pool_deposits=sp_deposits,        # R18: numeric, not prose
         reads={"total_supply": _cr(s["lusd"], "totalSupply()", rb),
                "stability_pool_deposits": _cr(sp, "getTotalLUSDDeposits()", rb)})
 

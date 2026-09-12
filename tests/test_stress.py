@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import hashlib
 import pathlib
+from decimal import Decimal
 
 import pytest
 
@@ -95,4 +96,88 @@ def test_a_zero_cell_report_is_never_promotable(tmp_path):
     assert not ok
     assert path == tmp_path / "out/rehearsal/LUSD/stress-25955393.json"
     written = StressReport.model_validate_json(path.read_text(encoding="utf-8"))
-    assert written.cells == [] and len(written.checks) == 5
+    assert written.cells == [] and len(written.checks) == 6      # +DET-50, B-3a
+
+
+# --- B-3a: DET-50's three branches, the kill decode, DET-52's plumbing -------
+
+
+def _with_cands(r: StressReport, target=None) -> StressReport:
+    from factory.schema import Member2Candidate
+    usdt, usdc = "0x" + "d" * 40, "0x" + "c" * 40
+    ed = r.exit_depth.model_copy(update={"member2_candidates": [
+        Member2Candidate(asset=usdt, depth_at_2pct=90, share=Decimal("0.9"),
+                         label="recurses", basis="gsm_venue"),
+        Member2Candidate(asset=usdc, depth_at_2pct=10, share=Decimal("0.1"),
+                         label="recurses", basis="paired_direct")]})
+    return r.model_copy(update={"exit_depth": ed, "member2_target": target})
+
+
+def test_det50_records_the_owed_fill_rather_than_failing_on_a_null_target():
+    """P-3.09 R-a1's precedent: nothing consumes `member2_target` until the
+    Member-2 cells exist, so a null is an OWED fill. The scope condition names
+    the address the fill must carry, which is what makes the pass auditable
+    instead of permissive."""
+    from factory.validate.harness import det_50
+    b, t = latest_bundle(REPO, "LUSD"), latest_tree(REPO, "LUSD")
+    scope = det_50(b, t, _with_cands(_report()))
+    assert scope.startswith("target owed: fill event lands 0x" + "d" * 40)
+
+
+def test_det50_asserts_identity_once_the_target_is_filled():
+    from factory.validate.harness import Level3, det_50
+    b, t = latest_bundle(REPO, "LUSD"), latest_tree(REPO, "LUSD")
+    usdt, usdc = "0x" + "d" * 40, "0x" + "c" * 40
+    assert "share 0.9" in det_50(b, t, _with_cands(_report(), usdt))
+    with pytest.raises(Level3, match="!= the largest"):
+        det_50(b, t, _with_cands(_report(), usdc))       # not the argmax
+
+
+def test_det50_fails_when_a_target_is_asserted_with_no_table():
+    from factory.validate.harness import Level3, det_50
+    b, t = latest_bundle(REPO, "LUSD"), latest_tree(REPO, "LUSD")
+    r = _report().model_copy(update={"member2_target": "0x" + "d" * 40})
+    with pytest.raises(Level3, match="no candidate table"):
+        det_50(b, t, r)
+
+
+def test_the_kill_flag_decodes_as_two_independent_bits():
+    """From the verified source's `enum Killed: Provide # 1 / Withdraw # 2`.
+    The both-killed state is 3, which an equality test would miss."""
+    from factory.reads import decode_killed
+    assert decode_killed(0) == (False, False)
+    assert decode_killed(1) == (True, False)
+    assert decode_killed(2) == (False, True)
+    assert decode_killed(3) == (True, True)
+
+
+def test_det20_requires_the_kill_read_on_every_stabilizer_row():
+    import tests.test_schema as ts
+    from factory.validate.harness import Level3, det_20
+    b = ts.a_bundle()
+    det_20(b, {})                                        # the fixture carries it
+    op = b.stabilizer.operations[0]
+    stripped = op.model_copy(update={
+        "reads": {k: v for k, v in op.reads.items() if k != "is_killed"}})
+    with pytest.raises(Level3, match="is_killed"):
+        det_20(b.model_copy(update={
+            "stabilizer": b.stabilizer.model_copy(update={"operations": [stripped]})}), {})
+
+
+def test_the_sell_side_parameter_is_inert_until_the_sheet_carries_rows():
+    """DET-52's plumbing lands at B-3a and arms at B-3b. Today every mirror is
+    row-free, so a volatile node gets None and no bundle shape depends on a
+    value that does not exist yet."""
+    import datetime as _dt
+
+    from factory.config import load, sell_side_for
+    cfg = load(REPO / "config", "GHO")
+    assert cfg.sell_side == {}
+    weth = "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
+    assert sell_side_for(cfg, weth, "volatile") is None
+    assert sell_side_for(cfg, weth, "stable") is None
+    filled = cfg.__class__(**{**cfg.__dict__, "sell_side": {
+        weth: {"value": "12000 WETH", "source": "s", "date": _dt.date(2026, 9, 12)}}})
+    got = sell_side_for(filled, weth, "volatile")
+    assert got["value"] == "12000 WETH" and got["source"] == "s"
+    assert sell_side_for(filled, weth, "stable") is None   # volatile nodes only

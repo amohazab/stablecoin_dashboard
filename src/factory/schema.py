@@ -322,6 +322,12 @@ class Supply(BaseModel):
     origination_sum: int
     residual: int
     stabilizer_over_supply: Decimal                          # DET-16, unconditional
+    # R18: LUSD's Stability Pool balance as a NUMBER beside the provenance that
+    # was already in `reads`. It is deposited supply and liquidation capacity —
+    # never backing, never a residual (sheet §5.4) — and until B-3a its value
+    # survived only inside `bridge_disclosure` prose. `None` on crvUSD and GHO,
+    # which have no stability pool.
+    stability_pool_deposits: int | None = None
     reads: dict[str, Provenance]
 
 
@@ -340,6 +346,13 @@ class CollateralNode(BaseModel):
     share_of_backing: Decimal
     disclosure_cadence: str | None = None
     last_disclosure_date: str | None = None
+    # DET-52 (B-3a): the §6.3 collateral-sell-side bound, a SHEET-owned analyst
+    # parameter carried on the node exactly as `disclosure_cadence` is — DET-52
+    # is an S1 entry, so it must be checkable against the bundle alone. Memo
+    # §6.3: "amount of [node] absorbable into stable markets within the shock
+    # window at ≤ 2% impact". `None` until B-3b's values land; LUSD's one
+    # volatile node carries the exempt literal in `value` and no number.
+    sell_side_capacity: dict[str, str] | None = None
     flags: list[str] = []
     reads: dict[str, Provenance]
     lineage: list[Lineage]
@@ -944,6 +957,22 @@ class GroundTruth(BaseModel):
     within_epsilon: bool
 
 
+class Member2Candidate(BaseModel):
+    """DET-50's replay input, RECORDED so the harness stays pure (B-3a).
+
+    One row per asset that could be the Member-2 target, at s = 2%, carrying the
+    label it holds under DET-11/§4 and HOW it reached the table. `linked` assets
+    are recorded with their label and excluded by the selector, not dropped:
+    §6.2.5 excludes them by ruling, and a reader should see that it happened.
+    """
+
+    asset: Address
+    depth_at_2pct: int
+    share: Decimal
+    label: str
+    basis: Literal["paired_direct", "composite_constituent", "gsm_venue"]
+
+
 class ExitDepth(BaseModel):
     """B-2's home. `lp_flight_literal` is the section 6.1.4 text, a constant
     rather than a computed figure."""
@@ -959,6 +988,7 @@ class ExitDepth(BaseModel):
     # pass-through weights and LUSD's Member-2 target are computed from these
     # at B-3, never here. `{}` for a token with no metapool in F.
     base_pool_composition: dict[Address, dict[Address, int]] = {}
+    member2_candidates: list[Member2Candidate] = []   # DET-50's replay, B-3a
     depth_curve: list[DepthPoint] = []
     k_subsets: dict[str, list[Address]] = {}          # keys "80" / "90" / "95"
     sensitivity_rows: list[SensitivityRow] = []

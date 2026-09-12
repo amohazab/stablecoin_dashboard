@@ -88,7 +88,10 @@ def a_bundle(first_run=True, **kw):
                 is_killed_withdraw=False,
                 reads={"current_debt": cr("debt()"),
                        "balance": cr("balanceOf(address)", COL),
-                       "debt_ceiling": cr("debt_ceiling(address)", CF)},
+                       "debt_ceiling": cr("debt_ceiling(address)", CF),
+                       # B-3a: DET-20's key set gains `is_killed`, and its
+                       # provenance is the REGULATOR's one global flag.
+                       "is_killed": cr("is_killed()", CF)},
                 lineage=["stabilizer_debt"])],
             ceiling_aggregate=324_000_000,
             ceiling_aggregate_lineage=["stabilizer_debt"]),

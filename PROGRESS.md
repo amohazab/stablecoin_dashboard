@@ -6684,3 +6684,81 @@ Status: IN PROGRESS (opened 2026-09-12).
 - **Follow-ups spawned:** B-3 — the three fill events, the signed intake edit,
   the 19 sell-side values, R18's adapter fixes, and three re-runs, GHO's now
   also carrying C2's two nodes.
+
+## P-6.06 — B-3a: member2 replay, the regulator's kill flag from source, R18's fixes, DET-50
+
+- **Date:** 2026-09-12
+- **Type:** implementation
+- **Confirmed by:** Amin
+- **Content:**
+  **THE SELECTION (R-B3.1), COMPUTED AND RECORDED.** `member2_candidates` is a
+  recorded table — `{asset, depth_at_2pct, share, label, basis}` at s = 2% — so
+  DET-50 replays without config or chain, the DET-31 ground-truth pattern.
+  Three bases: `paired_direct`; `composite_constituent`, the LP token expanded
+  pro-rata by C4's composition; `gsm_venue`, at the venue's UNDERLYING through
+  C2's walk (R7). `linked` is recorded and excluded (§6.2.5), never dropped.
+  **ALL THREE SELECT USDT `0xdac17f95…` — the finding:** crvUSD **0.477127**
+  (9,490,084.06, `paired_direct`); GHO **0.988338** (21,753,317.19,
+  `gsm_venue`, over its pool's own crvUSD at 0.011662, `recurses_truncated`);
+  LUSD **0.521638** (4,592,357.70, `composite_constituent`, over DAI 0.245782
+  and USDC 0.232580). One issuer is the pilot's whole Member-2 counterparty.
+  **THE KILL FLAG, FROM SOURCE (R-B3.3).** The P-3.21 evidence copy is NOT in
+  the repo — that entry's Artifacts line says the source was "retained in the
+  session scratchpad" — so it was re-fetched: `Peg Keeper Regulator`, vyper
+  0.3.10, verified at `0x36a04caf…`, quoted into `run.py` and here so the
+  evidence stops living in a scratchpad: **`enum Killed:` / `Provide  # 1` /
+  `Withdraw  # 2`** (65-67), `is_killed: public(Killed)` (84), guards
+  `if self.is_killed in Killed.Provide` (192) and `... in Killed.Withdraw`
+  (232). A vyper enum is a BIT FLAG — membership, not equality — so 3 is both
+  and `== 1` would miss it. `decode_killed(raw)` decodes; live value 0.
+  `run.py:300`'s hardcoded `False, False` is gone, the provenance the
+  REGULATOR's single read since per-keeper `is_killed()` reverts on all five.
+  `det_20` gains `is_killed`; **`KEEPER_REQUIRED_READS` and
+  `check_keeper_reads` DELETED** — no caller, and a key set mixing
+  per-operation with block-level reads could never be satisfied.
+  **R18 (ii)-(iv).** crvUSD `set_parameters` → `live_model_input`,
+  `consumed_by ["DET-45 alpha", "DET-45 beta"]`; GHO `pause` →
+  `["DET-46 freezer"]`. `Supply.stability_pool_deposits: int | None`, on LUSD
+  beside provenance already in `reads` while the number lived only in
+  `bridge_disclosure` prose. `gho.py`'s stale P-4.01 #3 pointer retired.
+  **DET-50 REGISTERED, `len(CHECKS)` 31 → 32** (3 S0 / 19 S1 / 10 S2, S2 = 4
+  tree + 6 stress); **6/6 on all three**, still rehearsal on zero cells. Its
+  dormant limbs are NAMED in the check: the compound tail and the joint cell
+  activate at B-4/5/6. **DET-52's PLUMBING IS INERT BY DESIGN** — sheet →
+  `mirror.parse_sell_side` → `cfg.sell_side` → `CollateralNode`, an
+  S1-checkable field on the node as `disclosure_cadence` is. No sheet carries
+  an `SS-` row, so mirrors regenerate byte-identical and every node gets
+  `None`; the check registers at B-3b WITH the values, its own Level 3
+  otherwise firing on the next run.
+  **BEYOND THE RULINGS:** DET-50 gained a present-and-empty branch — a null
+  target with no cells passes, its scope condition naming the address the fill
+  must carry — on P-3.09 R-a1's precedent that a null `member2_target` nothing
+  consumes is not a failure; without it all three read 5/6 and B-3b's fill
+  would look like a defect. Three constituent `decimals()` reads joined LUSD's
+  fold — §4.3's weights cannot compare a 6-dp and an 18-dp balance, and the
+  alternative was an address-keyed decimals table, the hardcoded-list shape the
+  gates forbid. `decode_killed` and `sell_side_for` are extracted, one to be
+  testable, one so LUSD imports no adapter. **A DUPLICATE THE LEAF DIFF
+  FOUND:** R-B2.7's mapping flag existed twice, and LUSD grew a second
+  identical `flags` entry once the candidate table resolved labels; the
+  concentration block now calls the one owner. The mirror's `member2_target`
+  line keeps its text: R-B3.6 retires it, but the replacement moves three
+  mirror files and B-3a writes none, so it lands at B-3b.
+  **METHOD, once:** every rubric, sheet and code quotation here came from one
+  of three parallel read-only surveys of the files, not from recall. **149
+  tests** (142 − 1 retired with the constant + 8), ruff clean; leaf diff:
+  `stress_hash` moved, all else ADDED — +18 leaves on crvUSD and GHO, +30 LUSD.
+  **AS-COUNTED, the Builder's:** P-6.05 was confirmed at a typed "content=58"
+  presented as the measuring script's output; the script had not run; the
+  confirmed text measured 64, over the 60 flag line; the first append carried
+  older text and was reverted before commit; accepted at the ruling.
+- **Artifacts:** `src/factory/stress.py` · `src/factory/schema.py` ·
+  `src/factory/validate/harness.py` · `src/factory/run.py` ·
+  `src/factory/reads.py` · `src/factory/config.py` · `src/factory/mirror.py` ·
+  `src/factory/adapters/gho.py` · `src/factory/adapters/lusd.py`;
+  `tests/test_stress.py` · `tests/test_depth.py` · `tests/test_reads.py` ·
+  `tests/test_schema.py`. No `docs/context/`, set-file, mirror-file, event,
+  `out/bundles/` or adapter-run change.
+- **Follow-ups spawned:** B-3b, gated on the 19 sell-side values: the signed
+  edit applied from the drafted file, hashes, mirrors, set files, events,
+  three re-runs, promotions, tree and stress re-folds, DET-50 and DET-52 green.
