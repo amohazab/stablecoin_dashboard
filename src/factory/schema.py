@@ -892,12 +892,20 @@ class DepthPoint(BaseModel):
 
 class GsmVenue(BaseModel):
     """DET-35 / §5.10. `fee_exit` is the fee on stablecoin -> boxed asset,
-    which is the GSM's BUY fee, not its sell fee (Inventory B F12)."""
+    which is the GSM's BUY fee, not its sell fee (Inventory B F12).
+
+    The boxed asset is a stata wrapper, not the bare stable (C2): `balance` is
+    the wrapper balance put through `convertToAssets` and counted at 1.00 per
+    unit of the UNDERLYING — §6.1.3's par applied through §4.3's pass-through,
+    which is R-B2.6's rate-scaled logic applied to a venue instead of a pool.
+    """
 
     gsm: Address
     boxed_asset: Address
+    underlying: Address                               # C2: the §4.3 look-through
     fee_exit: Decimal
-    balance: int                                      # in the token's base units
+    exchange_rate: Decimal                            # ERC-4626 shares -> assets
+    balance: int          # CONVERTED to the underlying, then scaled to 18 dp
     enters: bool
     reason: str
 

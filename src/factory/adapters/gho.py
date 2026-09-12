@@ -274,6 +274,57 @@ def read_gsms(rpc, registry: str, http_get=None, key: str = "",
     return sorted(rows, key=lambda x: x.address), n
 
 
+def boxed_asset_walk(rpc, gsms: list) -> tuple[list[dict], int]:
+    """DET-28's boxed asset, identified rather than assumed (C2, R-C2.1).
+
+    Each GSM's `UNDERLYING_ASSET()` is a `StataTokenV2` — an ERC-4626 wrapper,
+    NOT the bare stable — so the walk is wrapper -> aToken -> underlying, and it
+    is confirmed from BOTH ends: the wrapper's `asset()` must equal the aToken's
+    own `UNDERLYING_ASSET_ADDRESS()`. Every accessor here is named from the
+    verified implementation's ABI (`0x487c2c53…`, solc 0.8.20); a wrapper whose
+    walk does not close stops the run rather than defaulting to the wrapper.
+    """
+    out, n = [], 0
+    for g in gsms:
+        w = g.underlying_asset
+        r = rpc.read([Call(w, "asset()", ("address",)),
+                      Call(w, "aToken()", ("address",)),
+                      Call(w, "symbol()", ("string",)),
+                      Call(w, "decimals()", ("uint8",)),
+                      Call(w, "convertToAssets(uint256)", ("uint256",),
+                           (g.available_liquidity,))])
+        n += len(r)
+        if not all(x.ok for x in r):
+            raise GhoAdapterStop(
+                f"GSM {g.address}: boxed asset {w} does not answer the ERC-4626 "
+                "walk (asset/aToken/convertToAssets); its identity is unresolved "
+                "and DET-28's node is never emitted on a guess")
+        under, atoken = r[0].one().lower(), r[1].one().lower()
+        q = rpc.read([Call(atoken, "UNDERLYING_ASSET_ADDRESS()", ("address",)),
+                      Call(atoken, "symbol()", ("string",)),
+                      Call(atoken, "decimals()", ("uint8",)),
+                      Call(under, "symbol()", ("string",)),
+                      Call(under, "decimals()", ("uint8",))])
+        n += len(q)
+        if not q[0].ok or q[0].one().lower() != under:
+            raise GhoAdapterStop(
+                f"GSM {g.address}: the walk disagrees at its two ends — wrapper "
+                f"{w}.asset() = {under}, aToken {atoken}.UNDERLYING_ASSET_ADDRESS() "
+                f"= {q[0].one().lower() if q[0].ok else 'no answer'}")
+        out.append({
+            "gsm": g.address, "wrapper": w, "atoken": atoken, "underlying": under,
+            "shares": g.available_liquidity, "converted": int(r[4].one()),
+            "symbol": r[2].one(), "decimals": int(r[3].one()),
+            "atoken_symbol": q[1].one(), "atoken_decimals": int(q[2].one()),
+            "underlying_symbol": q[3].one(), "underlying_decimals": int(q[4].one()),
+            "reads": {"asset": r[0].provenance, "atoken": r[1].provenance,
+                      "symbol": r[2].provenance, "decimals": r[3].provenance,
+                      "convert": r[4].provenance, "atoken_underlying": q[0].provenance,
+                      "underlying_decimals": q[4].provenance},
+        })
+    return out, n
+
+
 def read_inventory(rpc, gho: str, atoken: str) -> tuple[int, object, int]:
     """Undrawn protocol-held inventory for one instance: the GHO SITTING IN the
     aToken contract, `GHO.balanceOf(aGHO)`. Reading `aGHO.balanceOf(aGHO)`
@@ -284,8 +335,48 @@ def read_inventory(rpc, gho: str, atoken: str) -> tuple[int, object, int]:
     return int(r.one()), r.provenance, 1
 
 
+def _boxed(cfg, rpc, walk, pools, oracle_by_pool, priced: dict) -> tuple[list[dict], int]:
+    """DET-28's boxed-asset nodes, one per GSM, keyed by the WRAPPER (C2).
+
+    They are not merged into the USDC/USDT collateral nodes: different assets on
+    different branches. The label comes from the wrapper's OWN dated row —
+    DET-02 forbids sourcing a label across an address, so §4.3's look-through is
+    resolved at design time in that row's prose (R-C2.6) and the walk that
+    justifies it rides in `reads`. The PRICE is the underlying's: the wrapper is
+    not a reserve on the GHO instance, so `getAssetPrice(wrapper)` is zero, and
+    §4.3 says a pass-through wrapper is worth its underlying (R-C2.3).
+    """
+    n = 0
+    out = []
+    for w in walk:
+        if w["wrapper"] not in cfg.labels:
+            raise GhoAdapterStop(
+                f"boxed asset {w['wrapper']} ({w['symbol']}) has no dated label "
+                "row; DET-02 needs one keyed to its own address before it can be "
+                "a node (C2, R-C2.6)")
+        if w["underlying"] not in cfg.labels:
+            raise GhoAdapterStop(
+                f"boxed asset {w['wrapper']} passes through to {w['underlying']}, "
+                "which carries no label row: the §4.3 walk left the labelled set "
+                "and that is a ruling, not a default")
+        price = priced.get(w["underlying"])
+        if price is None:
+            o = oracle_by_pool.get(pools[0]) if pools else None
+            r = rpc.read([Call(o, "getAssetPrice(address)", ("uint256",),
+                               (w["underlying"],))])[0] if o else None
+            n += 1 if o else 0
+            price = int(r.one()) if r is not None and r.ok else 0
+        out.append({**w, "value": (w["converted"] * price) // 10 ** w["underlying_decimals"],
+                    "flags": [
+                        f"§4.3 pass-through: {w['symbol']} -> {w['atoken_symbol']} -> "
+                        f"{w['underlying_symbol']} ({w['underlying']}); "
+                        f"{w['shares']} wrapper units convert to {w['converted']}, "
+                        "priced at the underlying's oracle (C2)"]})
+    return out, n
+
+
 def _nodes(cfg, weights, node_instance, rpc, pools, oracle_by_pool,
-           resolved: dict | None = None) -> tuple[list, int]:
+           resolved: dict | None = None, boxed_walk=()) -> tuple[list, int]:
     """`CollateralNode` rows for every node carrying a config row, valued at the
     instance's own Aave oracle (DET-81). A config `unlabeled` row emits
     `unlisted` — the tree's label set is closed and §8.2 is where these belong
@@ -312,8 +403,21 @@ def _nodes(cfg, weights, node_instance, rpc, pools, oracle_by_pool,
                 if r.ok:
                     priced[a] = int(r.one())
     values = {a: (weights[a] * priced.get(a, 0)) // (10 ** dec.get(a, 18)) for a in addrs}
-    total = sum(values.values()) or 1
+    boxed, n_b = _boxed(cfg, rpc, boxed_walk, pools, oracle_by_pool, priced)
+    n += n_b
+    # DET-14(a): `backing_value` is the sum of node values, so the boxed assets
+    # are inside the denominator every share is taken over - they are backing,
+    # not a footnote to it (C2, R-C2.2).
+    total = sum(values.values()) + sum(x["value"] for x in boxed) or 1
     rows = []
+    for x in boxed:
+        row = cfg.labels[x["wrapper"]]
+        rows.append(CollateralNode(
+            address=x["wrapper"], symbol=x["symbol"], label=row.label,
+            label_source_address=x["wrapper"], node_class=row.node_class,
+            lst_discount_applies=row.lst_discount_applies, value=x["value"],
+            share_of_backing=Decimal(x["value"]) / Decimal(total), flags=x["flags"],
+            reads=x["reads"], lineage=["gsm_read", "price_read"]))
     for a in addrs:
         row = cfg.labels[a]
         label = row.label
@@ -447,7 +551,10 @@ def build(cfg, rpc, http_get=None, key: str = "", from_block: int = 0):
         reads += 2
         if got is not None:
             resolved[wr["node_address"]] = got
-    nodes, n = _nodes(cfg, weights, node_instance, rpc, pools, oracle_by_pool, resolved)
+    walk, n = boxed_asset_walk(rpc, gsms) if gsms else ([], 0)
+    reads += n
+    nodes, n = _nodes(cfg, weights, node_instance, rpc, pools, oracle_by_pool,
+                      resolved, walk)
     reads += n
 
     # ---- the per-run pool pass, THE SAME CODE crvUSD runs (P-4.11) ----------
@@ -470,8 +577,11 @@ def build(cfg, rpc, http_get=None, key: str = "", from_block: int = 0):
     admin, aptrs, n = read_admin_surface(rpc, gho, gsms, pools, http_get, key, from_block)
     reads += n
     pointers.extend(aptrs)
+    # DET-55 wants a row per priced node; a boxed wrapper is priced at its
+    # underlying's feed, so the row is discovered there and says so (C2).
     oracle_rows, n = read_oracle_rows(rpc, cfg, pools, [r.address for r in nodes],
-                                      node_instance)
+                                      node_instance,
+                                      {w["wrapper"]: w["underlying"] for w in walk})
     reads += n
     paths, n = redemption_paths(rpc, gsms, gho)
     reads += n
@@ -860,10 +970,18 @@ def read_admin_surface(rpc, gho: str, gsms: list, pools: list[str], http_get, ke
 
 
 def read_oracle_rows(rpc, cfg, pools: list[str], nodes: list[str],
-                     node_instance: dict[str, list[str]]) -> tuple[list, int]:
+                     node_instance: dict[str, list[str]],
+                     priced_by: dict[str, str] | None = None) -> tuple[list, int]:
     """One row per labelled node. The Aave price SOURCE is discovered per
     instance; its class comes from `description()` and whether `aggregator()`
-    answers, not from a list."""
+    answers, not from a list.
+
+    `priced_by` names the address whose feed prices a node when that is not the
+    node itself — DET-28's boxed wrappers, which are not reserves and whose
+    price is their underlying's under §4.3 (C2). DET-55 needs a row for every
+    node with value > 0, so the pass-through is disclosed on the row rather
+    than left to produce a missing one.
+    """
     n = 0
     oracle = {}
     for p in pools:
@@ -875,12 +993,14 @@ def read_oracle_rows(rpc, cfg, pools: list[str], nodes: list[str],
             if o.ok:
                 oracle[p] = o.one()
     rows = []
+    priced_by = priced_by or {}
     for node in nodes:
-        inst = (node_instance.get(node) or pools)[0]
+        asset = priced_by.get(node, node)
+        inst = (node_instance.get(asset) or pools)[0]
         o = oracle.get(inst)
         if o is None:
             continue
-        s = rpc.read([Call(o, "getSourceOfAsset(address)", ("address",), (node,))])[0]
+        s = rpc.read([Call(o, "getSourceOfAsset(address)", ("address",), (asset,))])[0]
         n += 1
         if not s.ok:
             continue
@@ -911,7 +1031,9 @@ def read_oracle_rows(rpc, cfg, pools: list[str], nodes: list[str],
             staleness_check=None, adapter_class=cls,
             disclosure=(f"{desc}; heartbeat owed, present-and-empty for T-26"
                         if cls != "nav" else
-                        f"{desc}; NAV adapter - no heartbeat exists, T-26 not applicable")))
+                        f"{desc}; NAV adapter - no heartbeat exists, T-26 not applicable")
+            + ("" if asset == node else
+               f"; priced through memo 4.3 at its underlying {asset}'s feed (C2)")))
     return rows, n
 
 
@@ -946,7 +1068,8 @@ def redemption_paths(rpc, gsms: list, gho: str) -> tuple[list, int]:
     return out, n
 
 
-__all__ = ["GhoAdapterStop", "PROBE", "assemble", "attribute_nodes", "build",
+__all__ = ["GhoAdapterStop", "PROBE", "assemble", "attribute_nodes",
+           "boxed_asset_walk", "build",
            "borrower_ledger", "check_supply_identity", "read_admin_surface",
            "read_facilitators", "read_gsms", "read_instance", "read_inventory",
            "read_oracle_rows", "read_positions", "redemption_paths", "role_holders"]

@@ -6606,3 +6606,81 @@ Status: IN PROGRESS (opened 2026-09-12).
 - **Artifacts:** `PROGRESS.md`. The code change it describes lands under
   P-6.04.
 - **Follow-ups spawned:** none beyond P-6.04's.
+
+## P-6.05 — C2: the GSM identity walk, two signed rows, the DET-28 boxed-asset nodes
+
+- **Date:** 2026-09-12
+- **Type:** implementation
+- **Confirmed by:** Amin
+- **Content:**
+  **THE FETCH (R-C2.1).** Both GSM `UNDERLYING_ASSET()` addresses —
+  `0xd4fa2d31…`, `0x7bc34850…` — are `TransparentUpgradeableProxy` over **one
+  implementation**, `0x487c2c53…`, ContractName `StataTokenV2`, solc 0.8.20,
+  verified. Accessors from that ABI, not recall: `asset()`, `aToken()`,
+  `convertToAssets(uint256)`, `symbol()`, `decimals()`. The source settles the
+  semantics: `__ERC4626StataToken_init_unchained` sets the 4626 asset to
+  `IAToken(newAToken).UNDERLYING_ASSET_ADDRESS()`, so `asset()` IS the
+  underlying; `_convertToAssets` is `shares × getReserveNormalizedIncome / RAY`.
+  **THE WALK at 25946240, CONFIRMED FROM BOTH ENDS:** `waEthUSDC` → `aEthUSDC`
+  → **USDC** and `waEthUSDT` → `aEthUSDT` → **USDT**, each aToken's own
+  `UNDERLYING_ASSET_ADDRESS()` equal to the wrapper's `asset()`; a disagreement
+  stops the run. Both underlyings carry `recurses`/`stable` rows.
+  **THE STOP, AND R-C2.6.** R-C2.4 ruled the node wrapper-keyed with its label
+  sourced from the underlying's row, which DET-02 forbids — "node rows record
+  `label_source_address` = own `address` (a match on any other field = fail)",
+  Level 3, and `CollateralNode`'s validator raises on it today; a code-literal
+  `node_class` fails DET-77 besides. I stopped before writing anything.
+  **Ruled: two dated `[[node]]` rows** — `waEthUSDC`/`waEthUSDT`, `recurses`,
+  `stable`, `false`, `2026-09-12`, each carrying §4.3's look-through in its
+  `label_source` prose with the verified implementation and the walk. The
+  config's OWN pattern for §4.3 wrappers (sDAI, wstETH): resolved at design
+  time and signed, never taken across an address at run time. Rows 19 → 21,
+  nothing existing touched, no hash event — the file is stamped in no header.
+  **THE EXCHANGE RATE (R-C2.3), the block's largest number.** The wrappers have
+  accrued: **1.185074933** and **1.174832582**. `getAvailableLiquidity()` is in
+  SHARES, so every pre-C2 boxed balance understated inventory by ~17.5%: USDT
+  **18,516,099.665747 → 21,753,317.186953**, USDC **0.029226 → 0.034635**.
+  GHO's exit depth at s = 2% moves **18,772,778.39 → 22,009,995.92, +17.2%**,
+  the pool term 256,678.69 unchanged, both venues still entering all four
+  points. **LEAF DIFF on the re-folded artifact, 153 → 175:** the eight
+  GSM/total leaves, two balances, `stress_hash`, and the new `underlying`,
+  `exchange_rate` and reads — **every pool depth, K-subset, sensitivity row,
+  concentration and ground-truth row byte-identical.** 5/5, `295c784c`.
+  **THE NODES, AND WHEN THEY APPEAR.** One node per GSM keyed by the WRAPPER,
+  labelled from its own row, valued at `convertToAssets(balance) ×` the
+  UNDERLYING's oracle price — the wrapper is no reserve, so
+  `getAssetPrice(wrapper)` would be zero. **No adapter re-run here:** the code
+  lands now, the nodes appear at B-3's re-run, and GHO's DET-28 flag is gone
+  THEN — absent, not reworded. `backing_value` **$498,308,584.91 →
+  ≈$520,061,902.13, +4.37%**; every published GHO share moves, the largest by
+  0.0147, inside DET-65's 0.10, so no T-04. **R-C2.5:** the node's value
+  (oracle at `run_block`) and the depth artifact's GSM contribution (par 1.00
+  of the underlying) are different quantities and are never cross-checked.
+  **§4.3 edge note:** `StataTokenV2` is pausable and `maxRedeem` returns 0 on a
+  paused reserve — the memo rules that a stress concern, not a verifiability
+  one, so the pass-through stands; recorded because it was read.
+  **BEYOND THE RULINGS:** DET-55 raises Level 3 without an oracle row per
+  priced node and the wrapper is no reserve, so `read_oracle_rows` gained
+  `priced_by` — a boxed row is discovered at the UNDERLYING's feed and its
+  disclosure says so; `Lineage` is a closed Literal, so the nodes carry
+  `["gsm_read", "price_read"]` with the walk itself in `reads` (seven entries)
+  and one flag naming the path; the fold takes TWO extra reads per GSM, not
+  one, re-reading the walk rather than trusting a pre-C2 bundle; a price
+  fallback for an unweighted underlying exists and is UNUSED here, both
+  underlyings being priced already; the moved venue helper is `test_depth.py`'s.
+  **142 tests** (137 + 5), ruff clean.
+  **AS-COUNTED, design layer:** R-C2.4 ruled a `label_source_address` DET-02
+  forbids; the expected boxed outcome was 17.5% low, being in wrapper shares.
+  **The Builder's:** §2's "no new label row is needed" is withdrawn by R-C2.6;
+  P-6.04 was reported at 49 content lines and measured 67 on the appended
+  bytes, over the 60 flag line without the flag firing, P-6.01-A1 34 not 33,
+  second count misstatement after P-6.01, accepted at the ruling; and this
+  entry's own draft was announced as a following message and not sent —
+  fourth occurrence, after P-6.02, P-6.03 and B-2's part 2/2.
+- **Artifacts:** `config/gho_labels.toml` · `src/factory/adapters/gho.py` ·
+  `src/factory/schema.py` · `src/factory/stress.py` · `tests/test_gho.py` ·
+  `tests/test_depth.py`. No `docs/context/`, set-file, adapter re-run or
+  `out/bundles/` change.
+- **Follow-ups spawned:** B-3 — the three fill events, the signed intake edit,
+  the 19 sell-side values, R18's adapter fixes, and three re-runs, GHO's now
+  also carrying C2's two nodes.

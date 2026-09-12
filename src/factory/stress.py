@@ -271,26 +271,41 @@ def gsm_venues(bundle, rpc, reads: dict) -> list[GsmVenue]:
     """DET-35 / §5.10. `fee_exit` is the BUY fee — the fee a GHO holder pays to
     leave into the boxed asset (F12); FR-G14's `getSellFee` is the MINT
     direction, and correcting the sheet's own text is B-3's signed edit. R-19's
-    test is STRICT: the venue enters a curve point iff `fee_exit < s`."""
+    test is STRICT: the venue enters a curve point iff `fee_exit < s`.
+
+    C2 (R-C2.3): the boxed asset is a stata wrapper, so the balance is put
+    through `convertToAssets` and the par unit is the UNDERLYING's. The walk is
+    re-read here rather than taken from the bundle's nodes: this fold runs
+    against bundles written before C2, and a venue must not depend on whether
+    the adapter has been re-run.
+    """
     rb = rpc.run_block
     out: list[GsmVenue] = []
     for g in bundle.gsms:
-        dec = int(rpc.read([Call(g.underlying_asset, "decimals()", ("uint8",))])[0].one())
+        under = rpc.read([Call(g.underlying_asset, "asset()", ("address",))])[0].one().lower()
+        conv = rpc.read([Call(g.underlying_asset, "convertToAssets(uint256)", ("uint256",),
+                              (g.available_liquidity,))])[0]
+        converted = int(conv.one())
+        rate = (Decimal(converted) / Decimal(g.available_liquidity)
+                if g.available_liquidity else Decimal(0))
+        dec = int(rpc.read([Call(under, "decimals()", ("uint8",))])[0].one())
+        reads[f"{g.address}.asset()"] = _cr(g.underlying_asset, "asset()", rb)
+        reads[f"{g.address}.convertToAssets"] = _cr(
+            g.underlying_asset, "convertToAssets(uint256)", rb, (g.available_liquidity,))
         probe = 10 ** 24
         raw = rpc.read([Call(g.fee_strategy, "getBuyFee(uint256)", ("uint256",),
                              (probe,))])[0]
         fee_exit = Decimal(int(raw.one())) / Decimal(probe) if raw.ok else Decimal(1)
         reads[f"{g.address}.getBuyFee"] = _cr(g.fee_strategy, "getBuyFee(uint256)",
                                               rb, (probe,))
-        reads[f"{g.underlying_asset}.decimals()"] = _cr(g.underlying_asset,
-                                                        "decimals()", rb)
+        reads[f"{under}.decimals()"] = _cr(under, "decimals()", rb)
         closed = g.is_frozen or g.is_seized
         out.append(GsmVenue(
-            gsm=g.address, boxed_asset=g.underlying_asset, fee_exit=fee_exit,
-            # The boxed asset counts at 1.00 per unit, the same par convention
-            # §6.1.3 applies to paired assets, and it is a stata wrapper rather
-            # than the bare stable (F14) — the identity is C2's.
-            balance=g.available_liquidity * 10 ** (18 - dec),
+            gsm=g.address, boxed_asset=g.underlying_asset, underlying=under,
+            fee_exit=fee_exit, exchange_rate=rate,
+            # Par is the UNDERLYING's 1.00, not the wrapper's: the wrapper is a
+            # §4.3 pass-through and its unit is worth `exchange_rate` of them.
+            balance=converted * 10 ** (18 - dec),
             enters=not closed,
             reason=("frozen at base" if g.is_frozen else
                     "seized at base" if g.is_seized else

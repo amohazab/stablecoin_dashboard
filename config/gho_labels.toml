@@ -258,6 +258,37 @@ lst_discount_applies = false
 label_source = "memo 4.5 asDAI row - Sky, disclosure-dependent"
 date = 2026-09-08
 
+# ---- DET-28 boxed assets (GSM inventory) ------------------------------------
+# NOT collateral. These two are the boxed assets of the live GSMs, held on the
+# BACKED branch, and they are outside the marked-set arithmetic above - the
+# 98.451% and the 15-row `unlabeled_by_threshold` block both measure borrower
+# collateral at the freeze and are unchanged by these rows.
+#
+# Each is a section-4.3 transparent wrapper. The look-through is resolved HERE,
+# at design time, in the row's prose - the sDAI and wstETH pattern - because
+# DET-02 requires a node's `label_source_address` to be its own address, so a
+# node may never take its label across an address at run time (C2, R-C2.6).
+# The walk that justifies the label is a production read every run and rides in
+# the node's lineage; this row is what makes the LABEL dated and signed.
+
+[[node]]
+address = "0xd4fa2d31b7968e448877f69a96de69f5de8cd23e"
+symbol = "waEthUSDC"
+label = "recurses"
+node_class = "stable"
+lst_discount_applies = false
+label_source = "memo §4.3 transparent-wrapper pass-through: StataTokenV2 (verified impl 0x487c2c53c0866f0a73ae317bd1a28f63adcd9ad1) → aEthUSDC → USDC (Circle attestation); walk read at block 25946240 via asset() / aToken() / UNDERLYING_ASSET_ADDRESS()"
+date = 2026-09-12
+
+[[node]]
+address = "0x7bc3485026ac48b6cf9baf0a377477fff5703af8"
+symbol = "waEthUSDT"
+label = "recurses"
+node_class = "stable"
+lst_discount_applies = false
+label_source = "memo §4.3 transparent-wrapper pass-through: StataTokenV2 (verified impl 0x487c2c53c0866f0a73ae317bd1a28f63adcd9ad1) → aEthUSDT → USDT (Tether attestation); walk read at block 25946240 via asset() / aToken() / UNDERLYING_ASSET_ADDRESS()"
+date = 2026-09-12
+
 # The 15 nodes below the marked set take one combined disclosure row rather
 # than 15 stubs: USDe, XAUt, LBTC, syrupUSDT, EURC, BTC.b, eBTC, ETHx, rsETH,
 # PYUSD, osETH, eUSDe, LUSD, ezETH, FBTC.

@@ -85,7 +85,8 @@ def test_k95_is_f_by_construction_even_when_the_prefix_is_shorter():
 
 def _venue(fee: str) -> GsmVenue:
     return GsmVenue(gsm="0x" + "1" * 40, boxed_asset="0x" + "2" * 40,
-                    fee_exit=Decimal(fee), balance=10, enters=True, reason="t")
+                    underlying="0x" + "3" * 40, fee_exit=Decimal(fee),
+                    exchange_rate=Decimal(1), balance=10, enters=True, reason="t")
 
 
 def test_a_gsm_enters_iff_its_exit_fee_is_strictly_below_s():

@@ -297,3 +297,107 @@ def test_det55_dispatches_on_the_update_condition_type():
     bad = ok.model_copy(update={"adapter_class": None})
     with pytest.raises(Level3, match="neither a heartbeat nor an adapter class"):
         det_55(b.model_copy(update={"oracle_rows": [bad]}), {})
+
+
+# --- C2: the boxed-asset walk and its nodes -----------------------------------
+
+
+AUSDT = "0x23878914efe38d27c4d67ab83ed1b93a74d4086a"
+USDT = "0xdac17f958d2ee523a2206206994597c13d831ec7"
+
+
+def _gsm_row(**kw):
+    from factory.schema import Gsm
+    base = dict(address=GSM, underlying_asset=WAUSDT, exposure_cap=85 * 10 ** 12,
+                available_liquidity=1_000_000, available_underlying_exposure=0,
+                is_frozen=False, is_seized=False, price_strategy=ZERO,
+                fee_strategy=ZERO, gho_treasury=ZERO, reads={})
+    base.update(kw)
+    return Gsm(**base)
+
+
+def _walk_table(atoken_underlying: str = USDT, **over):
+    t = {
+        (WAUSDT, "asset()", ()): (USDT,),
+        (WAUSDT, "aToken()", ()): (AUSDT,),
+        (WAUSDT, "symbol()", ()): ("waEthUSDT",),
+        (WAUSDT, "decimals()", ()): (6,),
+        (WAUSDT, "convertToAssets(uint256)", ("1000000",)): (1_174_832,),
+        (AUSDT, "UNDERLYING_ASSET_ADDRESS()", ()): (atoken_underlying,),
+        (AUSDT, "symbol()", ()): ("aEthUSDT",),
+        (AUSDT, "decimals()", ()): (6,),
+        (USDT, "symbol()", ()): ("USDT",),
+        (USDT, "decimals()", ()): (6,),
+    }
+    t.update(over)
+    return t
+
+
+def test_the_boxed_walk_closes_and_is_confirmed_from_both_ends():
+    """R-C2.1: the accessors come from `StataTokenV2`'s verified ABI, and the
+    aToken's own `UNDERLYING_ASSET_ADDRESS()` must agree with the wrapper's
+    `asset()` — one end could be a mislabelled wrapper; two cannot."""
+    from factory.adapters.gho import boxed_asset_walk
+    (w,), n = boxed_asset_walk(FakeRpc(_walk_table()), [_gsm_row()])
+    assert (w["wrapper"], w["atoken"], w["underlying"]) == (WAUSDT, AUSDT, USDT)
+    assert w["converted"] == 1_174_832 and w["shares"] == 1_000_000
+    assert w["symbol"] == "waEthUSDT" and w["underlying_symbol"] == "USDT"
+    assert n == 10
+
+
+def test_a_walk_that_disagrees_at_its_two_ends_stops_the_run():
+    from factory.adapters.gho import boxed_asset_walk
+    t = _walk_table(atoken_underlying=GHO)
+    with pytest.raises(GhoAdapterStop, match="disagrees at its two ends"):
+        boxed_asset_walk(FakeRpc(t), [_gsm_row()])
+
+
+def test_a_wrapper_that_does_not_answer_the_erc4626_walk_stops():
+    """A GSM whose boxed asset is the bare stable answers no `asset()`. That is
+    an identity the run does not have, never a fallback to the wrapper."""
+    from factory.adapters.gho import boxed_asset_walk
+    t = {k: v for k, v in _walk_table().items() if k[1] != "asset()"}
+    with pytest.raises(GhoAdapterStop, match="does not answer the ERC-4626 walk"):
+        boxed_asset_walk(FakeRpc(t), [_gsm_row()])
+
+
+def _cfg_with(rows: dict):
+    from pathlib import Path
+
+    from factory.config import Config, LendFactories, LendState
+    return Config(token="GHO", frozen_set_path=Path("x"), roots={}, labels=rows,
+                  paired={}, lend=LendFactories(LendState.EXPLICIT_EMPTY), sheet={})
+
+
+def _row(addr, symbol, label="recurses"):
+    import datetime as dt
+
+    from factory.config import LabelRow
+    return LabelRow(addr, symbol, "stable", False, "C2 row", dt.date(2026, 9, 12), label)
+
+
+def test_the_boxed_node_is_wrapper_keyed_and_labelled_from_its_own_row():
+    """R-C2.4 / R-C2.6: the node's address is the WRAPPER's, its label comes
+    from the wrapper's own dated row (DET-02 forbids sourcing across an
+    address), and its VALUE is the converted amount at the underlying's price —
+    `getAssetPrice(wrapper)` would be zero, the wrapper being no reserve."""
+    from factory.adapters.gho import _nodes, boxed_asset_walk
+    cfg = _cfg_with({WAUSDT: _row(WAUSDT, "waEthUSDT"), USDT: _row(USDT, "USDT")})
+    rpc = FakeRpc({**_walk_table(), (POOL, "getAssetPrice(address)", (USDT,)): (10 ** 8,)})
+    walk, _ = boxed_asset_walk(rpc, [_gsm_row()])
+    rows, _ = _nodes(cfg, {}, {}, rpc, [POOL], {POOL: POOL}, None, walk)
+    (r,) = rows
+    assert r.address == WAUSDT and r.label_source_address == WAUSDT    # DET-02
+    assert r.symbol == "waEthUSDT" and r.label == "recurses"
+    assert r.value == 117_483_200            # 1.174832 USDT at $1.00, 8-dp USD
+    assert r.share_of_backing == 1 and r.lineage == ["gsm_read", "price_read"]
+    assert "aEthUSDT" in r.flags[0] and "convert" in r.reads
+
+
+def test_a_boxed_asset_without_its_own_dated_row_stops_on_det_02():
+    from factory.adapters.gho import _nodes, boxed_asset_walk
+    cfg = _cfg_with({USDT: _row(USDT, "USDT")})
+    rpc = FakeRpc(_walk_table())
+    walk, _ = boxed_asset_walk(rpc, [_gsm_row()])
+    with pytest.raises(GhoAdapterStop, match="no dated label row"):
+        _nodes(cfg, {}, {}, rpc, [POOL], {POOL: POOL}, None, walk)
