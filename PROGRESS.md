@@ -6956,3 +6956,124 @@ Status: IN PROGRESS (opened 2026-09-12).
   counterfactual lines (DET-44), reference-point literals (R14), DET-43's
   curves; DET-23(c), 25, 37-44, 48 and 49 activate; the first promoted stress
   artifact.
+
+## P-6.09 — B-4b: the liquidation model, crvUSD's 47 cells, the four metrics; two stops ruled; twelve checks; the first promoted stress artifact
+
+- **Date:** 2026-09-13
+- **Type:** implementation
+- **Confirmed by:** Amin
+- **Content:**
+  **THE BAND RELATION IS READ, NEVER COMPUTED.** Verified `LLAMMA - crvUSD
+  AMM` source, `_p_oracle_up`'s comment: `p_oracle_up(n) = p_base * ((A-1)/A)
+  ** n`, `p_oracle_down(n) = p_oracle_up(n+1)` — and `p_oracle_down` returns
+  `self._p_oracle_up(n + 1)`. A band's interval is `[p_oracle_up(n+1),
+  p_oracle_up(n)]`, **both endpoints read** (R-B4.10), the union extended one
+  band per contiguous run: **+40, 1,543 → 1,583**. The solmate exp is NOT
+  ported — an exp is the one piece with no exact-reproduction guarantee, and
+  reading removes the need. All three compiler versions (0.3.7/0.3.9/0.3.10)
+  carry the relation identically.
+  **COMPOSITION (R-B4.11).** Absorption is `Σ_nodes sell_side_capacity ×
+  shocked price`, nothing else. `effective` is metric 4's trajectory, not
+  capacity — a keeper providing crvUSD into a crvUSD/stable pool does not buy
+  collateral from a liquidator — and DET-23(c)/DET-25 forbid `stabilizer_*` in
+  those lineages regardless. Band conversion is uncapacitated. **RECORDED, NOT
+  SUPPRESSED:** `H1_kill`'s primary and counterfactual are IDENTICAL on every
+  cell — crvUSD's crash path does not depend on the PegKeepers.
+  **A DEFECT OF MINE, CAUGHT BY THE PANEL'S CONSTANCY (R-B4.17).** The first
+  fold produced **29,799,752.48 crvUSD of `bad_debt`, identical in all 36
+  Member-1 cells**. Every contributor was a WBTC position reading `collateral
+  0.0000` against multi-million debt: **WBTC, cbBTC, LBTC and tBTC are 8-dp
+  assets** and I scaled all collateral as 1e18, so four markets came out 1e10
+  short, read as empty, and their whole debt fell out as bad debt — constant,
+  because zero is. The bundle already carries `decimals`; the fix needed no
+  read, and a test asserts the 1e10 factor exactly.
+  **STOP 1 — DET-41's LP-axis monotonicity broke; ruled option (b)
+  (R-B4.14).** At 60% LP flight the single-sided withdrawal asks for
+  **99.98–99.99% of each K90 pool's entire paired balance** — 8,701,429 of
+  8,702,609 USDT; 7,758,107 of 7,759,744 frxUSD; 6,114,345 of 6,115,039 USDC —
+  and depth is genuinely 0. `pool_depth` returning 0 stands. The RATIO changes:
+  zero depth with a non-zero numerator is **undefined**, stored `null` with the
+  literal "exit depth exhausted at this LP-flight level - ratio undefined
+  (infinity)", and DET-41 treats undefined as **+∞** along the LP axis, so
+  monotonicity holds by ruling rather than by luck. **A-15 queued.**
+  **STOP 2 — the even spread; ruled band-proportional (R-B4.15).** Collateral
+  is allocated across a position's bands **in proportion to each band's
+  recorded `y`**, a fully-converted band carrying none, with
+  `stablecoin_in_position` added as the crvUSD leg the shock does not touch.
+  Named approximation: per-USER band shares are not read — 514 × N calls would
+  fail R11's gate. **Before → after: `bad_debt` 22.76 → 4.89 at −20%, 23.65 →
+  6.13 at the headline and −70%; `m1.post` 1.1993 → 1.2048. The ~17.5 crvUSD
+  move matches the ~18 predicted from the 24 already-converted positions.**
+  **THE HEADLINE, M1-s50-d0-lp0** (memo §6.2.6, DET-49 `d = 0` — R-B4.8
+  corrected "−20%"): m1 **pre 0.993987 / post 1.204803 / gap 0.210816**;
+  `share_below_100` 0.00000063 both readings; **`bad_debt` 6.13 crvUSD**,
+  `pct_supply` 2.9e-9; `forced_sell` 6.13 = `bad_debt` (DET-25's identity);
+  **`exit_depth` 19,949,655.92 — DET-41's LP-0 identity, equal to DET-31's
+  `depth(0.02)` to the wei** and to DET-30's row 90; `m3.ratio` 0.0000003072;
+  18 m4 keys, 17 with a real value and one carrying R-B3.10's `0 + reason`.
+  **THE MEMBER-1 PANEL** (`bad_debt` / `m1.post` / `m3.ratio`, d = 0, lp 0 /
+  30 / 60): −20% 4.89 / 1.5914 / 2.5e-7, 7.8e-7, **∞**; −35% 6.12 / 1.3418;
+  −50% 6.13 / 1.2048; −70% 6.13 / 1.1257, each with the same three ratios.
+  The LST column at −50% moves `m1.pre` **0.993987 → 0.969292 → 0.944596**,
+  touching only the three LST nodes (DET-49). **R-29 holds on all three axes**
+  with ∞ at lp60.
+  **R-B4.18 — `EMA_lag` CARRIES NUMBERS.** `value_primary` **0** (no erosion
+  under §7.2's instant observation), `value_counterfactual` = collateral
+  converted in crossed bands at the band price × the shock size, the upper
+  bound; `metric_affected` `m1.post`; `approximation_flag` true; window the
+  bundle's `ema_window_s` (P-3.31: no `MA_EXP_TIME` getter exists, **A-14
+  queued**). **The two readings side by side: at the headline `m1.post` is
+  1.204803 primary against 0.792376 under EMA_lag (erosion 31,377,823.84);
+  at −70%, 1.125710 against 0.372353 (erosion 57,207,037.67).** Neither is
+  folded into the other.
+  **THE −70% FINDING (R-B4.16), unchanged by either ruling.** `bad_debt` is
+  **6.13 crvUSD** on a 76,084,870.38 book — structurally zero, and SMALLER
+  after R-B4.15, not larger. The mechanism is legible in the pair: `m1.pre`
+  0.596428 — the book marked naively at the shocked price is 40% underwater —
+  against `m1.post` 1.125710, because LLAMMA converted collateral to crvUSD at
+  the band prices it actually sold at on the way down. That 0.53 gap IS
+  DET-39's measured contribution of the liquidation mechanism. No tuning.
+  **MEMBER 2 IS STRUCTURALLY INSULATED (DET-43, verified not assumed):**
+  crvUSD has 8 volatile nodes, no `stable` node, `gsm_count = 0`. Ten cells at
+  `m3.ratio` **exactly 0**, the literal "structurally insulated; exposed
+  through exit venues only", and the three recomputed curves **0.97
+  19,309,370.47 · 0.93 18,455,179.07 · 0.88 17,386,079.28**. JOINT: `bad_debt`
+  6.13, `exit_depth` 18,455,179.07 — the 0.93 curve, the paired asset being
+  depegged in that cell too — `forced_sell = bad_debt + 0` per DET-42.
+  **TWELVE CHECKS AT S2, `consumer = "stress"`, `len(CHECKS)` 37 → 49** (3 S0
+  / 20 S1 / 26 S2 = 4 tree + 22 stress). DET-26's per-cell limb is scoped as
+  its own letter scopes it — "every Member 1 cell AND THE JOINT CELL" — which
+  is how Member-2 cells legally carry `0 + reason`; my first cut asserted over
+  all 47 and failed. DET-45's and DET-27's dormant limbs activate. **crvUSD
+  22/22. GHO 21/22** (DET-69 under option (a), unchanged) **· LUSD 22/22**,
+  both still rehearsal on zero cells.
+  **THE FIRST PROMOTED STRESS ARTIFACT:** `out/stress/crvUSD/25963950.json`,
+  `stress_hash` **ce0aab7e**, 47 cells, 22/22 — the promotion branch taken for
+  the first time in the project. **R17's spot-check sheet** rides promotion,
+  not the fold: `out/spotcheck/crvUSD/stress-25963950.md`, gitignored, with the
+  headline's seven quantities each traced to a bundle field or raw-dump row,
+  DET-45's five keeper rows, the three `get_dy` ground-truth calls to reproduce
+  on Etherscan, and the assumption literals.
+  **READS 5,375** at 25963950 — 514 ticks, 4,749 band, 63 AMM, 18 Controller,
+  10 gate views, 2 aggregator, 10 LP, **9 `calc_withdraw_one_coin`**: R-B2.4's
+  deferred ground truth, arriving with `withdraw_one_coin`'s first consumption
+  and recorded in the artifact. **164 tests**, ruff clean.
+  **BEYOND THE RULINGS:** `MetricThree.ratio` became `Decimal | None` — the
+  schema had no way to say "undefined"; `Position` gained `x_pos`, without
+  which every already-soft-liquidated position was undervalued; `write_stress`
+  is hooked to promotion; `convert_position` keeps the even-spread path for
+  tests only; `_axis_pairs` builds R-29's adjacency once for DET-40 and DET-41.
+  **AS-COUNTED, design layer:** the B-4b brief named the −20% cell as the
+  headline where memo §6.2.6 names −50%. **The Builder's:** the decimals
+  defect above; and the P-6.09 draft was announced as following in the turn and
+  did not — the eighth such occurrence.
+- **Artifacts:** `src/factory/liquidation.py` (new) · `src/factory/stress.py` ·
+  `src/factory/schema.py` · `src/factory/validate/harness.py` ·
+  `src/factory/spotcheck.py` · `tests/test_liquidation.py` (new) ·
+  `tests/test_stress.py`; **`out/stress/crvUSD/25963950.json`**, the first
+  promoted stress artifact. No adapter, config, `docs/context/`, set-file or
+  `out/bundles/` change.
+- **Follow-ups spawned:** Amin's hand verification of the spot-check sheet
+  (R17's done-condition for crvUSD); then B-5 — GHO: DET-46's H2 routing,
+  H5/DET-47, the Member-2 numerators, 47 cells, and DET-69 resolving when
+  `h2_routing` fills.

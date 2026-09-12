@@ -36,7 +36,24 @@ import sys
 from decimal import Decimal
 
 from factory.config import load
-from factory.depth import A_PRECISION, BISECT_TOL, PoolState, pool_depth
+from factory.depth import (
+    A_PRECISION,
+    BISECT_TOL,
+    PoolState,
+    pool_depth,
+    withdraw_one_coin,
+)
+from factory.liquidation import (
+    BAND_LINEAR_LITERAL,
+    CAPACITY_LITERAL,
+    UNDEFINED_RATIO_LITERAL,
+    BandPrices,
+    Position,
+    ratio,
+    run_cell,
+    share_below_100,
+)
+from factory.liquidation import ONE as ONE_E18
 from factory.llamma import (
     AMM_READS,
     BAND_READS,
@@ -52,6 +69,8 @@ from factory.provenance import ContractRead
 from factory.rpc import Call
 from factory.schema import (
     Band,
+    Cell,
+    CounterfactualLine,
     DepthConcentration,
     DepthPoint,
     ExitDepth,
@@ -61,6 +80,10 @@ from factory.schema import (
     MarketState,
     Mechanism,
     Member2Candidate,
+    MetricOne,
+    MetricReading,
+    MetricThree,
+    MetricTwo,
     SensitivityRow,
     StressHeader,
     StressReport,
@@ -616,7 +639,12 @@ def build_mechanism(b, cfg, rpc, raw_bytes: bytes) -> Mechanism:
         for sig, _ in CONTROLLER_READS:
             reads[f"{ctrl}.{sig}"] = _cr(ctrl, sig, rb)
         ticks[amm] = read_ticks(rpc, amm, users, reads)
-        union = band_union(ticks[amm])
+        # R-B4.10: `p_oracle_down(n)` IS `p_oracle_up(n + 1)` (the source's own
+        # identity), so the union is extended by one band at the top of every
+        # contiguous run — 40 bands across the nine markets. Reading the
+        # boundary is what lets the model avoid porting LLAMMA's exp.
+        core = band_union(ticks[amm])
+        union = sorted(set(core) | {n + 1 for n in core})
         got = rpc.read([Call(amm, sig, (out,), (n,))
                         for n in union for sig, out in BAND_READS])
         if not all(r.ok for r in got):
@@ -640,6 +668,435 @@ def build_mechanism(b, cfg, rpc, raw_bytes: bytes) -> Mechanism:
         reads=reads)
 
 
+
+# ------------------------------------------------------------- B-4b cells ---
+SHOCKS = (Decimal("-0.20"), Decimal("-0.35"), Decimal("-0.50"), Decimal("-0.70"))
+LSTS = (Decimal("0"), Decimal("0.05"), Decimal("0.10"))
+LPS = (Decimal("0"), Decimal("0.30"), Decimal("0.60"))
+TARGETS = (Decimal("0.97"), Decimal("0.93"), Decimal("0.88"))
+HEADLINE = "M1-s50-d0-lp0"
+M4_KEYS = ("effective", "naive", "is_killed", "alpha", "beta", "provide_allowed",
+           "withdraw_allowed", "burn_capacity", "stabilizer_debt_post_cell",
+           "ceiling_aggregate", "utilization_post_cell", "pegkeeper_lp_share",
+           "paired_units_held", "pool_tilt_post_cell", "exit_depth_cell",
+           "lp_flight_share", "oracle_spot_gap", "counterfactual_ref")
+NA = "not applicable — {member}"
+
+
+def m3_ratio(numerator: int, depth: int) -> Decimal | None:
+    """R-B4.14. Undefined when the exit is exhausted and flow remains."""
+    if depth == 0:
+        return Decimal(0) if numerator == 0 else None
+    return ratio(numerator, depth)
+
+
+def _cell_id(member: str, **kw) -> str:
+    if member == "M1":
+        s = int(abs(kw["shock"]) * 100)
+        return f"M1-s{s}-d{int(kw['lst'] * 100)}-lp{int(kw['lp'] * 100)}"
+    if member == "M2":
+        return f"M2-t{kw['target']}-lp{int(kw['lp'] * 100)}"
+    return "M2-compound" if member == "M2_COMPOUND" else "JOINT"
+
+
+def _depth_after_flight(states: dict, numeraire: str, k90: list[str],
+                        lp: Decimal) -> tuple[int, dict]:
+    """DET-41's `exit_depth_cell`: depth(2%) on K-subset(0.90) after the cell's
+    LP-flight haircut is withdrawn single-sided in the PAIRED asset (§6.1.4).
+
+    At lp = 0 no withdrawal happens and the figure is DET-31's `depth(0.02)`
+    byte-for-byte — the identity the wiring check asserts first.
+    """
+    s_num = int((Decimal(1) - Decimal("0.02")) * S_DEN)
+    total, per = 0, {}
+    for addr in k90:
+        p = states[addr]
+        i = p.coins.index(numeraire)
+        j = 1 - i
+        if lp > 0:
+            amount = int(Decimal(p.total_supply) * lp)
+            _dy, p = withdraw_one_coin(p, amount, j)       # the paired side
+        d = pool_depth(p, i, j, s_num, S_DEN)
+        per[addr] = d
+        total += d
+    return total, per
+
+
+def _shocked_depth(states: dict, numeraire: str, k90: list[str],
+                   target: Decimal) -> int:
+    """DET-43's Member-2 curve: depth at s = 2% recomputed in par terms against
+    the SHOCKED paired asset. R-B2.6 evaluates the bound in rate-scaled space,
+    so a paired asset worth `target` is its rate scaled by `target` — one
+    change, in the one place par enters."""
+    s_num = int((Decimal(1) - Decimal("0.02")) * S_DEN)
+    total = 0
+    for addr in k90:
+        p = states[addr]
+        i = p.coins.index(numeraire)
+        j = 1 - i
+        rates = list(p.rates)
+        rates[j] = int(Decimal(rates[j]) * target)
+        total += pool_depth(p.__class__(**{**p.__dict__, "rates": tuple(rates)}),
+                            i, j, s_num, S_DEN)
+    return total
+
+
+def build_cells(b, report_bits: dict) -> tuple[list, list, dict]:
+    """crvUSD's 47 cells (R-B4.9..R-B4.13). `(cells, reference_points, notes)`.
+
+    The grid is memo §6.2.6's, the factors DET-39's, the absorption
+    R-B4.11's — `effective` is NOT in it, `band depth` is NOT in it. Every
+    per-cell aggregate lands here; no per-position row reaches the artifact.
+    """
+    states = report_bits["states"]
+    numeraire = report_bits["numeraire"]
+    k90 = report_bits["k90"]
+    positions = report_bits["positions"]
+    oracle = report_bits["oracle"]              # market -> price_oracle()
+    spot = report_bits["spot"]                  # market -> get_p()
+    discount = report_bits["liquidation_discount"]
+    sell_side = report_bits["sell_side"]        # market -> units of the node
+    lst_nodes = report_bits["lst_nodes"]        # markets whose node takes `d`
+    mech = report_bits["mechanism"]
+    ema = report_bits["ema_window_s"]
+    supply_ruled = b.supply.supply_ruled
+    prices = report_bits["band_prices"]
+    bandxy = report_bits["band_xy"]
+
+    base_value = sum(p.collateral * oracle[p.market] // ONE_E18 for p in positions)
+    base_debt = sum(p.debt for p in positions)
+    cells, notes = [], {}
+
+    def m4_for(member: str, lp: Decimal, extra: dict) -> dict:
+        """R-B3.10: every cell carries every key; a key not applicable to the
+        cell's member carries 0 and a `reason` naming the member."""
+        out = {}
+        for key in M4_KEYS:
+            if key in extra:
+                out[key] = extra[key]
+            else:
+                out[key] = {"value": 0, "reason": NA.format(member=member)}
+        return out
+
+    def counterfactuals(member: str, cell_id: str, m2_primary: int,
+                        erosion: int = 0) -> list:
+        lines = []
+        if member in ("M1", "JOINT"):
+            lines.append(CounterfactualLine(
+                id="H1_kill", metric_affected="m2",
+                assumption_text=("all PegKeepers killed: zero contribution. The "
+                                 "primary already excludes `effective` from "
+                                 "absorption (P-6.08 R-B4.11), so the two agree "
+                                 "— the crash path does not depend on the "
+                                 "keepers, which is the finding, not a defect."),
+                value_primary=m2_primary, value_counterfactual=m2_primary))
+            # R-B4.18: the line carries NUMBERS. Primary is 0 — under §7.2's
+            # instant observation the oracle never lags, so nothing erodes.
+            # The counterfactual is the UPPER BOUND: every unit of collateral
+            # that crossed a band, valued at that band's price, eroded by the
+            # full shock, as if the oracle had stood still for the whole move.
+            lines.append(CounterfactualLine(
+                id="EMA_lag", metric_affected="m1.post",
+                assumption_text=("bounded approximation — not full EMA "
+                                 f"band-crossing dynamics; window {ema} s "
+                                 "(the bundle's transitive max, P-3.31: no "
+                                 "MA_EXP_TIME getter exists)"),
+                value_primary=0, value_counterfactual=erosion,
+                approximation_flag=True))
+        if member in ("M2", "M2_COMPOUND", "JOINT"):
+            lines.append(CounterfactualLine(
+                id="H1_v1_contagion", metric_affected="m2",
+                assumption_text=("primary: V2 gating effective, no new mint, LP "
+                                 "share stuck in the depegging asset. "
+                                 "Counterfactual: V1 contagion mint sized by "
+                                 "headroom (memo §6.3 H1 depeg path).")))
+        return lines
+
+    # --- Member 1: 4 x 3 x 3 --------------------------------------------------
+    for shock in SHOCKS:
+        for lst in LSTS:
+            f = {m: (Decimal(1) + shock) * (Decimal(1) - (lst if m in lst_nodes
+                                                          else Decimal(0)))
+                 for m in oracle}
+            shocked = {m: int(Decimal(oracle[m]) * f[m]) for m in oracle}
+            cap = {m: int(Decimal(sell_side.get(m, 0)) * Decimal(shocked[m])
+                          / Decimal(ONE_E18)) for m in oracle}
+            res = run_cell(positions, prices, shocked, discount, cap, bandxy)
+            pre_v = sum(p.collateral * shocked[p.market] // ONE_E18
+                        for p in positions)
+            for lp in LPS:
+                depth, _per = _depth_after_flight(states, numeraire, k90, lp)
+                bad = res["bad_debt"]
+                cid = _cell_id("M1", shock=shock, lst=lst, lp=lp)
+                m4 = m4_for("M1", lp, {
+                    "effective": mech.effective_headroom,
+                    "naive": mech.naive_headroom,
+                    "is_killed": mech.llamma.keeper_state if mech.llamma else {},
+                    "alpha": str(b.stabilizer.alpha), "beta": str(b.stabilizer.beta),
+                    "provide_allowed": mech.provide_allowed,
+                    "withdraw_allowed": mech.withdraw_allowed,
+                    "burn_capacity": mech.burn_capacity,
+                    "ceiling_aggregate": mech.ceiling_aggregate,
+                    "stabilizer_debt_post_cell": mech.burn_capacity,
+                    "utilization_post_cell": str(ratio(mech.burn_capacity,
+                                                       mech.ceiling_aggregate)),
+                    "pegkeeper_lp_share": {a: str(v) for a, v
+                                           in mech.pegkeeper_lp_share.items()},
+                    "paired_units_held": mech.paired_units_held,
+                    "exit_depth_cell": depth,
+                    "lp_flight_share": str(lp),
+                    "oracle_spot_gap": {m: str(ratio(spot[m] - oracle[m], oracle[m]))
+                                        for m in oracle},
+                    "counterfactual_ref": ["H1_kill", "EMA_lag"]})
+                erosion = res["converted"] * int(abs(shock) * 10 ** 6) // 10 ** 6
+                if cid in (HEADLINE, "M1-s70-d0-lp0"):
+                    notes.setdefault("ema_pairs", {})[cid] = {
+                        "m1_post_primary": str(ratio(res["post_value"],
+                                                     res["post_debt"])),
+                        "m1_post_counterfactual": str(
+                            ratio(max(res["post_value"] - erosion, 0),
+                                  res["post_debt"])),
+                        "erosion": erosion}
+                cells.append(Cell(
+                    id=cid, member="M1", shock=shock, lst=lst, lp=lp, target=None,
+                    m1=MetricOne(
+                        pre=MetricReading(ratio=ratio(pre_v, base_debt),
+                                          share_below_100=share_below_100(res["rows"])),
+                        post=MetricReading(ratio=ratio(res["post_value"],
+                                                       res["post_debt"]),
+                                           share_below_100=share_below_100(
+                                               [r for r in res["rows"]])),
+                        gap=ratio(res["post_value"], res["post_debt"])
+                        - ratio(pre_v, base_debt)),
+                    m2=MetricTwo(bad_debt=bad, pct_supply=ratio(bad, supply_ruled)),
+                    m3=MetricThree(ratio=m3_ratio(bad, depth),
+                                   forced_sell_volume=bad, exit_depth=depth),
+                    m4=m4,
+                    counterfactual_lines=counterfactuals("M1", cid, bad,
+                                                         erosion),
+                    lineage=["liquidation_model", "depth_model", "price_read",
+                             "collateral_read", "debt_read"]))
+                notes.setdefault("eligible", {})[cid] = (res["eligible"],
+                                                         res["eligible_debt"])
+
+    # --- Member 2 + compound + joint: DET-43, crvUSD is structurally insulated -
+    curves: dict[str, int] = {}
+    for target in TARGETS:
+        curves[str(target)] = _shocked_depth(states, numeraire, k90, target)
+    for target in TARGETS:
+        for lp in LPS:
+            depth, _ = _depth_after_flight(states, numeraire, k90, lp)
+            cid = _cell_id("M2", target=target, lp=lp)
+            cells.append(_insulated_cell(cid, "M2", target, lp, depth, base_value,
+                                         base_debt, supply_ruled, m4_for, ema,
+                                         counterfactuals))
+    cells.append(_insulated_cell("M2-compound", "M2_COMPOUND", Decimal("0.93"),
+                                 Decimal(0),
+                                 _depth_after_flight(states, numeraire, k90,
+                                                     Decimal(0))[0],
+                                 base_value, base_debt, supply_ruled, m4_for, ema,
+                                 counterfactuals))
+    # --- the joint cell: -50% x 0.93, LST 0, LP 0 (memo §6.2.6) --------------
+    # DET-42: `forced_sell = bad_debt_joint + m2_slice_joint`. crvUSD's M2
+    # slice is zero by construction (DET-43), so the joint numerator IS the
+    # crash-path bad debt — and its exit depth is the SHOCKED one, because the
+    # paired asset is depegged in this cell too.
+    shock, target = Decimal("-0.50"), Decimal("0.93")
+    f = {m: Decimal(1) + shock for m in oracle}
+    shocked = {m: int(Decimal(oracle[m]) * f[m]) for m in oracle}
+    cap = {m: int(Decimal(sell_side.get(m, 0)) * Decimal(shocked[m])
+                  / Decimal(ONE_E18)) for m in oracle}
+    res = run_cell(positions, prices, shocked, discount, cap, bandxy)
+    pre_v = sum(p.collateral * shocked[p.market] // ONE_E18 for p in positions)
+    depth = curves[str(target)]
+    bad = res["bad_debt"]
+    m4 = m4_for("JOINT", Decimal(0), {
+        "effective": mech.effective_headroom, "naive": mech.naive_headroom,
+        "burn_capacity": mech.burn_capacity,
+        "ceiling_aggregate": mech.ceiling_aggregate,
+        "stabilizer_debt_post_cell": mech.burn_capacity,
+        "utilization_post_cell": str(ratio(mech.burn_capacity,
+                                           mech.ceiling_aggregate)),
+        "exit_depth_cell": depth, "lp_flight_share": "0",
+        "counterfactual_ref": ["H1_kill", "EMA_lag", "H1_v1_contagion"]})
+    cells.append(Cell(
+        id="JOINT", member="JOINT", shock=shock, lst=Decimal(0), lp=Decimal(0),
+        target=target,
+        m1=MetricOne(
+            pre=MetricReading(ratio=ratio(pre_v, base_debt),
+                              share_below_100=share_below_100(res["rows"])),
+            post=MetricReading(ratio=ratio(res["post_value"], res["post_debt"]),
+                               share_below_100=share_below_100(res["rows"])),
+            gap=ratio(res["post_value"], res["post_debt"]) - ratio(pre_v, base_debt)),
+        m2=MetricTwo(bad_debt=bad, pct_supply=ratio(bad, supply_ruled)),
+        m3=MetricThree(ratio=m3_ratio(bad, depth), forced_sell_volume=bad,
+                       exit_depth=depth),
+        m4=m4, counterfactual_lines=counterfactuals(
+            "JOINT", "JOINT", bad,
+            res["converted"] * int(abs(shock) * 10 ** 6) // 10 ** 6),
+        lineage=["liquidation_model", "depth_model", "price_read",
+                 "collateral_read", "debt_read"]))
+    notes.setdefault("eligible", {})["JOINT"] = (res["eligible"],
+                                                 res["eligible_debt"])
+    notes["curves"] = curves
+    if any(c.m3.ratio is None for c in cells):
+        notes["undefined_ratio"] = UNDEFINED_RATIO_LITERAL
+    return cells, [], notes
+
+
+def _insulated_cell(cid, member, target, lp, depth, base_value, base_debt,
+                    supply_ruled, m4_for, ema, counterfactuals):
+    """DET-43: `m3.ratio = 0` EXACTLY, with DET-42's `structurally_insulated`.
+
+    crvUSD holds no `node_class = stable` node and no GSM, so no supply's
+    backing IS the shocked stable — the Member-2 numerator is zero by
+    construction, not by rounding.
+    """
+    return Cell(
+        id=cid, member=member, shock=None, lst=None, lp=lp, target=target,
+        m1=MetricOne(pre=MetricReading(ratio=ratio(base_value, base_debt),
+                                       share_below_100=Decimal(0)),
+                     post=MetricReading(ratio=ratio(base_value, base_debt),
+                                        share_below_100=Decimal(0)),
+                     gap=Decimal(0)),
+        m2=MetricTwo(bad_debt=0, pct_supply=Decimal(0)),
+        m3=MetricThree(ratio=Decimal(0), forced_sell_volume=0, exit_depth=depth),
+        m4=m4_for(member, lp, {"exit_depth_cell": depth,
+                               "lp_flight_share": str(lp),
+                               "counterfactual_ref": ["H1_v1_contagion"]}),
+        counterfactual_lines=counterfactuals(member, cid, 0),
+        lineage=["depth_model"])
+
+
+def build_crvusd_cells(b, cfg, rpc, raw_bytes, mech, states, numeraire, frozen,
+                       reads) -> tuple[list, list, dict, dict]:
+    """Assemble B-4b's inputs from what B-4a already read, then build the 47.
+
+    NOTHING here re-reads the chain except `calc_withdraw_one_coin`, which is
+    R-B2.4's deferred ground truth arriving with `withdraw_one_coin`'s first
+    consumption — one read per K90 pool at each of the three haircuts.
+    """
+    rows = json.loads(raw_bytes.decode("utf-8"))
+    amm_of = {m.address: m.amm_address for m in b.markets}
+    node_of = {m.address: m.collateral_address for m in b.markets}
+    # COLLATERAL DECIMALS. The raw dump carries each position's collateral in
+    # the ASSET's own base units - 8 for the four BTC markets, 18 for the rest -
+    # while every price here is 1e18-scaled. Scaling to 18 dp is what makes the
+    # two comparable; the bundle already read `decimals` per market, so this
+    # costs nothing. Omitting it read every WBTC/cbBTC/LBTC/tBTC position as
+    # zero-collateral, which is how B-4b's first fold produced 29.8M of
+    # shock-invariant "bad debt" out of four markets that have none.
+    scale = {m.address: 10 ** (18 - m.decimals) for m in b.markets}
+    ll = mech.llamma
+    positions = []
+    for r in rows:
+        ctrl = r["controller"].lower()
+        amm = amm_of[ctrl]
+        n1, n2 = ll.ticks[amm][r["user"].lower()]
+        net = max(r["gross_debt"] - r["stablecoin_in_position"], 0)   # DET-06
+        positions.append(Position(user=r["user"].lower(), market=ctrl, amm=amm,
+                                  collateral=r["collateral"] * scale[ctrl],
+                                  debt=net, n1=n1, n2=n2,
+                                  x_pos=r["stablecoin_in_position"]))
+    prices = {amm: BandPrices(up={bd.n: bd.p_oracle_up for bd in bands})
+              for amm, bands in ll.bands.items()}
+    # R-B4.15's weights: each band's recorded (x, y), the allocation basis.
+    bandxy = {amm: {bd.n: (bd.x, bd.y) for bd in bands}
+              for amm, bands in ll.bands.items()}
+    oracle = {c: ll.markets[amm_of[c]].oracle for c in amm_of}
+    spot = {c: ll.markets[amm_of[c]].spot for c in amm_of}
+    disc = {c: ll.markets[amm_of[c]].liquidation_discount for c in amm_of}
+    sell = {c: _sell_side_units(cfg, node_of[c]) for c in amm_of}
+    lst = {c for c in amm_of if _is_lst(cfg, node_of[c])}
+    ema = max((m.ema_window_s for m in b.oracle_rows
+               if getattr(m.update_condition, "ema_window_s", None)), default=0) \
+        if False else _ema_window(b)
+    ks = k_subsets([r for r in b.pools if r.in_frozen_set])
+    bits = {"states": states, "numeraire": numeraire, "k90": ks["90"],
+            "positions": positions, "oracle": oracle, "spot": spot,
+            "liquidation_discount": disc, "sell_side": sell, "lst_nodes": lst,
+            "mechanism": mech, "ema_window_s": ema, "band_prices": prices,
+            "band_xy": bandxy}
+    cells, refs, notes = build_cells(b, bits)
+    # DET-48 / R14: the literal, per volatile node, with no block and no flag.
+    refs = [{"node": m.collateral_address, "symbol": m.symbol,
+             "literal": "reference point unavailable"} for m in b.markets]
+    notes["ground_truth"] = _withdraw_ground_truth(rpc, states, numeraire,
+                                                   ks["90"], reads)
+    assumptions = {"band_linear": BAND_LINEAR_LITERAL,
+                   "capacity": CAPACITY_LITERAL,
+                   "lp_flight": LP_FLIGHT_LITERAL,
+                   # DET-43 / R-22: the literal and the three recomputed curves,
+                   # which the check replays against each cell's exit depth.
+                   "structural_insulation":
+                       "structurally insulated; exposed through exit venues only",
+                   "m2_curves": "; ".join(
+                       f"{k}: {v}" for k, v in sorted(notes["curves"].items()))}
+    if "undefined_ratio" in notes:
+        assumptions["undefined_ratio"] = notes["undefined_ratio"]
+    if "ema_pairs" in notes:
+        # R-B4.18: the optimistic and pessimistic m1.post side by side, so a
+        # reader sees both readings of the same cell without recomputing.
+        assumptions["ema_lag_readings"] = "; ".join(
+            f"{k}: m1.post {v['m1_post_primary'][:8]} primary vs "
+            f"{v['m1_post_counterfactual'][:8]} under EMA_lag"
+            for k, v in sorted(notes["ema_pairs"].items()))
+    return cells, refs, notes, assumptions
+
+
+def _sell_side_units(cfg, node: str) -> int:
+    """The node's sheet-signed bound in ITS OWN units, scaled to 1e18. The
+    value is prose on the sheet (`"13750.0000"`), so it is parsed once here."""
+    row = cfg.sell_side.get(node)
+    if row is None:
+        return 0
+    try:
+        return int(Decimal(row["value"]) * 10 ** 18)
+    except Exception:                       # the LUSD exempt literal, not a number
+        return 0
+
+
+def _is_lst(cfg, node: str) -> bool:
+    row = cfg.labels.get(node)
+    return bool(row and row.lst_discount_applies)
+
+
+def _ema_window(b) -> int:
+    """R13 / §0(c): the bundle's per-market transitive max, NOT DET-44's
+    `MA_EXP_TIME` — P-3.31 proved no such getter exists (A-14 queued)."""
+    out = 0
+    for row in b.oracle_rows:
+        w = getattr(row.update_condition, "ema_window_s", None)
+        if w:
+            out = max(out, int(w))
+    return out
+
+
+def _withdraw_ground_truth(rpc, states, numeraire, k90, reads) -> list[dict]:
+    """R-B2.4, arriving with the first consumption: the port's
+    `withdraw_one_coin` against the pool's own `calc_withdraw_one_coin`, one
+    read per K90 pool at each haircut."""
+    out = []
+    for addr in k90:
+        p = states[addr]
+        j = 1 - p.coins.index(numeraire)
+        for lp in LPS:
+            if lp == 0:
+                continue
+            amount = int(Decimal(p.total_supply) * lp)
+            ported, _ = withdraw_one_coin(p, amount, j)
+            r = rpc.read([Call(addr, "calc_withdraw_one_coin(uint256,int128)",
+                               ("uint256",), (amount, j))])[0]
+            onchain = int(r.one()) if r.ok else None
+            reads[f"{addr}.calc_withdraw_one_coin({lp})"] = _cr(
+                addr, "calc_withdraw_one_coin(uint256,int128)", rpc.run_block,
+                (amount, j))
+            out.append({"pool": addr, "lp": str(lp), "ported": ported,
+                        "onchain": onchain,
+                        "delta": None if onchain is None else ported - onchain})
+    return out
+
+
 def fold(inputs: dict, rpc=None) -> StressReport:
     """B-2: the header, and the exit-depth block. The mechanism block and the
     cells still land at B-4/5/6; `member2_target` is B-3's."""
@@ -647,6 +1104,10 @@ def fold(inputs: dict, rpc=None) -> StressReport:
     b, t, cfg = inputs["bundle"], inputs["tree"], inputs["cfg"]
     exit_depth = ExitDepth(lp_flight_literal=LP_FLIGHT_LITERAL)
     flags: list[str] = []
+    cells: list = []
+    refs: list = []
+    assumptions: dict = {}
+    mech = Mechanism()
     if rpc is not None:
         reads: dict = {}
         base_vps: dict = {}
@@ -662,6 +1123,9 @@ def fold(inputs: dict, rpc=None) -> StressReport:
         flags += [f"T-21 GSM {v.gsm} {v.reason} — venue closed in every cell"
                   for v in venues if not v.enters]
         mech = build_mechanism(b, cfg, rpc, inputs["raw"])
+        if mech.llamma is not None:
+            cells, refs, notes, assumptions = build_crvusd_cells(
+                b, cfg, rpc, inputs["raw"], mech, states, numeraire, frozen, reads)
     return StressReport(
         header=StressHeader(
             token=b.header.token, run_block=b.header.run_block,
@@ -675,6 +1139,9 @@ def fold(inputs: dict, rpc=None) -> StressReport:
         member2_target=inputs["member2_target"] or None,
         exit_depth=exit_depth,
         mechanism=mech,
+        cells=cells,
+        reference_points=refs,
+        assumptions=assumptions,
         flags=flags)
 
 
@@ -702,6 +1169,12 @@ def emit(repo: pathlib.Path, bundle, tree,
             else repo / "out/rehearsal" / token / f"stress-{blk}.json")
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(serialise_stress(report), encoding="utf-8", newline="")
+    if ok:
+        # R17's hand-verification sheet rides the PROMOTION, not the fold: a
+        # rehearsal artifact has nothing to verify by hand. Gitignored with the
+        # rest of `out/spotcheck/`.
+        from factory.spotcheck import write_stress
+        write_stress(bundle, report, repo)
     return path, ok
 
 

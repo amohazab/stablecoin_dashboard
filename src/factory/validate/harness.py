@@ -1016,6 +1016,248 @@ def det_31(b: Bundle, t: VerifiabilityTree, r: StressReport) -> None:
                          f"{g.implied_price} outside [{lo}, {hi}]")
 
 
+# ------------------------------------------------------- B-4b: the cells ----
+
+
+def _cells(r: StressReport, member: str | None = None) -> list:
+    return [c for c in r.cells if member is None or c.member == member]
+
+
+def _axis_pairs(by: dict) -> list[tuple[str, str]]:
+    """Adjacent Member-1 cells along each axis, the other two held fixed."""
+    out = []
+    shocks, lsts, lps = (20, 35, 50, 70), (0, 5, 10), (0, 30, 60)
+    for d in lsts:
+        for lp in lps:
+            for x, y in zip(shocks, shocks[1:], strict=False):
+                out.append((f"M1-s{x}-d{d}-lp{lp}", f"M1-s{y}-d{d}-lp{lp}"))
+    for s in shocks:
+        for lp in lps:
+            for x, y in zip(lsts, lsts[1:], strict=False):
+                out.append((f"M1-s{s}-d{x}-lp{lp}", f"M1-s{s}-d{y}-lp{lp}"))
+    for s in shocks:
+        for d in lsts:
+            for x, y in zip(lps, lps[1:], strict=False):
+                out.append((f"M1-s{s}-d{d}-lp{x}", f"M1-s{s}-d{d}-lp{y}"))
+    return [(a, b) for a, b in out if a in by and b in by]
+
+
+def det_37(b: Bundle, t: VerifiabilityTree, r: StressReport) -> str | None:
+    """Cell set exact (47 / 23) — counts and IDs, never the scheme's word."""
+    if not r.cells:
+        return "no cells: a rehearsal on an empty cell set"
+    ids = [c.id for c in r.cells]
+    if len(ids) != len(set(ids)):
+        raise Level3("DET-37: duplicate cell IDs")
+    lst_live = any(n.lst_discount_applies and n.share_of_backing > 0 for n in b.nodes)
+    want_m1 = 36 if lst_live else 12
+    got = {m: len(_cells(r, m)) for m in ("M1", "M2", "M2_COMPOUND", "JOINT")}
+    if got != {"M1": want_m1, "M2": 9, "M2_COMPOUND": 1, "JOINT": 1}:
+        raise Level3(f"DET-37: counts {got}, expected M1 {want_m1} / 9 / 1 / 1")
+    return f"{len(r.cells)} cells; LST axis {'live' if lst_live else 'collapsed'}"
+
+
+def det_38(b: Bundle, t: VerifiabilityTree, r: StressReport) -> str | None:
+    """Four metrics per cell; `m4` = the sheet's key set exactly, no composite."""
+    if not r.cells:
+        return "no cells"
+    want = set(_m4_keys())
+    for c in r.cells:
+        if set(c.m4) != want:
+            raise Level3(f"DET-38: {c.id} m4 key set differs: "
+                         f"{sorted(set(c.m4) ^ want)}")
+        for bad in ("hours_to_depeg", "composite", "score"):
+            if bad in c.m4:
+                raise Level3(f"DET-38: {c.id} carries a composite field {bad}")
+    return f"m4 key set exact on {len(r.cells)} cells ({len(want)} keys)"
+
+
+def _m4_keys() -> tuple:
+    from factory.stress import M4_KEYS
+    return M4_KEYS
+
+
+def det_39(b: Bundle, t: VerifiabilityTree, r: StressReport) -> str | None:
+    """Metric 1: two readings, post headline, gap visible."""
+    if not r.cells:
+        return "no cells"
+    for c in r.cells:
+        if c.m1.gap != c.m1.post.ratio - c.m1.pre.ratio:
+            raise Level3(f"DET-39: {c.id} gap != post - pre")
+        for reading in (c.m1.pre, c.m1.post):
+            if not (0 <= reading.share_below_100 <= 1):
+                raise Level3(f"DET-39: {c.id} share_below_100 out of range")
+    return "gap = post - pre on every cell; both readings present"
+
+
+def det_40(b: Bundle, t: VerifiabilityTree, r: StressReport) -> str | None:
+    """Metric 2: bad debt, and R-29's monotonicity along all three axes."""
+    if not r.cells:
+        return "no cells"
+    for c in r.cells:
+        if c.m2.bad_debt < 0:
+            raise Level3(f"DET-40: {c.id} bad_debt < 0")
+        want = (Decimal(c.m2.bad_debt) / Decimal(b.supply.supply_ruled)
+                if b.supply.supply_ruled else Decimal(0))
+        if abs(c.m2.pct_supply - want) > Decimal("1e-6"):
+            raise Level3(f"DET-40: {c.id} pct_supply != bad_debt / supply_ruled")
+    by = {c.id: c for c in _cells(r, "M1")}
+    for a, z in _axis_pairs(by):
+        if by[z].m2.bad_debt < by[a].m2.bad_debt:
+            raise Level3(f"DET-40: bad_debt falls {a} -> {z} (R-29)")
+    return "bad_debt >= 0, pct_supply replays, monotone on shock / LST / LP"
+
+
+def det_41(b: Bundle, t: VerifiabilityTree, r: StressReport) -> str | None:
+    """Metric 3, the LP-0 identity, and R-29 with R-B4.14's infinity.
+
+    An UNDEFINED ratio is +infinity along the LP axis: the exit is exhausted,
+    which is the most pressure there can be, not the least.
+    """
+    if not r.cells:
+        return "no cells"
+    d31 = next((p.pool_depth for p in r.exit_depth.depth_curve
+                if p.s == Decimal("0.02")), None)
+    for c in _cells(r, "M1"):
+        if c.lp == 0 and d31 is not None and c.m3.exit_depth != d31:
+            raise Level3(f"DET-41: {c.id} LP-0 exit_depth {c.m3.exit_depth} != "
+                         f"DET-31 depth(0.02) {d31}")
+        if c.m3.exit_depth == 0 and c.m3.forced_sell_volume > 0 \
+                and c.m3.ratio is not None:
+            raise Level3(f"DET-41: {c.id} zero depth with a defined ratio")
+    by = {c.id: c for c in _cells(r, "M1")}
+    inf = Decimal("1e30")
+    for a, z in _axis_pairs(by):
+        if a.rsplit("-lp", 1)[0] != z.rsplit("-lp", 1)[0]:
+            continue                                   # the LP axis only
+        x, y = by[a].m3.ratio, by[z].m3.ratio
+        if (inf if y is None else y) < (inf if x is None else x):
+            raise Level3(f"DET-41: m3.ratio falls {a} -> {z} (R-29)")
+    undef = [c.id for c in r.cells if c.m3.ratio is None]
+    return (f"LP-0 identity holds; {len(undef)} undefined ratio(s) treated as "
+            "+infinity (R-B4.14)")
+
+
+def _insulated(b: Bundle) -> bool:
+    return not any(n.node_class == "stable" for n in b.nodes) and not b.gsms
+
+
+def det_42(b: Bundle, t: VerifiabilityTree, r: StressReport) -> str | None:
+    """A2 numerator rules. crvUSD: 0 with `reason = structurally_insulated`."""
+    if not r.cells:
+        return "no cells"
+    ins = _insulated(b)
+    for c in _cells(r, "M2") + _cells(r, "M2_COMPOUND"):
+        if ins and c.m3.forced_sell_volume != 0:
+            raise Level3(f"DET-42: {c.id} forced_sell != 0 on an insulated token")
+    j = _cells(r, "JOINT")
+    if j and j[0].m3.forced_sell_volume != j[0].m2.bad_debt:
+        raise Level3("DET-42: joint forced_sell != bad_debt_joint + m2_slice")
+    return ("structurally_insulated: every Member-2 numerator is 0 by "
+            "construction" if ins else "numerators per token")
+
+
+def det_43(b: Bundle, t: VerifiabilityTree, r: StressReport) -> str | None:
+    """Structural-insulation presentation (R-22)."""
+    if not r.cells:
+        return "no cells"
+    if not _insulated(b):
+        return "not structurally insulated: the entry does not apply"
+    for c in _cells(r, "M2") + _cells(r, "M2_COMPOUND"):
+        if c.m3.ratio != Decimal(0):
+            raise Level3(f"DET-43: {c.id} m3.ratio {c.m3.ratio} is not exactly 0")
+    lit = r.assumptions.get("structural_insulation", "")
+    if "structurally insulated; exposed through exit venues only" not in lit:
+        raise Level3("DET-43: the structural-insulation literal is absent")
+    curves = r.assumptions.get("m2_curves", "")
+    if curves.count(":") < 3:
+        raise Level3("DET-43: the three recomputed depth curves are absent")
+    return "ten exact zeros, the literal, and three recomputed curves"
+
+
+def det_44(b: Bundle, t: VerifiabilityTree, r: StressReport) -> str | None:
+    """Counterfactual lines: present, under metric 4, never cells."""
+    if not r.cells:
+        return "no cells"
+    need = {"M1": {"H1_kill", "EMA_lag"},
+            "JOINT": {"H1_kill", "EMA_lag", "H1_v1_contagion"},
+            "M2": {"H1_v1_contagion"}, "M2_COMPOUND": {"H1_v1_contagion"}}
+    for c in r.cells:
+        ids = {ln.id for ln in c.counterfactual_lines}
+        if not need[c.member] <= ids:
+            raise Level3(f"DET-44: {c.id} missing {sorted(need[c.member] - ids)}")
+        if c.id in ids:
+            raise Level3(f"DET-44: {c.id} uses a counterfactual ID as an axis")
+    ema = [ln for c in r.cells for ln in c.counterfactual_lines
+           if ln.id == "EMA_lag"]
+    if any(not ln.approximation_flag for ln in ema):
+        raise Level3("DET-44: EMA_lag without approximation_flag")
+    return f"required IDs on every cell; {len(ema)} EMA_lag lines flagged"
+
+
+def det_48(b: Bundle, t: VerifiabilityTree, r: StressReport) -> str | None:
+    """Shock grid exact; reference points context-only (R14's literal)."""
+    if not r.cells:
+        return "no cells"
+    got = {c.shock for c in _cells(r, "M1")}
+    want = {Decimal("-0.20"), Decimal("-0.35"), Decimal("-0.50"), Decimal("-0.70")}
+    if got != want:
+        raise Level3(f"DET-48: shock grid {sorted(got)} != {sorted(want)}")
+    vol = {n.address for n in b.nodes if n.node_class == "volatile"}
+    rows = {row.get("node") for row in r.reference_points}
+    if not vol <= rows:
+        raise Level3(f"DET-48: no reference row for {sorted(vol - rows)}")
+    for row in r.reference_points:
+        if row.get("literal") != "reference point unavailable" and not row.get("source"):
+            raise Level3(f"DET-48: {row.get('node')} row without literal or source")
+    return f"grid exact; {len(rows)} reference rows carrying R14's literal"
+
+
+def det_49(b: Bundle, t: VerifiabilityTree, r: StressReport) -> str | None:
+    """LST-discount axis as modifier; the headline is d = 0."""
+    if not r.cells:
+        return "no cells"
+    got = {c.lst for c in _cells(r, "M1")}
+    if got != {Decimal("0"), Decimal("0.05"), Decimal("0.10")}:
+        raise Level3(f"DET-49: LST axis {sorted(got)}")
+    head = [c for c in r.cells if c.id == "M1-s50-d0-lp0"]
+    if not head or head[0].lst != 0:
+        raise Level3("DET-49: the headline cell must be d = 0")
+    return "axis {0, 0.05, 0.10}; headline M1-s50-d0-lp0 at d = 0"
+
+
+def det_23c(b: Bundle, t: VerifiabilityTree, r: StressReport) -> str | None:
+    """Zero-credit clause (c): the metric lineages carry no `stabilizer_*`."""
+    if not r.cells:
+        return "no cells"
+    allowed = {"collateral_read", "debt_read", "price_read", "attribution",
+               "liquidation_model", "depth_model", "gsm_read",
+               "supply_attribution", "gsm_supply"}
+    for c in r.cells:
+        if not c.lineage:
+            raise Level3(f"DET-23(c): {c.id} carries no lineage")
+        bad = [x for x in c.lineage if str(x).startswith("stabilizer_")]
+        if bad:
+            raise Level3(f"DET-23(c): {c.id} lineage contains {bad}")
+        outside = [x for x in c.lineage if x not in allowed]
+        if outside:
+            raise Level3(f"DET-23(c): {c.id} lineage outside the set: {outside}")
+    return f"no stabilizer_* in any of {len(r.cells)} cell lineages"
+
+
+def det_25(b: Bundle, t: VerifiabilityTree, r: StressReport) -> str | None:
+    """Stabilizer debt excluded from forced-sell volume, every cell."""
+    if not r.cells:
+        return "no cells"
+    for c in _cells(r, "M1"):
+        if c.m3.forced_sell_volume != c.m2.bad_debt:
+            raise Level3(f"DET-25: {c.id} Member-1 forced_sell != bad_debt")
+    for c in r.cells:
+        if any(str(x).startswith("stabilizer_") for x in c.lineage):
+            raise Level3(f"DET-25: {c.id} forced-sell lineage has stabilizer_*")
+    return "Member-1 forced_sell == bad_debt on every cell; no stabilizer source"
+
+
 def det_52(b: Bundle, ctx) -> str | None:
     """Collateral-sell-side bound as a disclosed assumption (R-26), S1.
 
@@ -1124,10 +1366,28 @@ def det_26(b: Bundle, t: VerifiabilityTree, r: StressReport) -> str | None:
     if m.ceiling_aggregate != b.stabilizer.ceiling_aggregate:
         raise Level3(f"DET-26: ceiling_aggregate {m.ceiling_aggregate} != the "
                      f"bundle's {b.stabilizer.ceiling_aggregate}")
-    if r.cells:
-        raise Level3("DET-26: cells exist but the per-cell limb is not implemented")
-    return ("base inputs present; stabilizer_debt_post_cell / "
-            "utilization_post_cell dormant until B-4b")
+    if not r.cells:
+        return ("base inputs present; stabilizer_debt_post_cell / "
+                "utilization_post_cell dormant until the cells exist")
+    # THE PER-CELL LIMB, activated at B-4b (R-B4.13).
+    cur = sum(o.current_debt for o in b.stabilizer.operations)
+    # SCOPE, from the entry itself: "every Member 1 cell AND THE JOINT CELL".
+    # Member-2 and compound cells carry the key as R-B3.10 requires - 0 with a
+    # reason naming the member - and DET-26 does not assert over them.
+    for c in [x for x in r.cells if x.member in ("M1", "JOINT")]:
+        post = c.m4.get("stabilizer_debt_post_cell")
+        post = post.get("value") if isinstance(post, dict) else post
+        if not isinstance(post, int):
+            raise Level3(f"DET-26: {c.id} stabilizer_debt_post_cell is not an int")
+        if post < cur:
+            raise Level3(f"DET-26: {c.id} stabilizer_debt_post_cell {post} < "
+                         f"current_debt {cur}")
+        util = c.m4.get("utilization_post_cell")
+        util = util.get("value") if isinstance(util, dict) else util
+        if util is None:
+            raise Level3(f"DET-26: {c.id} utilization_post_cell absent")
+    return (f"ceiling_aggregate matches; per-cell trajectory asserted on "
+            f"{len(r.cells)} cells")
 
 
 def det_27(b: Bundle, t: VerifiabilityTree, r: StressReport) -> str | None:
@@ -1293,6 +1553,18 @@ CHECKS: list[Check] = [
     Check("DET-26", "S2", 2, det_26, "stress"),
     Check("DET-27", "S2", 2, det_27, "stress"),
     Check("DET-69", "S2", 2, det_69, "stress"),
+    Check("DET-23c", "S2", 2, det_23c, "stress"),
+    Check("DET-25", "S2", 2, det_25, "stress"),
+    Check("DET-37", "S2", 2, det_37, "stress"),
+    Check("DET-38", "S2", 2, det_38, "stress"),
+    Check("DET-39", "S2", 2, det_39, "stress"),
+    Check("DET-40", "S2", 2, det_40, "stress"),
+    Check("DET-41", "S2", 2, det_41, "stress"),
+    Check("DET-42", "S2", 2, det_42, "stress"),
+    Check("DET-43", "S2", 2, det_43, "stress"),
+    Check("DET-44", "S2", 2, det_44, "stress"),
+    Check("DET-48", "S2", 2, det_48, "stress"),
+    Check("DET-49", "S2", 2, det_49, "stress"),
 ]
 
 

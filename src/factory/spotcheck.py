@@ -559,3 +559,90 @@ def write_tree(bundle: Bundle, tree, cfg, labels_file: str, out_dir: pathlib.Pat
     p = out_dir / f"tree-{tree.run_block}.md"
     p.write_text(generate_tree(bundle, tree, cfg, labels_file), encoding="utf-8", newline="")
     return p
+
+
+def write_stress(bundle, report, out_dir: pathlib.Path) -> pathlib.Path:
+    """R17's hand-verification sheet for a promoted stress artifact (B-4b).
+
+    Every figure traces to a bundle field, a raw-dump row or a recorded read,
+    so Amin can check the headline cell by hand against Etherscan without
+    re-running anything. Gitignored with the rest of `out/spotcheck/`.
+    """
+    from decimal import Decimal
+
+    E = Decimal(10 ** 18)
+    head = next(c for c in report.cells if c.id == "M1-s50-d0-lp0")
+    m = report.mechanism
+    ks = report.exit_depth.k_subsets.get("90", [])
+    d31 = next((p.pool_depth for p in report.exit_depth.depth_curve
+                if p.s == Decimal("0.02")), 0)
+    lines = [
+        f"# Stress spot-check — {bundle.header.token} @ {bundle.header.run_block}",
+        "",
+        f"- bundle `{bundle.header.bundle_hash[:8]}` · tree "
+        f"`{report.header.source_tree_hash[:8]}` · stress "
+        f"`{report.header.stress_hash[:8]}`",
+        f"- cells {len(report.cells)} · checks "
+        f"{sum(1 for c in report.checks if c.result == 'pass')}/"
+        f"{len(report.checks)} · headline **{head.id}** (memo §6.2.6)",
+        "",
+        "## 1. The headline cell, by hand",
+        "",
+        "| quantity | value | where it comes from |",
+        "|---|---|---|",
+        f"| m1.pre.ratio | {head.m1.pre.ratio:.6f} | Σ collateral × "
+        "(1+shock)(1−d) × oracle ÷ Σ net debt; collateral and debt per position "
+        "in `out/raw/<block>.json`, oracle in `mechanism.llamma.markets[].oracle` |",
+        f"| m1.post.ratio | {head.m1.post.ratio:.6f} | the same over the book "
+        "left after absorption |",
+        f"| m1.gap | {head.m1.gap:.6f} | post − pre, the mechanism's measured "
+        "contribution (DET-39) |",
+        f"| m2.bad_debt | {Decimal(head.m2.bad_debt) / E:,.2f} crvUSD | Σ "
+        "(debt − value) over unabsorbed positions with CR < 1 |",
+        f"| m2.pct_supply | {head.m2.pct_supply:.10f} | ÷ `supply.supply_ruled` "
+        f"= {Decimal(bundle.supply.supply_ruled) / E:,.2f} |",
+        f"| m3.forced_sell_volume | {Decimal(head.m3.forced_sell_volume) / E:,.2f}"
+        " | = bad_debt, DET-25's Member-1 identity |",
+        f"| m3.exit_depth | {Decimal(head.m3.exit_depth) / E:,.2f} | LP-0, so "
+        f"equal to DET-31 depth(0.02) = {Decimal(d31) / E:,.2f} |",
+        f"| m3.ratio | {head.m3.ratio} | forced_sell ÷ exit_depth |",
+        "",
+        "## 2. DET-45, from the bundle's own keeper rows",
+        "",
+        f"- effective **{Decimal(m.effective_headroom) / E:,.2f}** ≤ naive "
+        f"**{Decimal(m.naive_headroom) / E:,.2f}**",
+        f"- gate views: provide_allowed {set(m.provide_allowed.values())}, "
+        f"withdraw_allowed {len(m.withdraw_allowed)} × 2²⁵⁶−1; reason "
+        f"`{m.gate_reason}`",
+        "",
+        "| keeper | debt | balance | ceiling | r | max_ratio | allowed |",
+        "|---|---|---|---|---|---|---|",
+    ]
+    for a, row in sorted((m.llamma.keeper_state if m.llamma else {}).items()):
+        lines.append(
+            f"| `{a[:10]}` | {Decimal(row['debt']) / E:,.2f} | "
+            f"{Decimal(row['balance']) / E:,.2f} | "
+            f"{Decimal(row['ceiling']) / E:,.2f} | "
+            f"{Decimal(row['r']) / E:.8f} | {Decimal(row['max_ratio']) / E:.6f} | "
+            f"{Decimal(row['allowed']) / E:,.2f} |")
+    lines += [
+        "",
+        "## 3. One call to reproduce on Etherscan",
+        "",
+        f"The depth m3 divides by is the sum over K-subset(0.90) = {len(ks)} "
+        "pools. On the largest, call `get_dy` with the recorded `dx` and check "
+        "the implied marginal price sits at 1 − s = 0.98 ± ε:",
+        "",
+    ]
+    for g in report.exit_depth.ground_truth:
+        lines.append(f"- `{g.pool}` → `get_dy(i, j, {g.dx})` = "
+                     f"{g.onchain_dy_at_dx}; implied {g.implied_price} "
+                     f"(within ε: {g.within_epsilon})")
+    lines += ["", "## 4. Assumptions carried on this artifact", ""]
+    for k, v in sorted(report.assumptions.items()):
+        lines.append(f"- **{k}** — {v}")
+    path = out_dir / "out/spotcheck" / bundle.header.token / \
+        f"stress-{bundle.header.run_block}.md"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    return path

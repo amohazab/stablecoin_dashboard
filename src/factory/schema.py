@@ -1080,7 +1080,11 @@ class MetricTwo(BaseModel):
 
 
 class MetricThree(BaseModel):
-    ratio: Decimal
+    # R-B4.14: `None` where `exit_depth_cell` is 0 and the numerator is not —
+    # the ratio is UNDEFINED, not zero, and rendering it as 0 would read "no
+    # pressure" exactly where the exit has been exhausted. DET-41's LP-axis
+    # monotonicity treats it as +infinity.
+    ratio: Decimal | None
     forced_sell_volume: int
     exit_depth: int
 
