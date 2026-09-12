@@ -998,6 +998,44 @@ class ExitDepth(BaseModel):
     reads: dict[str, Provenance] = {}
 
 
+class Band(BaseModel):
+    """One LLAMMA band, read once per UNION member rather than per position."""
+
+    n: int
+    x: int
+    y: int
+    p_oracle_up: int
+
+
+class MarketState(BaseModel):
+    """The nine per-market reads DET-45 and B-4b's band-linear model consume."""
+
+    active_band: int
+    spot: int                                         # `get_p()`
+    oracle: int                                       # `price_oracle()`
+    base_price: int
+    a_coefficient: int
+    loan_discount: int
+    liquidation_discount: int
+    fee: int
+    admin_fee: int
+
+
+class LlammaState(BaseModel):
+    """crvUSD's band state (B-4a). `None` on GHO and LUSD, which have no AMM.
+
+    `bands` holds the UNION only — the shared-band dedup R11's gate depends on
+    — and `ticks` is market -> user -> `(n1, n2)` so a position resolves to its
+    bands without a second pass. The position SET stays the raw dump's, whose
+    hash is asserted before any of this is read.
+    """
+
+    markets: dict[Address, MarketState] = {}
+    bands: dict[Address, list[Band]] = {}
+    ticks: dict[Address, dict[Address, tuple[int, int]]] = {}
+    keeper_state: dict[Address, dict[str, Any]] = {}  # DET-45's replay inputs
+
+
 class Mechanism(BaseModel):
     """ONE model with optional fields - the `Market`/R1 pattern (P-4.13), not
     three models. crvUSD's four, GHO's two and LUSD's three sit together and a
@@ -1007,6 +1045,15 @@ class Mechanism(BaseModel):
     naive_headroom: int | None = None
     provide_allowed: dict[Address, int] = {}
     withdraw_allowed: dict[Address, int] = {}
+    # R10: WHY the gate views read as they do at base. At 25963950 it is the
+    # aggregator's second guard, not the kill flag and not the price checks.
+    gate_reason: str | None = None
+    llamma: LlammaState | None = None                 # crvUSD only, B-4a
+    burn_capacity: int | None = None                  # DET-27, base state
+    ceiling_aggregate: int | None = None              # DET-26, from the bundle
+    pegkeeper_lp_share: dict[Address, Decimal] = {}   # DET-27's printed quantity
+    paired_units_held: dict[Address, int] = {}
+    reads: dict[str, Provenance] = {}                 # B-4a's own provenance
     h2_routing: dict[Address, str] = {}               # GHO, B-5
     binding_side: dict[str, str] = {}
     sp_balance: int | None = None                     # LUSD, B-6

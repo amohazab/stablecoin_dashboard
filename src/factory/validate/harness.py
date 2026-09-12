@@ -1054,6 +1054,124 @@ def det_52(b: Bundle, ctx) -> str | None:
     return None
 
 
+def det_45(b: Bundle, t: VerifiabilityTree, r: StressReport) -> str | None:
+    """H1 effective vs. naive headroom (O12/A-5), S2.
+
+    The replay is the DEPLOYED regulator's, not the rubric's printed form: the
+    ratio carries the source's `+1` wei denominator guard (R-B4.2, A-13 queued)
+    and the root is `isqrt` on 1e18 (R-B4.3). Killed-Provide keepers contribute
+    0; `effective <= naive` is exact.
+
+    DORMANT until the cells exist: "every Member 1 cell's crash-path capacity
+    term = `effective` (1e-6)" is B-4b's, named here rather than left silent —
+    the DET-50 precedent. A zero-cell report cannot exercise it.
+    """
+    from factory.llamma import Keeper, headroom
+
+    m = r.mechanism
+    if m.effective_headroom is None:
+        if b.stabilizer.operations:
+            raise Level3("DET-45: the token has keepers but no headroom was folded")
+        return "no stabilizer: H1 does not apply to this token"
+    st = (m.llamma.keeper_state if m.llamma else {})
+    if set(st) != {o.operation_address for o in b.stabilizer.operations}:
+        raise Level3("DET-45: recorded keeper set != the bundle's")
+    for o in b.stabilizer.operations:
+        row = st[o.operation_address]
+        if (row["debt"], row["balance"], row["ceiling"]) != (
+                o.current_debt, o.balance, o.debt_ceiling):
+            raise Level3(f"DET-45: {o.operation_address} state disagrees with the bundle")
+    keepers = [Keeper(address=o.operation_address, debt=o.current_debt,
+                      balance=o.balance, ceiling=o.debt_ceiling,
+                      killed_provide=o.is_killed_provide,
+                      killed_withdraw=o.is_killed_withdraw)
+               for o in b.stabilizer.operations]
+    eff, naive, per = headroom(keepers, *_alpha_beta(b))
+    if (eff, naive) != (m.effective_headroom, m.naive_headroom):
+        raise Level3(f"DET-45: replay {eff}/{naive} != recorded "
+                     f"{m.effective_headroom}/{m.naive_headroom}")
+    if eff > naive:
+        raise Level3(f"DET-45: effective {eff} > naive {naive}")
+    for a, row in per.items():
+        if row["allowed"] != st[a]["allowed"]:
+            raise Level3(f"DET-45: {a} allowed replay {row['allowed']} != "
+                         f"recorded {st[a]['allowed']}")
+    killed = sorted(a for a, row in st.items() if row["killed_provide"])
+    return (f"effective {eff} <= naive {naive}; killed-Provide {killed or 'none'}; "
+            "the per-cell capacity-term limb is dormant until B-4b")
+
+
+def _alpha_beta(b: Bundle) -> tuple[int, int]:
+    """α and β from the bundle's stabilizer block — the run's own reads, put
+    through the ONE scaling site so the check cannot drift from the fold."""
+    from factory.llamma import scale_alpha_beta
+    return scale_alpha_beta(b.stabilizer.alpha, b.stabilizer.beta)
+
+
+def det_26(b: Bundle, t: VerifiabilityTree, r: StressReport) -> str | None:
+    """Crash-path trajectory (Member 1), S2 — BASE INPUTS ONLY at B-4a.
+
+    The entry is entirely per-cell: `m4.stabilizer_debt_post_cell`,
+    `ceiling_aggregate`, `utilization_post_cell` (replay 1e-6) and
+    `stabilizer_debt_post_cell >= current_debt`. With no cells there is nothing
+    to replay, so what is asserted here is that the base input the per-cell
+    arithmetic starts from is present and equals the bundle's. The per-cell
+    limb activates at B-4b.
+    """
+    m = r.mechanism
+    if not b.stabilizer.operations:
+        return "no stabilizer: Member 1's trajectory has no crvUSD-shaped term"
+    if m.ceiling_aggregate != b.stabilizer.ceiling_aggregate:
+        raise Level3(f"DET-26: ceiling_aggregate {m.ceiling_aggregate} != the "
+                     f"bundle's {b.stabilizer.ceiling_aggregate}")
+    if r.cells:
+        raise Level3("DET-26: cells exist but the per-cell limb is not implemented")
+    return ("base inputs present; stabilizer_debt_post_cell / "
+            "utilization_post_cell dormant until B-4b")
+
+
+def det_27(b: Bundle, t: VerifiabilityTree, r: StressReport) -> str | None:
+    """Confidence-crisis burn capacity (Member 2) (R-12), S2.
+
+    "`m4.burn_capacity == current_debt` at `run_block` (exact integer); any
+    derivation from `debt_ceiling` = fail" — asserted now, against the bundle's
+    own debt sum, because it is base state and not per-cell. The
+    `withdraw_allowed` state reads must be present. The quantities-only
+    rendering limb is B-4b's.
+    """
+    m = r.mechanism
+    if not b.stabilizer.operations:
+        return "no stabilizer: no burn capacity term"
+    want = sum(o.current_debt for o in b.stabilizer.operations)
+    if m.burn_capacity != want:
+        raise Level3(f"DET-27: burn_capacity {m.burn_capacity} != Σ current_debt {want}")
+    if set(m.withdraw_allowed) != {o.operation_address for o in b.stabilizer.operations}:
+        raise Level3("DET-27: withdraw_allowed state reads missing")
+    return ("burn_capacity == Σ current_debt exact; withdraw_allowed present; "
+            "the quantities-only rendering limb is dormant until B-4b")
+
+
+def det_69(b: Bundle, t: VerifiabilityTree, r: StressReport) -> str | None:
+    """Live-model-input rows marked, lineage-consistent (R-15), S2.
+
+    Either direction: a row marked `live_model_input` must be consumed, and a
+    field consumed by this run's capacity lineage must be marked. B-4a is the
+    block that finally CONSUMES α, β and the kill flag, so the check can fail
+    here in a way it could not before.
+    """
+    marked = {row.power for row in b.admin_surface if row.live_model_input}
+    consumed: set[str] = set()
+    if r.mechanism.effective_headroom is not None:
+        # α and β enter `_get_max_ratio`; the kill flag gates each keeper's term
+        consumed |= {"set_parameters", "pause"}
+    if marked != consumed:
+        raise Level3(f"DET-69: marked {sorted(marked)} != consumed {sorted(consumed)}")
+    for row in b.admin_surface:
+        if row.live_model_input and not row.consumed_by:
+            raise Level3(f"DET-69: {row.power} marked live but carries no consumed_by")
+    return f"marked == consumed == {sorted(marked) or 'none'}"
+
+
 def det_50(b: Bundle, t: VerifiabilityTree, r: StressReport) -> str | None:
     """Target stable, compound tail, joint cell — the TARGET limb only (B-3a).
 
@@ -1171,6 +1289,10 @@ CHECKS: list[Check] = [
     Check("DET-31", "S2", 2, det_31, "stress"),
     Check("DET-35", "S2", 2, det_35, "stress"),
     Check("DET-50", "S2", 2, det_50, "stress"),
+    Check("DET-45", "S2", 2, det_45, "stress"),
+    Check("DET-26", "S2", 2, det_26, "stress"),
+    Check("DET-27", "S2", 2, det_27, "stress"),
+    Check("DET-69", "S2", 2, det_69, "stress"),
 ]
 
 

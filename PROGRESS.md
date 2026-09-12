@@ -6855,3 +6855,104 @@ Status: IN PROGRESS (opened 2026-09-12).
 - **Follow-ups spawned:** B-4 — crvUSD's cells, opening with R11's sizing gate:
   a read-count estimate on the union of tick ranges, stopping for an
   is-it-worth-it ruling above ~7,200 reads.
+
+## P-6.08 — B-4a: the sizing gate, the band reads, H1 from source; DET-26, 27, 45, 69 activate
+
+- **Date:** 2026-09-13
+- **Type:** implementation
+- **Confirmed by:** Amin
+- **Content:**
+  **THE GATE (R-B4.1): 5,224 estimated, 5,246 read, against R11's ~7,200 — and
+  the band UNION is why it passes.** 514 positions across nine markets occupy
+  **1,543 distinct bands against Σ N = 9,565, 16.1%**; per-position reads would
+  cost 28,695 and miss the gate four times over. P-6.01 F23 predicted the
+  sharing; this measures it. Option (b), whole-position CR without band
+  mechanics, is not revisited.
+  **THE PORT IS THE DEPLOYED REGULATOR'S, NOT THE RUBRIC'S PRINTED FORM.**
+  Verified source, `Peg Keeper Regulator` vyper 0.3.10 `0x36a04caf…`, lines
+  163-168: `debt * ONE / (1 + debt + STABLECOIN.balanceOf(...))`. **DET-45
+  prints `debt_j / (debt_j + balance_j)`; the chain carries a `+1` wei
+  denominator guard** (R-B4.2) — it returns 0 for an all-zero keeper instead of
+  dividing by zero, and moves every other ratio by a wei, the difference
+  between a replay that is an identity and one merely close. **A-13 queued.**
+  Lines 173-178 settle the root: `rsum += isqrt(r * ONE)`, then `(alpha + beta
+  * rsum / ONE) ** 2 / ONE` — **`math.isqrt` on 1e18, integer throughout**
+  (R-B4.3); `Decimal` only where a ratio is printed. `j != i` is the source's
+  own skip. **A-5's `min(…, ceiling − debt)` is the MEMO's and is absent from
+  `provide_allowed`**, which returns `max_ratio * total / ONE − debt` and stops
+  (R-B4.4) — named so a reader comparing the two views is not surprised; it
+  binds on no keeper here, so it is tested on a synthetic.
+  **DET-45 AT 25963950, EXACT TO THE PRE-STATED FIGURES.** `r` / `max_ratio` /
+  `allowed`: `0x9201da0d` 0 / 0.308272 / **41,616,729.83**; `0xfb726f57`
+  **0.04879247** / **0.250000** / **27,163,016.69**; `0x3fa20eaa` 0 / 0.308272
+  / **13,872,243.28**; `0x338cb2d8` 0 / 0.308272 / **2,774,448.66**;
+  `0x53876b15` 0 / 0.308272 / **0.00**. **effective 85,426,438.45 ≤ naive
+  317,413,016.69.** One keeper carries debt, so it alone sees an all-zero peer
+  set and gets exactly `(α + 0)² = 0.250000`; the other four see its ratio.
+  **THE GATE VIEWS (R10), read never modeled:** `provide_allowed` **0 ×5**,
+  `withdraw_allowed` **2²⁵⁶−1 ×5**, `gate_reason` **`aggregator.price() <
+  ONE`** — the aggregator reads **0.99992949**, so the view's second guard
+  shuts it, not the kill flag (0) and not the price checks, never reached.
+  **BASE DET-26/27:** `burn_capacity` **6,586,983.31** = Σ `current_debt`
+  exact, never from `debt_ceiling`; `ceiling_aggregate` **324,000,000** from
+  the bundle; `pegkeeper_lp_share` `0xfb726f57` **0.34894387** and
+  `0x9201da0d` **0.00000305**, the other three zero.
+  **A DEFECT IN MY OWN READ LIST, caught by uniform reverts.** The proposal put
+  all nine market reads on the AMM; **`loan_discount()` and
+  `liquidation_discount()` revert on ALL NINE AMMs and answer on the
+  CONTROLLER** — 0.09/0.06 on most, 0.1429/0.0921 on WETH, 0.07/0.04 on weETH,
+  0.065/0.035 on cbBTC and LBTC. Nine identical reverts are the tell: a
+  market-specific fault would not hit every instance alike. P-3.31's shape, a
+  getter assumed onto the wrong contract of a pair. `MARKET_READS` is now
+  `AMM_READS + CONTROLLER_READS`. **READS 5,246**, all at 25963950, zero
+  reverts after the split: 514 ticks, 4,629 band, 63 AMM, 18 Controller, 10
+  gate views, 2 aggregator, 10 LP. **α and β are NOT read** (R-B4.5) — the
+  bundle's, in human units, through `scale_alpha_beta`, one conversion site
+  shared by fold and check so the two cannot drift.
+  **FOUR CHECKS AT S2, `consumer = "stress"`, `len(CHECKS)` 33 → 37** (3 S0 /
+  20 S1 / 14 S2 = 4 tree + 10 stress). Every dormant limb NAMES itself in its
+  scope line (the DET-50 precedent): DET-45's per-cell capacity term, DET-26's
+  `stabilizer_debt_post_cell` and `utilization_post_cell`, DET-27's
+  quantities-only rendering. On GHO and LUSD the three H1 entries **pass with a
+  reason** — "no stabilizer: H1 does not apply to this token" — rather than
+  skipping: a skipped check leaves no trace, a pass with a reason asserts the
+  token was examined and the entry has no purchase on it.
+  **DET-69 FAILS ON GHO, KNOWINGLY, UNDER OPTION (a).** Direction: **marked,
+  not consumed** — GHO's bundle marks `pause` with `consumed_by ["DET-46
+  freezer"]` (R18's mark) and DET-46's H2 routing is B-5's, so the marked set
+  leads the consumed set and "either direction mismatch = fail" catches it.
+  crvUSD passes, `marked == consumed == ['pause', 'set_parameters']`, B-4a
+  being the block that finally consumes α, β and the kill flag. **Ruled: the
+  fail stands — a known Level 2 on a rehearsal artifact that publishes nothing
+  and self-resolves when B-5 fills `h2_routing`. Not a defect, not widened
+  away.**
+  **ARTIFACTS:** crvUSD `cd7c98dc` **10/10**, LUSD `5b4c0c87` **10/10**, GHO
+  `e86433e5` **9/10**, all three still rehearsal on zero cells. Leaf diff on
+  GHO and LUSD: `stress_hash` moved, 16 leaves added — the four check rows and
+  the present-and-empty `Mechanism` fields — nothing else.
+  **BEYOND THE RULINGS:** `LlammaState.keeper_state` records DET-45's replay
+  inputs so the check replays without the bundle's operations list (the DET-31
+  pattern); `scale_alpha_beta` is the single α/β conversion site; `read_ticks`
+  records one provenance entry per AMM, not per user, 514 identical-signature
+  entries being bloat; `Mechanism` gained `gate_reason`, `burn_capacity`,
+  `ceiling_aggregate`, `pegkeeper_lp_share`, `paired_units_held` and `reads`,
+  empty on GHO and LUSD; the zero-cell test's count moved 6 → 10.
+  **157 tests** (149 + 8), ruff clean — seven hand-computed from the source's
+  form rather than copied from a run, including the `+1` guard asserted to
+  DIFFER from the rubric's printed form, and A-5's min on a synthetic.
+  **AS-COUNTED, design layer:** §3.2 gave `r_j = debt_j / balance_j`, which the
+  deployed source contradicts and which would exceed 1 whenever debt exceeds
+  balance, breaking the "limited up to 1" its docstring states. **The
+  Builder's:** the proposal's read list put two Controller getters on the AMM;
+  and the P-6.08 draft was announced as following in the turn and did not —
+  the seventh such occurrence.
+- **Artifacts:** `src/factory/llamma.py` (new) · `src/factory/schema.py` ·
+  `src/factory/stress.py` · `src/factory/validate/harness.py` ·
+  `tests/test_llamma.py` (new) · `tests/test_stress.py`. No adapter, config,
+  `docs/context/`, set-file or `out/bundles/` change; the three rehearsal
+  artifacts are gitignored.
+- **Follow-ups spawned:** B-4b — the liquidation model (R11 band-linear, R12's
+  skeleton), crvUSD's 47 cells, the four metrics, EMA_lag (R13) and the H1
+  counterfactual lines (DET-44), reference-point literals (R14), DET-43's
+  curves; DET-23(c), 25, 37-44, 48 and 49 activate; the first promoted stress
+  artifact.

@@ -98,7 +98,7 @@ def test_a_zero_cell_report_is_never_promotable(tmp_path):
     assert not ok
     assert path == tmp_path / f"out/rehearsal/LUSD/stress-{b.header.run_block}.json"
     written = StressReport.model_validate_json(path.read_text(encoding="utf-8"))
-    assert written.cells == [] and len(written.checks) == 6      # +DET-50, B-3a
+    assert written.cells == [] and len(written.checks) == 10  # +DET-45/26/27/69
 
 
 # --- B-3a: DET-50's three branches, the kill decode, DET-52's plumbing -------
@@ -186,3 +186,24 @@ def test_the_sell_side_parameter_is_armed_and_volatile_only():
     assert uscc["value"] == "0" and "no route" in uscc["source"]
     assert len(load(REPO / "config", "crvUSD").sell_side) == 8
     assert len(load(REPO / "config", "LUSD").sell_side) == 1
+
+
+# --- B-4a: DET-69's either-direction equality --------------------------------
+
+
+def test_det69_fails_in_both_directions():
+    """The entry's own wording: "either direction mismatch = fail". A row
+    marked live with nothing consuming it fails; so does a run that consumes a
+    §13 field whose row is unmarked. GHO is the live example of the first —
+    its `pause` mark (R18) anticipates DET-46's freezer routing, which is
+    B-5's, so the mark leads its consumer."""
+    from factory.validate.harness import Level3, det_69
+    b, t = latest_bundle(REPO, "LUSD"), latest_tree(REPO, "LUSD")
+    r = _report()
+    assert det_69(b, t, r).startswith("marked == consumed")   # LUSD marks nothing
+
+    marked = b.admin_surface[0].model_copy(update={
+        "live_model_input": True, "consumed_by": ["DET-45 alpha"]})
+    b_marked = b.model_copy(update={"admin_surface": [marked] + list(b.admin_surface[1:])})
+    with pytest.raises(Level3, match="marked .* != consumed"):
+        det_69(b_marked, t, r)                     # marked, nothing consumes it

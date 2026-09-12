@@ -37,14 +37,28 @@ from decimal import Decimal
 
 from factory.config import load
 from factory.depth import A_PRECISION, BISECT_TOL, PoolState, pool_depth
+from factory.llamma import (
+    AMM_READS,
+    BAND_READS,
+    CONTROLLER_READS,
+    Keeper,
+    LlammaError,
+    band_union,
+    headroom,
+    read_ticks,
+    scale_alpha_beta,
+)
 from factory.provenance import ContractRead
 from factory.rpc import Call
 from factory.schema import (
+    Band,
     DepthConcentration,
     DepthPoint,
     ExitDepth,
     GroundTruth,
     GsmVenue,
+    LlammaState,
+    MarketState,
     Mechanism,
     Member2Candidate,
     SensitivityRow,
@@ -514,6 +528,118 @@ def build_exit_depth(bundle, states: dict[str, PoolState], numeraire: str,
                      reads=reads)
 
 
+def build_mechanism(b, cfg, rpc, raw_bytes: bytes) -> Mechanism:
+    """B-4a: crvUSD's H1 block. Present-and-empty for a token with no AMM.
+
+    Every keeper value is REUSED FROM THE BUNDLE (R-B4.5) — debt, balance,
+    ceiling, the decoded kill flags, α and β — so R-13 holds on the bundle's
+    own block without re-reading a single one. What IS read here: the gate
+    views (R10), the per-market state, the per-position ticks, the band UNION,
+    and the five LP balances DET-27's printed quantities need.
+    """
+    rb = rpc.run_block
+    reads: dict = {}
+    if not b.stabilizer.operations:
+        return Mechanism()
+
+    ops = b.stabilizer.operations
+    keepers = [Keeper(address=o.operation_address, debt=o.current_debt,
+                      balance=o.balance, ceiling=o.debt_ceiling,
+                      killed_provide=o.is_killed_provide,
+                      killed_withdraw=o.is_killed_withdraw) for o in ops]
+    reg = cfg.root("pegkeeper_regulator").address
+    # R-B4.5: α and β are the BUNDLE's reads, reused. They are stored in human
+    # units (0.5 / 0.25) and the port needs 1e18 fixed point, so the scaling
+    # happens here and nowhere else.
+    alpha, beta = scale_alpha_beta(b.stabilizer.alpha, b.stabilizer.beta)
+    eff, naive, per = headroom(keepers, alpha, beta)
+    if eff > naive:
+        from factory.run import AssemblyStop
+        raise AssemblyStop(f"DET-45: effective {eff} > naive {naive}")
+
+    # R10: the gated views, read but never modeled, with the reason they read
+    # as they do. The aggregator's own price is the second guard in
+    # `provide_allowed`; at this block it is what shuts the view, not the flag.
+    pa = rpc.read([Call(reg, "provide_allowed(address)", ("uint256",), (k.address,))
+                   for k in keepers])
+    wa = rpc.read([Call(reg, "withdraw_allowed(address)", ("uint256",), (k.address,))
+                   for k in keepers])
+    agg = rpc.read([Call(reg, "aggregator()", ("address",))])[0].one().lower()
+    price = int(rpc.read([Call(agg, "price()", ("uint256",))])[0].one())
+    for k in keepers:
+        reads[f"{k.address}.provide_allowed"] = _cr(reg, "provide_allowed(address)",
+                                                    rb, (k.address,))
+        reads[f"{k.address}.withdraw_allowed"] = _cr(reg, "withdraw_allowed(address)",
+                                                     rb, (k.address,))
+    reads[f"{agg}.price()"] = _cr(agg, "price()", rb)
+    reason = ("aggregator.price() < ONE" if price < 10 ** 18 else
+              f"aggregator.price() = {price} >= ONE; the view's later guards decide")
+
+    # DET-27's printed quantities, base state: each keeper's LP position in its
+    # own pool, and the paired units that LP share represents.
+    lp_share: dict[str, Decimal] = {}
+    units: dict[str, int] = {}
+    for o in ops:
+        pool = o.paired_pool_address
+        bal, sup = rpc.read([Call(pool, "balanceOf(address)", ("uint256",),
+                                  (o.operation_address,)),
+                             Call(pool, "totalSupply()", ("uint256",))])
+        reads[f"{pool}.balanceOf({o.operation_address[:10]})"] = _cr(
+            pool, "balanceOf(address)", rb, (o.operation_address,))
+        b_, s_ = int(bal.one()), int(sup.one())
+        lp_share[o.operation_address] = (Decimal(b_) / Decimal(s_) if s_ else Decimal(0))
+        units[o.operation_address] = b_
+
+    # --- the band state ------------------------------------------------------
+    rows = json.loads(raw_bytes.decode("utf-8"))
+    by_market: dict[str, list[str]] = {}
+    for r in rows:
+        by_market.setdefault(r["controller"].lower(), []).append(r["user"].lower())
+    amm_of = {m.address: m.amm_address for m in b.markets}
+    markets: dict[str, MarketState] = {}
+    bands: dict[str, list[Band]] = {}
+    ticks: dict[str, dict[str, tuple[int, int]]] = {}
+    for ctrl, users in sorted(by_market.items()):
+        amm = amm_of[ctrl]
+        res = rpc.read([Call(amm, sig, (out,)) for sig, out in AMM_READS]
+                       + [Call(ctrl, sig, (out,)) for sig, out in CONTROLLER_READS])
+        for (sig, _), r in zip(AMM_READS + CONTROLLER_READS, res, strict=True):
+            if not r.ok:
+                raise LlammaError(f"{amm}/{ctrl}: {sig} reverted")
+        v = [int(r.one()) for r in res]
+        markets[amm] = MarketState(
+            active_band=v[0], spot=v[1], oracle=v[2], base_price=v[3],
+            a_coefficient=v[4], fee=v[5], admin_fee=v[6],
+            loan_discount=v[7], liquidation_discount=v[8])
+        for sig, _ in AMM_READS:
+            reads[f"{amm}.{sig}"] = _cr(amm, sig, rb)
+        for sig, _ in CONTROLLER_READS:
+            reads[f"{ctrl}.{sig}"] = _cr(ctrl, sig, rb)
+        ticks[amm] = read_ticks(rpc, amm, users, reads)
+        union = band_union(ticks[amm])
+        got = rpc.read([Call(amm, sig, (out,), (n,))
+                        for n in union for sig, out in BAND_READS])
+        if not all(r.ok for r in got):
+            raise LlammaError(f"{amm}: a band read reverted over {len(union)} bands")
+        bands[amm] = [Band(n=n, x=int(got[i * 3].one()), y=int(got[i * 3 + 1].one()),
+                           p_oracle_up=int(got[i * 3 + 2].one()))
+                      for i, n in enumerate(union)]
+        for sig, _ in BAND_READS:
+            reads[f"{amm}.{sig}"] = _cr(amm, sig, rb)
+
+    return Mechanism(
+        effective_headroom=eff, naive_headroom=naive,
+        provide_allowed={k.address: int(r.one()) for k, r in zip(keepers, pa, strict=True)},
+        withdraw_allowed={k.address: int(r.one()) for k, r in zip(keepers, wa, strict=True)},
+        gate_reason=reason,
+        burn_capacity=sum(o.current_debt for o in ops),
+        ceiling_aggregate=b.stabilizer.ceiling_aggregate,
+        pegkeeper_lp_share=lp_share, paired_units_held=units,
+        llamma=LlammaState(markets=markets, bands=bands, ticks=ticks,
+                           keeper_state=per),
+        reads=reads)
+
+
 def fold(inputs: dict, rpc=None) -> StressReport:
     """B-2: the header, and the exit-depth block. The mechanism block and the
     cells still land at B-4/5/6; `member2_target` is B-3's."""
@@ -535,6 +661,7 @@ def fold(inputs: dict, rpc=None) -> StressReport:
                                       base_vps, base_comp, base_dec, flags, rpc)
         flags += [f"T-21 GSM {v.gsm} {v.reason} — venue closed in every cell"
                   for v in venues if not v.enters]
+        mech = build_mechanism(b, cfg, rpc, inputs["raw"])
     return StressReport(
         header=StressHeader(
             token=b.header.token, run_block=b.header.run_block,
@@ -547,7 +674,7 @@ def fold(inputs: dict, rpc=None) -> StressReport:
         value_scale=t.root.value_scale,
         member2_target=inputs["member2_target"] or None,
         exit_depth=exit_depth,
-        mechanism=Mechanism(),
+        mechanism=mech,
         flags=flags)
 
 
