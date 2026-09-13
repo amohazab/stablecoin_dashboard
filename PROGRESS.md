@@ -7158,3 +7158,90 @@ Status: IN PROGRESS (opened 2026-09-12).
   reads at `run_block`, print per-market subtotals so `m1.pre` is a hand sum,
   print `bad_debt` in base units beside the rounded figure — then R17's
   done-condition and close.
+
+## P-6.11 — B-6: LUSD's 23 cells; the grid stands and the zeros are the finding; DET-51; the third promoted stress artifact
+
+- **Date:** 2026-09-13
+- **Type:** implementation
+- **Confirmed by:** Amin
+- **Content:**
+  **R-B6.1 — THE GRID STANDS; THE ZEROS ARE THE FINDING.** Verified first:
+  `getEntireDebtAndColl` on the three lowest-ICR troves and the highest match
+  the raw dump **to the wei**, `getTroveOwnersCount()` returns **72**. ICR tail
+  6.0128 / 6.0167 / 6.0221, **min 5.9683**, p50 6.7603, max 113.0886 against
+  **MCR 1.10** — **0 troves eligible at every grid point** (−20/−35/−50/−70; TCR
+  5.5764 → 2.0912). The thresholds are DERIVED from that distribution, not
+  typed: first liquidation **−81.57%**, recovery mode **−78.48%**, TCR below MCR
+  **−84.22%**, in one `assumptions.engagement_thresholds` literal — not a cell,
+  not a scenario, not an axis. No scaling defect: Liquity v1 is wound down to 72
+  deeply over-collateralised troves. **AS-COUNTED, DESIGN LAYER:** the brief's
+  "73 troves, TCR 7.09" were Inventory B's at 25955393; this block has **72**
+  and **6.9705**.
+  **DET-51's TWO READINGS, AND THE ONE IMPLEMENTED.** "redistributed positions
+  below 100% CR" can mean the troves that WERE redistributed or those that
+  RECEIVED it. **Reading 1**, named in `assumptions.bad_debt_definition`: the
+  identity is with a single `m2.bad_debt`, and reading 2 would count one
+  shortfall once per trove it landed on. Redistribution conserves debt and
+  collateral **as integers** (remainder to the largest survivor) or the builder
+  stops. **THE LP AXIS IS DEPOSITOR FLIGHT** (DET-51): `sp_effective_cell =
+  sp_balance x (1 − LP_cell)` — 7,568,672.66 / 5,298,070.86 / 3,027,469.06 —
+  while the exit side keeps its §6.1.4 haircut, 8,805,760.10 / 5,628,339.92 /
+  2,450,918.04. One grid, two uses. Absorption is the Pool, never a sale, which
+  is WHY DET-52 exempts LUSD from the sell-side bound.
+  **38 PINNED READS, all at 25963959** — 11 TroveManager, 5 PriceFeed, 22 venue;
+  `MCR` 1.10 / `CCR` 1.50 as contract constants; **`L_ETH()` = `L_LUSDDebt()` =
+  0**, no inherited redistribution. `getTotalLUSDDeposits()` is **NOT re-read**
+  (DET-51's lineage is `{sp_balance_read}`, R-B4.5); I checked it once, it
+  matched, and that check is deliberately not in the artifact. Price basis is
+  the bundle's `external_collateral_value / external_collateral_sum` =
+  **2,522.926**, never a `fetchPrice()` re-simulation; `lastGoodPrice()`
+  2,541.73 is a **0.75%** gap, disclosed because only `fetchPrice()` rewrites it.
+  **H4, DECAYED AT `run_block`.** `baseRate` 0.1131% decays over **1,884
+  minutes** to **0.018445%**; fee now 0.518445%; ceiling 1.5%; fraction
+  0.0296310960 → **`redemption_capacity` 778,449.44 LUSD**, on Member 2 /
+  compound / joint only, Member 1 carrying `0, reason = "crash path excluded"`.
+  **§7.1 is not breached:** the decay is the contract's own state at the block
+  everything else is read at, not a scenario horizon.
+  **THE CELLS.** 23 = 12 + 9 + 1 + 1. The LST axis is **absent, not inert** —
+  ETH carries `lst_discount_applies = false` — and DET-49's own LUSD clause
+  ("axis absent") is now what the check enforces. Headline M1-s50-d0-lp0: m1 pre
+  **3.4852747742** = post, gap **0**, `bad_debt` 0, `tcr_post` 3.4853, recovery
+  false, `exit_depth` 8,805,760.10, ratio 0; R-29 holds trivially and is said
+  to. DET-43: ten exact zeros, the insulation literal, curves 0.88: 7,727,036.82
+  / 0.93: 8,176,549.14 / 0.97: 8,536,113.35. JOINT: both DET-42 terms zero,
+  depth **8,176,549.14** (the SHOCKED curve). **TELLOR (R-23 / DET-44):** one
+  line per member, `metric_affected = "none"`, both values **null**, the three
+  constants genuine reads — 14400 s, 50%, 5%, `status() = 0` — plus R-23's scope
+  literal; DET-44 now raises on a computed value or a missing literal.
+  **DET-51 REGISTERS: `len(CHECKS)` 51 → 52**, scoped by SHAPE not by name.
+  **crvUSD and GHO moved ONLY by that row:** leaf diffs 13,291 → 13,294 and
+  2,674 → 2,677, **3 added / 0 removed / 1 changed** each. To keep that true,
+  DET-44's message appends its Tellor clause only when Tellor lines exist.
+  **A DEFECT OF MINE, FIVE PARTS, IN `spotcheck.py`:** the `bad_debt` row's
+  token hardcoded `crvUSD`; `m1.pre`'s provenance citing
+  `mechanism.llamma.markets[].oracle` on all three tokens; the M2 row claiming
+  "boxed holdings + the attributed slice" where there is no GSM; **LUSD having
+  no mechanism section at all**; and the new M2 section crashing `Decimal(None)`
+  on crvUSD's unsized `H1_v1_contagion`. All fixed; LUSD's sheet carries DET-51's
+  H3/H4 table and **the whole 72-row trove book**, total 91,562,938.07 /
+  26,271,368.54 — which **is** `m1.pre` as a hand sum.
+  **ONE CHECK WEAKER THAN ITS ENTRY, REPORTED NOT WIDENED.** DET-43 requires
+  three FOUR-POINT curves, twelve values; what exists is three scalars, and
+  widening it would move crvUSD's artifact beyond the DET-51 row — **owed at
+  B-7.** 25/25 on all three tokens, 178 tests, ruff clean.
+- **Artifacts:** `src/factory/lusd_cells.py` (new), `tests/test_lusd.py` (new),
+  `src/factory/stress.py`, `src/factory/validate/harness.py`,
+  `src/factory/spotcheck.py`, `tests/test_stress.py`,
+  `out/stress/LUSD/25963959.json` (**09b40d26**, the third promoted stress
+  artifact), `out/stress/crvUSD/25963950.json` (**02d36d22**),
+  `out/stress/GHO/25963961.json` (**86c70271**).
+- **Follow-ups:** Amin's hand verification of LUSD's spot-check sheet (R17's
+  GHO leg was verified 2026-09-13: the pinned `get_dy`, both
+  `getAvailableLiquidity` reads, the `checkUpkeep` probe and the three ratios
+  reproduced through his own RPC). **B-7:** per-market subtotals for crvUSD and
+  GHO, whose books are too large to print whole; the GHO sheet's
+  `getReserveConfigurationData` line to carry the expected LTV / liquidation
+  threshold / bonus so a hand read has something to compare against (Amin's read
+  at 25963961: wstETH **8200 / 8300 / 10600** bps, verified pinned with nothing
+  on the record to compare to); the B-5 report's 37-pair table printed with
+  values; DET-43's twelve-value curves; then R17's done-condition and close.

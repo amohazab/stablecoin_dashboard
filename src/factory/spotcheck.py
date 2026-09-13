@@ -561,6 +561,136 @@ def write_tree(bundle: Bundle, tree, cfg, labels_file: str, out_dir: pathlib.Pat
     return p
 
 
+def _price_source(bundle, report) -> str:
+    """Where the cell's price actually came from, per token shape."""
+    if bundle.gsms:
+        return "per (instance, reserve) from that instance's own AaveOracle (DET-81)"
+    if bundle.stabilizer.operations:
+        return "in `mechanism.llamma.markets[].oracle`"
+    return ("the bundle's own `external_collateral_value / "
+            "external_collateral_sum`, NOT a re-simulated `fetchPrice()`")
+
+
+def _bad_debt_source(bundle) -> str:
+    if bundle.gsms:
+        return ("Σ (debt − value) over unabsorbed positions with hf < 1, "
+                "attributed to GHO pro-rata by `gho_debt_base / total_debt_base`")
+    if bundle.stabilizer.operations:
+        return "Σ (debt − value) over unabsorbed positions with CR < 1"
+    return ("Σ (debt − collateral × price) over REDISTRIBUTED troves with "
+            "CR < 100% — DET-51's `redistributed_positions_below_100` identity, "
+            "not the receiving troves' post-CR")
+
+
+def _m2_source(bundle) -> str:
+    if bundle.gsms:
+        return "boxed holdings + the attributed slice"
+    return "zero by construction — no stable node and no GSM (DET-43)"
+
+
+def _trove_table(bundle, report, repo: pathlib.Path) -> list[str]:
+    """B-7's subtotal requirement, applied early for LUSD: the whole trove book,
+    so `m1.pre` is a hand sum rather than an assertion.
+
+    72 rows is small enough to print entire, which is the reason this lands at
+    B-6 for LUSD and stays owed for the other two — crvUSD's book is thousands
+    of positions and needs per-market subtotals instead.
+    """
+    from decimal import Decimal as D
+
+    raw = repo / "out/raw" / f"{bundle.header.run_block}.json"
+    if not raw.exists():
+        return []
+    import json as _json
+    rows = _json.loads(raw.read_text(encoding="utf-8"))
+    if not rows or "owner" not in rows[0]:
+        return []
+    m = bundle.markets[0]
+    price = (D(m.external_collateral_value) * D(10 ** 18)
+             // D(m.external_collateral_sum))
+    head = next((c for c in report.cells if c.id == "M1-s50-d0-lp0"), None)
+    shock = head.shock if head else D("-0.50")
+    shocked = int(D(price) * (D(1) + shock))
+    out = ["", f"## 2b. The whole trove book, so `m1.pre` is a hand sum "
+               f"({len(rows)} rows)", "",
+           f"Price basis `external_collateral_value / external_collateral_sum` "
+           f"= {D(price) / D(10 ** 18):,.8f} per ETH; the headline cell shocks it "
+           f"by {shock} to {D(shocked) / D(10 ** 18):,.8f}. ICR is at the SHOCKED "
+           f"price, MCR = 1.10 — no row reaches it, which is R-B6.1.", "",
+           "| owner | debt (LUSD) | coll (ETH) | coll × shocked price | ICR |",
+           "|---|---|---|---|---|"]
+    td, tc, tv = 0, 0, 0
+    for r in sorted(rows, key=lambda x: -x["debt"]):
+        v = r["coll"] * shocked // 10 ** 18
+        td += r["debt"]
+        tc += r["coll"]
+        tv += v
+        out.append(f"| `{r['owner']}` | {D(r['debt']) / D(10 ** 18):,.2f} | "
+                   f"{D(r['coll']) / D(10 ** 18):,.4f} | "
+                   f"{D(v) / D(10 ** 18):,.2f} | "
+                   f"{D(r['coll']) * D(shocked) / (D(r['debt']) * D(10 ** 18)):.4f} |")
+    out += [f"| **total** | **{D(td) / D(10 ** 18):,.2f}** | "
+            f"**{D(tc) / D(10 ** 18):,.4f}** | **{D(tv) / D(10 ** 18):,.2f}** | "
+            f"**{D(tv) / D(td):.10f}** |", "",
+            f"That last cell IS `m1.pre.ratio` = "
+            f"{head.m1.pre.ratio if head else '—'}."]
+    return out
+
+
+def _reproduce_calls(bundle, report) -> list[str]:
+    """The mechanism section's own reads, as pasteable pinned `eth_call`s.
+
+    Sourced from the artifact's recorded provenance — `args` carries the real
+    argument, so the asset in `getReserveConfigurationData` is the one actually
+    read, never an example. `getAvailableLiquidity` is the bundle's GSM read
+    rather than the stress module's; it is here because the M2 cell's depth
+    turns on it.
+    """
+    rb = bundle.header.run_block
+    out: list[str] = []
+    for g in bundle.gsms:
+        out.append(f"- GSM `{g.address}` `getAvailableLiquidity()` — expect "
+                   f"`{g.available_liquidity}`")
+        out.append("  ```powershell")
+        out.append("  " + _cmd(PRIMARY, _call_body(
+            g.address, _calldata("getAvailableLiquidity()"), rb)))
+        out.append("  ```")
+    reads = report.mechanism.reads
+    up = next(((k, v) for k, v in sorted(reads.items())
+               if v.function.startswith("checkUpkeep")), None)
+    if up:
+        out.append(f"- freezer `{up[1].source_contract}` "
+                   "`checkUpkeep(bytes)` — DET-46's automation probe: the call "
+                   "**answering at all** is the signal (an address that is not "
+                   "an automation-compatible keeper reverts)")
+        out.append("  ```powershell")
+        out.append("  " + _cmd(PRIMARY, _body(
+            "eth_call",
+            f'{{"to":"{up[1].source_contract}","data":"'
+            # dynamic `bytes`: head word is the OFFSET (0x20), then the length.
+            # Probed 2026-09-13: an offset of 0 also answers here, because it
+            # points at a zero word that decodes as an empty `bytes`. The
+            # canonical encoding is emitted anyway — the sheet should not rely
+            # on a decoder's tolerance to say whether the freezer is automated.
+            + _calldata("checkUpkeep(bytes)")
+            + f"{32:064x}" + f"{0:064x}" + f'"}},"0x{rb:x}"')))
+        out.append("  ```")
+    rc = next(((k, v) for k, v in sorted(reads.items())
+               if v.function.startswith("getReserveConfigurationData")), None)
+    if rc:
+        asset = rc[1].args[0]
+        out.append(f"- data provider `{rc[1].source_contract}` "
+                   f"`getReserveConfigurationData({asset})` — one of the "
+                   "37 (instance, reserve) pairs; word 3 is the liquidation "
+                   "threshold in bps, which is what the health factor weights by")
+        out.append("  ```powershell")
+        out.append("  " + _cmd(PRIMARY, _call_body(
+            rc[1].source_contract,
+            _calldata("getReserveConfigurationData(address)", asset), rb)))
+        out.append("  ```")
+    return out
+
+
 def write_stress(bundle, report, out_dir: pathlib.Path) -> pathlib.Path:
     """R17's hand-verification sheet for a promoted stress artifact (B-4b).
 
@@ -594,14 +724,15 @@ def write_stress(bundle, report, out_dir: pathlib.Path) -> pathlib.Path:
         "| quantity | value | where it comes from |",
         "|---|---|---|",
         f"| m1.pre.ratio | {head.m1.pre.ratio:.6f} | Σ collateral × "
-        "(1+shock)(1−d) × oracle ÷ Σ net debt; collateral and debt per position "
-        "in `out/raw/<block>.json`, oracle in `mechanism.llamma.markets[].oracle` |",
+        f"(1+shock)(1−d) × price ÷ Σ net debt; collateral and debt per position "
+        f"in `out/raw/<block>.json`, price {_price_source(bundle, report)} |",
         f"| m1.post.ratio | {head.m1.post.ratio:.6f} | the same over the book "
         "left after absorption |",
         f"| m1.gap | {head.m1.gap:.6f} | post − pre, the mechanism's measured "
         "contribution (DET-39) |",
-        f"| m2.bad_debt | {Decimal(head.m2.bad_debt) / E:,.2f} crvUSD | Σ "
-        "(debt − value) over unabsorbed positions with CR < 1 |",
+        f"| m2.bad_debt | {Decimal(head.m2.bad_debt) / E:,.2f} "
+        f"{bundle.header.token} | {_bad_debt_source(bundle)}; base units "
+        f"`{head.m2.bad_debt}` |",
         f"| m2.pct_supply | {head.m2.pct_supply:.10f} | ÷ `supply.supply_ruled` "
         f"= {Decimal(bundle.supply.supply_ruled) / E:,.2f} |",
         f"| m3.forced_sell_volume | {Decimal(head.m3.forced_sell_volume) / E:,.2f}"
@@ -634,29 +765,114 @@ def write_stress(bundle, report, out_dir: pathlib.Path) -> pathlib.Path:
         # GHO has no PegKeepers: its mechanism section is DET-46's routing
         # and DET-47's binding side, which is what a hand check needs.
         lines += ["## 2. DET-46 routing, and DET-47's binding side", "",
-                  "| GSM | routing |", "|---|---|"]
+                  "`check_pass = automated_freezer_present ∧ freeze_lower_bound "
+                  ">= 0.88`. Both inputs are the bundle's own GSM rows; the "
+                  "automation probe is a successful `checkUpkeep(bytes)` call, "
+                  "not a returned flag.", "",
+                  "| GSM | freezer | freeze band | automated | routing |",
+                  "|---|---|---|---|---|"]
+        gsm_of = {g.address: g for g in bundle.gsms}
         for a, route in sorted(m.h2_routing.items()):
-            lines.append(f"| `{a[:10]}` | {route} |")
+            g = gsm_of.get(a)
+            lo = Decimal(g.freeze_bound_lo or 0) / Decimal(10 ** 8) if g else 0
+            hi = Decimal(g.freeze_bound_hi or 0) / Decimal(10 ** 8) if g else 0
+            lines.append(
+                f"| `{a}` | `{(g.freezer_address or '—') if g else '—'}` | "
+                f"[{lo}, {hi}] | {'yes' if route == 'freezer_effective' else 'no'} "
+                f"| **{route}** |")
         lines += ["",
                   f"- `gho_sourceable` {head.m4.get('gho_sourceable')}",
                   f"- `collateral_sellable` "
                   f"{head.m4.get('collateral_sellable')}",
                   f"- `gsm_mint_headroom` {head.m4.get('gsm_mint_headroom')}",
                   f"- **`binding_side` {head.m4.get('binding_side')}**"]
+    else:
+        # LUSD: no stabilizer and no GSM. The mechanism section is DET-51's
+        # H3/H4 — what the Stability Pool would absorb, and what H4 lets a
+        # redeemer take before the fee gate closes.
+        comp = next((c for c in report.cells if c.id == "M2-compound"), head)
+        rc = comp.m4.get("redemption_capacity") or {}
+        lines += [
+            "## 2. DET-51 — H3 absorption and H4 redemption", "",
+            "| quantity | value | where it comes from |", "|---|---|---|",
+            f"| sp_balance | {Decimal(bundle.supply.stability_pool_deposits) / E:,.2f}"
+            " | `StabilityPool.getTotalLUSDDeposits()`, the bundle's own read "
+            "(DET-51's capacity lineage is `{sp_balance_read}`) |",
+            f"| sp_effective_cell (headline, LP {head.lp}) | "
+            f"{Decimal(head.m4.get('sp_effective_cell', 0)) / E:,.2f} | "
+            f"`sp_balance × (1 − {head.lp})` — the LP axis is DEPOSITOR flight |",
+            f"| tcr_post (headline) | {head.m4.get('tcr_post')} | Σ surviving "
+            "collateral × shocked price ÷ Σ surviving debt |",
+            f"| recovery_mode_flag | {head.m4.get('recovery_mode_flag')} | "
+            "`tcr_post < CCR` (1.50), reported not modeled (P-6.01 R12) |",
+            f"| redistributed_debt | {head.m4.get('redistributed_debt')} | debt "
+            "the Pool could not offset, pushed pro rata onto survivors |",
+            f"| redemption_capacity (compound) | "
+            f"{Decimal(rc.get('value', 0)) / E:,.2f} | {rc.get('reason', '')} |",
+            "",
+            "Member-1 cells carry `redemption_capacity = 0, reason = \"crash "
+            "path excluded\"`, which is the entry's own wording.",
+        ]
+    lines += _trove_table(bundle, report, out_dir)
+    # The Member-2 headline and its counterfactual pair. For GHO this is the
+    # cell that carries the report's largest finding — the GSM leaving the
+    # venue set — so it is printed in full rather than left to the artifact.
+    m2h = next((c for c in report.cells if c.id.startswith("M2-t0.93")), None)
+    if m2h is not None:
+        lines += [
+            "", f"## 3. The Member-2 headline cell — {m2h.id}", "",
+            "| quantity | value | where it comes from |", "|---|---|---|",
+            f"| m3.forced_sell_volume | "
+            f"{Decimal(m2h.m3.forced_sell_volume) / E:,.2f} | {_m2_source(bundle)}"
+            f"; base units `{m2h.m3.forced_sell_volume}` |",
+            f"| m3.exit_depth | {Decimal(m2h.m3.exit_depth) / E:,.2f} | the "
+            "cell's own venue set, DET-35 |",
+            f"| m3.ratio | {'undefined (R-B4.14)' if m2h.m3.ratio is None else m2h.m3.ratio}"
+            " | forced_sell ÷ exit_depth |",
+        ]
+        for ln in m2h.counterfactual_lines:
+            # A line may be qualitative — crvUSD's `H1_v1_contagion` carries no
+            # sized pair — and the sheet says so rather than inventing a zero.
+            if ln.value_primary is None or ln.value_counterfactual is None:
+                lines += ["", f"**Counterfactual `{ln.id}`** — carried "
+                          f"unsized on this cell: {ln.assumption_text}"]
+                continue
+            lines += [
+                "",
+                f"**Counterfactual `{ln.id}`** — primary "
+                f"{Decimal(ln.value_primary) / E:,.2f}, counterfactual "
+                f"{Decimal(ln.value_counterfactual) / E:,.2f}. The difference is "
+                "what the routing decision is worth on this cell.",
+            ]
     lines += [
         "",
-        "## 3. One call to reproduce on Etherscan",
+        "## 4. The pinned reads to reproduce",
+        "",
+        f"**Every call below is a pinned read at `run_block` "
+        f"{bundle.header.run_block}** — the same block the bundle was assembled "
+        "at (R-13). Pin the block inside the JSON-RPC body; a `tag` query "
+        "parameter is silently ignored by some proxies (P-3.39).",
         "",
         f"The depth m3 divides by is the sum over K-subset(0.90) = {len(ks)} "
-        "pools. On the largest, call `get_dy` with the recorded `dx` and check "
-        "the implied marginal price sits at 1 − s = 0.98 ± ε:",
+        "pools. On each, call `get_dy` with the recorded `dx` — **`i` and `j` "
+        "are the recorded argument values, not placeholders** — and check the "
+        "implied marginal price sits at 1 − s = 0.98 ± ε:",
         "",
     ]
+    dy_args = {k.split(".", 1)[0]: v.args
+               for k, v in report.exit_depth.reads.items()
+               if k.endswith(".get_dy")}
     for g in report.exit_depth.ground_truth:
-        lines.append(f"- `{g.pool}` → `get_dy(i, j, {g.dx})` = "
+        a = dy_args.get(g.pool)
+        ij = f"i={a[0]}, j={a[1]}" if a and len(a) >= 2 else "i, j (see `reads`)"
+        lines.append(f"- `{g.pool}` → `get_dy({ij}, dx={g.dx})` = "
                      f"{g.onchain_dy_at_dx}; implied {g.implied_price} "
                      f"(within ε: {g.within_epsilon})")
-    lines += ["", "## 4. Assumptions carried on this artifact", ""]
+    extra = _reproduce_calls(bundle, report)
+    if extra:
+        lines += ["", "And the three reads the mechanism section rests on, as "
+                  "`eth_call` targets:", "", *extra]
+    lines += ["", "## 5. Assumptions carried on this artifact", ""]
     for k, v in sorted(report.assumptions.items()):
         lines.append(f"- **{k}** — {v}")
     path = out_dir / "out/spotcheck" / bundle.header.token / \

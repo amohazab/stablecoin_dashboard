@@ -1163,6 +1163,14 @@ def fold(inputs: dict, rpc=None) -> StressReport:
             mech = mech.model_copy(update={"h2_routing": {
                 a: r["routing"] for a, r in notes["routing"].items()},
                 "reads": mech_reads})
+        else:                              # LUSD: a trove book and a pool (B-6)
+            from factory.lusd_cells import build as build_lusd
+            ks = k_subsets([r for r in b.pools if r.in_frozen_set])
+            mech_reads = {}
+            cells, refs, notes, assumptions = build_lusd(
+                b, cfg, rpc, inputs["raw"], mech, states, numeraire, venues,
+                mech_reads, _cr, depth_after_flight, _shocked_depth, ks["90"])
+            mech = mech.model_copy(update={"reads": mech_reads})
     return StressReport(
         header=StressHeader(
             token=b.header.token, run_block=b.header.run_block,

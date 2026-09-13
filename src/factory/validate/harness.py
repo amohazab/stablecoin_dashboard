@@ -1073,11 +1073,16 @@ def det_38(b: Bundle, t: VerifiabilityTree, r: StressReport) -> str | None:
 
 
 def _m4_keys(b: Bundle) -> tuple:
-    """The token's own `m4_fields[]`. crvUSD's 18 and GHO's 9 are different
-    contracts (P-6.07's signed edit), and DET-38 checks each against its own."""
+    """The token's own `m4_fields[]`. crvUSD's 18, GHO's 9 and LUSD's 9 are
+    different contracts (P-6.07's signed edit), and DET-38 checks each against
+    its own. The branch is on SHAPE, never on the token's name: a GSM set makes
+    it GHO, a live stabilizer makes it crvUSD, neither makes it LUSD."""
     if b.gsms:
         from factory.gho_cells import M4_KEYS as GHO_KEYS
         return GHO_KEYS
+    if not b.stabilizer.operations:
+        from factory.lusd_cells import M4_KEYS as LUSD_KEYS
+        return LUSD_KEYS
     from factory.stress import M4_KEYS
     return M4_KEYS
 
@@ -1199,9 +1204,14 @@ def det_44(b: Bundle, t: VerifiabilityTree, r: StressReport) -> str | None:
     # `H1_v1_contagion` and `EMA_lag`; GHO `H2_freezer` on Member 2, compound
     # and joint, with no H1 line and no EMA_lag — GHO has no LLAMMA, and §7's
     # instant-observation assumption is carried as a literal instead (R13).
+    # LUSD's required ID is `Tellor_fallback` on every member — the entry's own
+    # "rendered once per member" — with no H1 line, no H2 line and no EMA_lag.
     if b.gsms:
         need = {"M1": set(), "JOINT": {"H2_freezer"},
                 "M2": {"H2_freezer"}, "M2_COMPOUND": {"H2_freezer"}}
+    elif not b.stabilizer.operations:
+        need = {m: {"Tellor_fallback"}
+                for m in ("M1", "M2", "M2_COMPOUND", "JOINT")}
     else:
         need = {"M1": {"H1_kill", "EMA_lag"},
                 "JOINT": {"H1_kill", "EMA_lag", "H1_v1_contagion"},
@@ -1216,10 +1226,26 @@ def det_44(b: Bundle, t: VerifiabilityTree, r: StressReport) -> str | None:
            if ln.id == "EMA_lag"]
     if any(not ln.approximation_flag for ln in ema):
         raise Level3("DET-44: EMA_lag without approximation_flag")
-    if b.gsms and not r.assumptions.get("oracle_assumption"):
-        raise Level3("DET-44: GHO carries no EMA_lag and must state §7's "
+    if not ema and not r.assumptions.get("oracle_assumption"):
+        raise Level3("DET-44: a token with no EMA_lag line must state §7's "
                      "oracle assumption as a literal instead (R13)")
-    return f"required IDs on every cell; {len(ema)} EMA_lag lines flagged"
+    tel = [ln for c in r.cells for ln in c.counterfactual_lines
+           if ln.id == "Tellor_fallback"]
+    # R-23: the line carries verified constants and a scope statement, never a
+    # computed value, and `metric_affected = none` is the entry's own.
+    for ln in tel:
+        if ln.value_primary is not None or ln.value_counterfactual is not None:
+            raise Level3("DET-44: Tellor_fallback carries a computed value "
+                         "(R-23 allows constants and a scope statement only)")
+        if ln.metric_affected != "none":
+            raise Level3("DET-44: Tellor_fallback metric_affected must be none")
+        if TELLOR_SCOPE not in ln.assumption_text:
+            raise Level3("DET-44: Tellor_fallback is missing R-23's scope literal")
+    # The message stays byte-stable for a token with no Tellor line: adding a
+    # clause unconditionally would move crvUSD's and GHO's promoted artifacts,
+    # which B-6 is not allowed to do beyond the DET-51 row.
+    return (f"required IDs on every cell; {len(ema)} EMA_lag lines flagged"
+            + (f"; {len(tel)} Tellor_fallback lines" if tel else ""))
 
 
 def det_48(b: Bundle, t: VerifiabilityTree, r: StressReport) -> str | None:
@@ -1245,6 +1271,16 @@ def det_49(b: Bundle, t: VerifiabilityTree, r: StressReport) -> str | None:
     if not r.cells:
         return "no cells"
     got = {c.lst for c in _cells(r, "M1")}
+    # The entry's own LUSD clause: "axis absent, no `d` field rendered". Where
+    # no node carries `lst_discount_applies`, there is nothing for the modifier
+    # to modify, and the axis must be ABSENT rather than present-and-inert —
+    # which is what DET-37 already counts as the collapsed 12.
+    live = any(n.lst_discount_applies and n.share_of_backing > 0 for n in b.nodes)
+    if not live:
+        if got != {Decimal("0")}:
+            raise Level3(f"DET-49: no node carries lst_discount_applies, so the "
+                         f"axis must be absent; found {sorted(got)}")
+        return "no LST node: the axis is absent, every Member-1 cell at d = 0"
     if got != {Decimal("0"), Decimal("0.05"), Decimal("0.10")}:
         raise Level3(f"DET-49: LST axis {sorted(got)}")
     head = [c for c in r.cells if c.id == "M1-s50-d0-lp0"]
@@ -1463,6 +1499,63 @@ def det_69(b: Bundle, t: VerifiabilityTree, r: StressReport) -> str | None:
     return f"marked == consumed == {sorted(marked) or 'none'}"
 
 
+TELLOR_SCOPE = ("modeled outcome unchanged under primary; fallback engaged "
+                "does not alter stock-only capacity")
+
+
+def det_51(b: Bundle, t: VerifiabilityTree, r: StressReport) -> str | None:
+    """LUSD H3 / H4 specifics (§6.3 H3, H4; §12 `state_conditional`), S2.
+
+    Scope is LUSD's shape — a trove book with a Stability Pool and no
+    stabilizer, no GSM. On the other two tokens the entry does not apply and
+    the check says so rather than passing vacuously.
+
+    Five conditions, each the entry's own: `sp_effective_cell` replays
+    `sp_balance × (1 − LP_cell)`; `redistributed_positions_below_100` IS
+    `m2.bad_debt`; `recovery_mode_flag` IS `tcr_post < CCR`; H4's
+    `redemption_capacity` is absent from Member 1 with the entry's reason and
+    present elsewhere; and the TCR gate zeroes it EXACTLY below MCR.
+    """
+    if b.gsms or b.stabilizer.operations:
+        return "not a trove book: DET-51's H3/H4 specifics do not apply"
+    if not r.cells:
+        return "no cells"
+    sp = b.supply.stability_pool_deposits
+    if not sp:
+        raise Level3("DET-51: the capacity lineage needs `sp_balance_read` and "
+                     "the bundle carries no Stability Pool balance")
+    ccr, mcr = Decimal("1.50"), Decimal("1.10")
+    checked = 0
+    for c in r.cells:
+        want_sp = int(Decimal(sp) * (Decimal(1) - c.lp))
+        got_sp = c.m4.get("sp_effective_cell")
+        if c.member == "M1" and abs(Decimal(got_sp) - Decimal(want_sp)) > 1:
+            raise Level3(f"DET-51: {c.id} sp_effective_cell {got_sp} != "
+                         f"sp_balance x (1 - {c.lp}) = {want_sp}")
+        if c.m4.get("redistributed_positions_below_100") != c.m2.bad_debt:
+            raise Level3(f"DET-51: {c.id} redistributed_positions_below_100 "
+                         f"!= m2.bad_debt")
+        tcr = Decimal(str(c.m4.get("tcr_post")))
+        if c.m4.get("recovery_mode_flag") is not (tcr < ccr):
+            raise Level3(f"DET-51: {c.id} recovery_mode_flag != (tcr_post < 1.50)")
+        cap = c.m4.get("redemption_capacity") or {}
+        if c.member == "M1":
+            if cap.get("value") != 0 or cap.get("reason") != "crash path excluded":
+                raise Level3(f"DET-51: {c.id} Member-1 redemption_capacity must "
+                             "be 0 with reason 'crash path excluded'")
+        elif tcr < mcr:
+            if cap.get("value") != 0 or cap.get("reason") != "TCR < MCR":
+                raise Level3(f"DET-51: {c.id} TCR {tcr} < MCR and "
+                             "redemption_capacity is not the gated zero")
+        elif not cap.get("value"):
+            raise Level3(f"DET-51: {c.id} carries no redemption_capacity")
+        checked += 1
+    if not r.assumptions.get("absorption"):
+        raise Level3("DET-51: the Stability-Pool absorption literal is absent")
+    return (f"sp_effective_cell, the bad-debt identity, recovery_mode_flag and "
+            f"H4's gate asserted on {checked} cells")
+
+
 def det_46(b: Bundle, t: VerifiabilityTree, r: StressReport) -> str | None:
     """H2 state-conditional routing (PQ-4, R-25), S2.
 
@@ -1649,6 +1742,7 @@ CHECKS: list[Check] = [
     Check("DET-49", "S2", 2, det_49, "stress"),
     Check("DET-46", "S2", 2, det_46, "stress"),
     Check("DET-47", "S2", 2, det_47, "stress"),
+    Check("DET-51", "S2", 2, det_51, "stress"),
 ]
 
 
