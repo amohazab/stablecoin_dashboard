@@ -76,6 +76,52 @@ Interactive agent sessions (Claude Code) are the **dev environment only**. Produ
 - Block pinning: all Tier-1 contract reads in a run carry one `run_block`; deviation is Level 3.
 - **Gate integrity / hard loop rule:** generate → evaluate → **one** revision → ship or quarantine. Second failure = template defect → fix template, rerun. Findings patch templates/rubrics/prompts, **never individual reports**. No hand-editing path exists; editing outputs instead of templates falsifies the factory claim.
 
+## Delivery and drafting conventions (ruled during Step 6, 2026-09-12/13)
+
+These bind every session. They exist because Step 6 lost roughly a third of its
+rounds to delivery failures, and each rule below closes one of them.
+
+1. **Output reaches Amin by copy-paste from this chat.** Long messages drop
+   their tails on the VS Code side. Any report over ~120 lines is written to
+   `out/reports/<TOKEN-or-STEP>-<block-or-block-id>.md` (gitignored), and the
+   chat message carries only BEGIN/END markers, a ten-line summary, and the
+   path; Amin uploads the file to the design chat. Multi-part chat reports are
+   numbered "1/n … n/n", each part ≤ ~120 lines with its own markers.
+2. **A turn never ends on a promise of text.** A draft, a report part, or a
+   table that is announced is inside the same message, or the message says "no
+   draft yet". "Follows in the next message" is a failure (it occurred eight
+   times in Step 6) and is recorded as-counted when it happens.
+3. **Every `PROGRESS.md` entry draft is a scratch file read back**, never
+   composed in the chat message. The count line beneath it is the measuring
+   script's stdout from a run in the same turn — never typed. If the Content
+   block (between `- **Content:**` and `- **Artifacts:**`) exceeds 60 lines the
+   message opens with the word FLAG and states the measured count; 60 is a
+   flag line for Amin to rule on, not a cap — closing entries have run to 104
+   by ruling. Implementation entries target 40–50 lines.
+4. **An append is proven before it is committed:** diff the scratch file
+   against the appended slice of `PROGRESS.md` (must be empty) and report both
+   sha256 values. Confirmed text is immutable even before commit; a count or
+   delivery error is fixed by an as-counted line in the next entry, never by
+   editing the confirmed text.
+5. **Amin's confirmation is the signature** on `docs/context/` edits (the
+   rubric's `rubric_change`, the sheet's `intake_trigger`): the exact text is
+   shown whole and read back from a file before it is applied, and nothing is
+   applied until the word "confirmed" arrives. Analyst-supplied values are
+   drafted blank and filled by Amin, dated and sourced.
+6. **Stops are findings.** When a rule cannot be applied as written, or a
+   number contradicts a `[VERIFIED …]` value, or a result is invariant to its
+   inputs (the shape that caught two unit defects), report the numbers and the
+   options and stop; never pick, never tune, never widen a check to make a
+   result pass. On blocks whose defaults are already ruled, propose and
+   implement in one turn and stop only on a genuinely unruled point.
+7. **As-counted lines attribute honestly, on both sides** — the Builder's
+   defects and the design layer's wrong instructions alike — because the
+   record is the artifact.
+8. **Hand verification is Amin's** (R17): each promoted stress artifact's
+   spot-check sheet lists pinned reads with `i`/`j` and the block, and he
+   reproduces them through his own RPC; old-Vyper contracts return a padded
+   return buffer, so a raw JSON-RPC check decodes the first 32-byte word.
+
 ## Where implementation stands
 
 Per brief §8 step order:
