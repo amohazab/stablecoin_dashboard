@@ -1,0 +1,4990 @@
+{
+ "assumptions": [
+  {
+   "data_ref": [
+    "bias.0.direction",
+    "bias.1.direction",
+    "bias.2.direction",
+    "bias.3.direction",
+    "bias.4.direction",
+    "bias.5.direction",
+    "bias.6.direction",
+    "bias.7.direction",
+    "bias.8.direction"
+   ],
+   "id": "stock_only",
+   "required": true,
+   "rule_ref": "memo §7.1"
+  },
+  {
+   "data_ref": [
+    "oracle.0x18084fba666a33d37592fa2633fd49a74dd93a88.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.deviation_bps",
+    "oracle.0x2260fac5e5542a773aa44fbcfedf7c193bc2c599.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.deviation_bps",
+    "oracle.0x514910771af9ca656af840dff83e8264ecf986ca.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.deviation_bps",
+    "oracle.0x6b175474e89094c44da98b954eedeac495271d0f.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.deviation_bps",
+    "oracle.0x7bc3485026ac48b6cf9baf0a377477fff5703af8.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.deviation_bps",
+    "oracle.0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0.0x4e033931ad43597d96d6bcc25c280717730b58b1.deviation_bps",
+    "oracle.0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.deviation_bps",
+    "oracle.0x83f20f44975d03b1b09e64809b757c47f942beea.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.deviation_bps",
+    "oracle.0x9d39a5de30e57443bff2a8307a4256c8797a3497.0x4e033931ad43597d96d6bcc25c280717730b58b1.deviation_bps",
+    "oracle.0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.deviation_bps",
+    "oracle.0xae78736cd615f374d3085123a210448e74fc6393.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.deviation_bps",
+    "oracle.0xbe9895146f7af43049ca1c1ae358b0541ea49704.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.deviation_bps",
+    "oracle.0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2.0x4e033931ad43597d96d6bcc25c280717730b58b1.deviation_bps",
+    "oracle.0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.deviation_bps",
+    "oracle.0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.deviation_bps",
+    "oracle.0xd4fa2d31b7968e448877f69a96de69f5de8cd23e.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.deviation_bps",
+    "oracle.0xdac17f958d2ee523a2206206994597c13d831ec7.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.deviation_bps",
+    "oracle.0xdc035d45d973e3ec169d2276ddab16f1e407384f.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.deviation_bps"
+   ],
+   "id": "observation",
+   "required": true,
+   "rule_ref": "memo §7.2"
+  },
+  {
+   "data_ref": [
+    "exit.lp_flight_literal"
+   ],
+   "id": "lp_sticky",
+   "required": true,
+   "rule_ref": "memo §6.1.4"
+  },
+  {
+   "data_ref": [
+    "exit.lp_flight_literal"
+   ],
+   "id": "lp_grid",
+   "required": true,
+   "rule_ref": "memo §6.1.4"
+  },
+  {
+   "data_ref": [
+    "node.0x14d60e7fdc0d71d8611742720e4c50e7a974020c.sell_side",
+    "node.0x18084fba666a33d37592fa2633fd49a74dd93a88.sell_side",
+    "node.0x2260fac5e5542a773aa44fbcfedf7c193bc2c599.sell_side",
+    "node.0x514910771af9ca656af840dff83e8264ecf986ca.sell_side",
+    "node.0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0.sell_side",
+    "node.0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9.sell_side",
+    "node.0xae78736cd615f374d3085123a210448e74fc6393.sell_side",
+    "node.0xbe9895146f7af43049ca1c1ae358b0541ea49704.sell_side",
+    "node.0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2.sell_side",
+    "node.0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf.sell_side",
+    "node.0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee.sell_side"
+   ],
+   "id": "sell_side_bound",
+   "required": true,
+   "rule_ref": "memo §6.3"
+  },
+  {
+   "data_ref": [
+    "mech.reserve.0x4e033931ad43597d96d6bcc25c280717730b58b1:0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0.liquidation_bonus",
+    "mech.reserve.0x4e033931ad43597d96d6bcc25c280717730b58b1:0x9d39a5de30e57443bff2a8307a4256c8797a3497.liquidation_bonus",
+    "mech.reserve.0x4e033931ad43597d96d6bcc25c280717730b58b1:0xbf5495efe5db9ce00f80364c8b423567e58d2110.liquidation_bonus",
+    "mech.reserve.0x4e033931ad43597d96d6bcc25c280717730b58b1:0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2.liquidation_bonus",
+    "mech.reserve.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0x18084fba666a33d37592fa2633fd49a74dd93a88.liquidation_bonus",
+    "mech.reserve.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0x1abaea1f7c830bd89acc67ec4af516284b1bc33c.liquidation_bonus",
+    "mech.reserve.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0x2260fac5e5542a773aa44fbcfedf7c193bc2c599.liquidation_bonus",
+    "mech.reserve.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0x356b8d89c1e1239cbbb9de4815c39a1474d5ba7d.liquidation_bonus",
+    "mech.reserve.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0x4c9edd5852cd905f086c759e8383e09bff1e68b3.liquidation_bonus",
+    "mech.reserve.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0x514910771af9ca656af840dff83e8264ecf986ca.liquidation_bonus",
+    "mech.reserve.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0x5f98805a4e8be255a32880fdec7f6728c6568ba0.liquidation_bonus",
+    "mech.reserve.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0x657e8c867d8b37dcc18fa4caead9c45eb088c642.liquidation_bonus",
+    "mech.reserve.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0x68749665ff8d2d112fa859aa293f07a622782f38.liquidation_bonus",
+    "mech.reserve.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0x6b175474e89094c44da98b954eedeac495271d0f.liquidation_bonus",
+    "mech.reserve.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0x6c3ea9036406852006290770bedfcaba0e23a0e8.liquidation_bonus",
+    "mech.reserve.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0.liquidation_bonus",
+    "mech.reserve.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9.liquidation_bonus",
+    "mech.reserve.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0x8236a87084f8b84306f72007f36f2618a5634494.liquidation_bonus",
+    "mech.reserve.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0x83f20f44975d03b1b09e64809b757c47f942beea.liquidation_bonus",
+    "mech.reserve.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0x90d2af7d622ca3141efa4d8f1f24d86e5974cc8f.liquidation_bonus",
+    "mech.reserve.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0x9d39a5de30e57443bff2a8307a4256c8797a3497.liquidation_bonus",
+    "mech.reserve.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.liquidation_bonus",
+    "mech.reserve.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0xa1290d69c65a6fe4df752f95823fae25cb99e5a7.liquidation_bonus",
+    "mech.reserve.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0xa35b1b31ce002fbf2058d22f30f95d405200a15b.liquidation_bonus",
+    "mech.reserve.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0xae78736cd615f374d3085123a210448e74fc6393.liquidation_bonus",
+    "mech.reserve.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0xb0f70c0bd6fd87dbeb7c10dc692a2a6106817072.liquidation_bonus",
+    "mech.reserve.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0xbe9895146f7af43049ca1c1ae358b0541ea49704.liquidation_bonus",
+    "mech.reserve.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2.liquidation_bonus",
+    "mech.reserve.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0xc96de26018a54d51c097160568752c4e3bd6c364.liquidation_bonus",
+    "mech.reserve.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf.liquidation_bonus",
+    "mech.reserve.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee.liquidation_bonus",
+    "mech.reserve.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0xdac17f958d2ee523a2206206994597c13d831ec7.liquidation_bonus",
+    "mech.reserve.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0xdc035d45d973e3ec169d2276ddab16f1e407384f.liquidation_bonus",
+    "mech.reserve.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0xf1c9acdc66974dfb6decb12aa385b9cd01190e38.liquidation_bonus",
+    "mech.reserve.0xae05cd22df81871bc7cc2a04becfb516bfe332c8:0x14d60e7fdc0d71d8611742720e4c50e7a974020c.liquidation_bonus",
+    "mech.reserve.0xae05cd22df81871bc7cc2a04becfb516bfe332c8:0x43415eb6ff9db7e26a15b704e7a3edce97d31c4e.liquidation_bonus",
+    "mech.reserve.0xae05cd22df81871bc7cc2a04becfb516bfe332c8:0x5a0f93d040de44e78f251b03c43be9cf317dcf64.liquidation_bonus"
+   ],
+   "id": "h5_slippage_bound",
+   "required": true,
+   "rule_ref": "memo §6.3 H5"
+  },
+  {
+   "data_ref": [
+    "exit.gsm.0x3a3868898305f04bec7fea77becff04c13444112.fee_exit",
+    "exit.gsm.0x882285e62656b9623af136ce3078c6bdcc33f5e3.fee_exit"
+   ],
+   "id": "gsm_fee_exit",
+   "required": true,
+   "rule_ref": "memo §5.10"
+  },
+  {
+   "data_ref": null,
+   "id": "par_numeraire",
+   "required": true,
+   "rule_ref": "memo §6.1.3"
+  },
+  {
+   "data_ref": null,
+   "id": "shock_grid_fixed",
+   "required": true,
+   "rule_ref": "memo §6.2.1"
+  },
+  {
+   "data_ref": null,
+   "id": "lst_discount_grid",
+   "required": true,
+   "rule_ref": "memo §6.2.2"
+  },
+  {
+   "data_ref": [
+    "exit.member2_target"
+   ],
+   "id": "member2_target",
+   "required": true,
+   "rule_ref": "memo §6.2.5"
+  },
+  {
+   "data_ref": [
+    "header.freeze_date"
+   ],
+   "id": "freeze_reference",
+   "required": true,
+   "rule_ref": "memo §5.7"
+  },
+  {
+   "data_ref": [
+    "assumption.freezer"
+   ],
+   "id": "freezer",
+   "required": false,
+   "rule_ref": null
+  },
+  {
+   "data_ref": [
+    "assumption.health_factor"
+   ],
+   "id": "health_factor",
+   "required": false,
+   "rule_ref": null
+  },
+  {
+   "data_ref": [
+    "assumption.lp_flight"
+   ],
+   "id": "lp_flight",
+   "required": false,
+   "rule_ref": null
+  },
+  {
+   "data_ref": [
+    "assumption.oracle_assumption"
+   ],
+   "id": "oracle_assumption",
+   "required": false,
+   "rule_ref": null
+  },
+  {
+   "data_ref": [
+    "assumption.tail_reserves"
+   ],
+   "id": "tail_reserves",
+   "required": false,
+   "rule_ref": null
+  }
+ ],
+ "rows": [
+  {
+   "denominator": null,
+   "field_id": "header.token",
+   "label": "token",
+   "owner_entry": "DET-83",
+   "section": "header",
+   "source_path": "bundle/header/token",
+   "unit": "literal",
+   "value": "GHO"
+  },
+  {
+   "denominator": null,
+   "field_id": "header.run_block",
+   "label": "run block",
+   "owner_entry": "DET-83",
+   "section": "header",
+   "source_path": "bundle/header/run_block",
+   "unit": "block",
+   "value": 25970233
+  },
+  {
+   "denominator": null,
+   "field_id": "header.block_timestamp",
+   "label": "block timestamp",
+   "owner_entry": "DET-83",
+   "section": "header",
+   "source_path": "bundle/header/block_timestamp",
+   "unit": "unix_s",
+   "value": 1789323179
+  },
+  {
+   "denominator": null,
+   "field_id": "header.sheet_hash",
+   "label": "sheet hash",
+   "owner_entry": "DET-77",
+   "section": "header",
+   "source_path": "bundle/header/sheet_hash",
+   "unit": "hash",
+   "value": "5486f264"
+  },
+  {
+   "denominator": null,
+   "field_id": "header.bundle_hash",
+   "label": "bundle hash",
+   "owner_entry": "DET-13",
+   "section": "header",
+   "source_path": "bundle/header/bundle_hash",
+   "unit": "hash",
+   "value": "6a2152855fde6e8c69b1fb52f7d580b6566c2a1d1891faed50f9e9e6298254fc"
+  },
+  {
+   "denominator": null,
+   "field_id": "header.pipeline_version",
+   "label": "pipeline version",
+   "owner_entry": "DET-87",
+   "section": "header",
+   "source_path": "bundle/header/pipeline_version",
+   "unit": "literal",
+   "value": "0.1.0"
+  },
+  {
+   "denominator": null,
+   "field_id": "header.freeze_date",
+   "label": "freeze date",
+   "owner_entry": "DET-29",
+   "section": "header",
+   "source_path": "bundle/header/freeze_date",
+   "unit": "date",
+   "value": "2026-09-08"
+  },
+  {
+   "denominator": null,
+   "field_id": "header.tree_hash",
+   "label": "tree hash",
+   "owner_entry": "DET-84",
+   "section": "header",
+   "source_path": "tree/tree_hash",
+   "unit": "hash",
+   "value": "a79e32cb6084870cf63241c24649d18ee4ba2ddcd0dc27de496c9c2dc01ec350"
+  },
+  {
+   "denominator": null,
+   "field_id": "header.stress_hash",
+   "label": "stress hash",
+   "owner_entry": "DET-84",
+   "section": "header",
+   "source_path": "stress/header/stress_hash",
+   "unit": "hash",
+   "value": "779c4142f329166bd96305ecbc1f460a023b2b7620680e79625fa76e65a7efb6"
+  },
+  {
+   "denominator": "backing_value",
+   "field_id": "verif.bar.terminal",
+   "label": "bar 1: terminal",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/bars/[name=terminal]/share",
+   "unit": "ratio",
+   "value": "0.2869454398008503868176594907"
+  },
+  {
+   "denominator": "backing_value",
+   "field_id": "verif.bar.terminal_other_layer",
+   "label": "bar 2: terminal_other_layer",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/bars/[name=terminal_other_layer]/share",
+   "unit": "ratio",
+   "value": "0.3941790005992770832124236333"
+  },
+  {
+   "denominator": "backing_value",
+   "field_id": "verif.bar.disclosure_dependent",
+   "label": "bar 3: disclosure_dependent",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/bars/[name=disclosure_dependent]/share",
+   "unit": "ratio",
+   "value": "0.3188755595998725299699168760"
+  },
+  {
+   "denominator": "backing_value",
+   "field_id": "verif.truncated_share",
+   "label": "depth-truncated share of bar 3",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/truncated_share",
+   "unit": "ratio",
+   "value": "0.08481021783239955328632692457"
+  },
+  {
+   "denominator": "backing_value",
+   "field_id": "verif.truncated.0x14d60e7fdc0d71d8611742720e4c50e7a974020c.share",
+   "label": "truncated: USCC",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/truncated_nodes/[address=0x14d60e7fdc0d71d8611742720e4c50e7a974020c]/share",
+   "unit": "ratio",
+   "value": "0.02165940089992247371488299507"
+  },
+  {
+   "denominator": null,
+   "field_id": "verif.truncated.0x14d60e7fdc0d71d8611742720e4c50e7a974020c.reason",
+   "label": "truncated reason: USCC",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/truncated_nodes/[address=0x14d60e7fdc0d71d8611742720e4c50e7a974020c]/reason",
+   "unit": "literal",
+   "value": "depth truncated at USCC; node's own backing not analyzed by this pipeline"
+  },
+  {
+   "denominator": "backing_value",
+   "field_id": "verif.truncated.0x43415eb6ff9db7e26a15b704e7a3edce97d31c4e.share",
+   "label": "truncated: USTB",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/truncated_nodes/[address=0x43415eb6ff9db7e26a15b704e7a3edce97d31c4e]/share",
+   "unit": "ratio",
+   "value": "0.02564243674821180098855304780"
+  },
+  {
+   "denominator": null,
+   "field_id": "verif.truncated.0x43415eb6ff9db7e26a15b704e7a3edce97d31c4e.reason",
+   "label": "truncated reason: USTB",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/truncated_nodes/[address=0x43415eb6ff9db7e26a15b704e7a3edce97d31c4e]/reason",
+   "unit": "literal",
+   "value": "depth truncated at USTB; node's own backing not analyzed by this pipeline"
+  },
+  {
+   "denominator": "backing_value",
+   "field_id": "verif.truncated.0x5a0f93d040de44e78f251b03c43be9cf317dcf64.share",
+   "label": "truncated: JAAA",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/truncated_nodes/[address=0x5a0f93d040de44e78f251b03c43be9cf317dcf64]/share",
+   "unit": "ratio",
+   "value": "0.03748628090616539234946342688"
+  },
+  {
+   "denominator": null,
+   "field_id": "verif.truncated.0x5a0f93d040de44e78f251b03c43be9cf317dcf64.reason",
+   "label": "truncated reason: JAAA",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/truncated_nodes/[address=0x5a0f93d040de44e78f251b03c43be9cf317dcf64]/reason",
+   "unit": "literal",
+   "value": "depth truncated at JAAA; node's own backing not analyzed by this pipeline"
+  },
+  {
+   "denominator": "backing_value",
+   "field_id": "verif.truncated.0x6b175474e89094c44da98b954eedeac495271d0f.share",
+   "label": "truncated: DAI",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/truncated_nodes/[address=0x6b175474e89094c44da98b954eedeac495271d0f]/share",
+   "unit": "ratio",
+   "value": "0.000009848530214248361394384342275"
+  },
+  {
+   "denominator": null,
+   "field_id": "verif.truncated.0x6b175474e89094c44da98b954eedeac495271d0f.reason",
+   "label": "truncated reason: DAI",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/truncated_nodes/[address=0x6b175474e89094c44da98b954eedeac495271d0f]/reason",
+   "unit": "literal",
+   "value": "depth truncated at DAI; node's own backing not analyzed by this pipeline"
+  },
+  {
+   "denominator": "backing_value",
+   "field_id": "verif.truncated.0x83f20f44975d03b1b09e64809b757c47f942beea.share",
+   "label": "truncated: sDAI",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/truncated_nodes/[address=0x83f20f44975d03b1b09e64809b757c47f942beea]/share",
+   "unit": "ratio",
+   "value": "1.986959458934328117651578686E-7"
+  },
+  {
+   "denominator": null,
+   "field_id": "verif.truncated.0x83f20f44975d03b1b09e64809b757c47f942beea.reason",
+   "label": "truncated reason: sDAI",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/truncated_nodes/[address=0x83f20f44975d03b1b09e64809b757c47f942beea]/reason",
+   "unit": "literal",
+   "value": "depth truncated at sDAI; node's own backing not analyzed by this pipeline"
+  },
+  {
+   "denominator": "backing_value",
+   "field_id": "verif.truncated.0xdc035d45d973e3ec169d2276ddab16f1e407384f.share",
+   "label": "truncated: USDS",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/truncated_nodes/[address=0xdc035d45d973e3ec169d2276ddab16f1e407384f]/share",
+   "unit": "ratio",
+   "value": "0.00001205205193974443922130532517"
+  },
+  {
+   "denominator": null,
+   "field_id": "verif.truncated.0xdc035d45d973e3ec169d2276ddab16f1e407384f.reason",
+   "label": "truncated reason: USDS",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/truncated_nodes/[address=0xdc035d45d973e3ec169d2276ddab16f1e407384f]/reason",
+   "unit": "literal",
+   "value": "depth truncated at USDS; node's own backing not analyzed by this pipeline"
+  },
+  {
+   "denominator": "backing_value",
+   "field_id": "verif.unlisted_share",
+   "label": "unclassified — pending intake (U)",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/shares/unlisted",
+   "unit": "ratio",
+   "value": "0"
+  },
+  {
+   "denominator": null,
+   "field_id": "verif.unclassified_literal",
+   "label": "unclassified literal",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/unclassified_literal",
+   "unit": "null",
+   "value": null
+  },
+  {
+   "denominator": null,
+   "field_id": "verif.staleness.weighted_days",
+   "label": "staleness weighted days",
+   "owner_entry": "DET-18",
+   "section": "verifiability",
+   "source_path": "tree/staleness/weighted_days",
+   "unit": "days",
+   "value": "19.58340598925284864821986126"
+  },
+  {
+   "denominator": null,
+   "field_id": "verif.staleness.status",
+   "label": "staleness status",
+   "owner_entry": "DET-18",
+   "section": "verifiability",
+   "source_path": "tree/staleness/status",
+   "unit": "null",
+   "value": null
+  },
+  {
+   "denominator": null,
+   "field_id": "verif.staleness.companion",
+   "label": "staleness companion",
+   "owner_entry": "DET-18",
+   "section": "verifiability",
+   "source_path": "tree/staleness/companion",
+   "unit": "literal",
+   "value": "8.5% of backing depth-truncated — staleness not assessed"
+  },
+  {
+   "denominator": null,
+   "field_id": "verif.staleness.worst.symbol",
+   "label": "worst node symbol",
+   "owner_entry": "DET-18",
+   "section": "verifiability",
+   "source_path": "tree/staleness/worst/symbol",
+   "unit": "literal",
+   "value": "waEthUSDT"
+  },
+  {
+   "denominator": null,
+   "field_id": "verif.staleness.worst.days",
+   "label": "worst node days",
+   "owner_entry": "DET-18",
+   "section": "verifiability",
+   "source_path": "tree/staleness/worst/days",
+   "unit": "days",
+   "value": 75
+  },
+  {
+   "denominator": "backing_value",
+   "field_id": "verif.staleness.worst.share",
+   "label": "worst node share",
+   "owner_entry": "DET-18",
+   "section": "verifiability",
+   "source_path": "tree/staleness/worst/share",
+   "unit": "ratio",
+   "value": "0.03469937228987988689141235481"
+  },
+  {
+   "denominator": null,
+   "field_id": "verif.staleness.0x2260fac5e5542a773aa44fbcfedf7c193bc2c599.last_disclosure_date",
+   "label": "WBTC last disclosure date",
+   "owner_entry": "DET-18",
+   "section": "verifiability",
+   "source_path": "tree/staleness/D/[address=0x2260fac5e5542a773aa44fbcfedf7c193bc2c599]/last_disclosure_date",
+   "unit": "date",
+   "value": "2026-09-13"
+  },
+  {
+   "denominator": null,
+   "field_id": "verif.staleness.0x2260fac5e5542a773aa44fbcfedf7c193bc2c599.staleness_days",
+   "label": "WBTC staleness days",
+   "owner_entry": "DET-18",
+   "section": "verifiability",
+   "source_path": "tree/staleness/D/[address=0x2260fac5e5542a773aa44fbcfedf7c193bc2c599]/staleness_days",
+   "unit": "days",
+   "value": 0
+  },
+  {
+   "denominator": "backing_value",
+   "field_id": "verif.staleness.0x2260fac5e5542a773aa44fbcfedf7c193bc2c599.share",
+   "label": "WBTC share",
+   "owner_entry": "DET-18",
+   "section": "verifiability",
+   "source_path": "tree/staleness/D/[address=0x2260fac5e5542a773aa44fbcfedf7c193bc2c599]/share",
+   "unit": "ratio",
+   "value": "0.1288353403207275672187226169"
+  },
+  {
+   "denominator": null,
+   "field_id": "verif.staleness.0x7bc3485026ac48b6cf9baf0a377477fff5703af8.last_disclosure_date",
+   "label": "waEthUSDT last disclosure date",
+   "owner_entry": "DET-18",
+   "section": "verifiability",
+   "source_path": "tree/staleness/D/[address=0x7bc3485026ac48b6cf9baf0a377477fff5703af8]/last_disclosure_date",
+   "unit": "date",
+   "value": "2026-06-30"
+  },
+  {
+   "denominator": null,
+   "field_id": "verif.staleness.0x7bc3485026ac48b6cf9baf0a377477fff5703af8.staleness_days",
+   "label": "waEthUSDT staleness days",
+   "owner_entry": "DET-18",
+   "section": "verifiability",
+   "source_path": "tree/staleness/D/[address=0x7bc3485026ac48b6cf9baf0a377477fff5703af8]/staleness_days",
+   "unit": "days",
+   "value": 75
+  },
+  {
+   "denominator": "backing_value",
+   "field_id": "verif.staleness.0x7bc3485026ac48b6cf9baf0a377477fff5703af8.share",
+   "label": "waEthUSDT share",
+   "owner_entry": "DET-18",
+   "section": "verifiability",
+   "source_path": "tree/staleness/D/[address=0x7bc3485026ac48b6cf9baf0a377477fff5703af8]/share",
+   "unit": "ratio",
+   "value": "0.03469937228987988689141235481"
+  },
+  {
+   "denominator": null,
+   "field_id": "verif.staleness.0x9d39a5de30e57443bff2a8307a4256c8797a3497.last_disclosure_date",
+   "label": "sUSDe last disclosure date",
+   "owner_entry": "DET-18",
+   "section": "verifiability",
+   "source_path": "tree/staleness/D/[address=0x9d39a5de30e57443bff2a8307a4256c8797a3497]/last_disclosure_date",
+   "unit": "date",
+   "value": "2026-08-26"
+  },
+  {
+   "denominator": null,
+   "field_id": "verif.staleness.0x9d39a5de30e57443bff2a8307a4256c8797a3497.staleness_days",
+   "label": "sUSDe staleness days",
+   "owner_entry": "DET-18",
+   "section": "verifiability",
+   "source_path": "tree/staleness/D/[address=0x9d39a5de30e57443bff2a8307a4256c8797a3497]/staleness_days",
+   "unit": "days",
+   "value": 18
+  },
+  {
+   "denominator": "backing_value",
+   "field_id": "verif.staleness.0x9d39a5de30e57443bff2a8307a4256c8797a3497.share",
+   "label": "sUSDe share",
+   "owner_entry": "DET-18",
+   "section": "verifiability",
+   "source_path": "tree/staleness/D/[address=0x9d39a5de30e57443bff2a8307a4256c8797a3497]/share",
+   "unit": "ratio",
+   "value": "0.01232752978502663485541077472"
+  },
+  {
+   "denominator": null,
+   "field_id": "verif.staleness.0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.last_disclosure_date",
+   "label": "USDC last disclosure date",
+   "owner_entry": "DET-18",
+   "section": "verifiability",
+   "source_path": "tree/staleness/D/[address=0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48]/last_disclosure_date",
+   "unit": "date",
+   "value": "2026-07-31"
+  },
+  {
+   "denominator": null,
+   "field_id": "verif.staleness.0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.staleness_days",
+   "label": "USDC staleness days",
+   "owner_entry": "DET-18",
+   "section": "verifiability",
+   "source_path": "tree/staleness/D/[address=0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48]/staleness_days",
+   "unit": "days",
+   "value": 44
+  },
+  {
+   "denominator": "backing_value",
+   "field_id": "verif.staleness.0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.share",
+   "label": "USDC share",
+   "owner_entry": "DET-18",
+   "section": "verifiability",
+   "source_path": "tree/staleness/D/[address=0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48]/share",
+   "unit": "ratio",
+   "value": "0.02768561397403881232469596310"
+  },
+  {
+   "denominator": null,
+   "field_id": "verif.staleness.0xbe9895146f7af43049ca1c1ae358b0541ea49704.last_disclosure_date",
+   "label": "cbETH last disclosure date",
+   "owner_entry": "DET-18",
+   "section": "verifiability",
+   "source_path": "tree/staleness/D/[address=0xbe9895146f7af43049ca1c1ae358b0541ea49704]/last_disclosure_date",
+   "unit": "date",
+   "value": "2026-09-13"
+  },
+  {
+   "denominator": null,
+   "field_id": "verif.staleness.0xbe9895146f7af43049ca1c1ae358b0541ea49704.staleness_days",
+   "label": "cbETH staleness days",
+   "owner_entry": "DET-18",
+   "section": "verifiability",
+   "source_path": "tree/staleness/D/[address=0xbe9895146f7af43049ca1c1ae358b0541ea49704]/staleness_days",
+   "unit": "days",
+   "value": 0
+  },
+  {
+   "denominator": "backing_value",
+   "field_id": "verif.staleness.0xbe9895146f7af43049ca1c1ae358b0541ea49704.share",
+   "label": "cbETH share",
+   "owner_entry": "DET-18",
+   "section": "verifiability",
+   "source_path": "tree/staleness/D/[address=0xbe9895146f7af43049ca1c1ae358b0541ea49704]/share",
+   "unit": "ratio",
+   "value": "0.0004591987129265602215160521390"
+  },
+  {
+   "denominator": null,
+   "field_id": "verif.staleness.0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf.last_disclosure_date",
+   "label": "cbBTC last disclosure date",
+   "owner_entry": "DET-18",
+   "section": "verifiability",
+   "source_path": "tree/staleness/D/[address=0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf]/last_disclosure_date",
+   "unit": "date",
+   "value": "2026-09-12"
+  },
+  {
+   "denominator": null,
+   "field_id": "verif.staleness.0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf.staleness_days",
+   "label": "cbBTC staleness days",
+   "owner_entry": "DET-18",
+   "section": "verifiability",
+   "source_path": "tree/staleness/D/[address=0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf]/staleness_days",
+   "unit": "days",
+   "value": 1
+  },
+  {
+   "denominator": "backing_value",
+   "field_id": "verif.staleness.0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf.share",
+   "label": "cbBTC share",
+   "owner_entry": "DET-18",
+   "section": "verifiability",
+   "source_path": "tree/staleness/D/[address=0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf]/share",
+   "unit": "ratio",
+   "value": "0.02314986967899723547172831521"
+  },
+  {
+   "denominator": null,
+   "field_id": "verif.staleness.0xd4fa2d31b7968e448877f69a96de69f5de8cd23e.last_disclosure_date",
+   "label": "waEthUSDC last disclosure date",
+   "owner_entry": "DET-18",
+   "section": "verifiability",
+   "source_path": "tree/staleness/D/[address=0xd4fa2d31b7968e448877f69a96de69f5de8cd23e]/last_disclosure_date",
+   "unit": "date",
+   "value": "2026-07-31"
+  },
+  {
+   "denominator": null,
+   "field_id": "verif.staleness.0xd4fa2d31b7968e448877f69a96de69f5de8cd23e.staleness_days",
+   "label": "waEthUSDC staleness days",
+   "owner_entry": "DET-18",
+   "section": "verifiability",
+   "source_path": "tree/staleness/D/[address=0xd4fa2d31b7968e448877f69a96de69f5de8cd23e]/staleness_days",
+   "unit": "days",
+   "value": 44
+  },
+  {
+   "denominator": "backing_value",
+   "field_id": "verif.staleness.0xd4fa2d31b7968e448877f69a96de69f5de8cd23e.share",
+   "label": "waEthUSDC share",
+   "owner_entry": "DET-18",
+   "section": "verifiability",
+   "source_path": "tree/staleness/D/[address=0xd4fa2d31b7968e448877f69a96de69f5de8cd23e]/share",
+   "unit": "ratio",
+   "value": "6.462102120249560181631489881E-11"
+  },
+  {
+   "denominator": null,
+   "field_id": "verif.staleness.0xdac17f958d2ee523a2206206994597c13d831ec7.last_disclosure_date",
+   "label": "USDT last disclosure date",
+   "owner_entry": "DET-18",
+   "section": "verifiability",
+   "source_path": "tree/staleness/D/[address=0xdac17f958d2ee523a2206206994597c13d831ec7]/last_disclosure_date",
+   "unit": "date",
+   "value": "2026-06-30"
+  },
+  {
+   "denominator": null,
+   "field_id": "verif.staleness.0xdac17f958d2ee523a2206206994597c13d831ec7.staleness_days",
+   "label": "USDT staleness days",
+   "owner_entry": "DET-18",
+   "section": "verifiability",
+   "source_path": "tree/staleness/D/[address=0xdac17f958d2ee523a2206206994597c13d831ec7]/staleness_days",
+   "unit": "days",
+   "value": 75
+  },
+  {
+   "denominator": "backing_value",
+   "field_id": "verif.staleness.0xdac17f958d2ee523a2206206994597c13d831ec7.share",
+   "label": "USDT share",
+   "owner_entry": "DET-18",
+   "section": "verifiability",
+   "source_path": "tree/staleness/D/[address=0xdac17f958d2ee523a2206206994597c13d831ec7]/share",
+   "unit": "ratio",
+   "value": "0.006908416941255258497608272772"
+  },
+  {
+   "denominator": null,
+   "field_id": "verif.banner",
+   "label": "admin qualifier banner",
+   "owner_entry": "DET-70",
+   "section": "verifiability",
+   "source_path": "tree/banner",
+   "unit": "literal",
+   "value": "Verifiability conditional on: mint — contract_automated + none; set_oracle — contract_automated + none"
+  },
+  {
+   "denominator": null,
+   "field_id": "denominator.bars",
+   "label": "denominator of bars",
+   "owner_entry": "DET-19",
+   "section": "verifiability",
+   "source_path": "tree/denominators/bars",
+   "unit": "denominator",
+   "value": "backing_value"
+  },
+  {
+   "denominator": null,
+   "field_id": "denominator.concentration.share_of_exit_depth",
+   "label": "denominator of concentration.share_of_exit_depth",
+   "owner_entry": "DET-19",
+   "section": "verifiability",
+   "source_path": "tree/denominators/concentration.share_of_exit_depth",
+   "unit": "denominator",
+   "value": "frozen_set_freeze_tvl"
+  },
+  {
+   "denominator": null,
+   "field_id": "denominator.off_mainnet_line.share_of_supply_ruled",
+   "label": "denominator of off_mainnet_line.share_of_supply_ruled",
+   "owner_entry": "DET-19",
+   "section": "verifiability",
+   "source_path": "tree/denominators/off_mainnet_line.share_of_supply_ruled",
+   "unit": "denominator",
+   "value": "supply_ruled"
+  },
+  {
+   "denominator": null,
+   "field_id": "denominator.root.backed_supply",
+   "label": "denominator of root.backed_supply",
+   "owner_entry": "DET-19",
+   "section": "verifiability",
+   "source_path": "tree/denominators/root.backed_supply",
+   "unit": "denominator",
+   "value": "amount"
+  },
+  {
+   "denominator": null,
+   "field_id": "denominator.root.backing_value",
+   "label": "denominator of root.backing_value",
+   "owner_entry": "DET-19",
+   "section": "verifiability",
+   "source_path": "tree/denominators/root.backing_value",
+   "unit": "denominator",
+   "value": "amount"
+  },
+  {
+   "denominator": null,
+   "field_id": "denominator.root.residual",
+   "label": "denominator of root.residual",
+   "owner_entry": "DET-19",
+   "section": "verifiability",
+   "source_path": "tree/denominators/root.residual",
+   "unit": "denominator",
+   "value": "amount"
+  },
+  {
+   "denominator": null,
+   "field_id": "denominator.root.stabilizer_debt",
+   "label": "denominator of root.stabilizer_debt",
+   "owner_entry": "DET-19",
+   "section": "verifiability",
+   "source_path": "tree/denominators/root.stabilizer_debt",
+   "unit": "denominator",
+   "value": "amount"
+  },
+  {
+   "denominator": null,
+   "field_id": "denominator.root.supply_ruled",
+   "label": "denominator of root.supply_ruled",
+   "owner_entry": "DET-19",
+   "section": "verifiability",
+   "source_path": "tree/denominators/root.supply_ruled",
+   "unit": "denominator",
+   "value": "amount"
+  },
+  {
+   "denominator": null,
+   "field_id": "denominator.shares",
+   "label": "denominator of shares",
+   "owner_entry": "DET-19",
+   "section": "verifiability",
+   "source_path": "tree/denominators/shares",
+   "unit": "denominator",
+   "value": "backing_value"
+  },
+  {
+   "denominator": null,
+   "field_id": "denominator.staleness.D.share",
+   "label": "denominator of staleness.D.share",
+   "owner_entry": "DET-19",
+   "section": "verifiability",
+   "source_path": "tree/denominators/staleness.D.share",
+   "unit": "denominator",
+   "value": "backing_value"
+  },
+  {
+   "denominator": null,
+   "field_id": "denominator.truncated_nodes.share",
+   "label": "denominator of truncated_nodes.share",
+   "owner_entry": "DET-19",
+   "section": "verifiability",
+   "source_path": "tree/denominators/truncated_nodes.share",
+   "unit": "denominator",
+   "value": "backing_value"
+  },
+  {
+   "denominator": null,
+   "field_id": "denominator.truncated_share",
+   "label": "denominator of truncated_share",
+   "owner_entry": "DET-19",
+   "section": "verifiability",
+   "source_path": "tree/denominators/truncated_share",
+   "unit": "denominator",
+   "value": "backing_value"
+  },
+  {
+   "denominator": null,
+   "field_id": "supply.total_supply",
+   "label": "total supply",
+   "owner_entry": "DET-15",
+   "section": "supply",
+   "source_path": "bundle/supply/total_supply",
+   "unit": "base_units",
+   "value": 699000000000000000000000000
+  },
+  {
+   "denominator": null,
+   "field_id": "supply.supply_ruled",
+   "label": "supply ruled",
+   "owner_entry": "DET-15",
+   "section": "supply",
+   "source_path": "bundle/supply/supply_ruled",
+   "unit": "base_units",
+   "value": 699000000000000000000000000
+  },
+  {
+   "denominator": null,
+   "field_id": "supply.origination_sum",
+   "label": "origination sum",
+   "owner_entry": "DET-15",
+   "section": "supply",
+   "source_path": "bundle/supply/origination_sum",
+   "unit": "base_units",
+   "value": 699000000000000000000000000
+  },
+  {
+   "denominator": null,
+   "field_id": "supply.residual",
+   "label": "residual",
+   "owner_entry": "DET-15",
+   "section": "supply",
+   "source_path": "bundle/supply/residual",
+   "unit": "base_units",
+   "value": 0
+  },
+  {
+   "denominator": null,
+   "field_id": "supply.residual_unexplained",
+   "label": "residual unexplained",
+   "owner_entry": "DET-15",
+   "section": "supply",
+   "source_path": "bundle/supply/residual_unexplained",
+   "unit": "base_units",
+   "value": 0
+  },
+  {
+   "denominator": "supply_ruled",
+   "field_id": "supply.stabilizer_over_supply",
+   "label": "stabilizer debt / supply_ruled",
+   "owner_entry": "DET-16",
+   "section": "supply",
+   "source_path": "bundle/supply/stabilizer_over_supply",
+   "unit": "ratio",
+   "value": "0"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.root.backing_value",
+   "label": "backing value",
+   "owner_entry": "DET-15",
+   "section": "supply",
+   "source_path": "tree/root/backing_value",
+   "unit": "value_scale_units",
+   "value": 53607323677921349
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.root.value_scale",
+   "label": "value scale",
+   "owner_entry": "DET-15",
+   "section": "supply",
+   "source_path": "tree/root/value_scale",
+   "unit": "count",
+   "value": 100000000
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.root.backed_supply",
+   "label": "backed supply",
+   "owner_entry": "DET-15",
+   "section": "supply",
+   "source_path": "tree/root/backed_supply",
+   "unit": "base_units",
+   "value": 699000000000000000000000000
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.root.perimeter",
+   "label": "perimeter",
+   "owner_entry": "DET-15",
+   "section": "supply",
+   "source_path": "tree/root/perimeter",
+   "unit": "literal",
+   "value": "GHO is minted only through Aave facilitators (3 Pool instances, 2 GSMs, the cross-chain bridge — 3 off-mainnet facilitators); its backing branches are the Aave collateral attributed per §11.1 and the GSM boxed assets (C2)"
+  },
+  {
+   "denominator": null,
+   "field_id": "supply.off_mainnet.amount",
+   "label": "minted against off-mainnet facilitators",
+   "owner_entry": "DET-19",
+   "section": "supply",
+   "source_path": "tree/off_mainnet_line/amount",
+   "unit": "base_units",
+   "value": 150000000000000000000000000
+  },
+  {
+   "denominator": "supply_ruled",
+   "field_id": "supply.off_mainnet.share",
+   "label": "off-mainnet share of supply_ruled",
+   "owner_entry": "DET-19",
+   "section": "supply",
+   "source_path": "tree/off_mainnet_line/share_of_supply_ruled",
+   "unit": "ratio",
+   "value": "0.2145922746781115879828326180"
+  },
+  {
+   "denominator": null,
+   "field_id": "supply.off_mainnet.literal",
+   "label": "off-mainnet line",
+   "owner_entry": "DET-19",
+   "section": "supply",
+   "source_path": "tree/off_mainnet_line/literal",
+   "unit": "literal",
+   "value": "minted against off-mainnet facilitators; backing on Arbitrum/Monad/Plasma, not traced by this tree"
+  },
+  {
+   "denominator": null,
+   "field_id": "headline.m1.pre.ratio",
+   "label": "headline m1 pre ratio",
+   "owner_entry": "DET-39",
+   "section": "stress (Member 1)",
+   "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m1/pre/ratio",
+   "unit": "ratio",
+   "value": "1.216568624679653433297633146"
+  },
+  {
+   "denominator": null,
+   "field_id": "headline.m1.post.ratio",
+   "label": "headline m1 post ratio",
+   "owner_entry": "DET-39",
+   "section": "stress (Member 1)",
+   "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m1/post/ratio",
+   "unit": "ratio",
+   "value": "1.685790848539342793175419321"
+  },
+  {
+   "denominator": null,
+   "field_id": "headline.m1.pre.share_below_100",
+   "label": "headline m1 pre share_below_100",
+   "owner_entry": "DET-39",
+   "section": "stress (Member 1)",
+   "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m1/pre/share_below_100",
+   "unit": "ratio",
+   "value": "0.4319380891370673667758107889"
+  },
+  {
+   "denominator": null,
+   "field_id": "headline.m1.post.share_below_100",
+   "label": "headline m1 post share_below_100",
+   "owner_entry": "DET-39",
+   "section": "stress (Member 1)",
+   "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m1/post/share_below_100",
+   "unit": "ratio",
+   "value": "0.4319380891370673667758107889"
+  },
+  {
+   "denominator": null,
+   "field_id": "headline.m1.gap",
+   "label": "headline m1 gap",
+   "owner_entry": "DET-39",
+   "section": "stress (Member 1)",
+   "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m1/gap",
+   "unit": "ratio",
+   "value": "0.469222223859689359877786175"
+  },
+  {
+   "denominator": null,
+   "field_id": "headline.m2.bad_debt",
+   "label": "headline m2 bad_debt",
+   "owner_entry": "DET-40",
+   "section": "stress (Member 1)",
+   "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m2/bad_debt",
+   "unit": "base_units",
+   "value": 9074642660213870000000000
+  },
+  {
+   "denominator": "supply_ruled",
+   "field_id": "headline.m2.pct_supply",
+   "label": "headline m2 pct_supply",
+   "owner_entry": "DET-40",
+   "section": "stress (Member 1)",
+   "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m2/pct_supply",
+   "unit": "ratio",
+   "value": "0.01298232140230882689556509299"
+  },
+  {
+   "denominator": null,
+   "field_id": "headline.m3.forced_sell_volume",
+   "label": "headline m3 forced_sell_volume",
+   "owner_entry": "DET-41",
+   "section": "stress (Member 1)",
+   "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m3/forced_sell_volume",
+   "unit": "base_units",
+   "value": 9074642660213870000000000
+  },
+  {
+   "denominator": null,
+   "field_id": "headline.m3.exit_depth",
+   "label": "headline m3 exit_depth",
+   "owner_entry": "DET-41",
+   "section": "stress (Member 1)",
+   "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m3/exit_depth",
+   "unit": "base_units",
+   "value": 18899446902370967960042656
+  },
+  {
+   "denominator": "exit_depth",
+   "field_id": "headline.m3.ratio",
+   "label": "headline m3 ratio",
+   "owner_entry": "DET-41",
+   "section": "stress (Member 1)",
+   "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m3/ratio",
+   "unit": "ratio",
+   "value": "0.4801538747187062150031285893"
+  },
+  {
+   "denominator": null,
+   "field_id": "headline.m4.binding_side",
+   "label": "headline m4 · binding_side",
+   "owner_entry": "DET-47",
+   "section": "mechanism state",
+   "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m4/binding_side",
+   "unit": "literal",
+   "value": "collateral_sellable"
+  },
+  {
+   "denominator": null,
+   "field_id": "headline.m4.collateral_sellable",
+   "label": "headline m4 · collateral_sellable",
+   "owner_entry": "DET-47",
+   "section": "mechanism state",
+   "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m4/collateral_sellable",
+   "unit": "base_units",
+   "value": 36776697063362810000000000
+  },
+  {
+   "denominator": null,
+   "field_id": "headline.m4.counterfactual_ref",
+   "label": "headline m4 · counterfactual_ref",
+   "owner_entry": "DET-44",
+   "section": "mechanism state",
+   "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m4/counterfactual_ref",
+   "unit": "list",
+   "value": []
+  },
+  {
+   "denominator": null,
+   "field_id": "headline.m4.exit_depth_cell",
+   "label": "headline m4 · exit_depth_cell",
+   "owner_entry": "DET-42",
+   "section": "mechanism state",
+   "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m4/exit_depth_cell",
+   "unit": "base_units",
+   "value": 18899446902370967960042656
+  },
+  {
+   "denominator": null,
+   "field_id": "headline.m4.facilitator_bucket_levels.0x0cb7c2a2ab38aed3e6096631d7dba3dabf237134",
+   "label": "headline m4 · facilitator_bucket_levels · 0x0cb7c2a2ab38aed3e6096631d7dba3dabf237134",
+   "owner_entry": "DET-47",
+   "section": "mechanism state",
+   "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m4/facilitator_bucket_levels/0x0cb7c2a2ab38aed3e6096631d7dba3dabf237134",
+   "unit": "base_units",
+   "value": 50000000000000000000000000
+  },
+  {
+   "denominator": null,
+   "field_id": "headline.m4.facilitator_bucket_levels.0x2bd010ab5393ab51b601b99c4b33ba148d9466e9",
+   "label": "headline m4 · facilitator_bucket_levels · 0x2bd010ab5393ab51b601b99c4b33ba148d9466e9",
+   "owner_entry": "DET-47",
+   "section": "mechanism state",
+   "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m4/facilitator_bucket_levels/0x2bd010ab5393ab51b601b99c4b33ba148d9466e9",
+   "unit": "base_units",
+   "value": 50000000000000000000000000
+  },
+  {
+   "denominator": null,
+   "field_id": "headline.m4.facilitator_bucket_levels.0x2ce01c87fec1b71a9041c52caed46fc5f4807285",
+   "label": "headline m4 · facilitator_bucket_levels · 0x2ce01c87fec1b71a9041c52caed46fc5f4807285",
+   "owner_entry": "DET-47",
+   "section": "mechanism state",
+   "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m4/facilitator_bucket_levels/0x2ce01c87fec1b71a9041c52caed46fc5f4807285",
+   "unit": "base_units",
+   "value": 45000000000000000000000000
+  },
+  {
+   "denominator": null,
+   "field_id": "headline.m4.facilitator_bucket_levels.0x436dccc028322afc355f608cf582b7d7f19fdfed",
+   "label": "headline m4 · facilitator_bucket_levels · 0x436dccc028322afc355f608cf582b7d7f19fdfed",
+   "owner_entry": "DET-47",
+   "section": "mechanism state",
+   "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m4/facilitator_bucket_levels/0x436dccc028322afc355f608cf582b7d7f19fdfed",
+   "unit": "base_units",
+   "value": 50000000000000000000000000
+  },
+  {
+   "denominator": null,
+   "field_id": "headline.m4.facilitator_bucket_levels.0x5513224daaeabca31af5280727878d52097afa05",
+   "label": "headline m4 · facilitator_bucket_levels · 0x5513224daaeabca31af5280727878d52097afa05",
+   "owner_entry": "DET-47",
+   "section": "mechanism state",
+   "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m4/facilitator_bucket_levels/0x5513224daaeabca31af5280727878d52097afa05",
+   "unit": "base_units",
+   "value": 135000000000000000000000000
+  },
+  {
+   "denominator": null,
+   "field_id": "headline.m4.facilitator_bucket_levels.0xb639d208bcf0589d54fac24e655c79ec529762b8",
+   "label": "headline m4 · facilitator_bucket_levels · 0xb639d208bcf0589d54fac24e655c79ec529762b8",
+   "owner_entry": "DET-47",
+   "section": "mechanism state",
+   "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m4/facilitator_bucket_levels/0xb639d208bcf0589d54fac24e655c79ec529762b8",
+   "unit": "base_units",
+   "value": 0
+  },
+  {
+   "denominator": null,
+   "field_id": "headline.m4.facilitator_bucket_levels.0xe10c78a3ac7f016ed2de1a89c5479b1039eab9ea",
+   "label": "headline m4 · facilitator_bucket_levels · 0xe10c78a3ac7f016ed2de1a89c5479b1039eab9ea",
+   "owner_entry": "DET-47",
+   "section": "mechanism state",
+   "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m4/facilitator_bucket_levels/0xe10c78a3ac7f016ed2de1a89c5479b1039eab9ea",
+   "unit": "base_units",
+   "value": 59000000000000000000000000
+  },
+  {
+   "denominator": null,
+   "field_id": "headline.m4.facilitator_bucket_levels.0xe9ac5231faecb633da0fe85fcb2785b8363427d2",
+   "label": "headline m4 · facilitator_bucket_levels · 0xe9ac5231faecb633da0fe85fcb2785b8363427d2",
+   "owner_entry": "DET-47",
+   "section": "mechanism state",
+   "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m4/facilitator_bucket_levels/0xe9ac5231faecb633da0fe85fcb2785b8363427d2",
+   "unit": "base_units",
+   "value": 310000000000000000000000000
+  },
+  {
+   "denominator": null,
+   "field_id": "headline.m4.freezer_state.0x3a3868898305f04bec7fea77becff04c13444112",
+   "label": "headline m4 · freezer_state · 0x3a3868898305f04bec7fea77becff04c13444112",
+   "owner_entry": "DET-46",
+   "section": "mechanism state",
+   "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m4/freezer_state/0x3a3868898305f04bec7fea77becff04c13444112",
+   "unit": "literal",
+   "value": "freezer_effective"
+  },
+  {
+   "denominator": null,
+   "field_id": "headline.m4.freezer_state.0x882285e62656b9623af136ce3078c6bdcc33f5e3",
+   "label": "headline m4 · freezer_state · 0x882285e62656b9623af136ce3078c6bdcc33f5e3",
+   "owner_entry": "DET-46",
+   "section": "mechanism state",
+   "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m4/freezer_state/0x882285e62656b9623af136ce3078c6bdcc33f5e3",
+   "unit": "literal",
+   "value": "freezer_effective"
+  },
+  {
+   "denominator": null,
+   "field_id": "headline.m4.gho_sourceable",
+   "label": "headline m4 · gho_sourceable",
+   "owner_entry": "DET-47",
+   "section": "mechanism state",
+   "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m4/gho_sourceable",
+   "unit": "base_units",
+   "value": 289717072736801030187749905
+  },
+  {
+   "denominator": null,
+   "field_id": "headline.m4.gsm_mint_headroom",
+   "label": "headline m4 · gsm_mint_headroom",
+   "owner_entry": "DET-47",
+   "section": "mechanism state",
+   "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m4/gsm_mint_headroom",
+   "unit": "base_units",
+   "value": 288746447644135481304086225
+  },
+  {
+   "denominator": null,
+   "field_id": "headline.m4.lp_flight_share",
+   "label": "headline m4 · lp_flight_share",
+   "owner_entry": "DET-42",
+   "section": "mechanism state",
+   "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m4/lp_flight_share",
+   "unit": "ratio",
+   "value": "0"
+  },
+  {
+   "denominator": null,
+   "field_id": "panel.M1-s20-d0-lp0.m1.post.ratio",
+   "label": "M1-s20-d0-lp0 m1 post ratio",
+   "owner_entry": "DET-39",
+   "section": "stress (Member 1)",
+   "source_path": "stress/cells/[id=M1-s20-d0-lp0]/m1/post/ratio",
+   "unit": "ratio",
+   "value": "1.935704952236383732138712157"
+  },
+  {
+   "denominator": null,
+   "field_id": "panel.M1-s20-d0-lp0.m2.bad_debt",
+   "label": "M1-s20-d0-lp0 m2 bad_debt",
+   "owner_entry": "DET-40",
+   "section": "stress (Member 1)",
+   "source_path": "stress/cells/[id=M1-s20-d0-lp0]/m2/bad_debt",
+   "unit": "base_units",
+   "value": 341141044637460000000000
+  },
+  {
+   "denominator": "exit_depth",
+   "field_id": "panel.M1-s20-d0-lp0.m3.ratio",
+   "label": "M1-s20-d0-lp0 m3 ratio",
+   "owner_entry": "DET-41",
+   "section": "stress (Member 1)",
+   "source_path": "stress/cells/[id=M1-s20-d0-lp0]/m3/ratio",
+   "unit": "ratio",
+   "value": "0.01805031895376066651411279045"
+  },
+  {
+   "denominator": null,
+   "field_id": "panel.M1-s20-d0-lp0.m3.exit_depth",
+   "label": "M1-s20-d0-lp0 m3 exit_depth",
+   "owner_entry": "DET-41",
+   "section": "stress (Member 1)",
+   "source_path": "stress/cells/[id=M1-s20-d0-lp0]/m3/exit_depth",
+   "unit": "base_units",
+   "value": 18899446902370967960042656
+  },
+  {
+   "denominator": null,
+   "field_id": "panel.M1-s20-d0-lp30.m1.post.ratio",
+   "label": "M1-s20-d0-lp30 m1 post ratio",
+   "owner_entry": "DET-39",
+   "section": "stress (Member 1)",
+   "source_path": "stress/cells/[id=M1-s20-d0-lp30]/m1/post/ratio",
+   "unit": "ratio",
+   "value": "1.935704952236383732138712157"
+  },
+  {
+   "denominator": null,
+   "field_id": "panel.M1-s20-d0-lp30.m2.bad_debt",
+   "label": "M1-s20-d0-lp30 m2 bad_debt",
+   "owner_entry": "DET-40",
+   "section": "stress (Member 1)",
+   "source_path": "stress/cells/[id=M1-s20-d0-lp30]/m2/bad_debt",
+   "unit": "base_units",
+   "value": 341141044637460000000000
+  },
+  {
+   "denominator": "exit_depth",
+   "field_id": "panel.M1-s20-d0-lp30.m3.ratio",
+   "label": "M1-s20-d0-lp30 m3 ratio",
+   "owner_entry": "DET-41",
+   "section": "stress (Member 1)",
+   "source_path": "stress/cells/[id=M1-s20-d0-lp30]/m3/ratio",
+   "unit": "ratio",
+   "value": "0.01833609565482361010446573649"
+  },
+  {
+   "denominator": null,
+   "field_id": "panel.M1-s20-d0-lp30.m3.exit_depth",
+   "label": "M1-s20-d0-lp30 m3 exit_depth",
+   "owner_entry": "DET-41",
+   "section": "stress (Member 1)",
+   "source_path": "stress/cells/[id=M1-s20-d0-lp30]/m3/exit_depth",
+   "unit": "base_units",
+   "value": 18604890106347000000000000
+  },
+  {
+   "denominator": null,
+   "field_id": "panel.M1-s20-d0-lp60.m1.post.ratio",
+   "label": "M1-s20-d0-lp60 m1 post ratio",
+   "owner_entry": "DET-39",
+   "section": "stress (Member 1)",
+   "source_path": "stress/cells/[id=M1-s20-d0-lp60]/m1/post/ratio",
+   "unit": "ratio",
+   "value": "1.935704952236383732138712157"
+  },
+  {
+   "denominator": null,
+   "field_id": "panel.M1-s20-d0-lp60.m2.bad_debt",
+   "label": "M1-s20-d0-lp60 m2 bad_debt",
+   "owner_entry": "DET-40",
+   "section": "stress (Member 1)",
+   "source_path": "stress/cells/[id=M1-s20-d0-lp60]/m2/bad_debt",
+   "unit": "base_units",
+   "value": 341141044637460000000000
+  },
+  {
+   "denominator": "exit_depth",
+   "field_id": "panel.M1-s20-d0-lp60.m3.ratio",
+   "label": "M1-s20-d0-lp60 m3 ratio",
+   "owner_entry": "DET-41",
+   "section": "stress (Member 1)",
+   "source_path": "stress/cells/[id=M1-s20-d0-lp60]/m3/ratio",
+   "unit": "ratio",
+   "value": "0.01833609565482361010446573649"
+  },
+  {
+   "denominator": null,
+   "field_id": "panel.M1-s20-d0-lp60.m3.exit_depth",
+   "label": "M1-s20-d0-lp60 m3 exit_depth",
+   "owner_entry": "DET-41",
+   "section": "stress (Member 1)",
+   "source_path": "stress/cells/[id=M1-s20-d0-lp60]/m3/exit_depth",
+   "unit": "base_units",
+   "value": 18604890106347000000000000
+  },
+  {
+   "denominator": null,
+   "field_id": "panel.M1-s35-d0-lp0.m1.post.ratio",
+   "label": "M1-s35-d0-lp0 m1 post ratio",
+   "owner_entry": "DET-39",
+   "section": "stress (Member 1)",
+   "source_path": "stress/cells/[id=M1-s35-d0-lp0]/m1/post/ratio",
+   "unit": "ratio",
+   "value": "1.777734206749401589328385074"
+  },
+  {
+   "denominator": null,
+   "field_id": "panel.M1-s35-d0-lp0.m2.bad_debt",
+   "label": "M1-s35-d0-lp0 m2 bad_debt",
+   "owner_entry": "DET-40",
+   "section": "stress (Member 1)",
+   "source_path": "stress/cells/[id=M1-s35-d0-lp0]/m2/bad_debt",
+   "unit": "base_units",
+   "value": 2177353484525820000000000
+  },
+  {
+   "denominator": "exit_depth",
+   "field_id": "panel.M1-s35-d0-lp0.m3.ratio",
+   "label": "M1-s35-d0-lp0 m3 ratio",
+   "owner_entry": "DET-41",
+   "section": "stress (Member 1)",
+   "source_path": "stress/cells/[id=M1-s35-d0-lp0]/m3/ratio",
+   "unit": "ratio",
+   "value": "0.1152072595443344576849000020"
+  },
+  {
+   "denominator": null,
+   "field_id": "panel.M1-s35-d0-lp0.m3.exit_depth",
+   "label": "M1-s35-d0-lp0 m3 exit_depth",
+   "owner_entry": "DET-41",
+   "section": "stress (Member 1)",
+   "source_path": "stress/cells/[id=M1-s35-d0-lp0]/m3/exit_depth",
+   "unit": "base_units",
+   "value": 18899446902370967960042656
+  },
+  {
+   "denominator": null,
+   "field_id": "panel.M1-s35-d0-lp30.m1.post.ratio",
+   "label": "M1-s35-d0-lp30 m1 post ratio",
+   "owner_entry": "DET-39",
+   "section": "stress (Member 1)",
+   "source_path": "stress/cells/[id=M1-s35-d0-lp30]/m1/post/ratio",
+   "unit": "ratio",
+   "value": "1.777734206749401589328385074"
+  },
+  {
+   "denominator": null,
+   "field_id": "panel.M1-s35-d0-lp30.m2.bad_debt",
+   "label": "M1-s35-d0-lp30 m2 bad_debt",
+   "owner_entry": "DET-40",
+   "section": "stress (Member 1)",
+   "source_path": "stress/cells/[id=M1-s35-d0-lp30]/m2/bad_debt",
+   "unit": "base_units",
+   "value": 2177353484525820000000000
+  },
+  {
+   "denominator": "exit_depth",
+   "field_id": "panel.M1-s35-d0-lp30.m3.ratio",
+   "label": "M1-s35-d0-lp30 m3 ratio",
+   "owner_entry": "DET-41",
+   "section": "stress (Member 1)",
+   "source_path": "stress/cells/[id=M1-s35-d0-lp30]/m3/ratio",
+   "unit": "ratio",
+   "value": "0.1170312467356645485892301568"
+  },
+  {
+   "denominator": null,
+   "field_id": "panel.M1-s35-d0-lp30.m3.exit_depth",
+   "label": "M1-s35-d0-lp30 m3 exit_depth",
+   "owner_entry": "DET-41",
+   "section": "stress (Member 1)",
+   "source_path": "stress/cells/[id=M1-s35-d0-lp30]/m3/exit_depth",
+   "unit": "base_units",
+   "value": 18604890106347000000000000
+  },
+  {
+   "denominator": null,
+   "field_id": "panel.M1-s35-d0-lp60.m1.post.ratio",
+   "label": "M1-s35-d0-lp60 m1 post ratio",
+   "owner_entry": "DET-39",
+   "section": "stress (Member 1)",
+   "source_path": "stress/cells/[id=M1-s35-d0-lp60]/m1/post/ratio",
+   "unit": "ratio",
+   "value": "1.777734206749401589328385074"
+  },
+  {
+   "denominator": null,
+   "field_id": "panel.M1-s35-d0-lp60.m2.bad_debt",
+   "label": "M1-s35-d0-lp60 m2 bad_debt",
+   "owner_entry": "DET-40",
+   "section": "stress (Member 1)",
+   "source_path": "stress/cells/[id=M1-s35-d0-lp60]/m2/bad_debt",
+   "unit": "base_units",
+   "value": 2177353484525820000000000
+  },
+  {
+   "denominator": "exit_depth",
+   "field_id": "panel.M1-s35-d0-lp60.m3.ratio",
+   "label": "M1-s35-d0-lp60 m3 ratio",
+   "owner_entry": "DET-41",
+   "section": "stress (Member 1)",
+   "source_path": "stress/cells/[id=M1-s35-d0-lp60]/m3/ratio",
+   "unit": "ratio",
+   "value": "0.1170312467356645485892301568"
+  },
+  {
+   "denominator": null,
+   "field_id": "panel.M1-s35-d0-lp60.m3.exit_depth",
+   "label": "M1-s35-d0-lp60 m3 exit_depth",
+   "owner_entry": "DET-41",
+   "section": "stress (Member 1)",
+   "source_path": "stress/cells/[id=M1-s35-d0-lp60]/m3/exit_depth",
+   "unit": "base_units",
+   "value": 18604890106347000000000000
+  },
+  {
+   "denominator": null,
+   "field_id": "panel.M1-s50-d0-lp0.m1.post.ratio",
+   "label": "M1-s50-d0-lp0 m1 post ratio",
+   "owner_entry": "DET-39",
+   "section": "stress (Member 1)",
+   "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m1/post/ratio",
+   "unit": "ratio",
+   "value": "1.685790848539342793175419321"
+  },
+  {
+   "denominator": null,
+   "field_id": "panel.M1-s50-d0-lp0.m2.bad_debt",
+   "label": "M1-s50-d0-lp0 m2 bad_debt",
+   "owner_entry": "DET-40",
+   "section": "stress (Member 1)",
+   "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m2/bad_debt",
+   "unit": "base_units",
+   "value": 9074642660213870000000000
+  },
+  {
+   "denominator": "exit_depth",
+   "field_id": "panel.M1-s50-d0-lp0.m3.ratio",
+   "label": "M1-s50-d0-lp0 m3 ratio",
+   "owner_entry": "DET-41",
+   "section": "stress (Member 1)",
+   "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m3/ratio",
+   "unit": "ratio",
+   "value": "0.4801538747187062150031285893"
+  },
+  {
+   "denominator": null,
+   "field_id": "panel.M1-s50-d0-lp0.m3.exit_depth",
+   "label": "M1-s50-d0-lp0 m3 exit_depth",
+   "owner_entry": "DET-41",
+   "section": "stress (Member 1)",
+   "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m3/exit_depth",
+   "unit": "base_units",
+   "value": 18899446902370967960042656
+  },
+  {
+   "denominator": null,
+   "field_id": "panel.M1-s50-d0-lp30.m1.post.ratio",
+   "label": "M1-s50-d0-lp30 m1 post ratio",
+   "owner_entry": "DET-39",
+   "section": "stress (Member 1)",
+   "source_path": "stress/cells/[id=M1-s50-d0-lp30]/m1/post/ratio",
+   "unit": "ratio",
+   "value": "1.685790848539342793175419321"
+  },
+  {
+   "denominator": null,
+   "field_id": "panel.M1-s50-d0-lp30.m2.bad_debt",
+   "label": "M1-s50-d0-lp30 m2 bad_debt",
+   "owner_entry": "DET-40",
+   "section": "stress (Member 1)",
+   "source_path": "stress/cells/[id=M1-s50-d0-lp30]/m2/bad_debt",
+   "unit": "base_units",
+   "value": 9074642660213870000000000
+  },
+  {
+   "denominator": "exit_depth",
+   "field_id": "panel.M1-s50-d0-lp30.m3.ratio",
+   "label": "M1-s50-d0-lp30 m3 ratio",
+   "owner_entry": "DET-41",
+   "section": "stress (Member 1)",
+   "source_path": "stress/cells/[id=M1-s50-d0-lp30]/m3/ratio",
+   "unit": "ratio",
+   "value": "0.4877557786336014999095604053"
+  },
+  {
+   "denominator": null,
+   "field_id": "panel.M1-s50-d0-lp30.m3.exit_depth",
+   "label": "M1-s50-d0-lp30 m3 exit_depth",
+   "owner_entry": "DET-41",
+   "section": "stress (Member 1)",
+   "source_path": "stress/cells/[id=M1-s50-d0-lp30]/m3/exit_depth",
+   "unit": "base_units",
+   "value": 18604890106347000000000000
+  },
+  {
+   "denominator": null,
+   "field_id": "panel.M1-s50-d0-lp60.m1.post.ratio",
+   "label": "M1-s50-d0-lp60 m1 post ratio",
+   "owner_entry": "DET-39",
+   "section": "stress (Member 1)",
+   "source_path": "stress/cells/[id=M1-s50-d0-lp60]/m1/post/ratio",
+   "unit": "ratio",
+   "value": "1.685790848539342793175419321"
+  },
+  {
+   "denominator": null,
+   "field_id": "panel.M1-s50-d0-lp60.m2.bad_debt",
+   "label": "M1-s50-d0-lp60 m2 bad_debt",
+   "owner_entry": "DET-40",
+   "section": "stress (Member 1)",
+   "source_path": "stress/cells/[id=M1-s50-d0-lp60]/m2/bad_debt",
+   "unit": "base_units",
+   "value": 9074642660213870000000000
+  },
+  {
+   "denominator": "exit_depth",
+   "field_id": "panel.M1-s50-d0-lp60.m3.ratio",
+   "label": "M1-s50-d0-lp60 m3 ratio",
+   "owner_entry": "DET-41",
+   "section": "stress (Member 1)",
+   "source_path": "stress/cells/[id=M1-s50-d0-lp60]/m3/ratio",
+   "unit": "ratio",
+   "value": "0.4877557786336014999095604053"
+  },
+  {
+   "denominator": null,
+   "field_id": "panel.M1-s50-d0-lp60.m3.exit_depth",
+   "label": "M1-s50-d0-lp60 m3 exit_depth",
+   "owner_entry": "DET-41",
+   "section": "stress (Member 1)",
+   "source_path": "stress/cells/[id=M1-s50-d0-lp60]/m3/exit_depth",
+   "unit": "base_units",
+   "value": 18604890106347000000000000
+  },
+  {
+   "denominator": null,
+   "field_id": "panel.M1-s70-d0-lp0.m1.post.ratio",
+   "label": "M1-s70-d0-lp0 m1 post ratio",
+   "owner_entry": "DET-39",
+   "section": "stress (Member 1)",
+   "source_path": "stress/cells/[id=M1-s70-d0-lp0]/m1/post/ratio",
+   "unit": "ratio",
+   "value": "1.612531310267873506476049757"
+  },
+  {
+   "denominator": null,
+   "field_id": "panel.M1-s70-d0-lp0.m2.bad_debt",
+   "label": "M1-s70-d0-lp0 m2 bad_debt",
+   "owner_entry": "DET-40",
+   "section": "stress (Member 1)",
+   "source_path": "stress/cells/[id=M1-s70-d0-lp0]/m2/bad_debt",
+   "unit": "base_units",
+   "value": 48790613361595950000000000
+  },
+  {
+   "denominator": "exit_depth",
+   "field_id": "panel.M1-s70-d0-lp0.m3.ratio",
+   "label": "M1-s70-d0-lp0 m3 ratio",
+   "owner_entry": "DET-41",
+   "section": "stress (Member 1)",
+   "source_path": "stress/cells/[id=M1-s70-d0-lp0]/m3/ratio",
+   "unit": "ratio",
+   "value": "2.581589483207314603970361628"
+  },
+  {
+   "denominator": null,
+   "field_id": "panel.M1-s70-d0-lp0.m3.exit_depth",
+   "label": "M1-s70-d0-lp0 m3 exit_depth",
+   "owner_entry": "DET-41",
+   "section": "stress (Member 1)",
+   "source_path": "stress/cells/[id=M1-s70-d0-lp0]/m3/exit_depth",
+   "unit": "base_units",
+   "value": 18899446902370967960042656
+  },
+  {
+   "denominator": null,
+   "field_id": "panel.M1-s70-d0-lp30.m1.post.ratio",
+   "label": "M1-s70-d0-lp30 m1 post ratio",
+   "owner_entry": "DET-39",
+   "section": "stress (Member 1)",
+   "source_path": "stress/cells/[id=M1-s70-d0-lp30]/m1/post/ratio",
+   "unit": "ratio",
+   "value": "1.612531310267873506476049757"
+  },
+  {
+   "denominator": null,
+   "field_id": "panel.M1-s70-d0-lp30.m2.bad_debt",
+   "label": "M1-s70-d0-lp30 m2 bad_debt",
+   "owner_entry": "DET-40",
+   "section": "stress (Member 1)",
+   "source_path": "stress/cells/[id=M1-s70-d0-lp30]/m2/bad_debt",
+   "unit": "base_units",
+   "value": 48790613361595950000000000
+  },
+  {
+   "denominator": "exit_depth",
+   "field_id": "panel.M1-s70-d0-lp30.m3.ratio",
+   "label": "M1-s70-d0-lp30 m3 ratio",
+   "owner_entry": "DET-41",
+   "section": "stress (Member 1)",
+   "source_path": "stress/cells/[id=M1-s70-d0-lp30]/m3/ratio",
+   "unit": "ratio",
+   "value": "2.622461787342199083225923620"
+  },
+  {
+   "denominator": null,
+   "field_id": "panel.M1-s70-d0-lp30.m3.exit_depth",
+   "label": "M1-s70-d0-lp30 m3 exit_depth",
+   "owner_entry": "DET-41",
+   "section": "stress (Member 1)",
+   "source_path": "stress/cells/[id=M1-s70-d0-lp30]/m3/exit_depth",
+   "unit": "base_units",
+   "value": 18604890106347000000000000
+  },
+  {
+   "denominator": null,
+   "field_id": "panel.M1-s70-d0-lp60.m1.post.ratio",
+   "label": "M1-s70-d0-lp60 m1 post ratio",
+   "owner_entry": "DET-39",
+   "section": "stress (Member 1)",
+   "source_path": "stress/cells/[id=M1-s70-d0-lp60]/m1/post/ratio",
+   "unit": "ratio",
+   "value": "1.612531310267873506476049757"
+  },
+  {
+   "denominator": null,
+   "field_id": "panel.M1-s70-d0-lp60.m2.bad_debt",
+   "label": "M1-s70-d0-lp60 m2 bad_debt",
+   "owner_entry": "DET-40",
+   "section": "stress (Member 1)",
+   "source_path": "stress/cells/[id=M1-s70-d0-lp60]/m2/bad_debt",
+   "unit": "base_units",
+   "value": 48790613361595950000000000
+  },
+  {
+   "denominator": "exit_depth",
+   "field_id": "panel.M1-s70-d0-lp60.m3.ratio",
+   "label": "M1-s70-d0-lp60 m3 ratio",
+   "owner_entry": "DET-41",
+   "section": "stress (Member 1)",
+   "source_path": "stress/cells/[id=M1-s70-d0-lp60]/m3/ratio",
+   "unit": "ratio",
+   "value": "2.622461787342199083225923620"
+  },
+  {
+   "denominator": null,
+   "field_id": "panel.M1-s70-d0-lp60.m3.exit_depth",
+   "label": "M1-s70-d0-lp60 m3 exit_depth",
+   "owner_entry": "DET-41",
+   "section": "stress (Member 1)",
+   "source_path": "stress/cells/[id=M1-s70-d0-lp60]/m3/exit_depth",
+   "unit": "base_units",
+   "value": 18604890106347000000000000
+  },
+  {
+   "denominator": null,
+   "field_id": "exit.sensitivity.K80.depth",
+   "label": "K-subset 80% depth at s = 2%",
+   "owner_entry": "DET-30",
+   "section": "exit liquidity",
+   "source_path": "stress/exit_depth/sensitivity_rows/[k=80]/depth_at_2pct",
+   "unit": "base_units",
+   "value": 294556796023967960042656
+  },
+  {
+   "denominator": "frozen_set_tvl",
+   "field_id": "exit.sensitivity.K80.share_of_F",
+   "label": "K-subset 80% share of F",
+   "owner_entry": "DET-30",
+   "section": "exit liquidity",
+   "source_path": "stress/exit_depth/sensitivity_rows/[k=80]/share_of_F",
+   "unit": "ratio",
+   "value": "1"
+  },
+  {
+   "denominator": null,
+   "field_id": "exit.sensitivity.K90.depth",
+   "label": "K-subset 90% depth at s = 2%",
+   "owner_entry": "DET-30",
+   "section": "exit liquidity",
+   "source_path": "stress/exit_depth/sensitivity_rows/[k=90]/depth_at_2pct",
+   "unit": "base_units",
+   "value": 294556796023967960042656
+  },
+  {
+   "denominator": "frozen_set_tvl",
+   "field_id": "exit.sensitivity.K90.share_of_F",
+   "label": "K-subset 90% share of F",
+   "owner_entry": "DET-30",
+   "section": "exit liquidity",
+   "source_path": "stress/exit_depth/sensitivity_rows/[k=90]/share_of_F",
+   "unit": "ratio",
+   "value": "1"
+  },
+  {
+   "denominator": null,
+   "field_id": "exit.sensitivity.K95.depth",
+   "label": "K-subset 95% depth at s = 2%",
+   "owner_entry": "DET-30",
+   "section": "exit liquidity",
+   "source_path": "stress/exit_depth/sensitivity_rows/[k=95]/depth_at_2pct",
+   "unit": "base_units",
+   "value": 294556796023967960042656
+  },
+  {
+   "denominator": "frozen_set_tvl",
+   "field_id": "exit.sensitivity.K95.share_of_F",
+   "label": "K-subset 95% share of F",
+   "owner_entry": "DET-30",
+   "section": "exit liquidity",
+   "source_path": "stress/exit_depth/sensitivity_rows/[k=95]/share_of_F",
+   "unit": "ratio",
+   "value": "1"
+  },
+  {
+   "denominator": null,
+   "field_id": "exit.curve.s0.005.total",
+   "label": "depth curve s = 0.005 total",
+   "owner_entry": "DET-31",
+   "section": "exit liquidity",
+   "source_path": "stress/exit_depth/depth_curve/[s=0.005]/total",
+   "unit": "base_units",
+   "value": 18820658805334404913528659
+  },
+  {
+   "denominator": null,
+   "field_id": "exit.curve.s0.005.pool_depth",
+   "label": "depth curve s = 0.005 pool_depth",
+   "owner_entry": "DET-31",
+   "section": "exit liquidity",
+   "source_path": "stress/exit_depth/depth_curve/[s=0.005]/pool_depth",
+   "unit": "base_units",
+   "value": 215768698987404913528659
+  },
+  {
+   "denominator": null,
+   "field_id": "exit.curve.s0.005.gsm_contribution",
+   "label": "depth curve s = 0.005 gsm_contribution",
+   "owner_entry": "DET-35",
+   "section": "exit liquidity",
+   "source_path": "stress/exit_depth/depth_curve/[s=0.005]/gsm_contribution",
+   "unit": "base_units",
+   "value": 18604890106347000000000000
+  },
+  {
+   "denominator": null,
+   "field_id": "exit.curve.s0.01.total",
+   "label": "depth curve s = 0.01 total",
+   "owner_entry": "DET-31",
+   "section": "exit liquidity",
+   "source_path": "stress/exit_depth/depth_curve/[s=0.01]/total",
+   "unit": "base_units",
+   "value": 18866597451387050833359367
+  },
+  {
+   "denominator": null,
+   "field_id": "exit.curve.s0.01.pool_depth",
+   "label": "depth curve s = 0.01 pool_depth",
+   "owner_entry": "DET-31",
+   "section": "exit liquidity",
+   "source_path": "stress/exit_depth/depth_curve/[s=0.01]/pool_depth",
+   "unit": "base_units",
+   "value": 261707345040050833359367
+  },
+  {
+   "denominator": null,
+   "field_id": "exit.curve.s0.01.gsm_contribution",
+   "label": "depth curve s = 0.01 gsm_contribution",
+   "owner_entry": "DET-35",
+   "section": "exit liquidity",
+   "source_path": "stress/exit_depth/depth_curve/[s=0.01]/gsm_contribution",
+   "unit": "base_units",
+   "value": 18604890106347000000000000
+  },
+  {
+   "denominator": null,
+   "field_id": "exit.curve.s0.02.total",
+   "label": "depth curve s = 0.02 total",
+   "owner_entry": "DET-31",
+   "section": "exit liquidity",
+   "source_path": "stress/exit_depth/depth_curve/[s=0.02]/total",
+   "unit": "base_units",
+   "value": 18899446902370967960042656
+  },
+  {
+   "denominator": null,
+   "field_id": "exit.curve.s0.02.pool_depth",
+   "label": "depth curve s = 0.02 pool_depth",
+   "owner_entry": "DET-31",
+   "section": "exit liquidity",
+   "source_path": "stress/exit_depth/depth_curve/[s=0.02]/pool_depth",
+   "unit": "base_units",
+   "value": 294556796023967960042656
+  },
+  {
+   "denominator": null,
+   "field_id": "exit.curve.s0.02.gsm_contribution",
+   "label": "depth curve s = 0.02 gsm_contribution",
+   "owner_entry": "DET-35",
+   "section": "exit liquidity",
+   "source_path": "stress/exit_depth/depth_curve/[s=0.02]/gsm_contribution",
+   "unit": "base_units",
+   "value": 18604890106347000000000000
+  },
+  {
+   "denominator": null,
+   "field_id": "exit.curve.s0.05.total",
+   "label": "depth curve s = 0.05 total",
+   "owner_entry": "DET-31",
+   "section": "exit liquidity",
+   "source_path": "stress/exit_depth/depth_curve/[s=0.05]/total",
+   "unit": "base_units",
+   "value": 18929430820681587460211034
+  },
+  {
+   "denominator": null,
+   "field_id": "exit.curve.s0.05.pool_depth",
+   "label": "depth curve s = 0.05 pool_depth",
+   "owner_entry": "DET-31",
+   "section": "exit liquidity",
+   "source_path": "stress/exit_depth/depth_curve/[s=0.05]/pool_depth",
+   "unit": "base_units",
+   "value": 324540714334587460211034
+  },
+  {
+   "denominator": null,
+   "field_id": "exit.curve.s0.05.gsm_contribution",
+   "label": "depth curve s = 0.05 gsm_contribution",
+   "owner_entry": "DET-35",
+   "section": "exit liquidity",
+   "source_path": "stress/exit_depth/depth_curve/[s=0.05]/gsm_contribution",
+   "unit": "base_units",
+   "value": 18604890106347000000000000
+  },
+  {
+   "denominator": null,
+   "field_id": "exit.gsm.0x3a3868898305f04bec7fea77becff04c13444112.fee_exit",
+   "label": "GSM venue fee_exit",
+   "owner_entry": "DET-35",
+   "section": "exit liquidity",
+   "source_path": "stress/exit_depth/gsm_venues/[gsm=0x3a3868898305f04bec7fea77becff04c13444112]/fee_exit",
+   "unit": "ratio",
+   "value": "0.001"
+  },
+  {
+   "denominator": null,
+   "field_id": "exit.gsm.0x3a3868898305f04bec7fea77becff04c13444112.balance",
+   "label": "GSM venue balance",
+   "owner_entry": "DET-35",
+   "section": "exit liquidity",
+   "source_path": "stress/exit_depth/gsm_venues/[gsm=0x3a3868898305f04bec7fea77becff04c13444112]/balance",
+   "unit": "base_units",
+   "value": 34647000000000000
+  },
+  {
+   "denominator": null,
+   "field_id": "exit.gsm.0x3a3868898305f04bec7fea77becff04c13444112.enters",
+   "label": "GSM venue enters",
+   "owner_entry": "DET-35",
+   "section": "exit liquidity",
+   "source_path": "stress/exit_depth/gsm_venues/[gsm=0x3a3868898305f04bec7fea77becff04c13444112]/enters",
+   "unit": "boolean",
+   "value": true
+  },
+  {
+   "denominator": null,
+   "field_id": "exit.gsm.0x882285e62656b9623af136ce3078c6bdcc33f5e3.fee_exit",
+   "label": "GSM venue fee_exit",
+   "owner_entry": "DET-35",
+   "section": "exit liquidity",
+   "source_path": "stress/exit_depth/gsm_venues/[gsm=0x882285e62656b9623af136ce3078c6bdcc33f5e3]/fee_exit",
+   "unit": "ratio",
+   "value": "0.0015"
+  },
+  {
+   "denominator": null,
+   "field_id": "exit.gsm.0x882285e62656b9623af136ce3078c6bdcc33f5e3.balance",
+   "label": "GSM venue balance",
+   "owner_entry": "DET-35",
+   "section": "exit liquidity",
+   "source_path": "stress/exit_depth/gsm_venues/[gsm=0x882285e62656b9623af136ce3078c6bdcc33f5e3]/balance",
+   "unit": "base_units",
+   "value": 18604890071700000000000000
+  },
+  {
+   "denominator": null,
+   "field_id": "exit.gsm.0x882285e62656b9623af136ce3078c6bdcc33f5e3.enters",
+   "label": "GSM venue enters",
+   "owner_entry": "DET-35",
+   "section": "exit liquidity",
+   "source_path": "stress/exit_depth/gsm_venues/[gsm=0x882285e62656b9623af136ce3078c6bdcc33f5e3]/enters",
+   "unit": "boolean",
+   "value": true
+  },
+  {
+   "denominator": null,
+   "field_id": "exit.lp_flight_literal",
+   "label": "LP-flight assumption line",
+   "owner_entry": "DET-36",
+   "section": "exit liquidity",
+   "source_path": "stress/exit_depth/lp_flight_literal",
+   "unit": "literal",
+   "value": "LP capital assumed sticky; haircut grid 0% / 30% / 60% - assumed scenario modifier, not data-derived; LP flight modeled as single-sided withdrawal of the paired asset."
+  },
+  {
+   "denominator": null,
+   "field_id": "exit.concentration.largest_paired_asset",
+   "label": "concentration largest paired asset",
+   "owner_entry": "DET-11",
+   "section": "exit liquidity",
+   "source_path": "stress/exit_depth/concentration/largest_paired_asset",
+   "unit": "address",
+   "value": "0xf939e0a03fb07f59a73314e73794be0e57ac1b4e"
+  },
+  {
+   "denominator": "exit_depth",
+   "field_id": "exit.concentration.share_of_exit_depth",
+   "label": "concentration share of exit depth",
+   "owner_entry": "DET-11",
+   "section": "exit liquidity",
+   "source_path": "stress/exit_depth/concentration/share_of_exit_depth",
+   "unit": "ratio",
+   "value": "1"
+  },
+  {
+   "denominator": null,
+   "field_id": "exit.concentration.label",
+   "label": "concentration label",
+   "owner_entry": "DET-11",
+   "section": "exit liquidity",
+   "source_path": "stress/exit_depth/concentration/label",
+   "unit": "literal",
+   "value": "linked"
+  },
+  {
+   "denominator": null,
+   "field_id": "exit.member2_target",
+   "label": "Member-2 target",
+   "owner_entry": "DET-50",
+   "section": "stress (Member 2)",
+   "source_path": "stress/member2_target",
+   "unit": "address",
+   "value": "0xdac17f958d2ee523a2206206994597c13d831ec7"
+  },
+  {
+   "denominator": null,
+   "field_id": "exit.offvenue.dex_liquidity_total_discovered",
+   "label": "off-venue dex liquidity total discovered",
+   "owner_entry": "DET-32",
+   "section": "exit liquidity",
+   "source_path": "bundle/offvenue_share/dex_liquidity_total_discovered",
+   "unit": "usd_whole",
+   "value": 30617279
+  },
+  {
+   "denominator": null,
+   "field_id": "exit.offvenue.curve_mainnet_liquidity",
+   "label": "off-venue curve mainnet liquidity",
+   "owner_entry": "DET-32",
+   "section": "exit liquidity",
+   "source_path": "bundle/offvenue_share/curve_mainnet_liquidity",
+   "unit": "usd_whole",
+   "value": 2192733
+  },
+  {
+   "denominator": "dex_liquidity_total_discovered",
+   "field_id": "exit.offvenue.x",
+   "label": "off-venue x",
+   "owner_entry": "DET-32",
+   "section": "exit liquidity",
+   "source_path": "bundle/offvenue_share/x",
+   "unit": "ratio",
+   "value": "0.9283824993070089605284649887"
+  },
+  {
+   "denominator": null,
+   "field_id": "exit.offvenue.literal",
+   "label": "off-venue literal",
+   "owner_entry": "DET-32",
+   "section": "exit liquidity",
+   "source_path": "bundle/offvenue_share/literal",
+   "unit": "literal",
+   "value": "92.8% of discovered DEX liquidity lies outside modeled venues"
+  },
+  {
+   "denominator": null,
+   "field_id": "exit.offvenue.source",
+   "label": "off-venue source",
+   "owner_entry": "DET-32",
+   "section": "exit liquidity",
+   "source_path": "bundle/offvenue_share/source",
+   "unit": "literal",
+   "value": "https://yields.llama.fi/pools + https://api.llama.fi/protocols (category 'Dexs', Curve 'curve-dex')"
+  },
+  {
+   "denominator": null,
+   "field_id": "exit.offvenue.date",
+   "label": "off-venue date",
+   "owner_entry": "DET-32",
+   "section": "exit liquidity",
+   "source_path": "bundle/offvenue_share/date",
+   "unit": "date",
+   "value": "2026-09-13"
+  },
+  {
+   "denominator": null,
+   "field_id": "mech.h2_routing.0x3a3868898305f04bec7fea77becff04c13444112",
+   "label": "H2 freezer routing",
+   "owner_entry": "DET-46",
+   "section": "mechanism state",
+   "source_path": "stress/mechanism/h2_routing/0x3a3868898305f04bec7fea77becff04c13444112",
+   "unit": "literal",
+   "value": "freezer_effective"
+  },
+  {
+   "denominator": null,
+   "field_id": "mech.h2_routing.0x882285e62656b9623af136ce3078c6bdcc33f5e3",
+   "label": "H2 freezer routing",
+   "owner_entry": "DET-46",
+   "section": "mechanism state",
+   "source_path": "stress/mechanism/h2_routing/0x882285e62656b9623af136ce3078c6bdcc33f5e3",
+   "unit": "literal",
+   "value": "freezer_effective"
+  },
+  {
+   "denominator": null,
+   "field_id": "mech.reserve.0x4e033931ad43597d96d6bcc25c280717730b58b1:0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0.liquidation_bonus",
+   "label": "reserve liquidation bonus",
+   "owner_entry": "DET-47",
+   "section": "mechanism state",
+   "source_path": "stress/mechanism/reserve_params/0x4e033931ad43597d96d6bcc25c280717730b58b1:0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0/liquidation_bonus",
+   "unit": "bps",
+   "value": 10600
+  },
+  {
+   "denominator": null,
+   "field_id": "mech.reserve.0x4e033931ad43597d96d6bcc25c280717730b58b1:0x9d39a5de30e57443bff2a8307a4256c8797a3497.liquidation_bonus",
+   "label": "reserve liquidation bonus",
+   "owner_entry": "DET-47",
+   "section": "mechanism state",
+   "source_path": "stress/mechanism/reserve_params/0x4e033931ad43597d96d6bcc25c280717730b58b1:0x9d39a5de30e57443bff2a8307a4256c8797a3497/liquidation_bonus",
+   "unit": "bps",
+   "value": 10750
+  },
+  {
+   "denominator": null,
+   "field_id": "mech.reserve.0x4e033931ad43597d96d6bcc25c280717730b58b1:0xbf5495efe5db9ce00f80364c8b423567e58d2110.liquidation_bonus",
+   "label": "reserve liquidation bonus",
+   "owner_entry": "DET-47",
+   "section": "mechanism state",
+   "source_path": "stress/mechanism/reserve_params/0x4e033931ad43597d96d6bcc25c280717730b58b1:0xbf5495efe5db9ce00f80364c8b423567e58d2110/liquidation_bonus",
+   "unit": "bps",
+   "value": 10750
+  },
+  {
+   "denominator": null,
+   "field_id": "mech.reserve.0x4e033931ad43597d96d6bcc25c280717730b58b1:0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2.liquidation_bonus",
+   "label": "reserve liquidation bonus",
+   "owner_entry": "DET-47",
+   "section": "mechanism state",
+   "source_path": "stress/mechanism/reserve_params/0x4e033931ad43597d96d6bcc25c280717730b58b1:0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2/liquidation_bonus",
+   "unit": "bps",
+   "value": 10500
+  },
+  {
+   "denominator": null,
+   "field_id": "mech.reserve.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0x18084fba666a33d37592fa2633fd49a74dd93a88.liquidation_bonus",
+   "label": "reserve liquidation bonus",
+   "owner_entry": "DET-47",
+   "section": "mechanism state",
+   "source_path": "stress/mechanism/reserve_params/0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0x18084fba666a33d37592fa2633fd49a74dd93a88/liquidation_bonus",
+   "unit": "bps",
+   "value": 10750
+  },
+  {
+   "denominator": null,
+   "field_id": "mech.reserve.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0x1abaea1f7c830bd89acc67ec4af516284b1bc33c.liquidation_bonus",
+   "label": "reserve liquidation bonus",
+   "owner_entry": "DET-47",
+   "section": "mechanism state",
+   "source_path": "stress/mechanism/reserve_params/0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0x1abaea1f7c830bd89acc67ec4af516284b1bc33c/liquidation_bonus",
+   "unit": "bps",
+   "value": 10500
+  },
+  {
+   "denominator": null,
+   "field_id": "mech.reserve.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0x2260fac5e5542a773aa44fbcfedf7c193bc2c599.liquidation_bonus",
+   "label": "reserve liquidation bonus",
+   "owner_entry": "DET-47",
+   "section": "mechanism state",
+   "source_path": "stress/mechanism/reserve_params/0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0x2260fac5e5542a773aa44fbcfedf7c193bc2c599/liquidation_bonus",
+   "unit": "bps",
+   "value": 10500
+  },
+  {
+   "denominator": null,
+   "field_id": "mech.reserve.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0x356b8d89c1e1239cbbb9de4815c39a1474d5ba7d.liquidation_bonus",
+   "label": "reserve liquidation bonus",
+   "owner_entry": "DET-47",
+   "section": "mechanism state",
+   "source_path": "stress/mechanism/reserve_params/0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0x356b8d89c1e1239cbbb9de4815c39a1474d5ba7d/liquidation_bonus",
+   "unit": "bps",
+   "value": 10600
+  },
+  {
+   "denominator": null,
+   "field_id": "mech.reserve.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0x4c9edd5852cd905f086c759e8383e09bff1e68b3.liquidation_bonus",
+   "label": "reserve liquidation bonus",
+   "owner_entry": "DET-47",
+   "section": "mechanism state",
+   "source_path": "stress/mechanism/reserve_params/0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0x4c9edd5852cd905f086c759e8383e09bff1e68b3/liquidation_bonus",
+   "unit": "bps",
+   "value": 10850
+  },
+  {
+   "denominator": null,
+   "field_id": "mech.reserve.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0x514910771af9ca656af840dff83e8264ecf986ca.liquidation_bonus",
+   "label": "reserve liquidation bonus",
+   "owner_entry": "DET-47",
+   "section": "mechanism state",
+   "source_path": "stress/mechanism/reserve_params/0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0x514910771af9ca656af840dff83e8264ecf986ca/liquidation_bonus",
+   "unit": "bps",
+   "value": 10700
+  },
+  {
+   "denominator": null,
+   "field_id": "mech.reserve.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0x5f98805a4e8be255a32880fdec7f6728c6568ba0.liquidation_bonus",
+   "label": "reserve liquidation bonus",
+   "owner_entry": "DET-47",
+   "section": "mechanism state",
+   "source_path": "stress/mechanism/reserve_params/0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0x5f98805a4e8be255a32880fdec7f6728c6568ba0/liquidation_bonus",
+   "unit": "bps",
+   "value": 10450
+  },
+  {
+   "denominator": null,
+   "field_id": "mech.reserve.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0x657e8c867d8b37dcc18fa4caead9c45eb088c642.liquidation_bonus",
+   "label": "reserve liquidation bonus",
+   "owner_entry": "DET-47",
+   "section": "mechanism state",
+   "source_path": "stress/mechanism/reserve_params/0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0x657e8c867d8b37dcc18fa4caead9c45eb088c642/liquidation_bonus",
+   "unit": "bps",
+   "value": 11000
+  },
+  {
+   "denominator": null,
+   "field_id": "mech.reserve.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0x68749665ff8d2d112fa859aa293f07a622782f38.liquidation_bonus",
+   "label": "reserve liquidation bonus",
+   "owner_entry": "DET-47",
+   "section": "mechanism state",
+   "source_path": "stress/mechanism/reserve_params/0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0x68749665ff8d2d112fa859aa293f07a622782f38/liquidation_bonus",
+   "unit": "bps",
+   "value": 10600
+  },
+  {
+   "denominator": null,
+   "field_id": "mech.reserve.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0x6b175474e89094c44da98b954eedeac495271d0f.liquidation_bonus",
+   "label": "reserve liquidation bonus",
+   "owner_entry": "DET-47",
+   "section": "mechanism state",
+   "source_path": "stress/mechanism/reserve_params/0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0x6b175474e89094c44da98b954eedeac495271d0f/liquidation_bonus",
+   "unit": "bps",
+   "value": 10500
+  },
+  {
+   "denominator": null,
+   "field_id": "mech.reserve.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0x6c3ea9036406852006290770bedfcaba0e23a0e8.liquidation_bonus",
+   "label": "reserve liquidation bonus",
+   "owner_entry": "DET-47",
+   "section": "mechanism state",
+   "source_path": "stress/mechanism/reserve_params/0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0x6c3ea9036406852006290770bedfcaba0e23a0e8/liquidation_bonus",
+   "unit": "bps",
+   "value": 10750
+  },
+  {
+   "denominator": null,
+   "field_id": "mech.reserve.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0.liquidation_bonus",
+   "label": "reserve liquidation bonus",
+   "owner_entry": "DET-47",
+   "section": "mechanism state",
+   "source_path": "stress/mechanism/reserve_params/0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0/liquidation_bonus",
+   "unit": "bps",
+   "value": 10600
+  },
+  {
+   "denominator": null,
+   "field_id": "mech.reserve.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9.liquidation_bonus",
+   "label": "reserve liquidation bonus",
+   "owner_entry": "DET-47",
+   "section": "mechanism state",
+   "source_path": "stress/mechanism/reserve_params/0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9/liquidation_bonus",
+   "unit": "bps",
+   "value": 10750
+  },
+  {
+   "denominator": null,
+   "field_id": "mech.reserve.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0x8236a87084f8b84306f72007f36f2618a5634494.liquidation_bonus",
+   "label": "reserve liquidation bonus",
+   "owner_entry": "DET-47",
+   "section": "mechanism state",
+   "source_path": "stress/mechanism/reserve_params/0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0x8236a87084f8b84306f72007f36f2618a5634494/liquidation_bonus",
+   "unit": "bps",
+   "value": 10850
+  },
+  {
+   "denominator": null,
+   "field_id": "mech.reserve.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0x83f20f44975d03b1b09e64809b757c47f942beea.liquidation_bonus",
+   "label": "reserve liquidation bonus",
+   "owner_entry": "DET-47",
+   "section": "mechanism state",
+   "source_path": "stress/mechanism/reserve_params/0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0x83f20f44975d03b1b09e64809b757c47f942beea/liquidation_bonus",
+   "unit": "bps",
+   "value": 10450
+  },
+  {
+   "denominator": null,
+   "field_id": "mech.reserve.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0x90d2af7d622ca3141efa4d8f1f24d86e5974cc8f.liquidation_bonus",
+   "label": "reserve liquidation bonus",
+   "owner_entry": "DET-47",
+   "section": "mechanism state",
+   "source_path": "stress/mechanism/reserve_params/0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0x90d2af7d622ca3141efa4d8f1f24d86e5974cc8f/liquidation_bonus",
+   "unit": "bps",
+   "value": 10750
+  },
+  {
+   "denominator": null,
+   "field_id": "mech.reserve.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0x9d39a5de30e57443bff2a8307a4256c8797a3497.liquidation_bonus",
+   "label": "reserve liquidation bonus",
+   "owner_entry": "DET-47",
+   "section": "mechanism state",
+   "source_path": "stress/mechanism/reserve_params/0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0x9d39a5de30e57443bff2a8307a4256c8797a3497/liquidation_bonus",
+   "unit": "bps",
+   "value": 10850
+  },
+  {
+   "denominator": null,
+   "field_id": "mech.reserve.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.liquidation_bonus",
+   "label": "reserve liquidation bonus",
+   "owner_entry": "DET-47",
+   "section": "mechanism state",
+   "source_path": "stress/mechanism/reserve_params/0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48/liquidation_bonus",
+   "unit": "bps",
+   "value": 10450
+  },
+  {
+   "denominator": null,
+   "field_id": "mech.reserve.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0xa1290d69c65a6fe4df752f95823fae25cb99e5a7.liquidation_bonus",
+   "label": "reserve liquidation bonus",
+   "owner_entry": "DET-47",
+   "section": "mechanism state",
+   "source_path": "stress/mechanism/reserve_params/0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0xa1290d69c65a6fe4df752f95823fae25cb99e5a7/liquidation_bonus",
+   "unit": "bps",
+   "value": 10750
+  },
+  {
+   "denominator": null,
+   "field_id": "mech.reserve.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0xa35b1b31ce002fbf2058d22f30f95d405200a15b.liquidation_bonus",
+   "label": "reserve liquidation bonus",
+   "owner_entry": "DET-47",
+   "section": "mechanism state",
+   "source_path": "stress/mechanism/reserve_params/0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0xa35b1b31ce002fbf2058d22f30f95d405200a15b/liquidation_bonus",
+   "unit": "bps",
+   "value": 10750
+  },
+  {
+   "denominator": null,
+   "field_id": "mech.reserve.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0xae78736cd615f374d3085123a210448e74fc6393.liquidation_bonus",
+   "label": "reserve liquidation bonus",
+   "owner_entry": "DET-47",
+   "section": "mechanism state",
+   "source_path": "stress/mechanism/reserve_params/0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0xae78736cd615f374d3085123a210448e74fc6393/liquidation_bonus",
+   "unit": "bps",
+   "value": 10750
+  },
+  {
+   "denominator": null,
+   "field_id": "mech.reserve.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0xb0f70c0bd6fd87dbeb7c10dc692a2a6106817072.liquidation_bonus",
+   "label": "reserve liquidation bonus",
+   "owner_entry": "DET-47",
+   "section": "mechanism state",
+   "source_path": "stress/mechanism/reserve_params/0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0xb0f70c0bd6fd87dbeb7c10dc692a2a6106817072/liquidation_bonus",
+   "unit": "bps",
+   "value": 10750
+  },
+  {
+   "denominator": null,
+   "field_id": "mech.reserve.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0xbe9895146f7af43049ca1c1ae358b0541ea49704.liquidation_bonus",
+   "label": "reserve liquidation bonus",
+   "owner_entry": "DET-47",
+   "section": "mechanism state",
+   "source_path": "stress/mechanism/reserve_params/0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0xbe9895146f7af43049ca1c1ae358b0541ea49704/liquidation_bonus",
+   "unit": "bps",
+   "value": 10750
+  },
+  {
+   "denominator": null,
+   "field_id": "mech.reserve.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2.liquidation_bonus",
+   "label": "reserve liquidation bonus",
+   "owner_entry": "DET-47",
+   "section": "mechanism state",
+   "source_path": "stress/mechanism/reserve_params/0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2/liquidation_bonus",
+   "unit": "bps",
+   "value": 10500
+  },
+  {
+   "denominator": null,
+   "field_id": "mech.reserve.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0xc96de26018a54d51c097160568752c4e3bd6c364.liquidation_bonus",
+   "label": "reserve liquidation bonus",
+   "owner_entry": "DET-47",
+   "section": "mechanism state",
+   "source_path": "stress/mechanism/reserve_params/0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0xc96de26018a54d51c097160568752c4e3bd6c364/liquidation_bonus",
+   "unit": "bps",
+   "value": 10750
+  },
+  {
+   "denominator": null,
+   "field_id": "mech.reserve.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf.liquidation_bonus",
+   "label": "reserve liquidation bonus",
+   "owner_entry": "DET-47",
+   "section": "mechanism state",
+   "source_path": "stress/mechanism/reserve_params/0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf/liquidation_bonus",
+   "unit": "bps",
+   "value": 10750
+  },
+  {
+   "denominator": null,
+   "field_id": "mech.reserve.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee.liquidation_bonus",
+   "label": "reserve liquidation bonus",
+   "owner_entry": "DET-47",
+   "section": "mechanism state",
+   "source_path": "stress/mechanism/reserve_params/0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee/liquidation_bonus",
+   "unit": "bps",
+   "value": 10700
+  },
+  {
+   "denominator": null,
+   "field_id": "mech.reserve.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0xdac17f958d2ee523a2206206994597c13d831ec7.liquidation_bonus",
+   "label": "reserve liquidation bonus",
+   "owner_entry": "DET-47",
+   "section": "mechanism state",
+   "source_path": "stress/mechanism/reserve_params/0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0xdac17f958d2ee523a2206206994597c13d831ec7/liquidation_bonus",
+   "unit": "bps",
+   "value": 10450
+  },
+  {
+   "denominator": null,
+   "field_id": "mech.reserve.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0xdc035d45d973e3ec169d2276ddab16f1e407384f.liquidation_bonus",
+   "label": "reserve liquidation bonus",
+   "owner_entry": "DET-47",
+   "section": "mechanism state",
+   "source_path": "stress/mechanism/reserve_params/0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0xdc035d45d973e3ec169d2276ddab16f1e407384f/liquidation_bonus",
+   "unit": "bps",
+   "value": 10750
+  },
+  {
+   "denominator": null,
+   "field_id": "mech.reserve.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0xf1c9acdc66974dfb6decb12aa385b9cd01190e38.liquidation_bonus",
+   "label": "reserve liquidation bonus",
+   "owner_entry": "DET-47",
+   "section": "mechanism state",
+   "source_path": "stress/mechanism/reserve_params/0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2:0xf1c9acdc66974dfb6decb12aa385b9cd01190e38/liquidation_bonus",
+   "unit": "bps",
+   "value": 10750
+  },
+  {
+   "denominator": null,
+   "field_id": "mech.reserve.0xae05cd22df81871bc7cc2a04becfb516bfe332c8:0x14d60e7fdc0d71d8611742720e4c50e7a974020c.liquidation_bonus",
+   "label": "reserve liquidation bonus",
+   "owner_entry": "DET-47",
+   "section": "mechanism state",
+   "source_path": "stress/mechanism/reserve_params/0xae05cd22df81871bc7cc2a04becfb516bfe332c8:0x14d60e7fdc0d71d8611742720e4c50e7a974020c/liquidation_bonus",
+   "unit": "bps",
+   "value": 10500
+  },
+  {
+   "denominator": null,
+   "field_id": "mech.reserve.0xae05cd22df81871bc7cc2a04becfb516bfe332c8:0x43415eb6ff9db7e26a15b704e7a3edce97d31c4e.liquidation_bonus",
+   "label": "reserve liquidation bonus",
+   "owner_entry": "DET-47",
+   "section": "mechanism state",
+   "source_path": "stress/mechanism/reserve_params/0xae05cd22df81871bc7cc2a04becfb516bfe332c8:0x43415eb6ff9db7e26a15b704e7a3edce97d31c4e/liquidation_bonus",
+   "unit": "bps",
+   "value": 10300
+  },
+  {
+   "denominator": null,
+   "field_id": "mech.reserve.0xae05cd22df81871bc7cc2a04becfb516bfe332c8:0x5a0f93d040de44e78f251b03c43be9cf317dcf64.liquidation_bonus",
+   "label": "reserve liquidation bonus",
+   "owner_entry": "DET-47",
+   "section": "mechanism state",
+   "source_path": "stress/mechanism/reserve_params/0xae05cd22df81871bc7cc2a04becfb516bfe332c8:0x5a0f93d040de44e78f251b03c43be9cf317dcf64/liquidation_bonus",
+   "unit": "bps",
+   "value": 10500
+  },
+  {
+   "denominator": null,
+   "field_id": "bias.0.direction",
+   "label": "bias: Collateral-sell-side bound",
+   "owner_entry": "DET-53",
+   "section": "stress (Member 1)",
+   "source_path": "mirror/bias_table/0/direction",
+   "unit": "literal",
+   "value": "overstates"
+  },
+  {
+   "denominator": null,
+   "field_id": "bias.1.direction",
+   "label": "bias: GSM cap headroom (H2.i)",
+   "owner_entry": "DET-53",
+   "section": "stress (Member 1)",
+   "source_path": "mirror/bias_table/1/direction",
+   "unit": "literal",
+   "value": "overstates"
+  },
+  {
+   "denominator": null,
+   "field_id": "bias.2.direction",
+   "label": "bias: Liquidator recycling (H5)",
+   "owner_entry": "DET-53",
+   "section": "stress (Member 1)",
+   "source_path": "mirror/bias_table/2/direction",
+   "unit": "literal",
+   "value": "understates"
+  },
+  {
+   "denominator": null,
+   "field_id": "bias.3.direction",
+   "label": "bias: Stability Pool refills (H3)",
+   "owner_entry": "DET-53",
+   "section": "stress (Member 1)",
+   "source_path": "mirror/bias_table/3/direction",
+   "unit": "literal",
+   "value": "understates"
+  },
+  {
+   "denominator": null,
+   "field_id": "bias.4.direction",
+   "label": "bias: PegKeeper effective headroom (H1)",
+   "owner_entry": "DET-53",
+   "section": "stress (Member 1)",
+   "source_path": "mirror/bias_table/4/direction",
+   "unit": "literal",
+   "value": "overstates"
+  },
+  {
+   "denominator": null,
+   "field_id": "bias.5.direction",
+   "label": "bias: H4 redemption capacity",
+   "owner_entry": "DET-53",
+   "section": "stress (Member 1)",
+   "source_path": "mirror/bias_table/5/direction",
+   "unit": "literal",
+   "value": "overstates"
+  },
+  {
+   "denominator": null,
+   "field_id": "bias.6.direction",
+   "label": "bias: H5 liquidator appetite (composite)",
+   "owner_entry": "DET-53",
+   "section": "stress (Member 1)",
+   "source_path": "mirror/bias_table/6/direction",
+   "unit": "literal",
+   "value": "both"
+  },
+  {
+   "denominator": null,
+   "field_id": "bias.7.direction",
+   "label": "bias: Pool exit depth — no LP inflow",
+   "owner_entry": "DET-53",
+   "section": "stress (Member 1)",
+   "source_path": "mirror/bias_table/7/direction",
+   "unit": "literal",
+   "value": "understates"
+  },
+  {
+   "denominator": null,
+   "field_id": "bias.8.direction",
+   "label": "bias: Pool exit depth — LP sticky at flight-0",
+   "owner_entry": "DET-53",
+   "section": "stress (Member 1)",
+   "source_path": "mirror/bias_table/8/direction",
+   "unit": "literal",
+   "value": "overstates"
+  },
+  {
+   "denominator": null,
+   "field_id": "assumption.freezer",
+   "label": "assumption: freezer",
+   "owner_entry": "DET-57",
+   "section": "assumptions",
+   "source_path": "stress/assumptions/freezer",
+   "unit": "literal",
+   "value": "freezer_effective: the automated freezer holds SWAP_FREEZER_ROLE and its lower band is at or above 0.88, so in a depeg cell the GSM freezes and its exit contribution leaves exit depth (memo 6.3 H2, same event). The boxed supply does NOT leave the forced-sell numerator - a holder whose backing is the shocked stable still exits; what it loses is the venue."
+  },
+  {
+   "denominator": null,
+   "field_id": "assumption.health_factor",
+   "label": "assumption: health_factor",
+   "owner_entry": "DET-57",
+   "section": "assumptions",
+   "source_path": "stress/assumptions/health_factor",
+   "unit": "literal",
+   "value": "eligibility is the WHOLE position's Aave health factor over all collateral and all debt - a borrower is liquidated entire or not at all - and the resulting bad debt is attributed to GHO pro-rata by `gho_debt_base / total_debt_base` (memo 11.1)."
+  },
+  {
+   "denominator": null,
+   "field_id": "assumption.lp_flight",
+   "label": "assumption: lp_flight",
+   "owner_entry": "DET-57",
+   "section": "assumptions",
+   "source_path": "stress/assumptions/lp_flight",
+   "unit": "literal",
+   "value": "LP capital assumed sticky; haircut grid 0% / 30% / 60% - assumed scenario modifier, not data-derived; LP flight modeled as single-sided withdrawal of the paired asset."
+  },
+  {
+   "denominator": null,
+   "field_id": "assumption.oracle_assumption",
+   "label": "assumption: oracle_assumption",
+   "owner_entry": "DET-57",
+   "section": "assumptions",
+   "source_path": "stress/assumptions/oracle_assumption",
+   "unit": "literal",
+   "value": "GHO carries no EMA_lag line: there is no LLAMMA and no per-market price EMA. Section 7's assumption for GHO is instant observation of the Aave oracle - Chainlink feeds and CAPO adapters read at `run_block` - and the per-feed staleness surface is the oracle table's (DET-55/DET-81), not a counterfactual line's (P-6.01 R13)."
+  },
+  {
+   "denominator": null,
+   "field_id": "assumption.tail_reserves",
+   "label": "assumption: tail_reserves",
+   "owner_entry": "DET-57",
+   "section": "assumptions",
+   "source_path": "stress/assumptions/tail_reserves",
+   "unit": "literal",
+   "value": "tail reserves (15, 1.549% of attributed weight, unlabeled by threshold) enter position health at Aave's oracle and are excluded from absorption; in Member 1 they are shocked as volatile, no LST axis - overstates bad debt where a tail reserve is a stable."
+  },
+  {
+   "denominator": null,
+   "field_id": "node.0x14d60e7fdc0d71d8611742720e4c50e7a974020c.sell_side",
+   "label": "sell-side bound: USCC",
+   "owner_entry": "DET-52",
+   "section": "stress (Member 1)",
+   "source_path": "bundle/nodes/[address=0x14d60e7fdc0d71d8611742720e4c50e7a974020c]/sell_side_capacity/value",
+   "unit": "token_units",
+   "value": "0"
+  },
+  {
+   "denominator": null,
+   "field_id": "node.0x18084fba666a33d37592fa2633fd49a74dd93a88.sell_side",
+   "label": "sell-side bound: tBTC",
+   "owner_entry": "DET-52",
+   "section": "stress (Member 1)",
+   "source_path": "bundle/nodes/[address=0x18084fba666a33d37592fa2633fd49a74dd93a88]/sell_side_capacity/value",
+   "unit": "token_units",
+   "value": "28.1250"
+  },
+  {
+   "denominator": null,
+   "field_id": "node.0x2260fac5e5542a773aa44fbcfedf7c193bc2c599.sell_side",
+   "label": "sell-side bound: WBTC",
+   "owner_entry": "DET-52",
+   "section": "stress (Member 1)",
+   "source_path": "bundle/nodes/[address=0x2260fac5e5542a773aa44fbcfedf7c193bc2c599]/sell_side_capacity/value",
+   "unit": "token_units",
+   "value": "131.2500"
+  },
+  {
+   "denominator": null,
+   "field_id": "node.0x514910771af9ca656af840dff83e8264ecf986ca.sell_side",
+   "label": "sell-side bound: LINK",
+   "owner_entry": "DET-52",
+   "section": "stress (Member 1)",
+   "source_path": "bundle/nodes/[address=0x514910771af9ca656af840dff83e8264ecf986ca]/sell_side_capacity/value",
+   "unit": "token_units",
+   "value": "425000.0000"
+  },
+  {
+   "denominator": null,
+   "field_id": "node.0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0.sell_side",
+   "label": "sell-side bound: wstETH",
+   "owner_entry": "DET-52",
+   "section": "stress (Member 1)",
+   "source_path": "bundle/nodes/[address=0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0]/sell_side_capacity/value",
+   "unit": "token_units",
+   "value": "609.3750"
+  },
+  {
+   "denominator": null,
+   "field_id": "node.0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9.sell_side",
+   "label": "sell-side bound: AAVE",
+   "owner_entry": "DET-52",
+   "section": "stress (Member 1)",
+   "source_path": "bundle/nodes/[address=0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9]/sell_side_capacity/value",
+   "unit": "token_units",
+   "value": "3750.0000"
+  },
+  {
+   "denominator": null,
+   "field_id": "node.0xae78736cd615f374d3085123a210448e74fc6393.sell_side",
+   "label": "sell-side bound: rETH",
+   "owner_entry": "DET-52",
+   "section": "stress (Member 1)",
+   "source_path": "bundle/nodes/[address=0xae78736cd615f374d3085123a210448e74fc6393]/sell_side_capacity/value",
+   "unit": "token_units",
+   "value": "968.7500"
+  },
+  {
+   "denominator": null,
+   "field_id": "node.0xbe9895146f7af43049ca1c1ae358b0541ea49704.sell_side",
+   "label": "sell-side bound: cbETH",
+   "owner_entry": "DET-52",
+   "section": "stress (Member 1)",
+   "source_path": "bundle/nodes/[address=0xbe9895146f7af43049ca1c1ae358b0541ea49704]/sell_side_capacity/value",
+   "unit": "token_units",
+   "value": "87.8906"
+  },
+  {
+   "denominator": null,
+   "field_id": "node.0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2.sell_side",
+   "label": "sell-side bound: WETH",
+   "owner_entry": "DET-52",
+   "section": "stress (Member 1)",
+   "source_path": "bundle/nodes/[address=0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2]/sell_side_capacity/value",
+   "unit": "token_units",
+   "value": "13750.0000"
+  },
+  {
+   "denominator": null,
+   "field_id": "node.0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf.sell_side",
+   "label": "sell-side bound: cbBTC",
+   "owner_entry": "DET-52",
+   "section": "stress (Member 1)",
+   "source_path": "bundle/nodes/[address=0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf]/sell_side_capacity/value",
+   "unit": "token_units",
+   "value": "34.3750"
+  },
+  {
+   "denominator": null,
+   "field_id": "node.0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee.sell_side",
+   "label": "sell-side bound: weETH",
+   "owner_entry": "DET-52",
+   "section": "stress (Member 1)",
+   "source_path": "bundle/nodes/[address=0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee]/sell_side_capacity/value",
+   "unit": "token_units",
+   "value": "5000.0000"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0x14d60e7fdc0d71d8611742720e4c50e7a974020c.0xae05cd22df81871bc7cc2a04becfb516bfe332c8.type",
+   "label": "update condition type",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0x14d60e7fdc0d71d8611742720e4c50e7a974020c,market_or_reserve_address=0xae05cd22df81871bc7cc2a04becfb516bfe332c8]/update_condition/type",
+   "unit": "literal",
+   "value": "nav_schedule"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0x14d60e7fdc0d71d8611742720e4c50e7a974020c.0xae05cd22df81871bc7cc2a04becfb516bfe332c8.heartbeat_s",
+   "label": "heartbeat",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0x14d60e7fdc0d71d8611742720e4c50e7a974020c,market_or_reserve_address=0xae05cd22df81871bc7cc2a04becfb516bfe332c8]/update_condition/heartbeat_s/value",
+   "unit": "seconds",
+   "value": 86400
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0x14d60e7fdc0d71d8611742720e4c50e7a974020c.0xae05cd22df81871bc7cc2a04becfb516bfe332c8.heartbeat_form",
+   "label": "heartbeat form",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0x14d60e7fdc0d71d8611742720e4c50e7a974020c,market_or_reserve_address=0xae05cd22df81871bc7cc2a04becfb516bfe332c8]/update_condition/heartbeat_s/form",
+   "unit": "literal",
+   "value": "documented"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0x18084fba666a33d37592fa2633fd49a74dd93a88.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.type",
+   "label": "update condition type",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0x18084fba666a33d37592fa2633fd49a74dd93a88,market_or_reserve_address=0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2]/update_condition/type",
+   "unit": "literal",
+   "value": "deviation_heartbeat"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0x18084fba666a33d37592fa2633fd49a74dd93a88.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.heartbeat_s",
+   "label": "heartbeat",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0x18084fba666a33d37592fa2633fd49a74dd93a88,market_or_reserve_address=0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2]/update_condition/heartbeat_s/value",
+   "unit": "seconds",
+   "value": 3600
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0x18084fba666a33d37592fa2633fd49a74dd93a88.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.heartbeat_form",
+   "label": "heartbeat form",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0x18084fba666a33d37592fa2633fd49a74dd93a88,market_or_reserve_address=0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2]/update_condition/heartbeat_s/form",
+   "unit": "literal",
+   "value": "documented"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0x18084fba666a33d37592fa2633fd49a74dd93a88.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.deviation_bps",
+   "label": "deviation",
+   "owner_entry": "DET-54",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0x18084fba666a33d37592fa2633fd49a74dd93a88,market_or_reserve_address=0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2]/update_condition/deviation/value_bps",
+   "unit": "bps",
+   "value": 50
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0x2260fac5e5542a773aa44fbcfedf7c193bc2c599.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.type",
+   "label": "update condition type",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0x2260fac5e5542a773aa44fbcfedf7c193bc2c599,market_or_reserve_address=0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2]/update_condition/type",
+   "unit": "literal",
+   "value": "deviation_heartbeat"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0x2260fac5e5542a773aa44fbcfedf7c193bc2c599.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.heartbeat_s",
+   "label": "heartbeat",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0x2260fac5e5542a773aa44fbcfedf7c193bc2c599,market_or_reserve_address=0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2]/update_condition/heartbeat_s/value",
+   "unit": "seconds",
+   "value": 3600
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0x2260fac5e5542a773aa44fbcfedf7c193bc2c599.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.heartbeat_form",
+   "label": "heartbeat form",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0x2260fac5e5542a773aa44fbcfedf7c193bc2c599,market_or_reserve_address=0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2]/update_condition/heartbeat_s/form",
+   "unit": "literal",
+   "value": "documented"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0x2260fac5e5542a773aa44fbcfedf7c193bc2c599.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.deviation_bps",
+   "label": "deviation",
+   "owner_entry": "DET-54",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0x2260fac5e5542a773aa44fbcfedf7c193bc2c599,market_or_reserve_address=0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2]/update_condition/deviation/value_bps",
+   "unit": "bps",
+   "value": 50
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0x43415eb6ff9db7e26a15b704e7a3edce97d31c4e.0xae05cd22df81871bc7cc2a04becfb516bfe332c8.type",
+   "label": "update condition type",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0x43415eb6ff9db7e26a15b704e7a3edce97d31c4e,market_or_reserve_address=0xae05cd22df81871bc7cc2a04becfb516bfe332c8]/update_condition/type",
+   "unit": "literal",
+   "value": "nav_schedule"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0x43415eb6ff9db7e26a15b704e7a3edce97d31c4e.0xae05cd22df81871bc7cc2a04becfb516bfe332c8.heartbeat_s",
+   "label": "heartbeat",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0x43415eb6ff9db7e26a15b704e7a3edce97d31c4e,market_or_reserve_address=0xae05cd22df81871bc7cc2a04becfb516bfe332c8]/update_condition/heartbeat_s/value",
+   "unit": "seconds",
+   "value": 86400
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0x43415eb6ff9db7e26a15b704e7a3edce97d31c4e.0xae05cd22df81871bc7cc2a04becfb516bfe332c8.heartbeat_form",
+   "label": "heartbeat form",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0x43415eb6ff9db7e26a15b704e7a3edce97d31c4e,market_or_reserve_address=0xae05cd22df81871bc7cc2a04becfb516bfe332c8]/update_condition/heartbeat_s/form",
+   "unit": "literal",
+   "value": "documented"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0x514910771af9ca656af840dff83e8264ecf986ca.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.type",
+   "label": "update condition type",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0x514910771af9ca656af840dff83e8264ecf986ca,market_or_reserve_address=0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2]/update_condition/type",
+   "unit": "literal",
+   "value": "deviation_heartbeat"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0x514910771af9ca656af840dff83e8264ecf986ca.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.heartbeat_s",
+   "label": "heartbeat",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0x514910771af9ca656af840dff83e8264ecf986ca,market_or_reserve_address=0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2]/update_condition/heartbeat_s/value",
+   "unit": "seconds",
+   "value": 3600
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0x514910771af9ca656af840dff83e8264ecf986ca.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.heartbeat_form",
+   "label": "heartbeat form",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0x514910771af9ca656af840dff83e8264ecf986ca,market_or_reserve_address=0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2]/update_condition/heartbeat_s/form",
+   "unit": "literal",
+   "value": "documented"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0x514910771af9ca656af840dff83e8264ecf986ca.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.deviation_bps",
+   "label": "deviation",
+   "owner_entry": "DET-54",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0x514910771af9ca656af840dff83e8264ecf986ca,market_or_reserve_address=0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2]/update_condition/deviation/value_bps",
+   "unit": "bps",
+   "value": 50
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0x5a0f93d040de44e78f251b03c43be9cf317dcf64.0xae05cd22df81871bc7cc2a04becfb516bfe332c8.type",
+   "label": "update condition type",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0x5a0f93d040de44e78f251b03c43be9cf317dcf64,market_or_reserve_address=0xae05cd22df81871bc7cc2a04becfb516bfe332c8]/update_condition/type",
+   "unit": "literal",
+   "value": "nav_schedule"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0x5a0f93d040de44e78f251b03c43be9cf317dcf64.0xae05cd22df81871bc7cc2a04becfb516bfe332c8.heartbeat_s",
+   "label": "heartbeat",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0x5a0f93d040de44e78f251b03c43be9cf317dcf64,market_or_reserve_address=0xae05cd22df81871bc7cc2a04becfb516bfe332c8]/update_condition/heartbeat_s/value",
+   "unit": "seconds",
+   "value": 86436
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0x5a0f93d040de44e78f251b03c43be9cf317dcf64.0xae05cd22df81871bc7cc2a04becfb516bfe332c8.heartbeat_form",
+   "label": "heartbeat form",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0x5a0f93d040de44e78f251b03c43be9cf317dcf64,market_or_reserve_address=0xae05cd22df81871bc7cc2a04becfb516bfe332c8]/update_condition/heartbeat_s/form",
+   "unit": "literal",
+   "value": "observed_max"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0x6b175474e89094c44da98b954eedeac495271d0f.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.type",
+   "label": "update condition type",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0x6b175474e89094c44da98b954eedeac495271d0f,market_or_reserve_address=0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2]/update_condition/type",
+   "unit": "literal",
+   "value": "deviation_heartbeat"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0x6b175474e89094c44da98b954eedeac495271d0f.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.heartbeat_s",
+   "label": "heartbeat",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0x6b175474e89094c44da98b954eedeac495271d0f,market_or_reserve_address=0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2]/update_condition/heartbeat_s/value",
+   "unit": "seconds",
+   "value": 3600
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0x6b175474e89094c44da98b954eedeac495271d0f.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.heartbeat_form",
+   "label": "heartbeat form",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0x6b175474e89094c44da98b954eedeac495271d0f,market_or_reserve_address=0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2]/update_condition/heartbeat_s/form",
+   "unit": "literal",
+   "value": "documented"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0x6b175474e89094c44da98b954eedeac495271d0f.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.deviation_bps",
+   "label": "deviation",
+   "owner_entry": "DET-54",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0x6b175474e89094c44da98b954eedeac495271d0f,market_or_reserve_address=0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2]/update_condition/deviation/value_bps",
+   "unit": "bps",
+   "value": 25
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0x7bc3485026ac48b6cf9baf0a377477fff5703af8.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.type",
+   "label": "update condition type",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0x7bc3485026ac48b6cf9baf0a377477fff5703af8,market_or_reserve_address=0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2]/update_condition/type",
+   "unit": "literal",
+   "value": "deviation_heartbeat"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0x7bc3485026ac48b6cf9baf0a377477fff5703af8.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.heartbeat_s",
+   "label": "heartbeat",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0x7bc3485026ac48b6cf9baf0a377477fff5703af8,market_or_reserve_address=0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2]/update_condition/heartbeat_s/value",
+   "unit": "seconds",
+   "value": 86400
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0x7bc3485026ac48b6cf9baf0a377477fff5703af8.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.heartbeat_form",
+   "label": "heartbeat form",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0x7bc3485026ac48b6cf9baf0a377477fff5703af8,market_or_reserve_address=0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2]/update_condition/heartbeat_s/form",
+   "unit": "literal",
+   "value": "documented"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0x7bc3485026ac48b6cf9baf0a377477fff5703af8.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.deviation_bps",
+   "label": "deviation",
+   "owner_entry": "DET-54",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0x7bc3485026ac48b6cf9baf0a377477fff5703af8,market_or_reserve_address=0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2]/update_condition/deviation/value_bps",
+   "unit": "bps",
+   "value": 25
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0.0x4e033931ad43597d96d6bcc25c280717730b58b1.type",
+   "label": "update condition type",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0,market_or_reserve_address=0x4e033931ad43597d96d6bcc25c280717730b58b1]/update_condition/type",
+   "unit": "literal",
+   "value": "deviation_heartbeat"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0.0x4e033931ad43597d96d6bcc25c280717730b58b1.heartbeat_s",
+   "label": "heartbeat",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0,market_or_reserve_address=0x4e033931ad43597d96d6bcc25c280717730b58b1]/update_condition/heartbeat_s/value",
+   "unit": "seconds",
+   "value": 3600
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0.0x4e033931ad43597d96d6bcc25c280717730b58b1.heartbeat_form",
+   "label": "heartbeat form",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0,market_or_reserve_address=0x4e033931ad43597d96d6bcc25c280717730b58b1]/update_condition/heartbeat_s/form",
+   "unit": "literal",
+   "value": "documented"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0.0x4e033931ad43597d96d6bcc25c280717730b58b1.deviation_bps",
+   "label": "deviation",
+   "owner_entry": "DET-54",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0,market_or_reserve_address=0x4e033931ad43597d96d6bcc25c280717730b58b1]/update_condition/deviation/value_bps",
+   "unit": "bps",
+   "value": 50
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.type",
+   "label": "update condition type",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9,market_or_reserve_address=0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2]/update_condition/type",
+   "unit": "literal",
+   "value": "deviation_heartbeat"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.heartbeat_s",
+   "label": "heartbeat",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9,market_or_reserve_address=0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2]/update_condition/heartbeat_s/value",
+   "unit": "seconds",
+   "value": 3600
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.heartbeat_form",
+   "label": "heartbeat form",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9,market_or_reserve_address=0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2]/update_condition/heartbeat_s/form",
+   "unit": "literal",
+   "value": "documented"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.deviation_bps",
+   "label": "deviation",
+   "owner_entry": "DET-54",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9,market_or_reserve_address=0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2]/update_condition/deviation/value_bps",
+   "unit": "bps",
+   "value": 100
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0x83f20f44975d03b1b09e64809b757c47f942beea.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.type",
+   "label": "update condition type",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0x83f20f44975d03b1b09e64809b757c47f942beea,market_or_reserve_address=0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2]/update_condition/type",
+   "unit": "literal",
+   "value": "deviation_heartbeat"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0x83f20f44975d03b1b09e64809b757c47f942beea.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.heartbeat_s",
+   "label": "heartbeat",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0x83f20f44975d03b1b09e64809b757c47f942beea,market_or_reserve_address=0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2]/update_condition/heartbeat_s/value",
+   "unit": "seconds",
+   "value": 3600
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0x83f20f44975d03b1b09e64809b757c47f942beea.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.heartbeat_form",
+   "label": "heartbeat form",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0x83f20f44975d03b1b09e64809b757c47f942beea,market_or_reserve_address=0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2]/update_condition/heartbeat_s/form",
+   "unit": "literal",
+   "value": "documented"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0x83f20f44975d03b1b09e64809b757c47f942beea.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.deviation_bps",
+   "label": "deviation",
+   "owner_entry": "DET-54",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0x83f20f44975d03b1b09e64809b757c47f942beea,market_or_reserve_address=0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2]/update_condition/deviation/value_bps",
+   "unit": "bps",
+   "value": 25
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0x9d39a5de30e57443bff2a8307a4256c8797a3497.0x4e033931ad43597d96d6bcc25c280717730b58b1.type",
+   "label": "update condition type",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0x9d39a5de30e57443bff2a8307a4256c8797a3497,market_or_reserve_address=0x4e033931ad43597d96d6bcc25c280717730b58b1]/update_condition/type",
+   "unit": "literal",
+   "value": "deviation_heartbeat"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0x9d39a5de30e57443bff2a8307a4256c8797a3497.0x4e033931ad43597d96d6bcc25c280717730b58b1.heartbeat_s",
+   "label": "heartbeat",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0x9d39a5de30e57443bff2a8307a4256c8797a3497,market_or_reserve_address=0x4e033931ad43597d96d6bcc25c280717730b58b1]/update_condition/heartbeat_s/value",
+   "unit": "seconds",
+   "value": 86400
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0x9d39a5de30e57443bff2a8307a4256c8797a3497.0x4e033931ad43597d96d6bcc25c280717730b58b1.heartbeat_form",
+   "label": "heartbeat form",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0x9d39a5de30e57443bff2a8307a4256c8797a3497,market_or_reserve_address=0x4e033931ad43597d96d6bcc25c280717730b58b1]/update_condition/heartbeat_s/form",
+   "unit": "literal",
+   "value": "documented"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0x9d39a5de30e57443bff2a8307a4256c8797a3497.0x4e033931ad43597d96d6bcc25c280717730b58b1.deviation_bps",
+   "label": "deviation",
+   "owner_entry": "DET-54",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0x9d39a5de30e57443bff2a8307a4256c8797a3497,market_or_reserve_address=0x4e033931ad43597d96d6bcc25c280717730b58b1]/update_condition/deviation/value_bps",
+   "unit": "bps",
+   "value": 25
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.type",
+   "label": "update condition type",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48,market_or_reserve_address=0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2]/update_condition/type",
+   "unit": "literal",
+   "value": "deviation_heartbeat"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.heartbeat_s",
+   "label": "heartbeat",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48,market_or_reserve_address=0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2]/update_condition/heartbeat_s/value",
+   "unit": "seconds",
+   "value": 82800
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.heartbeat_form",
+   "label": "heartbeat form",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48,market_or_reserve_address=0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2]/update_condition/heartbeat_s/form",
+   "unit": "literal",
+   "value": "documented"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.deviation_bps",
+   "label": "deviation",
+   "owner_entry": "DET-54",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48,market_or_reserve_address=0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2]/update_condition/deviation/value_bps",
+   "unit": "bps",
+   "value": 25
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0xae78736cd615f374d3085123a210448e74fc6393.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.type",
+   "label": "update condition type",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0xae78736cd615f374d3085123a210448e74fc6393,market_or_reserve_address=0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2]/update_condition/type",
+   "unit": "literal",
+   "value": "deviation_heartbeat"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0xae78736cd615f374d3085123a210448e74fc6393.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.heartbeat_s",
+   "label": "heartbeat",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0xae78736cd615f374d3085123a210448e74fc6393,market_or_reserve_address=0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2]/update_condition/heartbeat_s/value",
+   "unit": "seconds",
+   "value": 3600
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0xae78736cd615f374d3085123a210448e74fc6393.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.heartbeat_form",
+   "label": "heartbeat form",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0xae78736cd615f374d3085123a210448e74fc6393,market_or_reserve_address=0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2]/update_condition/heartbeat_s/form",
+   "unit": "literal",
+   "value": "documented"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0xae78736cd615f374d3085123a210448e74fc6393.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.deviation_bps",
+   "label": "deviation",
+   "owner_entry": "DET-54",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0xae78736cd615f374d3085123a210448e74fc6393,market_or_reserve_address=0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2]/update_condition/deviation/value_bps",
+   "unit": "bps",
+   "value": 50
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0xbe9895146f7af43049ca1c1ae358b0541ea49704.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.type",
+   "label": "update condition type",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0xbe9895146f7af43049ca1c1ae358b0541ea49704,market_or_reserve_address=0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2]/update_condition/type",
+   "unit": "literal",
+   "value": "deviation_heartbeat"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0xbe9895146f7af43049ca1c1ae358b0541ea49704.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.heartbeat_s",
+   "label": "heartbeat",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0xbe9895146f7af43049ca1c1ae358b0541ea49704,market_or_reserve_address=0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2]/update_condition/heartbeat_s/value",
+   "unit": "seconds",
+   "value": 3600
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0xbe9895146f7af43049ca1c1ae358b0541ea49704.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.heartbeat_form",
+   "label": "heartbeat form",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0xbe9895146f7af43049ca1c1ae358b0541ea49704,market_or_reserve_address=0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2]/update_condition/heartbeat_s/form",
+   "unit": "literal",
+   "value": "documented"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0xbe9895146f7af43049ca1c1ae358b0541ea49704.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.deviation_bps",
+   "label": "deviation",
+   "owner_entry": "DET-54",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0xbe9895146f7af43049ca1c1ae358b0541ea49704,market_or_reserve_address=0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2]/update_condition/deviation/value_bps",
+   "unit": "bps",
+   "value": 50
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2.0x4e033931ad43597d96d6bcc25c280717730b58b1.type",
+   "label": "update condition type",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2,market_or_reserve_address=0x4e033931ad43597d96d6bcc25c280717730b58b1]/update_condition/type",
+   "unit": "literal",
+   "value": "deviation_heartbeat"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2.0x4e033931ad43597d96d6bcc25c280717730b58b1.heartbeat_s",
+   "label": "heartbeat",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2,market_or_reserve_address=0x4e033931ad43597d96d6bcc25c280717730b58b1]/update_condition/heartbeat_s/value",
+   "unit": "seconds",
+   "value": 3600
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2.0x4e033931ad43597d96d6bcc25c280717730b58b1.heartbeat_form",
+   "label": "heartbeat form",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2,market_or_reserve_address=0x4e033931ad43597d96d6bcc25c280717730b58b1]/update_condition/heartbeat_s/form",
+   "unit": "literal",
+   "value": "documented"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2.0x4e033931ad43597d96d6bcc25c280717730b58b1.deviation_bps",
+   "label": "deviation",
+   "owner_entry": "DET-54",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2,market_or_reserve_address=0x4e033931ad43597d96d6bcc25c280717730b58b1]/update_condition/deviation/value_bps",
+   "unit": "bps",
+   "value": 50
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.type",
+   "label": "update condition type",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf,market_or_reserve_address=0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2]/update_condition/type",
+   "unit": "literal",
+   "value": "deviation_heartbeat"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.heartbeat_s",
+   "label": "heartbeat",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf,market_or_reserve_address=0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2]/update_condition/heartbeat_s/value",
+   "unit": "seconds",
+   "value": 3600
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.heartbeat_form",
+   "label": "heartbeat form",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf,market_or_reserve_address=0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2]/update_condition/heartbeat_s/form",
+   "unit": "literal",
+   "value": "documented"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.deviation_bps",
+   "label": "deviation",
+   "owner_entry": "DET-54",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf,market_or_reserve_address=0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2]/update_condition/deviation/value_bps",
+   "unit": "bps",
+   "value": 50
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.type",
+   "label": "update condition type",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee,market_or_reserve_address=0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2]/update_condition/type",
+   "unit": "literal",
+   "value": "deviation_heartbeat"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.heartbeat_s",
+   "label": "heartbeat",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee,market_or_reserve_address=0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2]/update_condition/heartbeat_s/value",
+   "unit": "seconds",
+   "value": 3600
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.heartbeat_form",
+   "label": "heartbeat form",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee,market_or_reserve_address=0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2]/update_condition/heartbeat_s/form",
+   "unit": "literal",
+   "value": "documented"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.deviation_bps",
+   "label": "deviation",
+   "owner_entry": "DET-54",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee,market_or_reserve_address=0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2]/update_condition/deviation/value_bps",
+   "unit": "bps",
+   "value": 50
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0xd4fa2d31b7968e448877f69a96de69f5de8cd23e.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.type",
+   "label": "update condition type",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0xd4fa2d31b7968e448877f69a96de69f5de8cd23e,market_or_reserve_address=0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2]/update_condition/type",
+   "unit": "literal",
+   "value": "deviation_heartbeat"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0xd4fa2d31b7968e448877f69a96de69f5de8cd23e.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.heartbeat_s",
+   "label": "heartbeat",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0xd4fa2d31b7968e448877f69a96de69f5de8cd23e,market_or_reserve_address=0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2]/update_condition/heartbeat_s/value",
+   "unit": "seconds",
+   "value": 82800
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0xd4fa2d31b7968e448877f69a96de69f5de8cd23e.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.heartbeat_form",
+   "label": "heartbeat form",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0xd4fa2d31b7968e448877f69a96de69f5de8cd23e,market_or_reserve_address=0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2]/update_condition/heartbeat_s/form",
+   "unit": "literal",
+   "value": "documented"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0xd4fa2d31b7968e448877f69a96de69f5de8cd23e.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.deviation_bps",
+   "label": "deviation",
+   "owner_entry": "DET-54",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0xd4fa2d31b7968e448877f69a96de69f5de8cd23e,market_or_reserve_address=0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2]/update_condition/deviation/value_bps",
+   "unit": "bps",
+   "value": 25
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0xdac17f958d2ee523a2206206994597c13d831ec7.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.type",
+   "label": "update condition type",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0xdac17f958d2ee523a2206206994597c13d831ec7,market_or_reserve_address=0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2]/update_condition/type",
+   "unit": "literal",
+   "value": "deviation_heartbeat"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0xdac17f958d2ee523a2206206994597c13d831ec7.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.heartbeat_s",
+   "label": "heartbeat",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0xdac17f958d2ee523a2206206994597c13d831ec7,market_or_reserve_address=0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2]/update_condition/heartbeat_s/value",
+   "unit": "seconds",
+   "value": 86400
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0xdac17f958d2ee523a2206206994597c13d831ec7.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.heartbeat_form",
+   "label": "heartbeat form",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0xdac17f958d2ee523a2206206994597c13d831ec7,market_or_reserve_address=0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2]/update_condition/heartbeat_s/form",
+   "unit": "literal",
+   "value": "documented"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0xdac17f958d2ee523a2206206994597c13d831ec7.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.deviation_bps",
+   "label": "deviation",
+   "owner_entry": "DET-54",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0xdac17f958d2ee523a2206206994597c13d831ec7,market_or_reserve_address=0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2]/update_condition/deviation/value_bps",
+   "unit": "bps",
+   "value": 25
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0xdc035d45d973e3ec169d2276ddab16f1e407384f.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.type",
+   "label": "update condition type",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0xdc035d45d973e3ec169d2276ddab16f1e407384f,market_or_reserve_address=0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2]/update_condition/type",
+   "unit": "literal",
+   "value": "deviation_heartbeat"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0xdc035d45d973e3ec169d2276ddab16f1e407384f.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.heartbeat_s",
+   "label": "heartbeat",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0xdc035d45d973e3ec169d2276ddab16f1e407384f,market_or_reserve_address=0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2]/update_condition/heartbeat_s/value",
+   "unit": "seconds",
+   "value": 82800
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0xdc035d45d973e3ec169d2276ddab16f1e407384f.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.heartbeat_form",
+   "label": "heartbeat form",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0xdc035d45d973e3ec169d2276ddab16f1e407384f,market_or_reserve_address=0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2]/update_condition/heartbeat_s/form",
+   "unit": "literal",
+   "value": "documented"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.0xdc035d45d973e3ec169d2276ddab16f1e407384f.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.deviation_bps",
+   "label": "deviation",
+   "owner_entry": "DET-54",
+   "section": "oracle table",
+   "source_path": "bundle/oracle_rows/[node_address=0xdc035d45d973e3ec169d2276ddab16f1e407384f,market_or_reserve_address=0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2]/update_condition/deviation/value_bps",
+   "unit": "bps",
+   "value": 30
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.mint.0x5300a1a15135ea4dc7ad5a167152c01efc9b192a.holder_address",
+   "label": "mint A2 holder",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=mint,holder_address=0x5300a1a15135ea4dc7ad5a167152c01efc9b192a]/holder_address",
+   "unit": "address",
+   "value": "0x5300a1a15135ea4dc7ad5a167152c01efc9b192a"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.mint.0x5300a1a15135ea4dc7ad5a167152c01efc9b192a.holder_type",
+   "label": "mint A2 type",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=mint,holder_address=0x5300a1a15135ea4dc7ad5a167152c01efc9b192a]/holder_type",
+   "unit": "literal",
+   "value": "contract_automated"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.mint.0x5300a1a15135ea4dc7ad5a167152c01efc9b192a.delay_seconds",
+   "label": "mint A4 delay",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=mint,holder_address=0x5300a1a15135ea4dc7ad5a167152c01efc9b192a]/delay_seconds",
+   "unit": "null",
+   "value": null
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.mint.0x5300a1a15135ea4dc7ad5a167152c01efc9b192a.delay_bucket",
+   "label": "mint A4 bucket",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=mint,holder_address=0x5300a1a15135ea4dc7ad5a167152c01efc9b192a]/delay_bucket",
+   "unit": "literal",
+   "value": "none"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.mint.0x5300a1a15135ea4dc7ad5a167152c01efc9b192a.veto_address",
+   "label": "mint A5 veto",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=mint,holder_address=0x5300a1a15135ea4dc7ad5a167152c01efc9b192a]/veto_address",
+   "unit": "null",
+   "value": null
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.mint.0x5300a1a15135ea4dc7ad5a167152c01efc9b192a.upgradeability",
+   "label": "mint A6",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=mint,holder_address=0x5300a1a15135ea4dc7ad5a167152c01efc9b192a]/upgradeability",
+   "unit": "null",
+   "value": null
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.mint.0x5300a1a15135ea4dc7ad5a167152c01efc9b192a.scope",
+   "label": "mint A7 scope",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=mint,holder_address=0x5300a1a15135ea4dc7ad5a167152c01efc9b192a]/scope",
+   "unit": "list",
+   "value": [
+    "0x40d16fc0246ad3160ccc09b8d0d3a2cd28ae6c2f"
+   ]
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.mint.0x5300a1a15135ea4dc7ad5a167152c01efc9b192a.A8",
+   "label": "mint A8 provenance",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=mint,holder_address=0x5300a1a15135ea4dc7ad5a167152c01efc9b192a]/provenance/kind",
+   "unit": "literal",
+   "value": "contract_read"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.mint.0x5300a1a15135ea4dc7ad5a167152c01efc9b192a.A8.function",
+   "label": "mint A8 function",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=mint,holder_address=0x5300a1a15135ea4dc7ad5a167152c01efc9b192a]/provenance/function",
+   "unit": "literal",
+   "value": "hasRole(bytes32,address)"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.set_ceiling.0x46aa1063e5265b43663e81329333b47c517a5409.holder_address",
+   "label": "set_ceiling A2 holder",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=set_ceiling,holder_address=0x46aa1063e5265b43663e81329333b47c517a5409]/holder_address",
+   "unit": "address",
+   "value": "0x46aa1063e5265b43663e81329333b47c517a5409"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.set_ceiling.0x46aa1063e5265b43663e81329333b47c517a5409.holder_type",
+   "label": "set_ceiling A2 type",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=set_ceiling,holder_address=0x46aa1063e5265b43663e81329333b47c517a5409]/holder_type",
+   "unit": "literal",
+   "value": "contract_automated"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.set_ceiling.0x46aa1063e5265b43663e81329333b47c517a5409.delay_seconds",
+   "label": "set_ceiling A4 delay",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=set_ceiling,holder_address=0x46aa1063e5265b43663e81329333b47c517a5409]/delay_seconds",
+   "unit": "null",
+   "value": null
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.set_ceiling.0x46aa1063e5265b43663e81329333b47c517a5409.delay_bucket",
+   "label": "set_ceiling A4 bucket",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=set_ceiling,holder_address=0x46aa1063e5265b43663e81329333b47c517a5409]/delay_bucket",
+   "unit": "literal",
+   "value": "none"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.set_ceiling.0x46aa1063e5265b43663e81329333b47c517a5409.veto_address",
+   "label": "set_ceiling A5 veto",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=set_ceiling,holder_address=0x46aa1063e5265b43663e81329333b47c517a5409]/veto_address",
+   "unit": "null",
+   "value": null
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.set_ceiling.0x46aa1063e5265b43663e81329333b47c517a5409.upgradeability",
+   "label": "set_ceiling A6",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=set_ceiling,holder_address=0x46aa1063e5265b43663e81329333b47c517a5409]/upgradeability",
+   "unit": "null",
+   "value": null
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.set_ceiling.0x46aa1063e5265b43663e81329333b47c517a5409.scope",
+   "label": "set_ceiling A7 scope",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=set_ceiling,holder_address=0x46aa1063e5265b43663e81329333b47c517a5409]/scope",
+   "unit": "list",
+   "value": [
+    "0x40d16fc0246ad3160ccc09b8d0d3a2cd28ae6c2f"
+   ]
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.set_ceiling.0x46aa1063e5265b43663e81329333b47c517a5409.A8",
+   "label": "set_ceiling A8 provenance",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=set_ceiling,holder_address=0x46aa1063e5265b43663e81329333b47c517a5409]/provenance/kind",
+   "unit": "literal",
+   "value": "contract_read"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.set_ceiling.0x46aa1063e5265b43663e81329333b47c517a5409.A8.function",
+   "label": "set_ceiling A8 function",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=set_ceiling,holder_address=0x46aa1063e5265b43663e81329333b47c517a5409]/provenance/function",
+   "unit": "literal",
+   "value": "hasRole(bytes32,address)"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.upgrade.None.holder_address",
+   "label": "upgrade A2 holder",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=upgrade,holder_address=None]/holder_address",
+   "unit": "null",
+   "value": null
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.upgrade.None.holder_type",
+   "label": "upgrade A2 type",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=upgrade,holder_address=None]/holder_type",
+   "unit": "literal",
+   "value": "none"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.upgrade.None.delay_seconds",
+   "label": "upgrade A4 delay",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=upgrade,holder_address=None]/delay_seconds",
+   "unit": "null",
+   "value": null
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.upgrade.None.delay_bucket",
+   "label": "upgrade A4 bucket",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=upgrade,holder_address=None]/delay_bucket",
+   "unit": "literal",
+   "value": "none"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.upgrade.None.veto_address",
+   "label": "upgrade A5 veto",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=upgrade,holder_address=None]/veto_address",
+   "unit": "null",
+   "value": null
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.upgrade.None.upgradeability",
+   "label": "upgrade A6",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=upgrade,holder_address=None]/upgradeability",
+   "unit": "literal",
+   "value": "immutable"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.upgrade.None.scope",
+   "label": "upgrade A7 scope",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=upgrade,holder_address=None]/scope",
+   "unit": "list",
+   "value": [
+    "0x40d16fc0246ad3160ccc09b8d0d3a2cd28ae6c2f"
+   ]
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.upgrade.None.A8",
+   "label": "upgrade A8 provenance",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=upgrade,holder_address=None]/provenance/kind",
+   "unit": "literal",
+   "value": "absence_read"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.pause.0x2cfe3ec4d5a6811f4b8067f0de7e47dfa938aa30.holder_address",
+   "label": "pause A2 holder",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=pause,holder_address=0x2cfe3ec4d5a6811f4b8067f0de7e47dfa938aa30]/holder_address",
+   "unit": "address",
+   "value": "0x2cfe3ec4d5a6811f4b8067f0de7e47dfa938aa30"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.pause.0x2cfe3ec4d5a6811f4b8067f0de7e47dfa938aa30.holder_type",
+   "label": "pause A2 type",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=pause,holder_address=0x2cfe3ec4d5a6811f4b8067f0de7e47dfa938aa30]/holder_type",
+   "unit": "literal",
+   "value": "multisig"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.pause.0x2cfe3ec4d5a6811f4b8067f0de7e47dfa938aa30.delay_seconds",
+   "label": "pause A4 delay",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=pause,holder_address=0x2cfe3ec4d5a6811f4b8067f0de7e47dfa938aa30]/delay_seconds",
+   "unit": "null",
+   "value": null
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.pause.0x2cfe3ec4d5a6811f4b8067f0de7e47dfa938aa30.delay_bucket",
+   "label": "pause A4 bucket",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=pause,holder_address=0x2cfe3ec4d5a6811f4b8067f0de7e47dfa938aa30]/delay_bucket",
+   "unit": "literal",
+   "value": "none"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.pause.0x2cfe3ec4d5a6811f4b8067f0de7e47dfa938aa30.veto_address",
+   "label": "pause A5 veto",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=pause,holder_address=0x2cfe3ec4d5a6811f4b8067f0de7e47dfa938aa30]/veto_address",
+   "unit": "null",
+   "value": null
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.pause.0x2cfe3ec4d5a6811f4b8067f0de7e47dfa938aa30.upgradeability",
+   "label": "pause A6",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=pause,holder_address=0x2cfe3ec4d5a6811f4b8067f0de7e47dfa938aa30]/upgradeability",
+   "unit": "null",
+   "value": null
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.pause.0x2cfe3ec4d5a6811f4b8067f0de7e47dfa938aa30.scope",
+   "label": "pause A7 scope",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=pause,holder_address=0x2cfe3ec4d5a6811f4b8067f0de7e47dfa938aa30]/scope",
+   "unit": "list",
+   "value": [
+    "0x4e033931ad43597d96d6bcc25c280717730b58b1",
+    "0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2",
+    "0xae05cd22df81871bc7cc2a04becfb516bfe332c8"
+   ]
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.pause.0x2cfe3ec4d5a6811f4b8067f0de7e47dfa938aa30.A8",
+   "label": "pause A8 provenance",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=pause,holder_address=0x2cfe3ec4d5a6811f4b8067f0de7e47dfa938aa30]/provenance/kind",
+   "unit": "literal",
+   "value": "contract_read"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.pause.0x2cfe3ec4d5a6811f4b8067f0de7e47dfa938aa30.A8.function",
+   "label": "pause A8 function",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=pause,holder_address=0x2cfe3ec4d5a6811f4b8067f0de7e47dfa938aa30]/provenance/function",
+   "unit": "literal",
+   "value": "hasRole(bytes32,address)"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.freeze_asset.0x2ce01c87fec1b71a9041c52caed46fc5f4807285.holder_address",
+   "label": "freeze_asset A2 holder",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=freeze_asset,holder_address=0x2ce01c87fec1b71a9041c52caed46fc5f4807285]/holder_address",
+   "unit": "address",
+   "value": "0x2ce01c87fec1b71a9041c52caed46fc5f4807285"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.freeze_asset.0x2ce01c87fec1b71a9041c52caed46fc5f4807285.holder_type",
+   "label": "freeze_asset A2 type",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=freeze_asset,holder_address=0x2ce01c87fec1b71a9041c52caed46fc5f4807285]/holder_type",
+   "unit": "literal",
+   "value": "contract_automated"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.freeze_asset.0x2ce01c87fec1b71a9041c52caed46fc5f4807285.delay_seconds",
+   "label": "freeze_asset A4 delay",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=freeze_asset,holder_address=0x2ce01c87fec1b71a9041c52caed46fc5f4807285]/delay_seconds",
+   "unit": "null",
+   "value": null
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.freeze_asset.0x2ce01c87fec1b71a9041c52caed46fc5f4807285.delay_bucket",
+   "label": "freeze_asset A4 bucket",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=freeze_asset,holder_address=0x2ce01c87fec1b71a9041c52caed46fc5f4807285]/delay_bucket",
+   "unit": "literal",
+   "value": "none"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.freeze_asset.0x2ce01c87fec1b71a9041c52caed46fc5f4807285.veto_address",
+   "label": "freeze_asset A5 veto",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=freeze_asset,holder_address=0x2ce01c87fec1b71a9041c52caed46fc5f4807285]/veto_address",
+   "unit": "null",
+   "value": null
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.freeze_asset.0x2ce01c87fec1b71a9041c52caed46fc5f4807285.upgradeability",
+   "label": "freeze_asset A6",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=freeze_asset,holder_address=0x2ce01c87fec1b71a9041c52caed46fc5f4807285]/upgradeability",
+   "unit": "null",
+   "value": null
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.freeze_asset.0x2ce01c87fec1b71a9041c52caed46fc5f4807285.scope",
+   "label": "freeze_asset A7 scope",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=freeze_asset,holder_address=0x2ce01c87fec1b71a9041c52caed46fc5f4807285]/scope",
+   "unit": "list",
+   "value": [
+    "0x4e033931ad43597d96d6bcc25c280717730b58b1",
+    "0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2",
+    "0xae05cd22df81871bc7cc2a04becfb516bfe332c8"
+   ]
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.freeze_asset.0x2ce01c87fec1b71a9041c52caed46fc5f4807285.A8",
+   "label": "freeze_asset A8 provenance",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=freeze_asset,holder_address=0x2ce01c87fec1b71a9041c52caed46fc5f4807285]/provenance/kind",
+   "unit": "literal",
+   "value": "contract_read"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.freeze_asset.0x2ce01c87fec1b71a9041c52caed46fc5f4807285.A8.function",
+   "label": "freeze_asset A8 function",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=freeze_asset,holder_address=0x2ce01c87fec1b71a9041c52caed46fc5f4807285]/provenance/function",
+   "unit": "literal",
+   "value": "hasRole(bytes32,address)"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.set_oracle.0x09e8e1408a68778ceddc1938729ea126710e7dda.holder_address",
+   "label": "set_oracle A2 holder",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=set_oracle,holder_address=0x09e8e1408a68778ceddc1938729ea126710e7dda]/holder_address",
+   "unit": "address",
+   "value": "0x09e8e1408a68778ceddc1938729ea126710e7dda"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.set_oracle.0x09e8e1408a68778ceddc1938729ea126710e7dda.holder_type",
+   "label": "set_oracle A2 type",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=set_oracle,holder_address=0x09e8e1408a68778ceddc1938729ea126710e7dda]/holder_type",
+   "unit": "literal",
+   "value": "contract_automated"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.set_oracle.0x09e8e1408a68778ceddc1938729ea126710e7dda.delay_seconds",
+   "label": "set_oracle A4 delay",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=set_oracle,holder_address=0x09e8e1408a68778ceddc1938729ea126710e7dda]/delay_seconds",
+   "unit": "null",
+   "value": null
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.set_oracle.0x09e8e1408a68778ceddc1938729ea126710e7dda.delay_bucket",
+   "label": "set_oracle A4 bucket",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=set_oracle,holder_address=0x09e8e1408a68778ceddc1938729ea126710e7dda]/delay_bucket",
+   "unit": "literal",
+   "value": "none"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.set_oracle.0x09e8e1408a68778ceddc1938729ea126710e7dda.veto_address",
+   "label": "set_oracle A5 veto",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=set_oracle,holder_address=0x09e8e1408a68778ceddc1938729ea126710e7dda]/veto_address",
+   "unit": "null",
+   "value": null
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.set_oracle.0x09e8e1408a68778ceddc1938729ea126710e7dda.upgradeability",
+   "label": "set_oracle A6",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=set_oracle,holder_address=0x09e8e1408a68778ceddc1938729ea126710e7dda]/upgradeability",
+   "unit": "null",
+   "value": null
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.set_oracle.0x09e8e1408a68778ceddc1938729ea126710e7dda.scope",
+   "label": "set_oracle A7 scope",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=set_oracle,holder_address=0x09e8e1408a68778ceddc1938729ea126710e7dda]/scope",
+   "unit": "list",
+   "value": [
+    "0x4e033931ad43597d96d6bcc25c280717730b58b1",
+    "0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2",
+    "0xae05cd22df81871bc7cc2a04becfb516bfe332c8"
+   ]
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.set_oracle.0x09e8e1408a68778ceddc1938729ea126710e7dda.A8",
+   "label": "set_oracle A8 provenance",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=set_oracle,holder_address=0x09e8e1408a68778ceddc1938729ea126710e7dda]/provenance/kind",
+   "unit": "literal",
+   "value": "contract_read"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.set_oracle.0x09e8e1408a68778ceddc1938729ea126710e7dda.A8.function",
+   "label": "set_oracle A8 function",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=set_oracle,holder_address=0x09e8e1408a68778ceddc1938729ea126710e7dda]/provenance/function",
+   "unit": "literal",
+   "value": "hasRole(bytes32,address)"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.set_parameters.0x2ce01c87fec1b71a9041c52caed46fc5f4807285.holder_address",
+   "label": "set_parameters A2 holder",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=set_parameters,holder_address=0x2ce01c87fec1b71a9041c52caed46fc5f4807285]/holder_address",
+   "unit": "address",
+   "value": "0x2ce01c87fec1b71a9041c52caed46fc5f4807285"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.set_parameters.0x2ce01c87fec1b71a9041c52caed46fc5f4807285.holder_type",
+   "label": "set_parameters A2 type",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=set_parameters,holder_address=0x2ce01c87fec1b71a9041c52caed46fc5f4807285]/holder_type",
+   "unit": "literal",
+   "value": "contract_automated"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.set_parameters.0x2ce01c87fec1b71a9041c52caed46fc5f4807285.delay_seconds",
+   "label": "set_parameters A4 delay",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=set_parameters,holder_address=0x2ce01c87fec1b71a9041c52caed46fc5f4807285]/delay_seconds",
+   "unit": "null",
+   "value": null
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.set_parameters.0x2ce01c87fec1b71a9041c52caed46fc5f4807285.delay_bucket",
+   "label": "set_parameters A4 bucket",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=set_parameters,holder_address=0x2ce01c87fec1b71a9041c52caed46fc5f4807285]/delay_bucket",
+   "unit": "literal",
+   "value": "none"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.set_parameters.0x2ce01c87fec1b71a9041c52caed46fc5f4807285.veto_address",
+   "label": "set_parameters A5 veto",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=set_parameters,holder_address=0x2ce01c87fec1b71a9041c52caed46fc5f4807285]/veto_address",
+   "unit": "null",
+   "value": null
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.set_parameters.0x2ce01c87fec1b71a9041c52caed46fc5f4807285.upgradeability",
+   "label": "set_parameters A6",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=set_parameters,holder_address=0x2ce01c87fec1b71a9041c52caed46fc5f4807285]/upgradeability",
+   "unit": "null",
+   "value": null
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.set_parameters.0x2ce01c87fec1b71a9041c52caed46fc5f4807285.scope",
+   "label": "set_parameters A7 scope",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=set_parameters,holder_address=0x2ce01c87fec1b71a9041c52caed46fc5f4807285]/scope",
+   "unit": "list",
+   "value": [
+    "0x4e033931ad43597d96d6bcc25c280717730b58b1",
+    "0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2",
+    "0xae05cd22df81871bc7cc2a04becfb516bfe332c8"
+   ]
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.set_parameters.0x2ce01c87fec1b71a9041c52caed46fc5f4807285.A8",
+   "label": "set_parameters A8 provenance",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=set_parameters,holder_address=0x2ce01c87fec1b71a9041c52caed46fc5f4807285]/provenance/kind",
+   "unit": "literal",
+   "value": "contract_read"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.set_parameters.0x2ce01c87fec1b71a9041c52caed46fc5f4807285.A8.function",
+   "label": "set_parameters A8 function",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=set_parameters,holder_address=0x2ce01c87fec1b71a9041c52caed46fc5f4807285]/provenance/function",
+   "unit": "literal",
+   "value": "hasRole(bytes32,address)"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.pause.0x6e51936e0ed4256f9da4794b536b619c88ff0047.holder_address",
+   "label": "pause A2 holder",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=pause,holder_address=0x6e51936e0ed4256f9da4794b536b619c88ff0047]/holder_address",
+   "unit": "address",
+   "value": "0x6e51936e0ed4256f9da4794b536b619c88ff0047"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.pause.0x6e51936e0ed4256f9da4794b536b619c88ff0047.holder_type",
+   "label": "pause A2 type",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=pause,holder_address=0x6e51936e0ed4256f9da4794b536b619c88ff0047]/holder_type",
+   "unit": "literal",
+   "value": "contract_automated"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.pause.0x6e51936e0ed4256f9da4794b536b619c88ff0047.delay_seconds",
+   "label": "pause A4 delay",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=pause,holder_address=0x6e51936e0ed4256f9da4794b536b619c88ff0047]/delay_seconds",
+   "unit": "null",
+   "value": null
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.pause.0x6e51936e0ed4256f9da4794b536b619c88ff0047.delay_bucket",
+   "label": "pause A4 bucket",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=pause,holder_address=0x6e51936e0ed4256f9da4794b536b619c88ff0047]/delay_bucket",
+   "unit": "literal",
+   "value": "none"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.pause.0x6e51936e0ed4256f9da4794b536b619c88ff0047.veto_address",
+   "label": "pause A5 veto",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=pause,holder_address=0x6e51936e0ed4256f9da4794b536b619c88ff0047]/veto_address",
+   "unit": "null",
+   "value": null
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.pause.0x6e51936e0ed4256f9da4794b536b619c88ff0047.upgradeability",
+   "label": "pause A6",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=pause,holder_address=0x6e51936e0ed4256f9da4794b536b619c88ff0047]/upgradeability",
+   "unit": "null",
+   "value": null
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.pause.0x6e51936e0ed4256f9da4794b536b619c88ff0047.scope",
+   "label": "pause A7 scope",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=pause,holder_address=0x6e51936e0ed4256f9da4794b536b619c88ff0047]/scope",
+   "unit": "list",
+   "value": [
+    "0x3a3868898305f04bec7fea77becff04c13444112"
+   ]
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.pause.0x6e51936e0ed4256f9da4794b536b619c88ff0047.A8",
+   "label": "pause A8 provenance",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=pause,holder_address=0x6e51936e0ed4256f9da4794b536b619c88ff0047]/provenance/kind",
+   "unit": "literal",
+   "value": "contract_read"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.pause.0x6e51936e0ed4256f9da4794b536b619c88ff0047.A8.function",
+   "label": "pause A8 function",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=pause,holder_address=0x6e51936e0ed4256f9da4794b536b619c88ff0047]/provenance/function",
+   "unit": "literal",
+   "value": "hasRole(bytes32,address)"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.pause.0x733ab16005c39d07fd3d9d1a350aa6768d10125b.holder_address",
+   "label": "pause A2 holder",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=pause,holder_address=0x733ab16005c39d07fd3d9d1a350aa6768d10125b]/holder_address",
+   "unit": "address",
+   "value": "0x733ab16005c39d07fd3d9d1a350aa6768d10125b"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.pause.0x733ab16005c39d07fd3d9d1a350aa6768d10125b.holder_type",
+   "label": "pause A2 type",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=pause,holder_address=0x733ab16005c39d07fd3d9d1a350aa6768d10125b]/holder_type",
+   "unit": "literal",
+   "value": "contract_automated"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.pause.0x733ab16005c39d07fd3d9d1a350aa6768d10125b.delay_seconds",
+   "label": "pause A4 delay",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=pause,holder_address=0x733ab16005c39d07fd3d9d1a350aa6768d10125b]/delay_seconds",
+   "unit": "null",
+   "value": null
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.pause.0x733ab16005c39d07fd3d9d1a350aa6768d10125b.delay_bucket",
+   "label": "pause A4 bucket",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=pause,holder_address=0x733ab16005c39d07fd3d9d1a350aa6768d10125b]/delay_bucket",
+   "unit": "literal",
+   "value": "none"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.pause.0x733ab16005c39d07fd3d9d1a350aa6768d10125b.veto_address",
+   "label": "pause A5 veto",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=pause,holder_address=0x733ab16005c39d07fd3d9d1a350aa6768d10125b]/veto_address",
+   "unit": "null",
+   "value": null
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.pause.0x733ab16005c39d07fd3d9d1a350aa6768d10125b.upgradeability",
+   "label": "pause A6",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=pause,holder_address=0x733ab16005c39d07fd3d9d1a350aa6768d10125b]/upgradeability",
+   "unit": "null",
+   "value": null
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.pause.0x733ab16005c39d07fd3d9d1a350aa6768d10125b.scope",
+   "label": "pause A7 scope",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=pause,holder_address=0x733ab16005c39d07fd3d9d1a350aa6768d10125b]/scope",
+   "unit": "list",
+   "value": [
+    "0x882285e62656b9623af136ce3078c6bdcc33f5e3"
+   ]
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.pause.0x733ab16005c39d07fd3d9d1a350aa6768d10125b.A8",
+   "label": "pause A8 provenance",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=pause,holder_address=0x733ab16005c39d07fd3d9d1a350aa6768d10125b]/provenance/kind",
+   "unit": "literal",
+   "value": "contract_read"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.pause.0x733ab16005c39d07fd3d9d1a350aa6768d10125b.A8.function",
+   "label": "pause A8 function",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=pause,holder_address=0x733ab16005c39d07fd3d9d1a350aa6768d10125b]/provenance/function",
+   "unit": "literal",
+   "value": "hasRole(bytes32,address)"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.blacklist_address.None.holder_address",
+   "label": "blacklist_address A2 holder",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=blacklist_address,holder_address=None]/holder_address",
+   "unit": "null",
+   "value": null
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.blacklist_address.None.holder_type",
+   "label": "blacklist_address A2 type",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=blacklist_address,holder_address=None]/holder_type",
+   "unit": "literal",
+   "value": "none"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.blacklist_address.None.delay_seconds",
+   "label": "blacklist_address A4 delay",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=blacklist_address,holder_address=None]/delay_seconds",
+   "unit": "null",
+   "value": null
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.blacklist_address.None.delay_bucket",
+   "label": "blacklist_address A4 bucket",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=blacklist_address,holder_address=None]/delay_bucket",
+   "unit": "literal",
+   "value": "none"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.blacklist_address.None.veto_address",
+   "label": "blacklist_address A5 veto",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=blacklist_address,holder_address=None]/veto_address",
+   "unit": "null",
+   "value": null
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.blacklist_address.None.upgradeability",
+   "label": "blacklist_address A6",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=blacklist_address,holder_address=None]/upgradeability",
+   "unit": "null",
+   "value": null
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.blacklist_address.None.scope",
+   "label": "blacklist_address A7 scope",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=blacklist_address,holder_address=None]/scope",
+   "unit": "list",
+   "value": []
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.blacklist_address.None.A8",
+   "label": "blacklist_address A8 provenance",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=blacklist_address,holder_address=None]/provenance/kind",
+   "unit": "literal",
+   "value": "absence_read"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.seize.None.holder_address",
+   "label": "seize A2 holder",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=seize,holder_address=None]/holder_address",
+   "unit": "null",
+   "value": null
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.seize.None.holder_type",
+   "label": "seize A2 type",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=seize,holder_address=None]/holder_type",
+   "unit": "literal",
+   "value": "none"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.seize.None.delay_seconds",
+   "label": "seize A4 delay",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=seize,holder_address=None]/delay_seconds",
+   "unit": "null",
+   "value": null
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.seize.None.delay_bucket",
+   "label": "seize A4 bucket",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=seize,holder_address=None]/delay_bucket",
+   "unit": "literal",
+   "value": "none"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.seize.None.veto_address",
+   "label": "seize A5 veto",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=seize,holder_address=None]/veto_address",
+   "unit": "null",
+   "value": null
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.seize.None.upgradeability",
+   "label": "seize A6",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=seize,holder_address=None]/upgradeability",
+   "unit": "null",
+   "value": null
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.seize.None.scope",
+   "label": "seize A7 scope",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=seize,holder_address=None]/scope",
+   "unit": "list",
+   "value": [
+    "0x3a3868898305f04bec7fea77becff04c13444112",
+    "0x882285e62656b9623af136ce3078c6bdcc33f5e3"
+   ]
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.seize.None.A8",
+   "label": "seize A8 provenance",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=seize,holder_address=None]/provenance/kind",
+   "unit": "literal",
+   "value": "absence_read"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.0.firm",
+   "label": "audit firm",
+   "owner_entry": "DET-73",
+   "section": "static metadata",
+   "source_path": "bundle/static_metadata/audits/0/firm",
+   "unit": "literal",
+   "value": "SigmaPrime"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.0.date",
+   "label": "audit date",
+   "owner_entry": "DET-73",
+   "section": "static metadata",
+   "source_path": "bundle/static_metadata/audits/0/date",
+   "unit": "date",
+   "value": "2023-10-23"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.0.scope",
+   "label": "audit scope",
+   "owner_entry": "DET-73",
+   "section": "static metadata",
+   "source_path": "bundle/static_metadata/audits/0/scope",
+   "unit": "literal",
+   "value": "GSM (v2.4; scope includes Gsm4626.sol; commits e4ea98c, 7c03c52)"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.1.firm",
+   "label": "audit firm",
+   "owner_entry": "DET-73",
+   "section": "static metadata",
+   "source_path": "bundle/static_metadata/audits/1/firm",
+   "unit": "literal",
+   "value": "Certora"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.1.date",
+   "label": "audit date",
+   "owner_entry": "DET-73",
+   "section": "static metadata",
+   "source_path": "bundle/static_metadata/audits/1/date",
+   "unit": "date",
+   "value": "2023-12-07"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.1.scope",
+   "label": "audit scope",
+   "owner_entry": "DET-73",
+   "section": "static metadata",
+   "source_path": "bundle/static_metadata/audits/1/scope",
+   "unit": "literal",
+   "value": "GSM formal verification (work 2023-08-09 → 2023-12-07, commit f368bef, scope Gsm.sol and Gsm4626.sol; no publication date on the document)"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.2.firm",
+   "label": "audit firm",
+   "owner_entry": "DET-73",
+   "section": "static metadata",
+   "source_path": "bundle/static_metadata/audits/2/firm",
+   "unit": "literal",
+   "value": "Emanuele Ricci"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.2.date",
+   "label": "audit date",
+   "owner_entry": "DET-73",
+   "section": "static metadata",
+   "source_path": "bundle/static_metadata/audits/2/date",
+   "unit": "date",
+   "value": "2024-01"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.2.scope",
+   "label": "audit scope",
+   "owner_entry": "DET-73",
+   "section": "static metadata",
+   "source_path": "bundle/static_metadata/audits/2/scope",
+   "unit": "literal",
+   "value": "GSM (AIP-8)"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.3.firm",
+   "label": "audit firm",
+   "owner_entry": "DET-73",
+   "section": "static metadata",
+   "source_path": "bundle/static_metadata/audits/3/firm",
+   "unit": "literal",
+   "value": "Certora"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.3.date",
+   "label": "audit date",
+   "owner_entry": "DET-73",
+   "section": "static metadata",
+   "source_path": "bundle/static_metadata/audits/3/date",
+   "unit": "date",
+   "value": "2024-03-14"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.3.scope",
+   "label": "audit scope",
+   "owner_entry": "DET-73",
+   "section": "static metadata",
+   "source_path": "bundle/static_metadata/audits/3/scope",
+   "unit": "literal",
+   "value": "GhoStewardV2"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.4.firm",
+   "label": "audit firm",
+   "owner_entry": "DET-73",
+   "section": "static metadata",
+   "source_path": "bundle/static_metadata/audits/4/firm",
+   "unit": "literal",
+   "value": "Certora"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.4.date",
+   "label": "audit date",
+   "owner_entry": "DET-73",
+   "section": "static metadata",
+   "source_path": "bundle/static_metadata/audits/4/date",
+   "unit": "date",
+   "value": "2024-06-11"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.4.scope",
+   "label": "audit scope",
+   "owner_entry": "DET-73",
+   "section": "static metadata",
+   "source_path": "bundle/static_metadata/audits/4/scope",
+   "unit": "literal",
+   "value": "UpgradeableGHO"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.5.firm",
+   "label": "audit firm",
+   "owner_entry": "DET-73",
+   "section": "static metadata",
+   "source_path": "bundle/static_metadata/audits/5/firm",
+   "unit": "literal",
+   "value": "Certora"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.5.date",
+   "label": "audit date",
+   "owner_entry": "DET-73",
+   "section": "static metadata",
+   "source_path": "bundle/static_metadata/audits/5/date",
+   "unit": "date",
+   "value": "2024-09-15"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.5.scope",
+   "label": "audit scope",
+   "owner_entry": "DET-73",
+   "section": "static metadata",
+   "source_path": "bundle/static_metadata/audits/5/scope",
+   "unit": "literal",
+   "value": "ModularGhoStewards"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.6.firm",
+   "label": "audit firm",
+   "owner_entry": "DET-73",
+   "section": "static metadata",
+   "source_path": "bundle/static_metadata/audits/6/firm",
+   "unit": "literal",
+   "value": "Certora"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.6.date",
+   "label": "audit date",
+   "owner_entry": "DET-73",
+   "section": "static metadata",
+   "source_path": "bundle/static_metadata/audits/6/date",
+   "unit": "date",
+   "value": "2025-07-15"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.6.scope",
+   "label": "audit scope",
+   "owner_entry": "DET-73",
+   "section": "static metadata",
+   "source_path": "bundle/static_metadata/audits/6/scope",
+   "unit": "literal",
+   "value": "RemoteGSM"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.7.firm",
+   "label": "audit firm",
+   "owner_entry": "DET-73",
+   "section": "static metadata",
+   "source_path": "bundle/static_metadata/audits/7/firm",
+   "unit": "literal",
+   "value": "OpenZeppelin"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.7.date",
+   "label": "audit date",
+   "owner_entry": "DET-73",
+   "section": "static metadata",
+   "source_path": "bundle/static_metadata/audits/7/date",
+   "unit": "date",
+   "value": "2022-08-12"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.7.scope",
+   "label": "audit scope",
+   "owner_entry": "DET-73",
+   "section": "static metadata",
+   "source_path": "bundle/static_metadata/audits/7/scope",
+   "unit": "literal",
+   "value": "GHO token"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.8.firm",
+   "label": "audit firm",
+   "owner_entry": "DET-73",
+   "section": "static metadata",
+   "source_path": "bundle/static_metadata/audits/8/firm",
+   "unit": "literal",
+   "value": "OpenZeppelin"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.8.date",
+   "label": "audit date",
+   "owner_entry": "DET-73",
+   "section": "static metadata",
+   "source_path": "bundle/static_metadata/audits/8/date",
+   "unit": "date",
+   "value": "2022-11-10"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.8.scope",
+   "label": "audit scope",
+   "owner_entry": "DET-73",
+   "section": "static metadata",
+   "source_path": "bundle/static_metadata/audits/8/scope",
+   "unit": "literal",
+   "value": "GHO token"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.9.firm",
+   "label": "audit firm",
+   "owner_entry": "DET-73",
+   "section": "static metadata",
+   "source_path": "bundle/static_metadata/audits/9/firm",
+   "unit": "literal",
+   "value": "ABDK"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.9.date",
+   "label": "audit date",
+   "owner_entry": "DET-73",
+   "section": "static metadata",
+   "source_path": "bundle/static_metadata/audits/9/date",
+   "unit": "date",
+   "value": "2023-03-01"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.9.scope",
+   "label": "audit scope",
+   "owner_entry": "DET-73",
+   "section": "static metadata",
+   "source_path": "bundle/static_metadata/audits/9/scope",
+   "unit": "literal",
+   "value": "GHO"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.10.firm",
+   "label": "audit firm",
+   "owner_entry": "DET-73",
+   "section": "static metadata",
+   "source_path": "bundle/static_metadata/audits/10/firm",
+   "unit": "literal",
+   "value": "Certora"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.10.date",
+   "label": "audit date",
+   "owner_entry": "DET-73",
+   "section": "static metadata",
+   "source_path": "bundle/static_metadata/audits/10/date",
+   "unit": "date",
+   "value": "2023-02-28"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.10.scope",
+   "label": "audit scope",
+   "owner_entry": "DET-73",
+   "section": "static metadata",
+   "source_path": "bundle/static_metadata/audits/10/scope",
+   "unit": "literal",
+   "value": "GHO formal verification"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.11.firm",
+   "label": "audit firm",
+   "owner_entry": "DET-73",
+   "section": "static metadata",
+   "source_path": "bundle/static_metadata/audits/11/firm",
+   "unit": "literal",
+   "value": "SigmaPrime"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.11.date",
+   "label": "audit date",
+   "owner_entry": "DET-73",
+   "section": "static metadata",
+   "source_path": "bundle/static_metadata/audits/11/date",
+   "unit": "date",
+   "value": "2023-07-06"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.11.scope",
+   "label": "audit scope",
+   "owner_entry": "DET-73",
+   "section": "static metadata",
+   "source_path": "bundle/static_metadata/audits/11/scope",
+   "unit": "literal",
+   "value": "GHO"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.bug_bounty.platform",
+   "label": "bug bounty platform",
+   "owner_entry": "DET-73",
+   "section": "static metadata",
+   "source_path": "bundle/static_metadata/bug_bounty/platform",
+   "unit": "literal",
+   "value": "Immunefi"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.bug_bounty.max",
+   "label": "bug bounty max",
+   "owner_entry": "DET-73",
+   "section": "static metadata",
+   "source_path": "bundle/static_metadata/bug_bounty/max",
+   "unit": "literal",
+   "value": "USD 1,000,000"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.last_material_change_audited",
+   "label": "last material change audited",
+   "owner_entry": "DET-73",
+   "section": "static metadata",
+   "source_path": "bundle/static_metadata/last_material_change_audited",
+   "unit": "literal",
+   "value": "yes"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.staleness_date",
+   "label": "staleness date",
+   "owner_entry": "DET-73",
+   "section": "static metadata",
+   "source_path": "bundle/static_metadata/staleness_date",
+   "unit": "date",
+   "value": "2026-09-13"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.counterparties",
+   "label": "counterparties",
+   "owner_entry": "DET-73",
+   "section": "static metadata",
+   "source_path": "bundle/static_metadata/counterparties",
+   "unit": "literal",
+   "value": "n/a — archetype #1 holds no off-chain counterparties. WBTC custodian captured in §4 look-through."
+  }
+ ],
+ "run_block": 25970233,
+ "table_hash": "f4eb250fc044c769eda560898d34f961b082a6e77a2dbf13948391326437e650",
+ "token": "GHO"
+}

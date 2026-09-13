@@ -1,0 +1,36 @@
+# Template manifest (P-7.01 R5; B-10). B-11 adds the page templates, stylesheet
+# and prompts beside this file; every file under templates/ enters template_hash.
+
+prompt_schema_version = "1"
+
+# DET-89's display rule, emitted with the template as the NAMED DEFAULT.
+[display_rule]
+thousands_separator = ","
+usd_ge_1k_decimals = 2
+token_amount_lt_1_decimals = 4
+ratio_as_percent_decimals = 1          # R-7: p = 1, half-up (tree._pct1)
+rounding = "half_up"
+
+# DET-79: zero matches over report and page. The fixed list, the tag shape, the
+# ruled placeholders, and the internal-citation patterns P-7.01 R19 adds.
+[substitution_list]
+literals = ["{{", "}}", "{%", "[TODO", "TBD", "lorem", "XXX", "<placeholder",
+            "[FIRST-RUN READ", "[ANALYST-SUPPLIED", "[VERIFIED", "[RE-SCOPED", "[VERIFY]",
+            "[addr]", "[date]", "[freeze date]"]
+patterns = ['\[[A-Z][A-Z -]+:', 'block N\b', '\bN%', 'P-\d+\.\d+', '#\d+']
+
+# DET-80's seven prose slots.
+[[prose_slots]]
+id = "verifiability_narrative"
+[[prose_slots]]
+id = "member1_opening"
+[[prose_slots]]
+id = "member2_opening"
+[[prose_slots]]
+id = "flag_explanations"
+[[prose_slots]]
+id = "counterfactual_explanations"
+[[prose_slots]]
+id = "admin_surface_narrative"
+[[prose_slots]]
+id = "structural_summary"

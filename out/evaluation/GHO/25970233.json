@@ -1,0 +1,575 @@
+{
+ "bundle_hash": "6a2152855fde6e8c69b1fb52f7d580b6566c2a1d1891faed50f9e9e6298254fc",
+ "generation": [],
+ "judge": [],
+ "outcome": null,
+ "pipeline_version": "0.1.0",
+ "report_hash": "665a076cd90cfe2a6ed11cb50d70c8c37362a22f27ce389f7d903507b52fb5eb",
+ "results": [
+  {
+   "entry_id": "DET-02",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S0"
+  },
+  {
+   "entry_id": "DET-12",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S0"
+  },
+  {
+   "entry_id": "DET-77",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S0"
+  },
+  {
+   "entry_id": "DET-83",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S1"
+  },
+  {
+   "entry_id": "DET-86",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S1"
+  },
+  {
+   "entry_id": "DET-01",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S1"
+  },
+  {
+   "entry_id": "DET-03",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S1"
+  },
+  {
+   "entry_id": "DET-04",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S1"
+  },
+  {
+   "entry_id": "DET-07",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S1"
+  },
+  {
+   "entry_id": "DET-20",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S1"
+  },
+  {
+   "entry_id": "DET-21",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S1"
+  },
+  {
+   "entry_id": "DET-33",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S1"
+  },
+  {
+   "entry_id": "DET-55",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S1"
+  },
+  {
+   "entry_id": "DET-61",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S1"
+  },
+  {
+   "entry_id": "DET-62",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S1"
+  },
+  {
+   "entry_id": "DET-63",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S1"
+  },
+  {
+   "entry_id": "DET-65",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S1"
+  },
+  {
+   "entry_id": "DET-66",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S1"
+  },
+  {
+   "entry_id": "DET-68",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S1"
+  },
+  {
+   "entry_id": "DET-08",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S1"
+  },
+  {
+   "entry_id": "DET-10",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S1"
+  },
+  {
+   "entry_id": "DET-29a",
+   "result": "pass",
+   "scope_condition": "T-20 (L1)",
+   "stage": "S1"
+  },
+  {
+   "entry_id": "DET-71",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S1"
+  },
+  {
+   "entry_id": "DET-76e",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S1"
+  },
+  {
+   "entry_id": "DET-82",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S1"
+  },
+  {
+   "entry_id": "DET-52",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S1"
+  },
+  {
+   "entry_id": "DET-14",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-19",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-70",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-11",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-06",
+   "result": "pass",
+   "scope_condition": "no markets[] rows: GHO originates on facilitators[], which carry no in-position stablecoin field; (c)'s base-CR replay has no field yet (B-10)",
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-16",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-22",
+   "result": "pass",
+   "scope_condition": "no stabilizer operations: slice 0, ceiling 0 (R-9)",
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-28",
+   "result": "pass",
+   "scope_condition": "2 live GSMs, boxed nodes present",
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-34",
+   "result": "pass",
+   "scope_condition": "0 above-floor non-F rows reasoned; below_dust_floor at freeze is the set file's (freeze.build_freeze)",
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-67",
+   "result": "pass",
+   "scope_condition": "3 paths derive exactly",
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-72",
+   "result": "pass",
+   "scope_condition": "2 on-chain paths consistent",
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-05",
+   "result": "pass",
+   "scope_condition": "no stabilizer operations: (c)/(d) not applicable",
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-15",
+   "result": "pass",
+   "scope_condition": "residual 0 = 0 named causes 0 + unexplained 0 (0.000000% of supply_ruled)",
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-32",
+   "result": "pass",
+   "scope_condition": "T-02 (L1) off-venue share > 25%: X 0.928382 (2192733 / 30617279); open point memo §11.6, dated 2026-09-13",
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-24",
+   "result": "pass",
+   "scope_condition": "DET-24(a) asserted as provenance, not value equality: `pool_composition_at_block` does not exist on the bundle (R-B2.5)",
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-29bc",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-30",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-31",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-35",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-50",
+   "result": "pass",
+   "scope_condition": "target 0xdac17f958d2ee523a2206206994597c13d831ec7 at share 0.9844145264042613172184912577 via gsm_venue; compound-tail and joint-cell limbs dormant until the cells exist (B-4/5/6)",
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-45",
+   "result": "pass",
+   "scope_condition": "no stabilizer: H1 does not apply to this token",
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-26",
+   "result": "pass",
+   "scope_condition": "no stabilizer: Member 1's trajectory has no crvUSD-shaped term",
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-27",
+   "result": "pass",
+   "scope_condition": "no stabilizer: no burn capacity term",
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-69",
+   "result": "pass",
+   "scope_condition": "marked == consumed == ['pause']",
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-23c",
+   "result": "pass",
+   "scope_condition": "no stabilizer_* in any of 47 cell lineages",
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-32-lineage",
+   "result": "pass",
+   "scope_condition": "no offvenue_* in 47 cell lineages or exit_depth reads",
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-25",
+   "result": "pass",
+   "scope_condition": "Member-1 forced_sell == bad_debt on every cell; no stabilizer source",
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-37",
+   "result": "pass",
+   "scope_condition": "47 cells; LST axis live",
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-38",
+   "result": "pass",
+   "scope_condition": "m4 key set exact on 47 cells (9 keys)",
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-39",
+   "result": "pass",
+   "scope_condition": "gap = post - pre on every cell; both readings present",
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-40",
+   "result": "pass",
+   "scope_condition": "bad_debt >= 0, pct_supply replays, monotone on shock / LST / LP",
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-41",
+   "result": "pass",
+   "scope_condition": "LP-0 identity holds; 6 undefined ratio(s) treated as +infinity (R-B4.14)",
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-42",
+   "result": "pass",
+   "scope_condition": "numerators per token",
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-43",
+   "result": "pass",
+   "scope_condition": "not structurally insulated: the entry does not apply",
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-44",
+   "result": "pass",
+   "scope_condition": "required IDs on every cell; 0 EMA_lag lines flagged",
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-48",
+   "result": "pass",
+   "scope_condition": "grid exact; 11 reference rows carrying R14's literal",
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-49",
+   "result": "pass",
+   "scope_condition": "axis {0, 0.05, 0.10}; headline M1-s50-d0-lp0 at d = 0",
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-46",
+   "result": "pass",
+   "scope_condition": "freezer_effective on 2 GSM(s); depth removal owned by DET-35",
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-47",
+   "result": "pass",
+   "scope_condition": "argmin asserted on 37 Member-1 and joint cells; ties to `collateral_sellable` (named default); Member-2 cells carry both sides without a verdict, the entry's own scope",
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-51",
+   "result": "pass",
+   "scope_condition": "not a trove book: DET-51's H3/H4 specifics do not apply",
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-84",
+   "result": "pass",
+   "scope_condition": "475 rows replay from their owners; table_hash f4eb250f",
+   "stage": "S2"
+  }
+ ],
+ "revision_cause": [],
+ "revision_count": 0,
+ "run_block": 25970233,
+ "sheet_hash": "5486f264",
+ "stress_hash": "779c4142f329166bd96305ecbc1f460a023b2b7620680e79625fa76e65a7efb6",
+ "table_hash": "f4eb250fc044c769eda560898d34f961b082a6e77a2dbf13948391326437e650",
+ "template_hash": "bd6e9e8c331944306bad526927e5c89c95dd8e6097847fc374937a89a4088bb8",
+ "token": "GHO",
+ "tree_hash": "a79e32cb6084870cf63241c24649d18ee4ba2ddcd0dc27de496c9c2dc01ec350",
+ "triggers": [
+  {
+   "level": 1,
+   "source_entry": "DET-29a",
+   "trigger": "T-20"
+  },
+  {
+   "level": 1,
+   "source_entry": "DET-32",
+   "trigger": "T-02"
+  }
+ ],
+ "unregistered": [
+  {
+   "entry_id": "DET-12-S3",
+   "queue_item": "B-12 (log, flags, banner, integrity; R14/R15)"
+  },
+  {
+   "entry_id": "DET-09",
+   "queue_item": "P-4.01 (DET-09 set-file inputs: GHO discovery_m absent, LUSD 0.4459 - ruling)"
+  },
+  {
+   "entry_id": "DET-75",
+   "queue_item": "P-4.01 #25/#26 (field-existence clause; FR-14 fields)"
+  },
+  {
+   "entry_id": "DET-76abcd",
+   "queue_item": "P-4.01 (DET-76 limbs a-d beside the registered DET-76e)"
+  },
+  {
+   "entry_id": "DET-81",
+   "queue_item": "P-4.01 (GHO [[reference_feed]] rows, gap column - P-7.05)"
+  },
+  {
+   "entry_id": "DET-14cd",
+   "queue_item": "B-11 (templates, page; P-7.01 R5)"
+  },
+  {
+   "entry_id": "DET-23abd",
+   "queue_item": "P-4.01 (DET-23 limbs a/b/d beside the registered DET-23c)"
+  },
+  {
+   "entry_id": "DET-22-S3",
+   "queue_item": "B-11 (templates, page; P-7.01 R5)"
+  },
+  {
+   "entry_id": "DET-29c",
+   "queue_item": "B-11 (templates, page; P-7.01 R5)"
+  },
+  {
+   "entry_id": "DET-64",
+   "queue_item": "P-4.01 (GHO attribution cross-check: aggregate reads)"
+  },
+  {
+   "entry_id": "DET-17",
+   "queue_item": "B-11 (templates, page; P-7.01 R5)"
+  },
+  {
+   "entry_id": "DET-18",
+   "queue_item": "B-11 (templates, page; P-7.01 R5)"
+  },
+  {
+   "entry_id": "DET-36",
+   "queue_item": "B-11 (templates, page; P-7.01 R5)"
+  },
+  {
+   "entry_id": "DET-53",
+   "queue_item": "B-11 (templates, page; P-7.01 R5)"
+  },
+  {
+   "entry_id": "DET-54",
+   "queue_item": "B-11 (templates, page; P-7.01 R5)"
+  },
+  {
+   "entry_id": "DET-56",
+   "queue_item": "B-11 (templates, page; P-7.01 R5)"
+  },
+  {
+   "entry_id": "DET-57",
+   "queue_item": "B-11 (templates, page; P-7.01 R5)"
+  },
+  {
+   "entry_id": "DET-58",
+   "queue_item": "B-12 (log, flags, banner, integrity; R14/R15)"
+  },
+  {
+   "entry_id": "DET-59",
+   "queue_item": "B-12 (log, flags, banner, integrity; R14/R15)"
+  },
+  {
+   "entry_id": "DET-60",
+   "queue_item": "B-12 (log, flags, banner, integrity; R14/R15)"
+  },
+  {
+   "entry_id": "DET-73",
+   "queue_item": "B-11 (templates, page; P-7.01 R5)"
+  },
+  {
+   "entry_id": "DET-74",
+   "queue_item": "B-11 (templates, page; P-7.01 R5)"
+  },
+  {
+   "entry_id": "DET-79",
+   "queue_item": "B-11 (templates, page; P-7.01 R5)"
+  },
+  {
+   "entry_id": "DET-80",
+   "queue_item": "B-13 (prose, judge, loop; R12)"
+  },
+  {
+   "entry_id": "DET-88",
+   "queue_item": "B-11 (templates, page; P-7.01 R5)"
+  },
+  {
+   "entry_id": "DET-89",
+   "queue_item": "B-11 (templates, page; P-7.01 R5)"
+  },
+  {
+   "entry_id": "DET-87",
+   "queue_item": "B-12 (log, flags, banner, integrity; R14/R15)"
+  },
+  {
+   "entry_id": "DET-85",
+   "queue_item": "B-13 (prose, judge, loop; R12)"
+  },
+  {
+   "entry_id": "DET-13",
+   "queue_item": "B-12 (log, flags, banner, integrity; R14/R15)"
+  },
+  {
+   "entry_id": "LLM-01",
+   "queue_item": "B-13 (prose, judge, loop; R12)"
+  },
+  {
+   "entry_id": "LLM-02",
+   "queue_item": "B-13 (prose, judge, loop; R12)"
+  },
+  {
+   "entry_id": "LLM-03",
+   "queue_item": "B-13 (prose, judge, loop; R12)"
+  },
+  {
+   "entry_id": "LLM-04",
+   "queue_item": "B-13 (prose, judge, loop; R12)"
+  },
+  {
+   "entry_id": "LLM-05",
+   "queue_item": "B-13 (prose, judge, loop; R12)"
+  },
+  {
+   "entry_id": "LLM-06",
+   "queue_item": "B-13 (prose, judge, loop; R12)"
+  }
+ ]
+}

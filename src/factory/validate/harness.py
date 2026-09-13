@@ -2234,6 +2234,71 @@ def run_stress_checks(bundle: Bundle, tree: VerifiabilityTree,
     return results
 
 
+# ------------------------------------------- S2, consumer "report" (B-10) ----
+
+
+def det_84(b: Bundle, t: VerifiabilityTree, r: StressReport, page: dict) -> str:
+    """Flat table replays from its owners (D-9), S2 (B-10). Every row's
+    `source_path` resolves in the bundle / tree / stress report / mirror and
+    equals the row's `value` (1e-6 numerics, equality otherwise); every row has
+    an owner entry; field ids are unique; `table_hash` recomputes; every DET-57
+    `data_ref` names a row. "A component of `bundle_hash`" reads as the report
+    manifest's `report_hash` (P-7.01 R3); the page-draws-only-from-the-table
+    clause is S3's (B-11)."""
+    import json as _json
+
+    from factory.report.paths import PathError, resolve, same
+    from factory.report.table import table_hash
+    from factory.schema import serialise, serialise_stress, serialise_tree
+    doc = page["table"]
+    sources = {"bundle": {**_json.loads(serialise(b)),
+                          "header": {**_json.loads(serialise(b))["header"],
+                                     "bundle_hash": b.header.bundle_hash}},
+               "tree": _json.loads(serialise_tree(t)), "stress": _json.loads(serialise_stress(r)),
+               "mirror": page["mirror"]}
+    ids = [row["field_id"] for row in doc["rows"]]
+    if len(set(ids)) != len(ids):
+        raise Level3("DET-84: duplicate field_id")
+    bad = []
+    for row in doc["rows"]:
+        if not row.get("owner_entry"):
+            bad.append(f"{row['field_id']}: no owner")
+            continue
+        try:
+            got = resolve(sources, row["source_path"])
+        except PathError as exc:
+            bad.append(f"{row['field_id']}: {exc}")
+            continue
+        if not same(got, row["value"]):
+            bad.append(f"{row['field_id']}: {row['value']!r} != owner {got!r}")
+    if bad:
+        raise Level3(f"DET-84: {len(bad)} row(s) do not replay: {bad[:3]}")
+    if table_hash(doc) != doc["table_hash"]:
+        raise Level3("DET-84: table_hash does not recompute")
+    refs = {f for a in doc["assumptions"] for f in (a["data_ref"] or [])}
+    if refs - set(ids):
+        raise Level3(f"DET-84: assumption data_ref(s) with no row {sorted(refs - set(ids))[:3]}")
+    return f"{len(ids)} rows replay from their owners; table_hash {doc['table_hash'][:8]}"
+
+
+def run_report_checks(bundle: Bundle, tree: VerifiabilityTree, report: StressReport,
+                      page: dict) -> list[GateResult]:
+    """The report-stage rows, fail-closed (DET-85's shape)."""
+    results = []
+    for chk in (c for c in CHECKS if c.consumer == "report"):
+        try:
+            scope = chk.fn(bundle, tree, report, page)
+            results.append(GateResult(entry_id=chk.entry_id, result="pass",
+                                      scope_condition=scope if isinstance(scope, str) else None))
+        except Level3 as exc:
+            results.append(GateResult(entry_id=chk.entry_id, result="fail",
+                                      scope_condition=str(exc)[:500]))
+        except Exception as exc:
+            results.append(GateResult(entry_id=chk.entry_id, result="error",
+                                      scope_condition=f"{type(exc).__name__}: {exc}"[:500]))
+    return results
+
+
 CHECKS: list[Check] = [
     Check("DET-02", "S0", 3, det_02), Check("DET-12", "S0", 3, det_12),
     Check("DET-77", "S0", 3, det_77),
@@ -2275,6 +2340,7 @@ CHECKS: list[Check] = [
     Check("DET-69", "S2", 2, det_69, "stress"),
     Check("DET-23c", "S2", 2, det_23c, "stress"),
     Check("DET-32-lineage", "S2", 2, det_32_lineage, "stress"),          # B-9
+    Check("DET-84", "S2", 2, det_84, "report"),                           # B-10
     Check("DET-25", "S2", 2, det_25, "stress"),
     Check("DET-37", "S2", 2, det_37, "stress"),
     Check("DET-38", "S2", 2, det_38, "stress"),
@@ -2290,6 +2356,31 @@ CHECKS: list[Check] = [
     Check("DET-47", "S2", 2, det_47, "stress"),
     Check("DET-51", "S2", 2, det_51, "stress"),
 ]
+
+
+def evaluate_harness(bundle: Bundle, ctx: dict) -> HarnessOutcome:
+    """S0 then S1 for the gate-evaluation record (B-10): the same checks as
+    `run_harness`, fail-closed per result, but never raising - the record must
+    hold every registered entry's result, including a failing one."""
+    results: list[GateResult] = []
+    triggers: list[tuple[str, int]] = []
+    for stage in ("S0", "S1"):
+        for chk in (c for c in CHECKS if c.stage == stage):
+            try:
+                fired = chk.fn(bundle, ctx)
+                scope = (f"{fired[0]} (L{fired[1]})" if isinstance(fired, tuple)
+                         else fired if isinstance(fired, str) else None)
+                results.append(GateResult(entry_id=chk.entry_id, result="pass",
+                                          scope_condition=scope))
+                if isinstance(fired, tuple):
+                    triggers.append(fired)
+            except Level3 as exc:
+                results.append(GateResult(entry_id=chk.entry_id, result="fail",
+                                          scope_condition=str(exc)[:500]))
+            except Exception as exc:                       # DET-85 fail-closed
+                results.append(GateResult(entry_id=chk.entry_id, result="error",
+                                          scope_condition=f"{type(exc).__name__}: {exc}"[:500]))
+    return HarnessOutcome(results, triggers)
 
 
 def run_harness(bundle: Bundle, ctx: dict) -> HarnessOutcome:

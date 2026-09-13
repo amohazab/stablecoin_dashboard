@@ -7815,3 +7815,72 @@ Status: IN PROGRESS (opened 2026-09-13, P-7.01).
   `PROGRESS.md`.
 - **Follow-ups spawned:** B-10 (flat table, manifest, gate record); DET-81 after
   Amin's GHO reference-feed rows.
+
+## P-7.06 — B-10: the flat table, the assumptions block, the report manifest, the gate record; DET-84 registered
+
+- **Date:** 2026-09-13
+- **Type:** implementation
+- **Confirmed by:** Amin
+- **Content:**
+  **P-7.05 COMMITTED** at `7a68bcca`: P-7.01-A2, P-5.01-A1 and P-7.05 appended in
+  that order, each slice equal to its scratch file and to the committed LF blob's
+  tail; 41 paths (26 modified, 4 new sources, `tools/light_sample_check.py`, the 9
+  artifacts with GHO stress `779c4142`, `PROGRESS.md`).
+  **THE PACKAGE `src/factory/report/`**, run as `python -m factory.report <TOKEN>`,
+  no RPC. `paths.py`: a `source_path` (`bundle|tree|stress|mirror/…`, list
+  selectors `[k=v]`) resolves a row's value; the same resolver builds the table and
+  replays it. `table.py`: rows `{field_id, label, value, unit, denominator,
+  section, owner_entry, source_path}`, every value copied, none computed — the
+  header; DET-17 bars, truncation, U; DET-18 pair and per-node rows; DET-70
+  banner; DET-19's denominator map incl. GHO's off-mainnet line; DET-15 supply,
+  residual, every named cause; DET-16; the headline cell's m1–m3, its m4 map by
+  owner (DET-45/47/51/46/27/26/44/48/42) and counterfactual values; the d = 0
+  panel (12 cells × 4); DET-30 ×3, DET-31 ×4 (+ DET-35 GSM); DET-36; DET-11 on
+  the depth basis; DET-50; DET-43's twelve; DET-53's nine bias rows (mirror);
+  Step 6's assumption strings; DET-52 sell-side; DET-55/54 oracle rows; A1–A8 per
+  row; DET-73; DET-32. **Rows: crvUSD 465 · GHO 475 · LUSD 255.** `table_hash`
+  over canonical JSON of `{token, run_block, rows, assumptions}`.
+  `assumptions.py`: DET-57's required IDs per token (GHO + `h5_slippage_bound`,
+  `gsm_fee_exit`; crvUSD/GHO + `lst_discount_grid`), each `data_ref` → rows or
+  `rule_ref` → memo section, Step 6's keys as non-required rows; a required ID
+  with neither, or a `data_ref` naming no row, fails the build.
+  `templates/manifest.toml`: DET-89's display rule, DET-79's list with `P-\d+\.\d+`
+  and `#\d+` (R19), the seven `prose_slots`, `prompt_schema_version = "1"`;
+  **`template_hash` `bd6e9e8c`** over sorted (path, LF bytes) of `templates/`.
+  `manifest.py`: `report_hash = sha256(bundle ‖ tree ‖ stress ‖ table ‖ template
+  ‖ pipeline_version ‖ sheet)`, plain concatenation. `record.py`: `GateRecord`
+  per inventory B.1 — results with stage, triggers, `unregistered[]` with queue
+  items (A-16), judge/generation empty, `revision_count` 0 / `revision_cause` [],
+  `outcome` null; a record missing any registered ID fails the build.
+  **NAMED DEFAULTS.** Paths: `out/report/<TOKEN>/<run_block>/{table,manifest}.json`
+  (inventory §I) and `out/evaluation/<TOKEN>/<run_block>.json`, committed; a
+  failing report-stage row routes table and manifest to `out/rehearsal/`. The
+  record re-evaluates S0/S1 over the promoted bundle with `evaluate_harness` (the
+  checks of `run_harness`, never raising), takes S2 from the tree and stress
+  artifacts, runs the report stage now; S2 triggers parsed from their scope text
+  until B-12. Units vocabulary in `table.py`. The full 47/23-cell grid is a second
+  file, `grid.json` beside `table.json` (each cell's m1–m4 fields), inside
+  `table_hash`, rendered at B-11 as the appendix; the judge receives `table.json`
+  only (Amin's named default). `run.execute`'s context became `harness_ctx`,
+  shared with the record.
+  **DET-84 REGISTERED** S2, `consumer = "report"`, `fn(bundle, tree, report,
+  page)`: every row replays (1e-6 / equality), owners present, ids unique,
+  `table_hash` recomputes, DET-57 refs name rows. **`len(CHECKS)` 66 → 67.**
+  **RUNS, no RPC:** tables `12743eff` / `f4eb250f` / `bf786be3`; **report_hash
+  `49bd7fb6` / `665a076c` / `75b3f8da`**; records **67/67 pass** ×3 (S0 3, S1 23,
+  S2 41); GHO triggers T-20 (DET-29a), T-02 (DET-32); **35 unregistered IDs** — 15
+  to B-11, 6 to B-12, 8 to B-13, 6 to P-4.01 (DET-09, DET-64, DET-75, DET-81,
+  DET-23abd, DET-76abcd); 67 + 35 − 6 = 96, P-7.01-A2's target. A second run
+  reproduces every hash. **TESTS 210 → 218** (`tests/test_b10.py`); ruff clean.
+  **AS-COUNTED.** Builder: P-3.08-A1's docstring sentence changed at B-9's schema
+  edit, not at B-10 as recorded. Builder: the first table named DET-83 as owner of
+  every header row; corrected before the hashes above. Design layer: P-7.05 was
+  accepted at 72 content lines and appended at 74 after the ruled `779c4142` line;
+  the commit instruction's counts read 25 modified files and 2 tools — 26 and 1.
+- **Artifacts:** `src/factory/report/{__init__,paths,table,assumptions,manifest,record,__main__}.py`
+  (new) · `src/factory/run.py` · `src/factory/validate/harness.py`;
+  `templates/manifest.toml` (new); `tests/test_b10.py` (new) · `tests/test_b9.py`;
+  `out/report/{crvUSD/25970226,GHO/25970233,LUSD/25970249}/{table,manifest}.json`;
+  `out/evaluation/{crvUSD/25970226,GHO/25970233,LUSD/25970249}.json`; `PROGRESS.md`.
+- **Follow-ups spawned:** B-11 — templates, CSS, SVG, pages, the verify page, print
+  CSS; the S3 rows and limbs; Amin's browser review before B-12.

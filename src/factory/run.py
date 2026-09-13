@@ -707,8 +707,15 @@ def execute(repo: pathlib.Path, rpc_url: str, token: str) -> dict:
     rpc = RpcClient(rpc_url)
     t0 = time.time()
     bundle, extra = assembly(cfg, rpc, repo, token)
+    ctx = harness_ctx(repo, cfg, bundle, token)
+    outcome = run_harness(bundle, ctx)            # raises => nothing below runs
+    return _promote(repo, cfg, token, bundle, extra, outcome, t0)
 
-    ctx = {"labels": cfg.labels, "printed_trigger_table": dict(TRIGGER_TABLE),
+
+def harness_ctx(repo: pathlib.Path, cfg: Config, bundle: Bundle, token: str) -> dict:
+    """The S0/S1 context, shared by `execute` and the gate record (B-10), which
+    re-evaluates S0/S1 over the promoted bundle without raising."""
+    return {"labels": cfg.labels, "printed_trigger_table": dict(TRIGGER_TABLE),
            "sheet": cfg.sheet, "roots": cfg.roots,
            "today": __import__("datetime").date.today(),
            "is_first_run": bundle.header.first_run,
@@ -738,7 +745,9 @@ def execute(repo: pathlib.Path, rpc_url: str, token: str) -> dict:
            "last_run_ratio": last_run_ratios(repo / BUNDLES, token,
                                              cfg.frozen_set_path,
                                              bundle.header.run_block)}
-    outcome = run_harness(bundle, ctx)            # raises => nothing below runs
+
+
+def _promote(repo, cfg, token, bundle, extra, outcome, t0) -> dict:
 
     # B-9 (P-7.05 S14): S0/S1 results are NOT stamped onto the bundle - they
     # were written after `finalise()`, outside the hash preimage, so the stored

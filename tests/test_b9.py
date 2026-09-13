@@ -41,7 +41,7 @@ RB = ts.RB
 
 def test_b9_registers_six_rows():
     ids = {c.entry_id: (c.stage, c.consumer) for c in CHECKS}
-    assert len(CHECKS) == 66
+    assert len(CHECKS) >= 66                          # B-10 adds DET-84 (test_b10)
     assert ids["DET-71"] == ("S1", "tree") and ids["DET-76e"] == ("S1", "tree")
     assert {ids[k] for k in ("DET-05", "DET-15", "DET-32")} == {("S2", "tree")}
     assert ids["DET-32-lineage"] == ("S2", "stress")
