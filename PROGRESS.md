@@ -48,6 +48,9 @@ Status: DONE (opened 2026-09-11; done-condition met 2026-09-11, P-5.04). Record:
 ## Step 6 — CDP stress module
 Status: DONE (opened 2026-09-12; done-condition met 2026-09-13, P-6.12).
 
+## Step 7 — Report generation + evaluation loop
+Status: IN PROGRESS (opened 2026-09-13, P-7.01).
+
 ## P-3.01 — Block 0.1 anomaly dispositions; Python stack ruling; checksum task
 - **Date:** 2026-09-03
 - **Type:** flag-disposition
@@ -7338,3 +7341,139 @@ Status: DONE (opened 2026-09-12; done-condition met 2026-09-13, P-6.12).
   `out/stress/LUSD/25963959.json` (**1db98f26**).
 - **Follow-ups:** Step 7 — report generation and the evaluation loop, per the
   inheritance paragraph above.
+
+## P-7.01 — Step 7 opened: Inventory C, twenty-three rulings
+
+- **Date:** 2026-09-13
+- **Type:** decision
+- **Confirmed by:** Amin
+- **Content:**
+  **INVENTORY C**, read-only at `5b144db`: tree clean, 178 tests, ruff clean,
+  `len(CHECKS)` 52 (3 S0 / 20 S1 / 29 S2; S2 = 4 tree + 25 stress), rubric
+  `94c0b20a`, sheet `ad7c35c2`, stress `1617c079` / `f5529480` / `1db98f26`,
+  `stale_sheet` false ×3. Report `out/reports/step7-inventory-c.md` (958
+  lines) and addendum `step7-inventory-c-addendum.md` (104), both gitignored.
+  **FINDINGS.** (1) DET-18: 11 `recurses` nodes (crvUSD 3, GHO 8) with null
+  `last_disclosure_date`; DET-76(e) (S1, Level 3) unbuilt. (2) DET-57: 0 of 12
+  required IDs carried. (3) 37 rubric DETs without a `Check` against DET-85's
+  "every DET and LLM ID". (4) `bundle_hash` ⊃ flat table is cyclic: tree and
+  stress pin `bundle_hash`. (5) `revision_count` / `revision_cause` sit inside
+  the hash preimage, against DET-13(g). (6) Rubric 2.1's "temperature 0" is
+  rejected by current-generation models. (7) DET-73/54/55 data thin: audits
+  hardcoded `none` (`run.py:496-499`, `gho.py:627`, `lusd.py:511`) against the
+  sheet's §14 lines; `deviation` and `heartbeat_s` null on 22 GHO/LUSD feeds;
+  `OracleRow` single-member Literals force `EMA_lag` onto GHO and LUSD rows.
+  (8) DET-12 S0 compares `TRIGGER_TABLE` to a copy of itself (`run.py:567`),
+  no `section` column. (9) GHO's crvUSD row `linked` in the tree,
+  `recurses_truncated` in the stress artifact — `stress._label_of` reads
+  config. (10) DET-09 unrunnable: GHO's set file has no `discovery_m`, LUSD's
+  is 0.4459. (11) crvUSD residual 2,022.4M of 2,104.8M `supply_ruled` (96.1%)
+  with no named causes emitted. (12) The ruled panel chart draws three
+  coincident lines: LP flight does not move `m2.bad_debt` on any token.
+  **RULINGS (Amin's, as stated).**
+  **R1** DET-85 scope: buckets (a)+(b) — DET-28, 29(a), 34, 06, 16, 22-S2, 67,
+  71, 72, 74 — register at B-8; rubric **A-16** scopes DET-85 to registered
+  entries for the pilot, the unregistered IDs enumerated by name with their
+  queue item in the gate record and their count printed on the methodology
+  page; a bucket-(b) row that fails on today's data registers failing (P-6.08's
+  DET-69 precedent), self-resolving at B-9.
+  **R2** DET-15(c) is worth it for crvUSD: named-cause reads
+  (`STABLECOIN.balanceOf(controller)` per market at `run_block`, and any other
+  cause the Builder finds) ride B-9 as declared rows; the residual is never
+  printed without its causes. P-4.01 #4 closes at B-9.
+  **R3** `report_hash = sha256(bundle_hash ‖ tree_hash ‖ stress_hash ‖
+  table_hash ‖ template_hash ‖ pipeline_version ‖ sheet_hash)` on the report
+  manifest; `header.bundle_hash` keeps its Step-3 meaning; DET-13(a) binds on
+  `report_hash`; DET-84's "component of `bundle_hash`" read as 0.1's report
+  bundle. **P-3.08-A1** records the phased definition superseded.
+  **R4** One bundle event, B-9, after C3+'s values land: DET-32 field + fetch;
+  `static_metadata` from sheet rows; disclosure fields + PoR `updatedAt` reads
+  (cbBTC, LBTC); `deviation` / `heartbeat_s` / widened `OracleRow` enums; R2's
+  cause reads; `Header.template_hash` / `revision_count` / `revision_cause`
+  removed; `gate_results` placement per inventory B.1; P-4.16 proof (declared
+  diff exactly, `PriorBundle` loads all stored bundles); three runs, tree
+  folds, stress folds. P-6.01 R17's standard for the re-run: Amin's light
+  sample — one pinned `get_dy` per token through his RPC, recorded in the
+  entry.
+  **R5** Rendering: Jinja2 (`StrictUndefined`, autoescape) + one hand-written
+  stylesheet + `src/factory/svg.py`, no JavaScript; `templates/manifest.toml`
+  owns DET-89's display rule, DET-79's substitution list, `prose_slots[]`,
+  `prompt_schema_version`; one `fmt` filter is DET-89's single owner. B-11
+  ends with a stop: Amin reviews the three rendered pages in a browser before
+  B-12 opens.
+  **R6** PDF = `@media print` in the same stylesheet; headless renderer
+  deferred.
+  **R7** DET-18 option (a): Amin fills the 11 rows before first publication;
+  DET-76(e) registers with them; (c) is a dev route, never published.
+  **R8** C5 as inventory §E: `bias_table[]` and `m4_fields[]` parsed into the
+  mirrors, stamp unchanged (`ad7c35c2`); `_m4_keys` reads the mirror, the code
+  constants become an equality assertion; the `member2_target = ""` line
+  retired; bias-table `date` = the P-6.07 edit's.
+  **R9** Registry: S3 rows `consumer = "report"`, arity
+  `fn(bundle, tree, report, page)`; DET-84 S2/report; DET-32 S2/tree +
+  `DET-32-lineage` S2/stress; LLM-01…06 as `Check` rows, `consumer = "judge"`,
+  pure readers of the stored envelope; the four S3 limbs as own rows. Target
+  `len(CHECKS)` **94** (52 + 19 + 4 + 1 + 2 + 6 + R1's 10).
+  **R10** Fixtures K1–K9 all built; K3/K6/K8 on recorded envelopes committed
+  with their prompt hash.
+  **R11** Spot-check publication: `out/site/<token>/verify.html` from the same
+  generator; the analyst-verification sentence renders from signed
+  `config/verifications.toml {artifact_hash, date}` rows.
+  **R12** Models: current-generation for judge and generator; rubric **A-18**
+  replaces 2.1's "temperature 0" with "model default; sampling parameters not
+  settable — recorded null"; thinking setting, model string and prompt hash in
+  the gate record. Exact model strings proposed by the Builder from the
+  reference table at B-13, confirmed by Amin.
+  **R13** Gate-evaluation record per inventory B.1 at
+  `out/evaluation/<TOKEN>/<run_block>.json`, committed.
+  **R14** Log: `eventlog.py` is the one log; `Logbook` retires (`is_first_run`
+  / `load_prior` stay); Level-1 lifecycle (ii) — an open entry satisfies later
+  runs, resolved by `data_correction` when it stops firing; a resolution is a
+  second `quarantine` line repeating the fire line's `{date, token, trigger,
+  level}` with `resolution_type` / `resolution_date` set, and "open" = a fire
+  line with no matching resolution line; entry id `<token>:<line>` derived; a
+  run = distinct `(token, date)` after the last `published` line. Five named
+  defaults.
+  **R15** Rubric **A-17** adds **T-28 "gate failure"**, Level 2, section —,
+  computing owner = the report stage, so a failed check is logged and DET-59's
+  banner has a category (A-2's counting rule).
+  **R16** P-3.14's first-run convention retires per token after its first
+  `published` event; the first published report states it ran under the
+  convention.
+  **R17** (chart, replacing the 2026-09-13 ruling) The panel is `bad_debt` vs
+  shock as one line; the LP-flight effect is the d = 0 `m3.ratio` 4×3 grid as
+  a shaded table, ∞ cells marked "exit exhausted"; the GHO Member-2 collapse
+  stays a two-bar linear comparison; the depth curve stays four points, GHO
+  stacked.
+  **R18** Concentration line on the stress/depth basis; `stress._label_of`
+  reads the tree's label; fixed at B-9's re-fold.
+  **R19** Template-owned reader wording keyed by assumption ID, artifact
+  literals in the appendix only; DET-79's leak list gains `P-\d+\.\d+` and
+  `#\d+`; the stale GHO perimeter literal fixed at source in B-9.
+  **R20** DET-73: structured audit rows signed at C3+; LUSD's
+  `last_material_change_audited` reads `yes` (deployment audited, immutable
+  since) — a recorded reading, not an amendment.
+  **R21** DET-54/55/81: one signed table per GHO/LUSD feed — `deviation`,
+  `heartbeat_s {form = documented, value, source}`, `update_condition.type` —
+  Amin's values; the Builder states each feed's mechanism first; non-deviation
+  feeds excluded from DET-54's X by `type`.
+  **R22** `out/site/` committed; GitHub remote created by Amin before Step 9.
+  **R23** All rubric edits (A-16, A-17, A-18, header re-stamp) ride C3+'s one
+  `rubric_change`; P-3.08-A1 is drafted with this entry's follow-ups.
+  **AS-COUNTED.** Design layer: the 2026-09-13 chart ruling (LP flight is
+  invariant in `m2`); P-3.11-A1's "all three mirrors" name `offvenue_share`
+  (two do: FR-G08, FR-L03); P-3.08's phased definition (cyclic once tree and
+  stress pin the hash). Builder: §0.3 ordered a stop on any echo difference;
+  HEAD read `5b144db` against the kickoff's `38ba155` and the inventory
+  proceeded, the difference reported in-line — `5b144db` is the Step-6
+  conventions commit, `CLAUDE.md` +46 lines, no other path.
+  **QUEUE (P-4.01):** #4 closes at B-9 (R2); the 19 substantive DETs are listed
+  by ID in the A-16 draft, not here.
+  **BLOCKS:** C5 · C3+ · B-8 · B-9 · B-10 · B-11 (+ Amin's page review) · B-12
+  · B-13 · B-14. Estimate 44–57 rounds, midpoint ≈ 50, from Step 6's realised
+  costs.
+- **Artifacts:** `PROGRESS.md` — the `## Step 7` heading and status line, and
+  this entry. No code, config or `docs/context/` change.
+- **Follow-ups spawned:** C5 (R8); the C3+ signature file drafted blank (R4,
+  R7, R20, R21, R23 values); P-3.08-A1 drafted for confirmation (R3); A-16 /
+  A-17 / A-18 lines ride C3+'s `rubric_change` (R23).
