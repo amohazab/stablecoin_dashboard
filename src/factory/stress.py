@@ -403,8 +403,13 @@ def gsm_enters(v: GsmVenue, s: Decimal) -> bool:
     return v.enters and v.fee_exit < s
 
 
-def _label_of(cfg, asset: str, flags: list) -> str:
-    """The asset's DET-11/§4 label, with R-B2.7's mapping applied once."""
+def _label_of(cfg, asset: str, flags: list, tree_labels: dict | None = None) -> str:
+    """The asset's DET-11/§4 label, with R-B2.7's mapping applied once.
+
+    R18 (P-7.01, applied at B-9): DET-11 owns a paired asset's label, and the
+    tree is where it is RESOLVED - `linked` needs a last published tree - so a
+    row the tree carries wins over the config row. Assets the tree does not
+    carry (composite constituents, GSM underlyings) keep the config label."""
     row = cfg.paired.get(asset) or cfg.labels.get(asset)
     label = getattr(row, "label", None) or "unlabeled"
     if label == "composite_passthrough":
@@ -413,12 +418,14 @@ def _label_of(cfg, asset: str, flags: list) -> str:
                "(R4, P-5.01; R-B2.7)")
         if msg not in flags:
             flags.append(msg)
+    if tree_labels and asset in tree_labels:
+        label = tree_labels[asset]
     return label
 
 
 def member2_candidates(bundle, frozen, per_pool_2: dict, venues: list,
                        cfg, base_comp: dict, base_dec: dict,
-                       flags: list) -> list[Member2Candidate]:
+                       flags: list, tree_labels: dict | None = None) -> list[Member2Candidate]:
     """DET-50's candidate table at s = 2% (R-B3.1).
 
     Three bases, each keeping the asset's OWN label: a pool's paired asset
@@ -442,7 +449,7 @@ def member2_candidates(bundle, frozen, per_pool_2: dict, venues: list,
             # by the BASE POOL it wraps, so the expansion is keyed off the label
             # and there is exactly one base pool per metapool in F.
             base = (next(iter(base_comp), None)
-                    if _is_composite(cfg, a, flags) else None)
+                    if _is_composite(cfg, a, flags, tree_labels) else None)
             if base is None:
                 out[(a, "paired_direct")] = out.get((a, "paired_direct"), 0) + each
                 continue
@@ -459,13 +466,13 @@ def member2_candidates(bundle, frozen, per_pool_2: dict, venues: list,
     total = sum(out.values()) or 1
     return sorted(
         (Member2Candidate(asset=a, depth_at_2pct=d, share=Decimal(d) / Decimal(total),
-                          label=_label_of(cfg, a, flags), basis=b)
+                          label=_label_of(cfg, a, flags, tree_labels), basis=b)
          for (a, b), d in out.items()),
         key=lambda c: (-c.depth_at_2pct, c.asset))
 
 
-def _is_composite(cfg, asset: str, flags: list) -> bool:
-    return _label_of(cfg, asset, flags) == "composite"
+def _is_composite(cfg, asset: str, flags: list, tree_labels: dict | None = None) -> bool:
+    return _label_of(cfg, asset, flags, tree_labels) == "composite"
 
 
 def select_member2(cands: list[Member2Candidate]) -> str | None:
@@ -482,7 +489,7 @@ def select_member2(cands: list[Member2Candidate]) -> str | None:
 def build_exit_depth(bundle, states: dict[str, PoolState], numeraire: str,
                      venues: list[GsmVenue], cfg, reads: dict, base_vps: dict,
                      base_comp: dict, base_dec: dict, flags: list,
-                     rpc=None) -> ExitDepth:
+                     rpc=None, tree_labels: dict | None = None) -> ExitDepth:
     """The curve on K-subset(0.90) (DET-31), the three sensitivity rows
     (DET-30), and the concentration line on the depth basis (F18)."""
     frozen = [r for r in bundle.pools if r.in_frozen_set]
@@ -517,7 +524,7 @@ def build_exit_depth(bundle, states: dict[str, PoolState], numeraire: str,
                                    share_of_F=share))
     per_pool_2 = depth_at[Decimal("0.02")][0]
     cands = member2_candidates(bundle, frozen, per_pool_2, venues, cfg,
-                               base_comp, base_dec, flags)
+                               base_comp, base_dec, flags, tree_labels)
     by_asset: dict[str, int] = {}
     for r in frozen:
         d = per_pool_2.get(r.address, 0)
@@ -535,7 +542,7 @@ def build_exit_depth(bundle, states: dict[str, PoolState], numeraire: str,
         # block carried its own copy of the mapping, so LUSD's artifact grew a
         # second identical `flags` entry the moment the candidate table started
         # resolving labels too.
-        label = _label_of(cfg, top, flags)
+        label = _label_of(cfg, top, flags, tree_labels)
         conc = DepthConcentration(
             largest_paired_asset=top,
             share_of_exit_depth=Decimal(by_asset[top]) / Decimal(total_d),
@@ -1180,7 +1187,8 @@ def fold(inputs: dict, rpc=None) -> StressReport:
                                   base_comp, base_dec)
         venues = gsm_venues(b, rpc, reads)
         exit_depth = build_exit_depth(b, states, numeraire, venues, cfg, reads,
-                                      base_vps, base_comp, base_dec, flags, rpc)
+                                      base_vps, base_comp, base_dec, flags, rpc,
+                                      {p.address: p.label for p in t.paired_assets})
         flags += [f"T-21 GSM {v.gsm} {v.reason} — venue closed in every cell"
                   for v in venues if not v.enters]
         mech = build_mechanism(b, cfg, rpc, inputs["raw"])

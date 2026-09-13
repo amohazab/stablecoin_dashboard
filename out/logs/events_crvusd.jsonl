@@ -5,3 +5,4 @@
 {"date":"2026-09-10","set_file_hash":"80d87407","sheet_hash":"c7298252","source":"P-4.15","token":"crvUSD","type":"intake_trigger"}
 {"date":"2026-09-13","set_file_hash":"9ebdd282","sheet_hash":"ad7c35c2","source":"P-6.07 — member2_target 0xdac17f958d2ee523a2206206994597c13d831ec7 filled from stress 74a6018c; 19 sell-side values signed 2026-09-12","token":"crvUSD","type":"intake_trigger"}
 {"date":"2026-09-13","set_file_hash":"9ebdd282","sheet_hash":"32f8aa5d","source":"P-7.04 — C3+ signed edit: disclosure rows, feed table, audit rows (R7, R20, R21); rubric A-16–A-19","token":"crvUSD","type":"intake_trigger"}
+{"date":"2026-09-13","set_file_hash":"9ebdd282","sheet_hash":"5486f264","source":"P-7.05 — B-9 S9 signed edit: LUSD counterparties line gains the WBTC note (DET-73)","token":"crvUSD","type":"intake_trigger"}

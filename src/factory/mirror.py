@@ -11,6 +11,7 @@ in `docs/context/` is the source of truth; DET-77's `sheet_hash` binds them.
 from __future__ import annotations
 
 import hashlib
+import json
 import pathlib
 import re
 
@@ -159,24 +160,126 @@ def count_first_run_tags(sheet_path: pathlib.Path, token: str) -> int:
     return sum(ln.count("[FIRST-RUN READ:") for ln in _section(sheet_path, token))
 
 
-def extract_cbbtc_disclosure(sheet_path: pathlib.Path, token: str) -> dict[str, str] | None:
-    """D-8's cbBTC disclosure fields, mirrored from the node table row.
+def _q(v: str) -> str:
+    """A TOML basic string. JSON's escapes are TOML's."""
+    return json.dumps(v, ensure_ascii=False)
 
-    Scoped to the token's section like everything else here: cbBTC is a crvUSD
-    node, so this returns None for GHO and the block is ABSENT from GHO's
-    mirror rather than faked (P-4.06).
-    """
+
+_TAG = re.compile(r"\s*\[(?:VERIFIED|ANALYST-SUPPLIED|FIRST-RUN READ)[^\]]*\]")
+
+
+def parse_disclosures(sheet_path: pathlib.Path, token: str) -> list[dict[str, str]]:
+    """DET-76(e)'s disclosure rows, generalised from C0's cbBTC-only extraction
+    (P-7.02's deferral): every node-table row carrying `disclosure_cadence`.
+
+    The row is keyed by its first two cells verbatim; `config.load` joins them
+    to `[[node]]` ADDRESSES with uniqueness asserted, so the symbol text only
+    locates the sheet row (named default, P-7.05)."""
+    rows = []
     for line in _section(sheet_path, token):
-        if line.startswith("| cbBTC ") and "disclosure_cadence" in line:
-            cad = re.search(r"`disclosure_cadence` = ([^;]+);", line)
-            last = re.search(r"`last_disclosure_date` = ([^\[]+)\[", line)
-            src = re.search(r"\[ANALYST-SUPPLIED ([^\]]+)\]", line)
-            return {
-                "disclosure_cadence": cad.group(1).strip() if cad else "",
-                "last_disclosure_date": last.group(1).strip() if last else "",
-                "source": ("ANALYST-SUPPLIED " + src.group(1).strip()) if src else "",
-            }
-    return None
+        if not line.startswith("| ") or "`disclosure_cadence` = " not in line:
+            continue
+        cells = [c.strip() for c in line.strip().strip("|").split(" | ")]
+        cad = re.search(r"`disclosure_cadence` = ([^;]+);", line)
+        last = re.search(r"`last_disclosure_date` = ([^\[]+?)\s*\[", line)
+        src = re.search(r"\[ANALYST-SUPPLIED ([^\]]+)\]", line)
+        if not (cad and last and src):
+            raise ValueError(f"{token}: malformed disclosure row: {line[:60]}")
+        rows.append({"row_key": cells[0], "memo_row": cells[1],
+                     "disclosure_cadence": cad.group(1).strip(),
+                     "last_disclosure_date": last.group(1).strip(),
+                     "source": "ANALYST-SUPPLIED " + src.group(1).strip()})
+    return rows
+
+
+def parse_disclosure_inheritance(sheet_path: pathlib.Path, token: str) -> list[dict[str, str]]:
+    """The sheet's pass-through sentence, "Disclosure: waEthUSDC inherits the
+    USDC row's, waEthUSDT the USDT row's" (memo §4.3), as `{symbol, from}`."""
+    out = []
+    for line in _section(sheet_path, token):
+        m = re.search(r"Disclosure: (.+?) \(memo §4\.3 pass-through\)", line)
+        if not m:
+            continue
+        for part in m.group(1).split(", "):
+            pm = re.fullmatch(r"(\S+) (?:inherits )?the (\S+) row's\.?", part.strip())
+            if pm is None:
+                raise ValueError(f"{token}: malformed inheritance clause {part!r}")
+            out.append({"symbol": pm.group(1), "from": pm.group(2)})
+    return out
+
+
+def parse_counterparties(sheet_path: pathlib.Path, token: str) -> str:
+    """DET-73's counterparty line, verbatim from the sheet (B-9; the mirror
+    carried a hardcoded ASCII literal until then)."""
+    head = "**Counterparty enumeration (memo §14):** "
+    got = [ln[len(head):].strip() for ln in _section(sheet_path, token) if ln.startswith(head)]
+    if len(got) != 1:
+        raise ValueError(f"{token}: {len(got)} counterparty lines")
+    return got[0]
+
+
+def parse_audit_status(sheet_path: pathlib.Path, token: str) -> dict:
+    """DET-73's structured block (P-7.04): `audits[]` as `{firm, date, scope}`,
+    `bug_bounty {platform, max}`, `last_material_change_audited`,
+    `staleness_date` - values as signed, marker tags stripped."""
+    lines = _section(sheet_path, token)
+    i = next((k for k, ln in enumerate(lines) if ln.startswith("**Audit status (memo §14)**")),
+             None)
+    if i is None:
+        raise ValueError(f"{token}: audit status block absent")
+    block = {}
+    for ln in lines[i + 1:i + 5]:
+        m = re.match(r"^- `([a-z_\[\]]+)`(.*)$", ln)
+        if not m:
+            raise ValueError(f"{token}: malformed audit line {ln[:60]}")
+        block[m.group(1)] = _TAG.sub("", m.group(2)).strip()
+    audits = []
+    for item in block["audits[]"].lstrip(":").strip().split(" · "):
+        am = re.match(r"^(.+?) (\d{4}-\d{2}(?:-\d{2})?), (.+)$", item.strip())
+        if am is None:
+            raise ValueError(f"{token}: malformed audit item {item[:60]}")
+        audits.append({"firm": am.group(1), "date": am.group(2), "scope": am.group(3)})
+    bm = re.match(r"^= \{platform: (.+), max: (.+)\}$", block["bug_bounty"])
+    lm = re.match(r"^= (yes|no)\b", block["last_material_change_audited"])
+    sm = re.match(r"^= (\d{4}-\d{2}-\d{2})\.", block["staleness_date"])
+    if not (bm and lm and sm):
+        raise ValueError(f"{token}: audit block fields unparsed {block}")
+    return {"audits": audits,
+            "bug_bounty": {"platform": bm.group(1), "max": bm.group(2)},
+            "last_material_change_audited": lm.group(1),
+            "staleness_date": sm.group(1)}
+
+
+def parse_oracle_feeds(sheet_path: pathlib.Path, token: str) -> list[dict]:
+    """DET-54/55's signed per-feed table (P-7.01 R21, P-7.04). Empty for a
+    token whose section has none (crvUSD: EMA oracles, read per run)."""
+    lines = _section(sheet_path, token)
+    i = next((k for k, ln in enumerate(lines) if ln.startswith("**Oracle feed table")), None)
+    if i is None:
+        return []
+    rows = []
+    for ln in lines[i + 1:]:
+        if rows and not ln.startswith("|"):
+            break
+        if not ln.startswith("| 0x"):
+            continue
+        c = [x.strip() for x in ln.strip().strip("|").split(" | ")]
+        if len(c) != 9:
+            raise ValueError(f"{token}: malformed feed row {ln[:60]}")
+        node, symbol, feed, _cls, typ, dev, hb, source, date = c
+        tm = re.match(r"^`([a-z_]+)`", typ)
+        dm = re.match(r"^(\d+(?:\.\d+)?)%", dev)
+        hm = re.match(r"^(\d+)", hb)
+        row = {"node_address": node.lower(), "symbol": symbol, "feed": feed.lower(),
+               "type": tm.group(1),
+               "heartbeat_form": "observed_max" if "observed_max" in hb else "documented",
+               "source": source, "date": date[:10]}
+        if dm:
+            row["deviation_bps"] = int(round(float(dm.group(1)) * 100))
+        if hm:
+            row["heartbeat_s"] = int(hm.group(1))
+        rows.append(row)
+    return rows
 
 
 # DET-12 compares the bundle's `attribution_method` to the mirror's, so the
@@ -196,7 +299,10 @@ def generate(sheet_path: pathlib.Path, token: str) -> str:
     """Render one token's mirror TOML from the stamped sheet."""
     h = sheet_hash(sheet_path)
     rows = parse_first_run_reads(sheet_path, token)
-    disc = extract_cbbtc_disclosure(sheet_path, token)
+    disc = parse_disclosures(sheet_path, token)
+    inherit = parse_disclosure_inheritance(sheet_path, token)
+    audit = parse_audit_status(sheet_path, token)
+    feeds = parse_oracle_feeds(sheet_path, token)
     m4 = parse_m4_fields(sheet_path, token)
     bias = parse_bias_table(sheet_path, token)
 
@@ -210,7 +316,7 @@ def generate(sheet_path: pathlib.Path, token: str) -> str:
         f'sheet_hash = "{h}"',
         "",
         "near_bound_threshold = 0.80",
-        'counterparties = "n/a - archetype #1 holds no off-chain counterparties"',
+        f"counterparties = {_q(parse_counterparties(sheet_path, token))}",
         f'attribution_method = "{ATTRIBUTION_METHOD[token]}"',
         # P-7.01 R8 retires the `member2_target = ""` line (R-B3.6): DET-50's
         # one owner is the set file, which `factory.stress` reads directly.
@@ -223,16 +329,32 @@ def generate(sheet_path: pathlib.Path, token: str) -> str:
         "column (P-7.01 R8).",
         f"bias_table_date = {BIAS_TABLE_DATE}",
     ]
-    if disc:
-        out += [
-            "",
-            "# cbBTC disclosure fields - mirrored from the stamped sheet "
-            "(D-8; owner: sheet, not labels.toml per C-8)",
-            "[disclosure.cbBTC]",
-            f'disclosure_cadence = "{disc["disclosure_cadence"]}"',
-            f'last_disclosure_date = "{disc["last_disclosure_date"]}"',
-            f'source = "{disc["source"]}"',
-        ]
+    out += [
+        "",
+        f"# disclosure[] - DET-76(e), {len(disc)} node-table rows; owner: the sheet (C-8).",
+    ]
+    for d in disc:
+        out += ["", "[[disclosure]]", *[f"{k} = {_q(v)}" for k, v in d.items()]]
+    for d in inherit:
+        out += ["", "[[disclosure_inherit]]", f"symbol = {_q(d['symbol'])}",
+                f"from = {_q(d['from'])}"]
+    out += ["", f"# oracle_feed[] - DET-54/55, {len(feeds)} signed rows (P-7.01 R21)."]
+    for f in feeds:
+        out += ["", "[[oracle_feed]]"]
+        out += [f"{k} = {v}" if isinstance(v, int) else f"{k} = {_q(v)}" for k, v in f.items()]
+    out += [
+        "",
+        "# audit_status - DET-73's structured block, values as signed (P-7.04).",
+        "[audit_status]",
+        f"last_material_change_audited = {_q(audit['last_material_change_audited'])}",
+        f"staleness_date = {_q(audit['staleness_date'])}",
+        "bug_bounty = { platform = " + _q(audit["bug_bounty"]["platform"])
+        + ", max = " + _q(audit["bug_bounty"]["max"]) + " }",
+        "audits = [",
+        *[f"  {{ firm = {_q(a['firm'])}, date = {_q(a['date'])}, scope = {_q(a['scope'])} }},"
+          for a in audit["audits"]],
+        "]",
+    ]
     out += [
         "",
         f"# first_run_reads[] - {len(rows)} rows mirrored from the stamped sheet.",

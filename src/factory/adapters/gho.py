@@ -22,16 +22,19 @@ from decimal import Decimal
 from eth_utils import keccak
 
 from factory.config import sell_side_for
+from factory.disclosure import disclosure_fields
 from factory.discovery import (
     AssemblyStopFromDiscovery,
     build_pool_rows,
     catalog_get,
     last_run_ratios,
 )
+from factory.feeds import condition_from_row, nav_observed_max
 from factory.labels_runtime import resolve_wallet_registry_label
 from factory.logbook import is_first_run, load_prior
 from factory.logs_pointer import default_transport, get_logs
 from factory.logs_pointer import env as pointer_env
+from factory.offvenue import read_share
 from factory.provenance import AbsenceRead, AnalystSupplied, ContractRead
 from factory.rpc import Call
 from factory.schema import (
@@ -40,7 +43,6 @@ from factory.schema import (
     Bundle,
     CollateralNode,
     Counts,
-    DeviationHeartbeat,
     Facilitator,
     FirstRunLiterals,
     GhoPosition,
@@ -50,7 +52,6 @@ from factory.schema import (
     PositionCompleteness,
     RedemptionPath,
     StabilizerBlock,
-    StaticMetadata,
     Supply,
 )
 
@@ -338,7 +339,8 @@ def read_inventory(rpc, gho: str, atoken: str) -> tuple[int, object, int]:
     return int(r.one()), r.provenance, 1
 
 
-def _boxed(cfg, rpc, walk, pools, oracle_by_pool, priced: dict) -> tuple[list[dict], int]:
+def _boxed(cfg, rpc, walk, pools, oracle_by_pool, priced: dict,
+           price_prov: dict | None = None) -> tuple[list[dict], int]:
     """DET-28's boxed-asset nodes, one per GSM, keyed by the WRAPPER (C2).
 
     They are not merged into the USDC/USDT collateral nodes: different assets on
@@ -351,6 +353,7 @@ def _boxed(cfg, rpc, walk, pools, oracle_by_pool, priced: dict) -> tuple[list[di
     """
     n = 0
     out = []
+    price_prov = price_prov if price_prov is not None else {}
     for w in walk:
         if w["wrapper"] not in cfg.labels:
             raise GhoAdapterStop(
@@ -369,7 +372,10 @@ def _boxed(cfg, rpc, walk, pools, oracle_by_pool, priced: dict) -> tuple[list[di
                                (w["underlying"],))])[0] if o else None
             n += 1 if o else 0
             price = int(r.one()) if r is not None and r.ok else 0
+            if r is not None and r.ok:
+                price_prov[w["underlying"]] = r.provenance
         out.append({**w, "value": (w["converted"] * price) // 10 ** w["underlying_decimals"],
+                    "price_read": price_prov.get(w["underlying"]),
                     "flags": [
                         f"§4.3 pass-through: {w['symbol']} -> {w['atoken_symbol']} -> "
                         f"{w['underlying_symbol']} ({w['underlying']}); "
@@ -379,7 +385,8 @@ def _boxed(cfg, rpc, walk, pools, oracle_by_pool, priced: dict) -> tuple[list[di
 
 
 def _nodes(cfg, weights, node_instance, rpc, pools, oracle_by_pool,
-           resolved: dict | None = None, boxed_walk=()) -> tuple[list, int]:
+           resolved: dict | None = None, boxed_walk=(), http_get=None,
+           key: str = "") -> tuple[list, int]:
     """`CollateralNode` rows for every node carrying a config row, valued at the
     instance's own Aave oracle (DET-81). A config `unlabeled` row emits
     `unlisted` — the tree's label set is closed and §8.2 is where these belong
@@ -389,6 +396,7 @@ def _nodes(cfg, weights, node_instance, rpc, pools, oracle_by_pool,
     n = 0
     resolved = resolved or {}
     priced: dict[str, int] = {}
+    price_prov: dict = {}
     dec: dict[str, int] = {}
     addrs = [a for a in weights if a in cfg.labels]
     if addrs:
@@ -405,22 +413,42 @@ def _nodes(cfg, weights, node_instance, rpc, pools, oracle_by_pool,
             for a, r in zip(mine, pr, strict=True):
                 if r.ok:
                     priced[a] = int(r.one())
+                    price_prov[a] = r.provenance
     values = {a: (weights[a] * priced.get(a, 0)) // (10 ** dec.get(a, 18)) for a in addrs}
-    boxed, n_b = _boxed(cfg, rpc, boxed_walk, pools, oracle_by_pool, priced)
+    boxed, n_b = _boxed(cfg, rpc, boxed_walk, pools, oracle_by_pool, priced, price_prov)
     n += n_b
     # DET-14(a): `backing_value` is the sum of node values, so the boxed assets
     # are inside the denominator every share is taken over - they are backing,
     # not a footnote to it (C2, R-C2.2).
     total = sum(values.values()) + sum(x["value"] for x in boxed) or 1
     rows = []
+
+    def disc_of(addr, label):
+        nonlocal n
+        if label != "recurses":
+            return {}
+        d, k = disclosure_fields(cfg, rpc, addr, http_get=http_get, key=key)
+        n += k
+        return d
+
     for x in boxed:
         row = cfg.labels[x["wrapper"]]
+        d = disc_of(x["wrapper"], row.label)
+        # DET-28 (P-7.03 ruling 1): the boxed node's price read is the protocol's
+        # own `getAssetPrice(underlying)`; its feed address is filled from the
+        # DET-55 row once the oracle rows are read (`assemble`).
+        price = {"price": x["price_read"]} if x.get("price_read") else {}
         rows.append(CollateralNode(
             address=x["wrapper"], symbol=x["symbol"], label=row.label,
             label_source_address=x["wrapper"], node_class=row.node_class,
             lst_discount_applies=row.lst_discount_applies, value=x["value"],
-            share_of_backing=Decimal(x["value"]) / Decimal(total), flags=x["flags"],
-            reads=x["reads"], lineage=["gsm_read", "price_read"]))
+            share_of_backing=Decimal(x["value"]) / Decimal(total),
+            flags=x["flags"] + d.get("flags", []),
+            disclosure_cadence=d.get("disclosure_cadence"),
+            last_disclosure_date=d.get("last_disclosure_date"),
+            last_disclosure_block=d.get("last_disclosure_block"),
+            reads={**x["reads"], **price, **d.get("reads", {})},
+            lineage=["gsm_read", "price_read"]))
     for a in addrs:
         row = cfg.labels[a]
         label = row.label
@@ -443,14 +471,21 @@ def _nodes(cfg, weights, node_instance, rpc, pools, oracle_by_pool,
         elif label == "unlabeled":
             label = "unlisted"
             flags.append(f"unlabeled: {row.reason} (share at classification {row.share})")
+        d = disc_of(a, label)
+        if a in price_prov:                     # DET-81's per-node price provenance
+            extra_reads["price"] = price_prov[a]
         rows.append(CollateralNode(
             address=a, symbol=row.symbol, label=label, label_source_address=a,
             node_class=row.node_class, lst_discount_applies=row.lst_discount_applies,
             sell_side_capacity=sell_side_for(cfg, a, row.node_class),
             value=values[a], share_of_backing=Decimal(values[a]) / Decimal(total),
-            flags=flags,
+            flags=flags + d.get("flags", []),
+            disclosure_cadence=d.get("disclosure_cadence"),
+            last_disclosure_date=d.get("last_disclosure_date"),
+            last_disclosure_block=d.get("last_disclosure_block"),
             reads={"balance": ContractRead(source_contract=a, function="balanceOf(address)",
-                                           args=[], block=rpc.run_block), **extra_reads},
+                                           args=[], block=rpc.run_block), **extra_reads,
+                   **d.get("reads", {})},
             lineage=["collateral_read", "price_read"]))
     return sorted(rows, key=lambda r: r.address), n
 
@@ -558,7 +593,7 @@ def build(cfg, rpc, http_get=None, key: str = "", from_block: int = 0):
     walk, n = boxed_asset_walk(rpc, gsms) if gsms else ([], 0)
     reads += n
     nodes, n = _nodes(cfg, weights, node_instance, rpc, pools, oracle_by_pool,
-                      resolved, walk)
+                      resolved, walk, http_get=http_get, key=key)
     reads += n
 
     # ---- the per-run pool pass, THE SAME CODE crvUSD runs (P-4.11) ----------
@@ -587,10 +622,17 @@ def build(cfg, rpc, http_get=None, key: str = "", from_block: int = 0):
                                       node_instance,
                                       {w["wrapper"]: w["underlying"] for w in walk})
     reads += n
+    feed_of = {r.node_address: r.feed_or_source for r in oracle_rows}
+    boxed_wrappers = {w["wrapper"] for w in walk}
+    nodes = [nd.model_copy(update={"feed_address": feed_of.get(nd.address)})
+             if nd.address in boxed_wrappers else nd for nd in nodes]
     paths, n = redemption_paths(rpc, gsms, gho)
     reads += n
 
-    origination = sum(f.principal_sum or 0 for f in facilitators)
+    # DET-15(b) (P-7.05 S1, the letter): GHO's O is the sum of facilitator
+    # bucket levels, so the residual is 0 by the supply identity. P-4.04 R1's
+    # direct-minter-principal reading is superseded.
+    origination = sum(f.bucket_level for f in facilitators)
     burn_mint = [b for b in bridge_rows if b.bridge_type == "burn_and_mint"]
     disclosure = (f"bridged component assessed: {len(bridge_rows)} "
                   f"{bridge_rows[0].bridge_type if bridge_rows else 'no'} escrow(s); "
@@ -601,11 +643,13 @@ def build(cfg, rpc, http_get=None, key: str = "", from_block: int = 0):
                     else "no bridge classification data configured",
                     bridges=bridge_rows, origination_sum=origination,
                     residual=supply_total - origination,
+                    residual_unexplained=supply_total - origination,
                     stabilizer_over_supply=Decimal(0),
                     reads={"total_supply": ContractRead(
                         source_contract=gho, function="totalSupply()", args=[],
                         block=rpc.run_block)})
 
+    from factory.run import static_metadata_of
     first = is_first_run(_BUNDLES, "GHO") if _BUNDLES else True
     raw = json.dumps([p.model_dump(mode="json") for p in positions],
                      sort_keys=True, separators=(",", ":"))
@@ -622,9 +666,8 @@ def build(cfg, rpc, http_get=None, key: str = "", from_block: int = 0):
         supply=supply, nodes=nodes, oracle_rows=oracle_rows, redemption_paths=paths,
         admin_surface=admin, lend_markets=[],
         pools=pool_rows, pool_detectors=pool_detectors,
-        static_metadata=StaticMetadata(
-            audits="none", bug_bounty="none", last_material_change_audited="no",
-            staleness_date="2026-09-01", counterparties=cfg.sheet["counterparties"]),
+        offvenue_share=read_share(gho),
+        static_metadata=static_metadata_of(cfg),
         counts=Counts(mint_market_count=sum(1 for f in facilitators
                                             if f.facilitator_class == "direct_minter"),
                       below_floor_pool_count=below_floor,
@@ -944,6 +987,32 @@ def read_admin_surface(rpc, gho: str, gsms: list, pools: list[str], http_get, ke
         n += k
         rows.append(r)
 
+    # --- pause: the GSM swap freeze, its own rows (P-7.05 S7) ---------------
+    # The sheet's §13 `pause` row names GSM `SWAP_FREEZER_ROLE` beside the Pool's
+    # EMERGENCY_ADMIN. DET-68 is "one row per (power, holder) pair, A2 scalar", so
+    # each freezer is its own row: holder the freezer `read_gsms` discovered, A8 =
+    # `hasRole(SWAP_FREEZER_ROLE, freezer)` on each GSM, A7 = the GSMs on which
+    # that read is true. The Pool rows above are unchanged.
+    freezers = sorted({g.freezer_address for g in gsms if g.freezer_address})
+    if freezers:
+        fr = rpc.read([Call(g.address, "hasRole(bytes32,address)", ("bool",),
+                            (SWAP_FREEZER_ROLE, f)) for f in freezers for g in gsms])
+        n += len(fr)
+        for i, f in enumerate(freezers):
+            held = [g for j, g in enumerate(gsms)
+                    if fr[i * len(gsms) + j].ok and fr[i * len(gsms) + j].one()]
+            if not held:
+                continue
+            r, k = row("pause", f, ContractRead(
+                source_contract=held[0].address, function="hasRole(bytes32,address)",
+                args=["SWAP_FREEZER_ROLE", f], block=rpc.run_block),
+                scope=[g.address for g in held],
+                reads={f"SWAP_FREEZER_ROLE:{g.address}": ContractRead(
+                    source_contract=g.address, function="hasRole(bytes32,address)",
+                    args=["SWAP_FREEZER_ROLE", f], block=rpc.run_block) for g in held})
+            n += k
+            rows.append(r)
+
     # --- blacklist_address: the selector is simply absent (F4) --------------
     code = rpc.code(gho)
     n += 1
@@ -1027,20 +1096,26 @@ def read_oracle_rows(rpc, cfg, pools: list[str], nodes: list[str],
             cls = "raw"
         answer = int(q[2].value[1]) if q[2].ok else None
         updated = int(q[2].value[3]) if q[2].ok else None
-        hb = None                     # owed until the values are signed (P-4.08)
+        signed = cfg.oracle_feeds.get(node)
+        if signed is None:
+            raise GhoAdapterStop(f"DET-55: no signed feed row for priced node {node}")
+        observed, extra = None, []
+        if signed["heartbeat_form"] == "observed_max":
+            observed, extra, k = nav_observed_max(rpc, src)
+            n += k
         rows.append(OracleRow(
             node_address=node, market_or_reserve_address=inst, feed_or_source=src,
-            update_condition=DeviationHeartbeat(
-                heartbeat_s=hb, answer=answer, updated_at=updated,
-                provenance=[q[2].provenance if hasattr(q[2], "provenance") else s.provenance]),
-            assumption_applied="instant_optimistic_counterfactual",
-            counterfactual_ref="EMA_lag",
+            update_condition=condition_from_row(
+                signed, src, answer, updated,
+                [q[2].provenance if hasattr(q[2], "provenance") else s.provenance], observed),
+            # DET-55's enum, from the sheet's §7 line: "instant observation,
+            # nearly exact" - GHO carries no oracle counterfactual (B-9).
+            assumption_applied="instant",
+            counterfactual_ref=None,
             reference_feed="pending_config_round",
             market_vs_protocol_oracle_gap="pending_config_round",
             staleness_check=None, adapter_class=cls,
-            disclosure=(f"{desc}; heartbeat owed, present-and-empty for T-26"
-                        if cls != "nav" else
-                        f"{desc}; NAV adapter - no heartbeat exists, T-26 not applicable")
+            disclosure="; ".join([desc, *extra])
             + ("" if asset == node else
                f"; priced through memo 4.3 at its underlying {asset}'s feed (C2)")))
     return rows, n
@@ -1062,7 +1137,7 @@ def redemption_paths(rpc, gsms: list, gho: str) -> tuple[list, int]:
             # R7 by IDENTITY (ruled 2026-09-08): the path names the table and
             # the field; the row is the one whose `underlying_asset` is this
             # path's R3. A raw number here is not a resolvable field ref.
-            r7_capacity="gsms.available_liquidity", r8="enforceable_unless_paused",
+            r7_capacity="gsms.available_liquidity", r8="enforceable_unless_paused (see R7)",
             r9_legal_claim="no_pure_protocol",
             r10_provenance=ContractRead(source_contract=g.address,
                                         function="getFeeStrategy()", args=[],

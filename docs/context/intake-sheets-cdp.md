@@ -513,7 +513,7 @@ NAMED DEFAULTS (implementer, not rubric): `pegkeeper_lp_share`, `paired_units_he
 - `last_material_change_audited` = yes by R20 (P-7.01): deployment audited, immutable since [FIRST-RUN READ: live value]
 - `staleness_date` = 2026-09-13. Never scored.
  
-**Counterparty enumeration (memo §14):** n/a — archetype #1 holds no off-chain counterparties.
+**Counterparty enumeration (memo §14):** n/a — archetype #1 holds no off-chain counterparties; no WBTC custodian exposure — no WBTC node in the LUSD tree.
  
 **`first_run_reads[]` (DET-75 / R-45)** — registry of every FIRST-RUN READ tag on this sheet's LUSD section, resolved to a concrete read. **Count identity: 13 literal tags = 13 open rows.** All reads at `run_block`. Liquity v1 has no factory and no registry: the set is reached by CONTRACT CLOSURE from one analyst-supplied anchor, the LUSD token itself, every other address being a getter on a contract already in the set (memo §9's analyst-supplied branch). Shorthand: **LUSD** = 0x5f98805A4E8be255a32880FDeC7F6728C6568bA0 · **TM** = TroveManager, from `LUSD.troveManagerAddress()` · **AP / DP / SP / PF / ST** = `TM.activePool()` / `TM.defaultPool()` / `TM.stabilityPool()` / `TM.priceFeed()` / `TM.sortedTroves()` · **CSP** = CollSurplusPool, reached in REVERSE — `collSurplusPool` is non-public on both TroveManager and BorrowerOperations, so CSP's own `troveManagerAddress()`, `activePoolAddress()` and `borrowerOperationsAddress()` are its closure evidence. `sheet_location` is a section anchor rather than a line number, so the registry survives later edits.
  

@@ -25,6 +25,7 @@ from factory.config import Config, load
 from factory.schema import (
     Bundle,
     ConcentrationLine,
+    OffMainnetLine,
     PairedAssetRow,
     QualifierRow,
     StalenessNode,
@@ -67,11 +68,44 @@ def _perimeter(b: Bundle) -> str:
                 "class, the leveraged-market factory `0x370a449f…` (P-3.39), is "
                 "outside this tree — P-4.01 #1")
     if b.header.token == "GHO":
-        return ("facilitator direct-minter draws (P-4.04 R1); GSM-minted GHO and "
-                "its boxed assets join at C2")
+        # Amin's wording (P-7.05), fitted to the bundle's own counts: Pool
+        # instances = direct minters, GSMs = live GSM rows, the cross-chain
+        # bridge = the off-mainnet facilitators. The flash minter (level 0 by
+        # construction) mints nothing that persists and is not named.
+        by = {c: sum(1 for f in b.facilitators if f.facilitator_class == c)
+              for c in ("direct_minter", "off_mainnet")}
+        return (f"GHO is minted only through Aave facilitators ({by['direct_minter']} Pool "
+                f"instances, {len(b.gsms)} GSMs, the cross-chain bridge — "
+                f"{by['off_mainnet']} off-mainnet facilitators); its backing branches are "
+                "the Aave collateral attributed per §11.1 and the GSM boxed assets (C2)")
     if b.header.token == "LUSD":
         return "all troves; identity exact"
     raise KeyError(f"no perimeter ruled for token {b.header.token!r}")
+
+
+OFF_MAINNET_LITERAL = ("minted against off-mainnet facilitators; backing on "
+                       "Arbitrum/Monad/Plasma, not traced by this tree")
+# The ruled literal names three chains; a facilitator whose label names none of
+# them would make it false, so the fold refuses rather than prints it.
+OFF_MAINNET_CHAINS = ("Arbitrum", "Monad", "Plasma")
+
+
+def off_mainnet_line(b: Bundle) -> OffMainnetLine | None:
+    """P-7.05's ruling on S1: the off-mainnet facilitator levels as a named line
+    over `supply_ruled`, outside every bar (bars are over `backing_value`)."""
+    rows = [f for f in b.facilitators if f.facilitator_class == "off_mainnet"]
+    if not rows:
+        return None
+    stray = [f.label for f in rows if not any(c in f.label for c in OFF_MAINNET_CHAINS)]
+    if stray:
+        raise ValueError(f"off-mainnet facilitator(s) {stray} name no chain in the ruled "
+                         "literal; the literal needs re-ruling")
+    amount = sum(f.bucket_level for f in rows)
+    return OffMainnetLine(
+        amount=amount, share_of_supply_ruled=Decimal(amount) / Decimal(b.supply.supply_ruled),
+        literal=OFF_MAINNET_LITERAL,
+        facilitators=[{"address": f.address, "label": f.label, "bucket_level": f.bucket_level}
+                      for f in rows])
 
 
 def _pct1(share: Decimal) -> str:
@@ -188,6 +222,7 @@ def fold(bundle: Bundle, cfg: Config, linked: dict | None = None,
     trunc = shares.recurses_truncated
     qualifier, banner = qualifier_of(b)
     paired, concentration, pflags = _paired(b, cfg, linked or {}, analyzed or {})
+    offm = off_mainnet_line(b)
 
     flags = [f"{n.symbol}: {f}" for n in b.nodes for f in n.flags] + pflags
     boxed = {g.underlying_asset for g in b.gsms}
@@ -226,8 +261,11 @@ def fold(bundle: Bundle, cfg: Config, linked: dict | None = None,
                       "concentration.share_of_exit_depth": "frozen_set_freeze_tvl",
                       "root.backing_value": "amount", "root.backed_supply": "amount",
                       "root.supply_ruled": "amount", "root.residual": "amount",
-                      "root.stabilizer_debt": "amount"},
-        paired_assets=paired, concentration=concentration, flags=flags)
+                      "root.stabilizer_debt": "amount",
+                      **({"off_mainnet_line.share_of_supply_ruled": "supply_ruled"}
+                         if offm else {})},
+        paired_assets=paired, concentration=concentration, off_mainnet_line=offm,
+        flags=flags)
 
 
 # ------------------------------------------------------------------ I/O -----

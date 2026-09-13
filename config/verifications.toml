@@ -18,3 +18,27 @@ artifact = "out/stress/LUSD/25963959.json"
 artifact_hash = "1db98f26573362eed41d7fb5b61fa6f479800b7b4236372dc3e1623d64326705"
 sheet = "out/spotcheck/LUSD/stress-25963959.md"
 date = 2026-09-13
+
+# B-9 light sample (P-7.05): Amin's one pinned get_dy per token, matched to the
+# wei. The Step-6 rows above stay as history.
+
+[[verification]]
+artifact = "out/stress/crvUSD/25970226.json"
+artifact_hash = "9bafc6955e567efe433861f03aa480be2cc5e7e32ddf9bc6272b6cc6e5fd1f87"
+sheet = "out/spotcheck/crvUSD/stress-25970226.md"
+method = "one pinned get_dy per token, Amin's RPC, tools/light_sample_check.py"
+date = 2026-09-13
+
+[[verification]]
+artifact = "out/stress/GHO/25970233.json"
+artifact_hash = "779c4142f329166bd96305ecbc1f460a023b2b7620680e79625fa76e65a7efb6"
+sheet = "out/spotcheck/GHO/stress-25970233.md"
+method = "one pinned get_dy per token, Amin's RPC, tools/light_sample_check.py; cells byte-identical to the verified fold 223b53a6"
+date = 2026-09-13
+
+[[verification]]
+artifact = "out/stress/LUSD/25970249.json"
+artifact_hash = "49b545879f23e9286c541453df09e43fb6856bb6344d33193505f8960b08e61b"
+sheet = "out/spotcheck/LUSD/stress-25970249.md"
+method = "one pinned get_dy per token, Amin's RPC, tools/light_sample_check.py"
+date = 2026-09-13

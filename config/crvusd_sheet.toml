@@ -1,13 +1,13 @@
 # DERIVED MIRROR - NOT AUTHORITATIVE (P-3.04 binding).
 # Source of truth: docs/context/intake-sheets-cdp.md, crvUSD section.
-# Derived from sheet version sha256_first8 = 32f8aa5d.
+# Derived from sheet version sha256_first8 = 5486f264.
 # DET-77's sheet_hash check binds this mirror to that source; drift is caught
 # mechanically, never trusted away. Regenerated, never hand-patched.
 schema_version = 1
-sheet_hash = "32f8aa5d"
+sheet_hash = "5486f264"
 
 near_bound_threshold = 0.80
-counterparties = "n/a - archetype #1 holds no off-chain counterparties"
+counterparties = "n/a — archetype #1 holds no off-chain counterparties. WBTC custodian captured in §4 look-through."
 attribution_method = "direct"
 # member2_target - not mirrored: DET-50's owner is the set file (R-B3.6, P-7.01 R8).
 
@@ -16,11 +16,44 @@ m4_fields = ["effective", "naive", "is_killed", "alpha", "beta", "provide_allowe
 # bias_table[] date - the P-6.07 signed edit's; the sheet table has no date column (P-7.01 R8).
 bias_table_date = 2026-09-13
 
-# cbBTC disclosure fields - mirrored from the stamped sheet (D-8; owner: sheet, not labels.toml per C-8)
-[disclosure.cbBTC]
+# disclosure[] - DET-76(e), 3 node-table rows; owner: the sheet (C-8).
+
+[[disclosure]]
+row_key = "WBTC"
+memo_row = "WBTC"
+disclosure_cadence = "continuous — Chainlink WBTC PoR feed (Ethereum) + BitGo transparency dashboard"
+last_disclosure_date = "per-run read of the WBTC PoR feed `updatedAt`"
+source = "ANALYST-SUPPLIED 2026-09-13: data.chain.link/feeds/ethereum/mainnet/wbtc-por; docs.chain.link/data-feeds/proof-of-reserve; feed 0xa81FE04086865e63E12dD3776978E49DEEa2ea4e, `description()` verified at B-9, heartbeat 86400"
+
+[[disclosure]]
+row_key = "cbBTC (largest mint-market borrow flow, Curve News wk32 2026)"
+memo_row = "cbBTC / custodial BTC"
 disclosure_cadence = "continuous — Chainlink PoR feed (Ethereum) + Coinbase PoR page, near-real-time refresh"
 last_disclosure_date = "per-run read of the Ethereum PoR feed `updatedAt`"
 source = "ANALYST-SUPPLIED 2026-09-03: Chainlink PoR adopted for cbBTC 2025-05-29 (Coinbase/Chainlink announcements); Coinbase CDP docs state ~per-minute refresh; page coinbase.com/cbbtc/proof-of-reserves"
+
+[[disclosure]]
+row_key = "LBTC (live mint market, found at first contact 2026-09-04)"
+memo_row = "cbBTC / custodial BTC"
+disclosure_cadence = "continuous — Chainlink PoR (Ethereum) + Lombard PoR page, real-time verification"
+last_disclosure_date = "per-run read of the LBTC PoR feed's `updatedAt`"
+source = "ANALYST-SUPPLIED 2026-09-04: Chainlink PoR on Ethereum for LBTC announced 2026-02-05 (Chainlink/Lombard); partnership incl. PoR 2024-10 (lombard.finance blog). Feed 0x70c158c7731Da2C14BC84aEBa39A4FF703DDc7d2, chain-verified description() = 'Lombard Proof of Reserves' — Lombard-wide, broader than LBTC specifically. Memo §4.4/§4.5 name LBTC in the custodial-BTC class (P1)"
+
+# oracle_feed[] - DET-54/55, 0 signed rows (P-7.01 R21).
+
+# audit_status - DET-73's structured block, values as signed (P-7.04).
+[audit_status]
+last_material_change_audited = "yes"
+staleness_date = "2026-09-13"
+bug_bounty = { platform = "Curve (self-run, docs.curve.finance/developer/security)", max = "USD 250,000" }
+audits = [
+  { firm = "MixBytes", date = "2023-06-05", scope = "crvUSD infrastructure" },
+  { firm = "ChainSecurity", date = "2024-01-24", scope = "crvUSD infrastructure" },
+  { firm = "ChainSecurity", date = "2025-02-21", scope = "crvUSD infrastructure" },
+  { firm = "ChainSecurity", date = "2023-12-12", scope = "PegKeeperV2" },
+  { firm = "ChainSecurity", date = "2024-10-25", scope = "FastBridge (cross-chain crvUSD)" },
+  { firm = "MixBytes", date = "2024-09-02", scope = "LlamaLend" },
+]
 
 # first_run_reads[] - 34 rows mirrored from the stamped sheet.
 # status stays "open" until a stamped sheet edit retires the prose tag (P-3.14).

@@ -283,20 +283,28 @@ def test_unlabeled_config_row_emits_unlisted_and_keeps_its_reason():
 
 
 def test_det55_dispatches_on_the_update_condition_type():
-    """P-4.08: DET-55's enum has two members. A deviation/heartbeat row whose
-    heartbeat is not yet signed is present-and-empty — allowed, but only when
-    the adapter class names WHY it is absent."""
+    """P-4.08, widened at B-9: DET-55 dispatches on the update-condition type.
+    A `deviation_heartbeat` row needs both a heartbeat `{form, value,
+    provenance}` and a class-I `deviation`; a `nav_schedule` row (A-19) needs
+    only the heartbeat; the present-and-empty branch is gone."""
     import tests.test_schema as ts
-    from factory.schema import DeviationHeartbeat
+    from factory.provenance import AnalystSupplied
+    from factory.schema import Deviation, DeviationHeartbeat, HeartbeatS, NavSchedule
     from factory.validate.harness import Level3, det_55
     b = ts.a_bundle()
     row = b.oracle_rows[0]
-    ok = row.model_copy(update={"update_condition": DeviationHeartbeat(provenance=[]),
-                                "adapter_class": "nav", "staleness_check": None})
-    det_55(b.model_copy(update={"oracle_rows": [ok]}), {})
-    bad = ok.model_copy(update={"adapter_class": None})
-    with pytest.raises(Level3, match="neither a heartbeat nor an adapter class"):
-        det_55(b.model_copy(update={"oracle_rows": [bad]}), {})
+    signed = AnalystSupplied(source="fixture", date="2026-09-13")
+    hb = HeartbeatS(form="documented", value=3600, provenance=signed)
+    dev = DeviationHeartbeat(heartbeat_s=hb, provenance=[],
+                             deviation=Deviation(value_bps=50, analyst_supplied=signed))
+    for uc in (dev, NavSchedule(heartbeat_s=hb, provenance=[])):
+        det_55(b.model_copy(update={"oracle_rows": [row.model_copy(
+            update={"update_condition": uc, "staleness_check": None})]}), {})
+    for uc, msg in ((dev.model_copy(update={"deviation": None}), "deviation absent"),
+                    (dev.model_copy(update={"heartbeat_s": None}), "heartbeat_s absent")):
+        with pytest.raises(Level3, match=msg):
+            det_55(b.model_copy(update={"oracle_rows": [row.model_copy(
+                update={"update_condition": uc})]}), {})
 
 
 # --- C2: the boxed-asset walk and its nodes -----------------------------------

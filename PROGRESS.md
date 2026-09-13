@@ -7703,3 +7703,115 @@ Status: IN PROGRESS (opened 2026-09-13, P-7.01).
 - **Follow-ups spawned:** B-9 — the bundle event under R4 plus P-7.03's five fixes and
   DET-71; `config.load` reads `[[por_feed]]` `heartbeat`; cbETH's read named; WBTC's
   `description()` verified; JAAA's `observed_max`; three re-runs clear the stale pairing.
+
+## P-7.01-A2 — AMEND P-7.01 — the Step-7 target after B-9
+
+- **Date:** 2026-09-13
+- **Type:** AMEND
+- **Confirmed by:** Amin
+- **Content:**
+  P-7.01-A1's target **93** counted DET-32, DET-32-lineage and DET-71 but not the rows B-9 registered beyond R9's list — DET-15 (R2), DET-76e (R7) and DET-05 (P-7.05 S13) — so the Step-7 target is **96** (93 + 3), DET-81 deferred to A-16's list; P-7.01 and P-7.01-A1 stand unedited.
+- **Artifacts:** `PROGRESS.md`. No code change.
+- **Follow-ups spawned:** none.
+
+## P-5.01-A1 — AMEND P-5.01 — R1's `supply_ruled` rule, one carve-out
+
+- **Date:** 2026-09-13
+- **Type:** AMEND
+- **Confirmed by:** Amin
+- **Content:**
+  R1's "shares over `backing_value` only, nothing over `supply_ruled`" now carries one carve-out: the tree's off-mainnet facilitator line, a named figure with its share of `supply_ruled`, never inside a backed bar (P-7.05); P-5.01 stands unedited.
+- **Artifacts:** `PROGRESS.md`. No code change.
+- **Follow-ups spawned:** none.
+
+## P-7.05 — B-9: the one bundle event — declared diff built, three P-4.16 proofs, three runs, the light sample
+
+- **Date:** 2026-09-13
+- **Type:** decision + implementation
+- **Confirmed by:** Amin
+- **Content:**
+  **RULINGS (Amin's, as stated) on Part 1's S1–S14.** S1 (i) the letter: GHO O =
+  Σ bucket levels, residual 0, the tree's `backed_supply` amount moves, shares
+  untouched; P-4.04 R1's direct-minter reading superseded. S2 code-owned labels
+  under P-3.39 ruling 1; P-4.01 #5 closes. S3 `category "Dexs"` via `/protocols`,
+  Curve = `curve-dex`, both URLs and `fetched_at` recorded. S4 option (b). S5 the
+  `[[por_feed]]` description reads 'WBTC PoR' in both label files. S6 the
+  underlying feed derived from the adapter's bytecode immutable against verified
+  source; 30-day window a named default. S7 the GSM freeze is its own
+  admin-surface row — holders the two freezers, evidence `SWAP_FREEZER_ROLE` per
+  GSM, scope the two GSMs; Pool rows unchanged. S8 DET-81 deferred to A-16's
+  list, no CAPO base reads. S9 signed by the confirmation. S10 record-only. S11 as
+  read. S12 P-7.01-A2. S13 DET-05 in. S14 `gate_results` and `log_entries`
+  removed. GHO perimeter: Amin's wording, fitted to the numbers. **On S1's tree:**
+  the 150M of off-mainnet facilitator levels is a named line — "minted against
+  off-mainnet facilitators; backing on Arbitrum/Monad/Plasma, not traced by this
+  tree" — with its share of `supply_ruled`, never inside a backed bar.
+  **S9 EDIT.** LUSD's counterparties line gains the signed clause verbatim, joined
+  by "; " in place of the closing period. Sheet `32f8aa5d` → **`5486f264`**,
+  rubric `fe23432a` → **`0261c364`** (header sheets-line); three
+  `intake_trigger` events, set files `9ebdd282` / `062b5a0c` / `8bebc8a0`.
+  **BUILD, by driver.** Schema: `Header.template_hash / revision_count /
+  revision_cause` and `Bundle.gate_results / log_entries` removed; `OffvenueShare`,
+  `ResidualCause`, the node/op/oracle fields added; `OracleRow` enums widened.
+  DET-32 `offvenue.py`; DET-73 `mirror.parse_audit_status` / counterparty parse;
+  DET-76(e) `disclosure.py` (PoR `latestRoundData` with `description()` asserted;
+  analyst-dated; cbETH `ExchangeRateUpdated` by pointer, `exchangeRate()`
+  deciding); DET-54/55 `feeds.py` (signed row ↔ discovered feed asserted); DET-15
+  `SetDebtCeiling` pointer → 40 causes; DET-05 keeper LP reads; DET-71 `owner()`
+  reads, A6 ×9, `OWNER_SLOT` retired; the five fixes; `_label_of` reads the tree;
+  tree `off_mainnet_line`, DET-19 carved for that one `supply_ruled` figure.
+  **REGISTERED:** `DET-71`, `DET-76e` (S1, L3); `DET-05`, `DET-15`, `DET-32`
+  (S2/tree); `DET-32-lineage` (S2/stress); `det_55` widened. **`len(CHECKS)` 60 →
+  66.** Named defaults: DET-05 18-dp at par, floor; DET-32 whole-USD floor, X at
+  1 dp half-up; cbETH lookback 216,000 blocks; the disclosure join keyed by
+  address; family (iv) wording without its run-1 figures.
+  **READINGS.** S7: DET-68 is one row per (power, holder), A2 scalar — two
+  `pause` rows, each scoped to the GSM where its `hasRole` is true. S6: the adapter
+  exposes verified `source()`, read and asserted equal to the immutable. The
+  perimeter omits the flash minter (level 0).
+  **P-4.16, at the stored blocks, `run_start_time` + `sheet_hash` pinned.**
+  crvUSD 1,939 → 2,617 leaves, GHO 1,694 → 2,029, LUSD 526 → 791; **undeclared 0
+  on all three**; reverting declared leaves reproduces **`427b1116` / `8d75681e`
+  / `5bc7631b`**; **12 stored bundles load through `PriorBundle`.**
+  **RUNS.** crvUSD **25970226** bundle `dbddf680` tree `8136ce19` stress
+  `9bafc695`; GHO **25970233** `6a215285` tree `a79e32cb` stress **`779c4142`**
+  (supersedes the verified fold `223b53a6` after the off-mainnet re-fold: 2 of
+  2,873 leaves, the two header hashes; cells byte-identical); LUSD
+  **25970249** `581bcb4c` `582e1c86` `49b54587`. S0/S1 26/26 ×3 (GHO T-20 L1);
+  S2 tree 14/14, stress 26/26, `stale_sheet` false ×3. The five B-8 failures pass.
+  **DET-15 crvUSD:** controller pre-mint 643,887,241.35 (9) · PegKeeper undrawn
+  317,413,016.69 (5) · AMM float 9,297.31 (9) · family (iv) 1,060,650,000.54
+  (17); unexplained 260,736.92 = **0.012388%**. **GHO O 699,000,000.00**; the
+  former 492,304,723.31 at 25963961: GSMs Mainnet 310,000,000.00 · GSM Monad,
+  Plasma, GSM Arbitrum 50,000,000.00 each · Horizon 20,211,202.51 · Core
+  6,497,548.41 · Lido 5,595,972.39 · FlashMinter 0. The off-mainnet line: 150M,
+  0.214592 of `supply_ruled`.
+  **DET-32:** crvUSD X 0.000042 · **GHO 0.928382, T-02 L1, §11.6 dated** · LUSD
+  0.003732. **DET-76e** passes: PoR dates WBTC/cbBTC/LBTC, GHO analyst dates,
+  cbETH block 25969573. **DET-71:** `owner()` = 0 on six, none on the token.
+  **DET-05:** USDT keeper share 0.348944, net 3,064,459.70, residual 1,299.16.
+  JAAA `observed_max` 86,436 s. GHO's crvUSD label `linked` in stress.
+  **LIGHT SAMPLE (Amin's):** one pinned `get_dy` per token, matched to the wei
+  (`tools/light_sample_check.py`, Amin's RPC, 2026-09-13; LUSD the first word of
+  the 4,096-byte buffer); three `config/verifications.toml` rows, Step-6 rows kept.
+  **AS-COUNTED.** Builder (Step 3): `gate_results` stamped after `finalise()`, so
+  no stored bundle replayed its own hash. Builder: the proof tooling's first LUSD
+  pass listed 10 undeclared leaves (`reads: {}` and a null `feed_address`), and its
+  first crvUSD replay collapsed two sfrxETH oracle rows keyed by node alone — both
+  fixed with no `src/` change. Builder: the last two chat messages carried no END
+  marker. Design layer: S5's description was the directory display name, not
+  `description()`.
+  **QUEUE (P-4.01):** #4 and #5 close. New: DET-81's GHO `[[reference_feed]]` rows
+  (Amin's), with the gap column, then DET-81's registration.
+- **Artifacts:** `docs/context/intake-sheets-cdp.md` · `docs/context/rubic_v1.md`;
+  `config/{crvusd,gho,lusd}_sheet.toml` · `config/{labels,gho_labels}.toml` ·
+  `config/verifications.toml`; `out/logs/events_{crvusd,gho,lusd}.jsonl`;
+  `src/factory/{schema,mirror,config,run,tree,stress}.py` ·
+  `src/factory/adapters/{gho,lusd}.py` · `src/factory/validate/harness.py` ·
+  `src/factory/{disclosure,feeds,offvenue}.py` (new);
+  `tests/{test_schema,test_discovery,test_gho,test_stress,test_tree,test_b8}.py` ·
+  `tests/test_b9.py` (new); `tools/light_sample_check.py` (new);
+  `out/{bundles,trees,stress}/{crvUSD/25970226,GHO/25970233,LUSD/25970249}.json`;
+  `PROGRESS.md`.
+- **Follow-ups spawned:** B-10 (flat table, manifest, gate record); DET-81 after
+  Amin's GHO reference-feed rows.

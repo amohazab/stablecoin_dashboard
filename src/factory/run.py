@@ -18,6 +18,7 @@ from factory.adapters import gho as gho_adapter
 from factory.adapters import lusd as lusd_adapter
 from factory.adapters.crvusd import discover_lend_markets
 from factory.config import Config, load, sell_side_for
+from factory.disclosure import disclosure_fields
 from factory.discovery import (
     AssemblyStopFromDiscovery,
     build_pool_rows,
@@ -29,7 +30,9 @@ from factory.eventlog import last_event
 from factory.eventlog import read as read_event_log
 from factory.labels_runtime import resolve_wallet_registry_label
 from factory.logbook import is_first_run, load_prior
+from factory.logs_pointer import PointerError, default_transport, get_logs
 from factory.logs_pointer import env as _env
+from factory.offvenue import read_share
 from factory.provenance import AbsenceRead, AnalystSupplied, ContractRead
 from factory.reads import (
     EIP1967_IMPL_SLOT,
@@ -47,13 +50,13 @@ from factory.schema import (
     Counts,
     EmaWindow,
     FirstRunLiterals,
-    GateResult,
     Header,
     LendMarket,
     Market,
     OracleRow,
     PositionCompleteness,
     RedemptionPath,
+    ResidualCause,
     StabilizerBlock,
     StabilizerOperation,
     StaticMetadata,
@@ -197,6 +200,123 @@ def _bridge_disclosure(rows: list[Bridge]) -> str:
     return f"bridged component assessed: {'; '.join(parts)}; {tail}"
 
 
+def stabilizer_positions(rpc, ops: list, rb: int) -> list:
+    """DET-05 (B-9, P-7.05 S13): each keeper's LP position in its own pool at
+    `run_block`, so (c) and (d) replay from the bundle. NAMED DEFAULT: values in
+    18-dp stablecoin units at par - the unit `current_debt` is carried in - with
+    the paired coin scaled by its `decimals()`; floor division throughout.
+
+    (c) `net_non_self_referential_value = lp_balance x paired_18 // lp_supply`
+        (the paired leg attributable to the protocol's LP share, par);
+    (d) `residual = lp_balance x (paired_18 + stablecoin leg) // lp_supply - debt`.
+    """
+    out = []
+    for o in ops:
+        pool = o.paired_pool_address
+        q = rpc.read([Call(pool, "coins(uint256)", ("address",), (0,)),
+                      Call(pool, "coins(uint256)", ("address",), (1,)),
+                      Call(pool, "balances(uint256)", ("uint256",), (0,)),
+                      Call(pool, "balances(uint256)", ("uint256",), (1,)),
+                      Call(pool, "balanceOf(address)", ("uint256",), (o.operation_address,)),
+                      Call(pool, "totalSupply()", ("uint256",))])
+        if not all(x.ok for x in q):
+            raise AssemblyStop(f"DET-05: keeper pool {pool} did not answer coins/balances/LP")
+        coins = [q[0].one().lower(), q[1].one().lower()]
+        if CRVUSD not in coins:
+            raise AssemblyStop(f"DET-05: keeper pool {pool} does not hold crvUSD: {coins}")
+        j = 1 - coins.index(CRVUSD)
+        paired = coins[j]
+        dec = rpc.read([Call(paired, "decimals()", ("uint8",))])[0]
+        if not dec.ok:
+            raise AssemblyStop(f"DET-05: paired asset {paired} decimals() reverted")
+        bals = [int(q[2].one()), int(q[3].one())]
+        lp, sup, d = int(q[4].one()), int(q[5].one()), int(dec.one())
+        paired_18 = bals[j] * 10 ** (18 - d)
+        stable_leg = bals[1 - j]
+        net = lp * paired_18 // sup if sup else 0
+        value = lp * (paired_18 + stable_leg) // sup if sup else 0
+        out.append(o.model_copy(update={
+            "paired_asset_address": paired,
+            "protocol_lp_share": Decimal(lp) / Decimal(sup) if sup else Decimal(0),
+            "net_non_self_referential_value": net,
+            "residual": value - o.current_debt,
+            "pool_composition": {coins[0]: bals[0], coins[1]: bals[1]},
+            "coin_decimals": {paired: d, CRVUSD: 18},
+            "lp_balance": lp, "lp_total_supply": sup,
+            "reads": {**o.reads,
+                      "pool_composition": _cr(pool, "balances(uint256)", rb, (0, 1)),
+                      "coins": _cr(pool, "coins(uint256)", rb, (0, 1)),
+                      "lp_balance": _cr(pool, "balanceOf(address)", rb, (o.operation_address,)),
+                      "lp_total_supply": _cr(pool, "totalSupply()", rb),
+                      "paired_decimals": _cr(paired, "decimals()", rb)}}))
+    return out
+
+
+SET_DEBT_CEILING = "0x" + __import__("eth_utils").keccak(
+    text="SetDebtCeiling(address,uint256)").hex()
+# P-3.39 ruling 1's families, CODE-OWNED LABELS (P-7.05 S2; P-4.01 #5 closes).
+# Family (iv)'s signed wording carried run-1 amounts; the per-row `amount` is
+# the run's own, so the label keeps the wording and drops the figures.
+F_CONTROLLER = "mint-controller pre-mint inventory"
+F_AMM = "mint-market AMM float"
+F_PEGKEEPER = "PegKeeper undrawn inventory"
+F_OTHER = ("non-mint-market minting facilitators enumerated from `SetDebtCeiling` history "
+           "— the lend factories (zero ceilings, confirmed non-originating), the "
+           "FlashLender, the FastBridgeVaults, and an unclassified minting factory "
+           "(`0x370a449f…`, verified name Factory) pending perimeter re-ruling; "
+           "amount = held + deployed (ceiling − held, floor 0)")
+
+
+def residual_causes(rpc, repo: pathlib.Path, cf: str, markets: list, ops: list,
+                    rb: int, http_get=None, key: str | None = None) -> tuple[list, dict]:
+    """DET-15(c) (B-9, P-7.01 R2): the named causes of `supply_ruled - O`.
+
+    The recipient set is the ControllerFactory's full `SetDebtCeiling` history -
+    the POINTER (Etherscan logs, P-4.04 R3) - and every amount is a pinned read.
+    No list: controllers and keepers are recognised by the bundle's own rows,
+    everything else is family (iv)."""
+    http_get = http_get or default_transport(repo)
+    key = key if key is not None else _env(repo, "ETHERSCAN_API_KEY")
+    try:
+        ptr = get_logs(cf, [SET_DEBT_CEILING], 0, rb, http_get, key)
+    except PointerError as exc:
+        raise AssemblyStop(f"DET-15(c): SetDebtCeiling pointer failed: {exc}") from exc
+    recips = sorted({"0x" + r.topics[1][-40:] for r in ptr.rows})
+    ctrls = {m.address for m in markets}
+    keepers = {o.operation_address: o for o in ops}
+    fresh = [a for a in recips if a not in keepers]
+    res = rpc.read([Call(CRVUSD, "balanceOf(address)", ("uint256",), (a,)) for a in fresh]
+                   + [Call(cf, "debt_ceiling(address)", ("uint256",), (a,)) for a in fresh]
+                   + [Call(CRVUSD, "balanceOf(address)", ("uint256",), (m.amm_address,))
+                      for m in markets])
+    if not all(x.ok for x in res):
+        raise AssemblyStop("DET-15(c): a cause read reverted")
+    k = len(fresh)
+    bal = {a: int(r.one()) for a, r in zip(fresh, res[:k], strict=True)}
+    ceil = {a: int(r.one()) for a, r in zip(fresh, res[k:2 * k], strict=True)}
+    causes = []
+    for a in recips:
+        if a in keepers:
+            o = keepers[a]
+            causes.append(ResidualCause(family=F_PEGKEEPER, address=a, amount=o.balance,
+                                        reads={"balance": o.reads["balance"],
+                                               "debt_ceiling": o.reads["debt_ceiling"]}))
+            continue
+        reads = {"balance": _cr(CRVUSD, "balanceOf(address)", rb, (a,)),
+                 "debt_ceiling": _cr(cf, "debt_ceiling(address)", rb, (a,))}
+        if a in ctrls:
+            causes.append(ResidualCause(family=F_CONTROLLER, address=a, amount=bal[a],
+                                        reads=reads))
+        else:
+            causes.append(ResidualCause(family=F_OTHER, address=a,
+                                        amount=bal[a] + max(ceil[a] - bal[a], 0), reads=reads))
+    for m, r in zip(markets, res[2 * k:], strict=True):
+        causes.append(ResidualCause(
+            family=F_AMM, address=m.amm_address, amount=int(r.one()),
+            reads={"balance": _cr(CRVUSD, "balanceOf(address)", rb, (m.amm_address,))}))
+    return causes, ptr.record()
+
+
 def assemble(cfg: Config, rpc: RpcClient, repo: pathlib.Path, token: str,
              http_get=None) -> tuple[Bundle, dict]:
     rb = rpc.run_block
@@ -323,6 +443,7 @@ def assemble(cfg: Config, rpc: RpcClient, repo: pathlib.Path, token: str,
                    "debt_ceiling": _cr(cf, "debt_ceiling(address)", rb, (pk,)),
                    "is_killed": killed_prov},
             lineage=["stabilizer_debt"]))
+    ops = stabilizer_positions(rpc, ops, rb)
     alpha, beta = (int(x.one()) for x in rpc.read([
         Call(reg, "alpha()", ("uint256",)), Call(reg, "beta()", ("uint256",))]))
     stab = StabilizerBlock(
@@ -352,6 +473,10 @@ def assemble(cfg: Config, rpc: RpcClient, repo: pathlib.Path, token: str,
                         sum(o.current_debt for o in ops)) / Decimal(ts),
                     reads={"total_supply": _cr(CRVUSD, "totalSupply()", rb)})
     supply.residual = supply.supply_ruled - supply.origination_sum
+    causes, pointer = residual_causes(rpc, repo, cf, markets, ops, rb)
+    supply.residual_causes = causes
+    supply.residual_unexplained = supply.residual - sum(c.amount for c in causes)
+    supply.residual_pointer = pointer
 
     # ---- nodes --------------------------------------------------------------
     total_value = sum(node_values.values()) or 1
@@ -364,17 +489,28 @@ def assemble(cfg: Config, rpc: RpcClient, repo: pathlib.Path, token: str,
             got = resolve_wallet_registry_label(rpc, wr_by_node[addr])
             if got:
                 resolved, resolved_prov = got
+        label = (row.label if row and row.label else (resolved or "unlisted"))
+        disc, _n = (disclosure_fields(cfg, rpc, addr) if label == "recurses" else ({}, 0))
+        # DET-81's "price_source provenance per node" (B-9): the node is valued at
+        # each of its markets' `price_oracle()`, already read; 0 RPC.
+        price_reads = {f"price:{m.address}": m.reads["collateral_price"]
+                       for m in markets if m.collateral_address == addr}
         nodes.append(CollateralNode(
             address=addr, symbol=row.symbol if row else "?",
-            label=(row.label if row and row.label else (resolved or "unlisted")),
+            label=label,
             label_source_address=addr,
+            disclosure_cadence=disc.get("disclosure_cadence"),
+            last_disclosure_date=disc.get("last_disclosure_date"),
+            last_disclosure_block=disc.get("last_disclosure_block"),
+            flags=disc.get("flags", []),
             node_class=row.node_class if row else "volatile",
             lst_discount_applies=bool(row.lst_discount_applies) if row else False,
             sell_side_capacity=sell_side_for(cfg, addr,
                                           row.node_class if row else "volatile"),
             value=val, share_of_backing=Decimal(val) / Decimal(total_value),
             reads=({"collateral": _cr(addr, "balanceOf(address)", rb)}
-                   | ({"label": resolved_prov} if resolved_prov else {})),
+                   | ({"label": resolved_prov} if resolved_prov else {})
+                   | price_reads | disc.get("reads", {})),
             lineage=["collateral_read", "price_read"]))
 
     # ---- oracle rows --------------------------------------------------------
@@ -493,10 +629,8 @@ def assemble(cfg: Config, rpc: RpcClient, repo: pathlib.Path, token: str,
                                        evidence="no holder redemption function", block=rb))],
         admin_surface=admin, lend_markets=lend_rows,
         pools=pool_rows, pool_detectors=detectors,
-        static_metadata=StaticMetadata(
-            audits="none", bug_bounty="none", last_material_change_audited="no",
-            staleness_date="2026-09-01",
-            counterparties=cfg.sheet["counterparties"]),
+        offvenue_share=read_share(CRVUSD),
+        static_metadata=static_metadata_of(cfg),
         counts=Counts(mint_market_count=len(markets),
                       # 3.1b: the ON-CHAIN total across the signed factories,
                       # not the factory count and not the rows' `vaults` field.
@@ -510,6 +644,16 @@ def assemble(cfg: Config, rpc: RpcClient, repo: pathlib.Path, token: str,
         first_run_literals=FirstRunLiterals() if first else None)
     return bundle, {"raw": raw, "raw_hash": raw_hash, "rows": raw_rows}
 
+
+
+def static_metadata_of(cfg: Config) -> StaticMetadata:
+    """DET-73 (B-9): the signed structured block and the counterparty line, from
+    the mirror - replacing the three adapters' hardcoded `none` literals."""
+    a = cfg.audit_status
+    return StaticMetadata(audits=a["audits"], bug_bounty=a["bug_bounty"],
+                          last_material_change_audited=a["last_material_change_audited"],
+                          staleness_date=a["staleness_date"],
+                          counterparties=cfg.sheet["counterparties"])
 
 
 def _event_log(repo: pathlib.Path, token: str) -> pathlib.Path:
@@ -596,9 +740,11 @@ def execute(repo: pathlib.Path, rpc_url: str, token: str) -> dict:
                                              bundle.header.run_block)}
     outcome = run_harness(bundle, ctx)            # raises => nothing below runs
 
+    # B-9 (P-7.05 S14): S0/S1 results are NOT stamped onto the bundle - they
+    # were written after `finalise()`, outside the hash preimage, so the stored
+    # artifact never replayed its own hash. They are returned and printed; the
+    # gate record (R13, B-10) is their home.
     stamped, h = finalise(bundle)
-    stamped.gate_results = [GateResult(entry_id=r.entry_id, result=r.result)
-                            for r in outcome.results]
 
     # PROMOTION IS LAST (ruled 2026-09-09, P-4.11). It used to be the first
     # thing after the gate, so a failure in the sheet generator left a PROMOTED
@@ -678,3 +824,5 @@ if __name__ == "__main__":
           f"bundle {_r['hash'][:8]} | "
           f"gates {sum(1 for g in _o.results if g.result == 'pass')}/{len(_o.results)} pass"
           f" | worst_level {_o.worst_level} | {_r['seconds']}s | spotcheck {_r['spotcheck']}")
+    print("S0/S1: " + " ".join(f"{g.entry_id}={g.result}" for g in _o.results))
+    print("triggers: " + (", ".join(f"{t}(L{lvl})" for t, lvl in _o.triggers) or "none"))

@@ -31,7 +31,9 @@ from factory.discovery import (
     catalog_get,
     last_run_ratios,
 )
+from factory.feeds import condition_from_row
 from factory.logbook import is_first_run, load_prior
+from factory.offvenue import read_share
 from factory.provenance import AbsenceRead, AnalystSupplied, ContractRead
 from factory.rpc import Call
 from factory.schema import (
@@ -40,7 +42,6 @@ from factory.schema import (
     Bundle,
     CollateralNode,
     Counts,
-    DeviationHeartbeat,
     FirstRunLiterals,
     Header,
     Market,
@@ -48,7 +49,6 @@ from factory.schema import (
     PositionCompleteness,
     RedemptionPath,
     StabilizerBlock,
-    StaticMetadata,
     Supply,
 )
 
@@ -58,11 +58,14 @@ _BUNDLES = pathlib.Path("out/bundles")
 ETH = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
 EIP1967_IMPL = "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc"
 EIP1967_ADMIN = "0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103"
-# Ownable's `_owner` on the Liquity contracts: slot 0 of OwnableUpgradeable-free
-# plain Ownable. Read as evidence of RENUNCIATION, which is why it is a slot
-# read and not a call: DET-68 requires absence provenance on a `none` holder,
-# and `owner()` returning zero is a ContractRead, which that check rejects.
-OWNER_SLOT = "0x" + "0" * 64
+# B-9 (DET-71, P-7.03 ruling 3): `OWNER_SLOT` is RETIRED. It read storage slot 0,
+# which on TroveManager and StabilityPool holds LiquityBase's ActivePool pointer,
+# not `_owner` - the no-owner limb was unevidenced (P-7.03 as-counted). Each
+# contract's `owner()` is now CALLED at `run_block`; a zero answer is a
+# ContractRead kept in the row's `reads`, because DET-68 rejects a ContractRead
+# as a `none` row's A8 provenance, and a contract with no `owner()` selector is
+# an absence read (the LUSD token).
+OWNER = "owner()"
 
 # The nine A1 powers, in the rubric's order (DET-68 requires all nine).
 POWERS = ("mint", "set_ceiling", "upgrade", "pause", "freeze_asset",
@@ -241,14 +244,31 @@ def read_admin_surface(rpc, s: dict[str, str], csp: str) -> tuple[list[AdminRow]
         raise LusdAdapterStop(
             f"EIP-1967 slot non-zero on {non_zero} — the sheet's immutability "
             "premise is contradicted; needs re-ruling, not a silent pass.")
-    owners = {}
-    for a in every:
-        owners[a] = rpc.storage(a, OWNER_SLOT)
-        reads += 1
     # One `eth_getCode` per contract, concatenated: a selector absent from all
     # seven is absent from the protocol.
-    codes = "".join(rpc.code(a) for a in every)
+    code_of = {a: rpc.code(a) for a in every}
+    codes = "".join(code_of.values())
     reads += len(every)
+    owner_sel = function_signature_to_4byte_selector(OWNER).hex()
+    got = rpc.read([Call(a, OWNER, ("address",)) for a in every])
+    reads += len(every)
+    owner_reads: dict = {}
+    zero, absent = [], []
+    for a, r in zip(every, got, strict=True):
+        if r.ok:
+            if int(r.one(), 16) != 0:
+                raise LusdAdapterStop(
+                    f"owner() at {a} = {r.one()} - the control's renounced ownership "
+                    "is contradicted; needs re-ruling, not a silent `none`.")
+            owner_reads[f"owner:{a}"] = r.provenance
+            zero.append(a)
+        elif owner_sel not in code_of[a]:
+            owner_reads[f"owner:{a}"] = AbsenceRead(
+                contract=a, method="selector_absence_scan",
+                evidence=f"owner() selector 0x{owner_sel} absent", block=rpc.run_block)
+            absent.append(a)
+        else:
+            raise LusdAdapterStop(f"owner() at {a} is present in the bytecode but reverted")
 
     rows: list[AdminRow] = []
     for power in POWERS:
@@ -273,15 +293,16 @@ def read_admin_surface(rpc, s: dict[str, str], csp: str) -> tuple[list[AdminRow]
                     f"power {power!r} — the control's empty admin surface is "
                     "contradicted; needs re-ruling, not a silent `none`.")
             prov = AbsenceRead(
-                contract=s["trove_manager"], method="storage_slot_read",
-                evidence=(f"owner slot {owners[s['trove_manager']]} across the "
-                          f"{len(every)} contracts; {len(sigs)} selector(s) "
-                          "absent from every bytecode"),
+                contract=s["trove_manager"], method="selector_absence_scan",
+                evidence=(f"owner() = 0x0 on {len(zero)} contracts, no owner() on "
+                          f"{len(absent)}; {len(sigs)} selector(s) absent from every "
+                          f"bytecode across the {len(every)} contracts"),
                 block=rpc.run_block)
-            up = None
+            up = "immutable"                    # DET-71's A6 on all nine rows
         rows.append(AdminRow(power=power, holder_address=None, holder_type="none",
                              delay_seconds=0, delay_bucket="none",  # R14, P-5.01
                              upgradeability=up, scope=[], provenance=prov,
+                             reads=dict(owner_reads),
                              live_model_input=False, consumed_by=[]))
     return rows, reads
 
@@ -313,11 +334,10 @@ def build(cfg, rpc, http_get=catalog_get):
         Call(s["lusd"], "totalSupply()", ("uint256",)),
         Call(ap, "getLUSDDebt()", ("uint256",)), Call(dp, "getLUSDDebt()", ("uint256",)),
         Call(ap, "getETH()", ("uint256",)), Call(dp, "getETH()", ("uint256",)),
-        Call(csp, "getETH()", ("uint256",)),
         Call(sp, "getTotalLUSDDeposits()", ("uint256",)),
     ])
-    reads += 7
-    total_supply, ap_debt, dp_debt, ap_eth, dp_eth, csp_eth, sp_deposits = (
+    reads += 6
+    total_supply, ap_debt, dp_debt, ap_eth, dp_eth, sp_deposits = (
         int(r.one()) for r in pool_reads)
 
     oracle, n = read_oracle(rpc, pf)
@@ -348,7 +368,10 @@ def build(cfg, rpc, http_get=catalog_get):
         # LUSD accrues NO interest: principal is the whole of debt, and the zero
         # is provenanced by the absence scan rather than asserted (C-3).
         principal_sum=gross, accrued_interest_sum=0, gross_debt_sum=gross,
-        net_debt_sum=gross, surplus_sum=csp_eth,
+        # DET-06 (P-7.03 ruling 1): surplus is STABLECOIN held in a position
+        # beyond its debt; LUSD troves hold none. CollSurplusPool's ETH is owed
+        # collateral, not stablecoin surplus - it left this field at B-9.
+        net_debt_sum=gross, surplus_sum=0,
         stablecoin_in_position_sum=0,
         external_collateral_sum=coll,
         external_collateral_value=coll * price // 10 ** 18,
@@ -363,7 +386,6 @@ def build(cfg, rpc, http_get=catalog_get):
             "redistributed_debt": _cr(tm, "getEntireDebtAndColl(address)", rb),
             "gas_compensation": _cr(tm, "LUSD_GAS_COMPENSATION()", rb),
             "collateral": _cr(ap, "getETH()", rb),
-            "surplus": _cr(csp, "getETH()", rb),
             "n_positions": _cr(tm, "getTroveOwnersCount()", rb),
             "collateral_price": _cr(pf, "fetchPrice()", rb),
             # Native ETH's 18 decimals are a PROTOCOL CONSTANT, not a token
@@ -394,16 +416,18 @@ def build(cfg, rpc, http_get=catalog_get):
     oracle_row = OracleRow(
         node_address=ETH, market_or_reserve_address=tm,
         feed_or_source=oracle["aggregator"],
-        update_condition=DeviationHeartbeat(
-            heartbeat_s=None, deviation_bps=None, answer=oracle["answer"],
-            updated_at=oracle["updated_at"],
-            provenance=[_cr(oracle["aggregator"], "latestRoundData()", rb),
-                        _cr(pf, "fetchPrice()", rb),
-                        _cr(pf, "lastGoodPrice()", rb),
-                        _cr(pf, "status()", rb),
-                        _cr(pf, "tellorCaller()", rb)]),
-        assumption_applied="instant_optimistic_counterfactual",
-        counterfactual_ref="EMA_lag",
+        update_condition=condition_from_row(
+            cfg.oracle_feeds[ETH], oracle["aggregator"], oracle["answer"],
+            oracle["updated_at"],
+            [_cr(oracle["aggregator"], "latestRoundData()", rb),
+             _cr(pf, "fetchPrice()", rb),
+             _cr(pf, "lastGoodPrice()", rb),
+             _cr(pf, "status()", rb),
+             _cr(pf, "tellorCaller()", rb)]),
+        # DET-55's enum, from the sheet's §7 line: "instant observation, nearly
+        # exact; one fallback-engaged counterfactual line under metric 4" (B-9).
+        assumption_applied="instant_with_fallback_counterfactual",
+        counterfactual_ref="Tellor_fallback",
         # LUSD's PriceFeed IS the Chainlink ETH/USD aggregator, so there is no
         # independent market feed to compare it against. Structural, not missing.
         reference_feed="no_reference_feed",
@@ -412,7 +436,7 @@ def build(cfg, rpc, http_get=catalog_get):
         disclosure=(f"PriceFeed.status() = {oracle['status']} (0 = chainlinkWorking); "
                     f"lastGoodPrice {oracle['last_good_price']} lags the live answer "
                     f"because only fetchPrice() rewrites it; Tellor fallback at "
-                    f"{oracle['tellor']}; heartbeat OWED - no signed analyst row"))
+                    f"{oracle['tellor']}"))
 
     # --- redemption paths ----------------------------------------------------
     # ONE path. The sheet rules "holder paths: 1 — the reference profile", and
@@ -430,9 +454,12 @@ def build(cfg, rpc, http_get=catalog_get):
             # R6's C must RESOLVE on the bundle (DET-66). The condition the
             # sheet states is TCR < MCR, and no field carried it until this run
             # - see `system_tcr`, emitted for exactly this reason.
-            r6_gates=[{"kind": "state_conditional", "param": "system_tcr"}],
+            # DET-66's ruled `capacity_limited` joins the gate (P-7.03 ruling 1):
+            # redemptions are bounded by R7's redeemable collateral.
+            r6_gates=[{"kind": "state_conditional", "param": "system_tcr"},
+                      {"kind": "capacity_limited", "param": None}],
             r7_capacity="redeemable_collateral_value",
-            r8="enforceable_unless_[TCR<MCR]", r9_legal_claim="no_pure_protocol",
+            r8="enforceable_unless_TCR<MCR (see R7)", r9_legal_claim="no_pure_protocol",
             r10_provenance=_cr(tm, "redeemCollateral(uint256,address,address,address,"
                                    "uint256,uint256,uint256)", rb)),
     ]
@@ -464,7 +491,8 @@ def build(cfg, rpc, http_get=catalog_get):
             f"redistributed debt {redistributed}, the only non-user-originated "
             "increment, which is a REDISTRIBUTION and not interest"),
         bridges=bridge_rows, origination_sum=gross,
-        residual=total_supply - gross, stabilizer_over_supply=Decimal(0),
+        residual=total_supply - gross, residual_unexplained=total_supply - gross,
+        stabilizer_over_supply=Decimal(0),
         stability_pool_deposits=sp_deposits,        # R18: numeric, not prose
         reads={"total_supply": _cr(s["lusd"], "totalSupply()", rb),
                "stability_pool_deposits": _cr(sp, "getTotalLUSDDeposits()", rb)})
@@ -484,6 +512,7 @@ def build(cfg, rpc, http_get=catalog_get):
     except AssemblyStopFromDiscovery as exc:
         raise LusdAdapterStop(str(exc)) from exc
 
+    from factory.run import static_metadata_of
     first = is_first_run(_BUNDLES, "LUSD") if _BUNDLES else True
     raw = json.dumps(sorted(live, key=lambda t: t["owner"]),
                      sort_keys=True, separators=(",", ":"))
@@ -506,9 +535,8 @@ def build(cfg, rpc, http_get=catalog_get):
             "default_pool_eth": _cr(dp, "getETH()", rb),
             "price": _cr(pf, "fetchPrice()", rb)},
         pools=pool_rows, pool_detectors=detectors,
-        static_metadata=StaticMetadata(
-            audits="none", bug_bounty="none", last_material_change_audited="no",
-            staleness_date="2026-09-01", counterparties=cfg.sheet["counterparties"]),
+        offvenue_share=read_share(s["lusd"]),
+        static_metadata=static_metadata_of(cfg),
         counts=Counts(mint_market_count=1, below_floor_pool_count=below_floor,
                       lend_market_count=cfg.lend.market_count_field,
                       lend_market_count_note=(

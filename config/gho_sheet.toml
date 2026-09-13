@@ -1,13 +1,13 @@
 # DERIVED MIRROR - NOT AUTHORITATIVE (P-3.04 binding).
 # Source of truth: docs/context/intake-sheets-cdp.md, GHO section.
-# Derived from sheet version sha256_first8 = 32f8aa5d.
+# Derived from sheet version sha256_first8 = 5486f264.
 # DET-77's sheet_hash check binds this mirror to that source; drift is caught
 # mechanically, never trusted away. Regenerated, never hand-patched.
 schema_version = 1
-sheet_hash = "32f8aa5d"
+sheet_hash = "5486f264"
 
 near_bound_threshold = 0.80
-counterparties = "n/a - archetype #1 holds no off-chain counterparties"
+counterparties = "n/a — archetype #1 holds no off-chain counterparties. WBTC custodian captured in §4 look-through."
 attribution_method = "per_position"
 # member2_target - not mirrored: DET-50's owner is the set file (R-B3.6, P-7.01 R8).
 
@@ -16,11 +16,306 @@ m4_fields = ["gho_sourceable", "collateral_sellable", "gsm_mint_headroom", "bind
 # bias_table[] date - the P-6.07 signed edit's; the sheet table has no date column (P-7.01 R8).
 bias_table_date = 2026-09-13
 
-# cbBTC disclosure fields - mirrored from the stamped sheet (D-8; owner: sheet, not labels.toml per C-8)
-[disclosure.cbBTC]
+# disclosure[] - DET-76(e), 6 node-table rows; owner: the sheet (C-8).
+
+[[disclosure]]
+row_key = "aWBTC → WBTC"
+memo_row = "WBTC"
+disclosure_cadence = "continuous — Chainlink WBTC PoR feed (Ethereum) + BitGo transparency dashboard"
+last_disclosure_date = "per-run read of the WBTC PoR feed `updatedAt`"
+source = "ANALYST-SUPPLIED 2026-09-13: data.chain.link/feeds/ethereum/mainnet/wbtc-por; docs.chain.link/data-feeds/proof-of-reserve; feed 0xa81FE04086865e63E12dD3776978E49DEEa2ea4e, `description()` verified at B-9, heartbeat 86400"
+
+[[disclosure]]
+row_key = "aUSDC → USDC"
+memo_row = "USDC"
+disclosure_cadence = "monthly third-party attestation (Deloitte), Circle transparency page"
+last_disclosure_date = "2026-07-31"
+source = "ANALYST-SUPPLIED 2026-09-13: the July 2026 examination report PDF on Circle's transparency page; report dates 2026-07-08 and 2026-07-31; assertion signed 2026-08-27, published early September"
+
+[[disclosure]]
+row_key = "aUSDT → USDT"
+memo_row = "USDT"
+disclosure_cadence = "quarterly BDO attestation + daily transparency page"
+last_disclosure_date = "2026-06-30"
+source = "ANALYST-SUPPLIED 2026-09-13: tether.io/transparency; Q2 2026 as-of, published 2026-07-31"
+
+[[disclosure]]
+row_key = "acbETH"
+memo_row = "cbETH"
+disclosure_cadence = "on-chain exchange rate, continuous"
+last_disclosure_date = "per-run read of the last update of cbETH's exchange-rate oracle at `run_block` (the Builder names the concrete getter or event at B-9 and stops if none exists)"
+source = "ANALYST-SUPPLIED 2026-09-13: coinbase.com cbETH page"
+
+[[disclosure]]
+row_key = "cbBTC"
+memo_row = "cbBTC / custodial BTC"
 disclosure_cadence = "continuous — Chainlink PoR feed (Ethereum) + Coinbase PoR page, near-real-time refresh"
 last_disclosure_date = "per-run read of the Ethereum PoR feed `updatedAt`"
 source = "ANALYST-SUPPLIED 2026-09-13: the crvUSD section's cbBTC form (2026-09-03) applied to the same asset; feed 0xcbe87dc0cf9d807848a3e703b01a90b28ecfb2a7, heartbeat 86400"
+
+[[disclosure]]
+row_key = "sUSDe"
+memo_row = "memo §4.5 via P-3.24 R-2 (Ethena off-chain attestations)"
+disclosure_cadence = "monthly custodian attestations (Copper, Ceffu, Kraken Custody) + weekly PoR since 2026-01"
+last_disclosure_date = "2026-08-26"
+source = "ANALYST-SUPPLIED 2026-09-13: As of 23:59 UTC August 26th 2026 — ethena.fi/blog/custodian-attestations-of-assets-backing-usde-august-3"
+
+[[disclosure_inherit]]
+symbol = "waEthUSDC"
+from = "USDC"
+
+[[disclosure_inherit]]
+symbol = "waEthUSDT"
+from = "USDT"
+
+# oracle_feed[] - DET-54/55, 21 signed rows (P-7.01 R21).
+
+[[oracle_feed]]
+node_address = "0x2260fac5e5542a773aa44fbcfedf7c193bc2c599"
+symbol = "WBTC"
+feed = "0xdaa4b74c6bac4e25188e64ebc68db5050b690cac"
+type = "deviation_heartbeat"
+heartbeat_form = "documented"
+source = "Chainlink feed directory (data.chain.link), fetched 2026-09-13"
+date = "2026-09-13"
+deviation_bps = 50
+heartbeat_s = 3600
+
+[[oracle_feed]]
+node_address = "0xbe9895146f7af43049ca1c1ae358b0541ea49704"
+symbol = "cbETH"
+feed = "0x889399c34461b25d70d43931e6ce9e40280e617b"
+type = "deviation_heartbeat"
+heartbeat_form = "documented"
+source = "Chainlink feed directory (data.chain.link), fetched 2026-09-13"
+date = "2026-09-13"
+deviation_bps = 50
+heartbeat_s = 3600
+
+[[oracle_feed]]
+node_address = "0xae78736cd615f374d3085123a210448e74fc6393"
+symbol = "rETH"
+feed = "0x6929706c42d637df5ebf7f0bcff2af47f84ea69d"
+type = "deviation_heartbeat"
+heartbeat_form = "documented"
+source = "Chainlink feed directory (data.chain.link), fetched 2026-09-13"
+date = "2026-09-13"
+deviation_bps = 50
+heartbeat_s = 3600
+
+[[oracle_feed]]
+node_address = "0x9d39a5de30e57443bff2a8307a4256c8797a3497"
+symbol = "sUSDe"
+feed = "0x42bc86f2f08419280a99d8fbea4672e7c30a86ec"
+type = "deviation_heartbeat"
+heartbeat_form = "documented"
+source = "Chainlink feed directory (data.chain.link), fetched 2026-09-13"
+date = "2026-09-13"
+deviation_bps = 25
+heartbeat_s = 86400
+
+[[oracle_feed]]
+node_address = "0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee"
+symbol = "weETH"
+feed = "0x87625393534d5c102cadb66d37201df24cc26d4c"
+type = "deviation_heartbeat"
+heartbeat_form = "documented"
+source = "Chainlink feed directory (data.chain.link), fetched 2026-09-13"
+date = "2026-09-13"
+deviation_bps = 50
+heartbeat_s = 3600
+
+[[oracle_feed]]
+node_address = "0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0"
+symbol = "wstETH"
+feed = "0xe1d97bf61901b075e9626c8a2340a7de385861ef"
+type = "deviation_heartbeat"
+heartbeat_form = "documented"
+source = "Chainlink feed directory (data.chain.link), fetched 2026-09-13"
+date = "2026-09-13"
+deviation_bps = 50
+heartbeat_s = 3600
+
+[[oracle_feed]]
+node_address = "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+symbol = "USDC"
+feed = "0x3f73f03aa83b2a48ed27e964ed0fdb590332095b"
+type = "deviation_heartbeat"
+heartbeat_form = "documented"
+source = "Chainlink feed directory (data.chain.link), fetched 2026-09-13"
+date = "2026-09-13"
+deviation_bps = 25
+heartbeat_s = 82800
+
+[[oracle_feed]]
+node_address = "0xdac17f958d2ee523a2206206994597c13d831ec7"
+symbol = "USDT"
+feed = "0x260326c220e469358846b187ee53328303efe19c"
+type = "deviation_heartbeat"
+heartbeat_form = "documented"
+source = "Chainlink feed directory (data.chain.link), fetched 2026-09-13"
+date = "2026-09-13"
+deviation_bps = 25
+heartbeat_s = 86400
+
+[[oracle_feed]]
+node_address = "0xd4fa2d31b7968e448877f69a96de69f5de8cd23e"
+symbol = "waEthUSDC"
+feed = "0x3f73f03aa83b2a48ed27e964ed0fdb590332095b"
+type = "deviation_heartbeat"
+heartbeat_form = "documented"
+source = "Chainlink feed directory (data.chain.link), fetched 2026-09-13"
+date = "2026-09-13"
+deviation_bps = 25
+heartbeat_s = 82800
+
+[[oracle_feed]]
+node_address = "0x7bc3485026ac48b6cf9baf0a377477fff5703af8"
+symbol = "waEthUSDT"
+feed = "0x260326c220e469358846b187ee53328303efe19c"
+type = "deviation_heartbeat"
+heartbeat_form = "documented"
+source = "Chainlink feed directory (data.chain.link), fetched 2026-09-13"
+date = "2026-09-13"
+deviation_bps = 25
+heartbeat_s = 86400
+
+[[oracle_feed]]
+node_address = "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
+symbol = "WETH"
+feed = "0x5424384b256154046e9667ddfaaa5e550145215e"
+type = "deviation_heartbeat"
+heartbeat_form = "documented"
+source = "Chainlink feed directory (data.chain.link), fetched 2026-09-13"
+date = "2026-09-13"
+deviation_bps = 50
+heartbeat_s = 3600
+
+[[oracle_feed]]
+node_address = "0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf"
+symbol = "cbBTC"
+feed = "0xb41e773f507f7a7ea890b1afb7d2b660c30c8b0a"
+type = "deviation_heartbeat"
+heartbeat_form = "documented"
+source = "Chainlink feed directory (data.chain.link), fetched 2026-09-13"
+date = "2026-09-13"
+deviation_bps = 50
+heartbeat_s = 3600
+
+[[oracle_feed]]
+node_address = "0x18084fba666a33d37592fa2633fd49a74dd93a88"
+symbol = "tBTC"
+feed = "0xb41e773f507f7a7ea890b1afb7d2b660c30c8b0a"
+type = "deviation_heartbeat"
+heartbeat_form = "documented"
+source = "Chainlink feed directory (data.chain.link), fetched 2026-09-13"
+date = "2026-09-13"
+deviation_bps = 50
+heartbeat_s = 3600
+
+[[oracle_feed]]
+node_address = "0x83f20f44975d03b1b09e64809b757c47f942beea"
+symbol = "sDAI"
+feed = "0xf83b85205241c3bcca0a09d32fae65c16e0cf236"
+type = "deviation_heartbeat"
+heartbeat_form = "documented"
+source = "Chainlink feed directory (data.chain.link), fetched 2026-09-13"
+date = "2026-09-13"
+deviation_bps = 25
+heartbeat_s = 3600
+
+[[oracle_feed]]
+node_address = "0x6b175474e89094c44da98b954eedeac495271d0f"
+symbol = "DAI"
+feed = "0x5c66322ca59bb61e867b28195576dbd8da4b08de"
+type = "deviation_heartbeat"
+heartbeat_form = "documented"
+source = "Chainlink feed directory (data.chain.link), fetched 2026-09-13"
+date = "2026-09-13"
+deviation_bps = 25
+heartbeat_s = 3600
+
+[[oracle_feed]]
+node_address = "0xdc035d45d973e3ec169d2276ddab16f1e407384f"
+symbol = "USDS"
+feed = "0x94c7fd62fd0506e71d8142e9d36687fc72a86b02"
+type = "deviation_heartbeat"
+heartbeat_form = "documented"
+source = "Chainlink feed directory (data.chain.link), fetched 2026-09-13"
+date = "2026-09-13"
+deviation_bps = 30
+heartbeat_s = 82800
+
+[[oracle_feed]]
+node_address = "0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9"
+symbol = "AAVE"
+feed = "0xf02c1e2a3b77c1cacc72f72b44f7d0a4c62e4a85"
+type = "deviation_heartbeat"
+heartbeat_form = "documented"
+source = "Chainlink feed directory (data.chain.link), fetched 2026-09-13"
+date = "2026-09-13"
+deviation_bps = 100
+heartbeat_s = 3600
+
+[[oracle_feed]]
+node_address = "0x514910771af9ca656af840dff83e8264ecf986ca"
+symbol = "LINK"
+feed = "0xc7e9b623ed51f033b32ae7f1282b1ad62c28c183"
+type = "deviation_heartbeat"
+heartbeat_form = "documented"
+source = "Chainlink feed directory (data.chain.link), fetched 2026-09-13"
+date = "2026-09-13"
+deviation_bps = 50
+heartbeat_s = 3600
+
+[[oracle_feed]]
+node_address = "0x5a0f93d040de44e78f251b03c43be9cf317dcf64"
+symbol = "JAAA"
+feed = "0xf77f2537dba4ffd60f77facdfb2c1706364fa03d"
+type = "nav_schedule"
+heartbeat_form = "observed_max"
+source = "deviation: A-19; heartbeat: B-9 read"
+date = "2026-09-13"
+
+[[oracle_feed]]
+node_address = "0x14d60e7fdc0d71d8611742720e4c50e7a974020c"
+symbol = "USCC"
+feed = "0x14cb2e810eb93b79363f489d45a972b609e47230"
+type = "nav_schedule"
+heartbeat_form = "documented"
+source = "deviation: A-19; heartbeat: docs.superstate.com/investors/smart-contracts (\"NAV per share put on-chain once per day\")"
+date = "2026-09-13"
+heartbeat_s = 86400
+
+[[oracle_feed]]
+node_address = "0x43415eb6ff9db7e26a15b704e7a3edce97d31c4e"
+symbol = "USTB"
+feed = "0x5ae4d93b9b9626dc3289e1afb14b821fd3c95f44"
+type = "nav_schedule"
+heartbeat_form = "documented"
+source = "deviation: A-19; heartbeat: docs.superstate.com/investors/smart-contracts (\"NAV per share put on-chain once per day\")"
+date = "2026-09-13"
+heartbeat_s = 86400
+
+# audit_status - DET-73's structured block, values as signed (P-7.04).
+[audit_status]
+last_material_change_audited = "yes"
+staleness_date = "2026-09-13"
+bug_bounty = { platform = "Immunefi", max = "USD 1,000,000" }
+audits = [
+  { firm = "SigmaPrime", date = "2023-10-23", scope = "GSM (v2.4; scope includes Gsm4626.sol; commits e4ea98c, 7c03c52)" },
+  { firm = "Certora", date = "2023-12-07", scope = "GSM formal verification (work 2023-08-09 → 2023-12-07, commit f368bef, scope Gsm.sol and Gsm4626.sol; no publication date on the document)" },
+  { firm = "Emanuele Ricci", date = "2024-01", scope = "GSM (AIP-8)" },
+  { firm = "Certora", date = "2024-03-14", scope = "GhoStewardV2" },
+  { firm = "Certora", date = "2024-06-11", scope = "UpgradeableGHO" },
+  { firm = "Certora", date = "2024-09-15", scope = "ModularGhoStewards" },
+  { firm = "Certora", date = "2025-07-15", scope = "RemoteGSM" },
+  { firm = "OpenZeppelin", date = "2022-08-12", scope = "GHO token" },
+  { firm = "OpenZeppelin", date = "2022-11-10", scope = "GHO token" },
+  { firm = "ABDK", date = "2023-03-01", scope = "GHO" },
+  { firm = "Certora", date = "2023-02-28", scope = "GHO formal verification" },
+  { firm = "SigmaPrime", date = "2023-07-06", scope = "GHO" },
+]
 
 # first_run_reads[] - 46 rows mirrored from the stamped sheet.
 # status stays "open" until a stamped sheet edit retires the prose tag (P-3.14).

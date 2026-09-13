@@ -155,6 +155,12 @@ class Config:
     # when a mirror predates C5; `_m4_keys` fails closed on an empty tuple.
     m4_fields: tuple[str, ...] = ()
     bias_table: list[dict] = field(default_factory=list)
+    # B-9: DET-76(e)'s disclosure rows keyed by NODE ADDRESS (joined here from
+    # the mirror's sheet rows), DET-54/55's signed feed rows keyed by node
+    # address, and DET-73's structured audit block.
+    disclosures: dict[str, dict] = field(default_factory=dict)
+    oracle_feeds: dict[str, dict] = field(default_factory=dict)
+    audit_status: dict = field(default_factory=dict)
 
     def root(self, root_id: str) -> Root:
         if root_id not in self.roots:
@@ -177,6 +183,39 @@ def sell_side_for(cfg, address: str, node_class: str) -> dict | None:
         return None
     return {"value": row["value"], "source": row["source"],
             "date": str(row["date"])}
+
+
+def _row_symbols(row: dict) -> set[str]:
+    """The symbols a sheet node-table row names: its first cell after any `→`
+    with a parenthetical stripped, and its memo-row cell."""
+    key = row["row_key"].split("→")[-1].split(" (")[0].strip()
+    return {key, row["memo_row"].strip()}
+
+
+def join_disclosures(labels: dict, sheet_raw: dict) -> dict[str, dict]:
+    """DET-76(e) (B-9): each `recurses` `[[node]]` row gets exactly one sheet
+    disclosure row, matched by symbol text and KEYED BY ADDRESS - the symbol only
+    locates sheet prose, never filters collateral (named default, P-7.05). A
+    pass-through wrapper inherits its underlying's row by the sheet's own
+    sentence. No row, or two, raises: an unmatched node is a loader error, not a
+    quiet null that DET-76(e) would later have to catch."""
+    rows = sheet_raw.get("disclosure", [])
+    inherit = {d["symbol"]: d["from"] for d in sheet_raw.get("disclosure_inherit", [])}
+    if not rows:
+        return {}
+    by_symbol = {}
+    for r in labels.values():
+        if r.label != "recurses":
+            continue
+        src_symbol = inherit.get(r.symbol, r.symbol)
+        hits = [d for d in rows if src_symbol in _row_symbols(d)]
+        if len(hits) != 1:
+            raise ValueError(f"DET-76(e): {r.symbol} ({r.address}) matches {len(hits)} "
+                             "disclosure rows; exactly one required")
+        by_symbol[r.address] = dict(hits[0], inherited_from=(src_symbol
+                                                              if src_symbol != r.symbol
+                                                              else None))
+    return by_symbol
 
 
 def _date(v) -> _dt.date:
@@ -250,7 +289,8 @@ def load(config_dir: Path, token: str) -> Config:
              "feed_address": r.get("feed_address"), "source": r["source"],
              "date": _date(r["date"])} for r in labels_raw.get("reference_feed", [])]
     pors = [{"node_address": r["node_address"].lower(),
-             "feed_address": r["feed_address"], "source": r["source"],
+             "feed_address": r["feed_address"].lower(), "source": r["source"],
+             "description": r["description"], "heartbeat": int(r["heartbeat"]),
              "date": _date(r["date"])} for r in labels_raw.get("por_feed", [])]
 
     ocs = {r["oracle_address"].lower(): [p.lower() for p in r["pools"]]
@@ -286,8 +326,16 @@ def load(config_dir: Path, token: str) -> Config:
             raise ValueError(f"duplicate sell_side_capacity address: {a}")
         sell_side[a] = {"value": r["value"], "source": r["source"],
                         "date": _date(r["date"])}
+    feeds = {}
+    for r in sheet_raw.get("oracle_feed", []):
+        a = r["node_address"].lower()
+        if a in feeds:
+            raise ValueError(f"duplicate oracle_feed node_address: {a}")
+        feeds[a] = dict(r)
     return Config(token=token, frozen_set_path=config_dir / files["frozen_set"],
                   sell_side=sell_side,
+                  disclosures=join_disclosures(labels, sheet_raw),
+                  oracle_feeds=feeds, audit_status=dict(sheet_raw.get("audit_status", {})),
                   m4_fields=tuple(sheet_raw.get("m4_fields", ())),
                   bias_table=[dict(r, date=_date(sheet_raw["bias_table_date"]))
                               for r in sheet_raw.get("bias_table", [])],

@@ -5,9 +5,8 @@ integer base units; ratios are Decimal serialised as strings (O-2). Provenance
 lives in `reads` maps keyed by field name (C-2), so DET-named read coverage is
 checkable as a set equality rather than a parade of `*_provenance` twins.
 
-`bundle_hash` is computed over the bundle alone in Step 3, and over the bundle
-plus the flat table once that exists (Step 7, DET-84) — the phased definition
-(P-3.08).
+`bundle_hash` is computed over the bundle alone. The flat table, tree and stress
+hashes enter the report manifest's `report_hash` instead (P-7.01 R3, P-3.08-A1).
 """
 
 from __future__ import annotations
@@ -50,11 +49,11 @@ class Header(BaseModel):
     sheet_hash: str
     frozen_set_hash: str | None = None
     freeze_date: str | None = None
-    template_hash: str | None = None
     raw_positions_hash: str
     bundle_hash: str = ""          # filled last, over everything else
-    revision_count: Literal[0, 1] = 0
-    revision_cause: list[str] = []
+    # B-9 (P-7.01 R4, DET-13(g)): `template_hash`, `revision_count` and
+    # `revision_cause` left the header - they belong to the report manifest and
+    # the gate record, outside the adapter bundle's hash preimage.
 
     @property
     def det83_delta_s(self) -> int:
@@ -174,6 +173,14 @@ class StabilizerOperation(BaseModel):
     protocol_lp_share: Decimal | None = None
     net_non_self_referential_value: int | None = None
     residual: int | None = None
+    # DET-05 (B-9): the pool composition behind (c) and (d), so both replay from
+    # the bundle. Raw units per coin; `lp_*` are the keeper's LP token balance
+    # and the pool's LP supply. NAMED DEFAULT: (c)/(d) are 18-dp stablecoin
+    # units at par, the unit `current_debt` is carried in.
+    pool_composition: dict[Address, int] = {}
+    coin_decimals: dict[Address, int] = {}
+    lp_balance: int | None = None
+    lp_total_supply: int | None = None
     is_killed_provide: bool
     is_killed_withdraw: bool
     reads: dict[str, Provenance]
@@ -313,6 +320,13 @@ class Bridge(BaseModel):
     reads: dict[str, Provenance]
 
 
+class ResidualCause(BaseModel):
+    family: str
+    address: Address
+    amount: int
+    reads: dict[str, Provenance]
+
+
 class Supply(BaseModel):
     total_supply: int
     supply_ruled: int
@@ -328,6 +342,12 @@ class Supply(BaseModel):
     # survived only inside `bridge_disclosure` prose. `None` on crvUSD and GHO,
     # which have no stability pool.
     stability_pool_deposits: int | None = None
+    # DET-15(c) (B-9, P-7.01 R2): the residual printed with its named causes.
+    # One row per cause address; `family` is the code-owned label under P-3.39
+    # ruling 1's wording (P-7.05 S2). `residual_unexplained` = residual - sum.
+    residual_causes: list[ResidualCause] = []
+    residual_unexplained: int | None = None
+    residual_pointer: dict[str, Any] | None = None
     reads: dict[str, Provenance]
 
 
@@ -353,6 +373,12 @@ class CollateralNode(BaseModel):
     # window at ≤ 2% impact". `None` until B-3b's values land; LUSD's one
     # volatile node carries the exempt literal in `value` and no number.
     sell_side_capacity: dict[str, str] | None = None
+    # DET-76(e) (B-9): the block of the event a read-form disclosure date comes
+    # from (cbETH's `ExchangeRateUpdated`, P-7.05 S4 option (b)); None elsewhere.
+    last_disclosure_block: int | None = None
+    # DET-28 (B-9): the feed a GSM boxed node is priced through - the CAPO
+    # wrapper AaveOracle consumes (P-7.03 ruling 1). None on every other node.
+    feed_address: Address | None = None
     flags: list[str] = []
     reads: dict[str, Provenance]
     lineage: list[Lineage]
@@ -376,6 +402,22 @@ class EmaWindow(BaseModel):
     provenance: list[Provenance]
 
 
+class Deviation(BaseModel):
+    """DET-55: `deviation` carries `analyst_supplied {source, date}` (class I)."""
+
+    value_bps: int
+    analyst_supplied: AnalystSupplied
+
+
+class HeartbeatS(BaseModel):
+    """DET-55: `heartbeat_s = {form, value, provenance}`; `observed_max`
+    preferred, `documented` permitted, neither = fail."""
+
+    form: Literal["observed_max", "documented"]
+    value: int
+    provenance: Provenance
+
+
 class DeviationHeartbeat(BaseModel):
     """DET-55's OTHER update-condition type, built when GHO first needed it.
 
@@ -391,8 +433,20 @@ class DeviationHeartbeat(BaseModel):
     """
 
     type: Literal["deviation_heartbeat"] = "deviation_heartbeat"
-    heartbeat_s: int | None = None
-    deviation_bps: int | None = None
+    heartbeat_s: HeartbeatS | None = None
+    deviation: Deviation | None = None
+    answer: int | None = None
+    updated_at: int | None = None
+    provenance: list[Provenance]
+
+
+class NavSchedule(BaseModel):
+    """A-19 (P-7.04): a NAV adapter's update condition. Excluded from DET-54's X
+    and DET-81's T-26; `heartbeat_s` is the documented or observed publication
+    interval."""
+
+    type: Literal["nav_schedule"] = "nav_schedule"
+    heartbeat_s: HeartbeatS | None = None
     answer: int | None = None
     updated_at: int | None = None
     provenance: list[Provenance]
@@ -402,9 +456,13 @@ class OracleRow(BaseModel):
     node_address: Address
     market_or_reserve_address: Address                       # crvUSD: per mint market
     feed_or_source: Address
-    update_condition: EmaWindow | DeviationHeartbeat
-    assumption_applied: Literal["instant_optimistic_counterfactual"]
-    counterfactual_ref: Literal["EMA_lag"]
+    update_condition: EmaWindow | DeviationHeartbeat | NavSchedule
+    # DET-55's enums (B-9): crvUSD `instant_optimistic_counterfactual`/`EMA_lag`,
+    # LUSD `instant_with_fallback_counterfactual`/`Tellor_fallback`, GHO
+    # `instant`/None - set from each sheet's §7 assumption line.
+    assumption_applied: Literal["instant", "instant_optimistic_counterfactual",
+                                "instant_with_fallback_counterfactual"]
+    counterfactual_ref: Literal["EMA_lag", "Tellor_fallback"] | None
     reference_feed: AnalystSupplied | Literal["no_reference_feed", "pending_config_round"]
     market_vs_protocol_oracle_gap: Decimal | Literal["no_reference_feed",
                                                      "pending_config_round"]
@@ -458,6 +516,22 @@ class AdminRow(BaseModel):
     reads: dict[str, Provenance] = {}
     live_model_input: bool = False
     consumed_by: list[str] = []
+
+
+class OffvenueShare(BaseModel):
+    """DET-32 (B-9). Unpinned by nature (rubric 0.5): `source` names both URLs,
+    `date` is the UTC fetch date and `fetched_at` the response's unix time.
+    Components are whole USD (named default, floor: O-2 forbids floats). Every
+    component null <=> `x` null <=> the not-computed literal."""
+
+    dex_liquidity_total_discovered: int | None
+    curve_mainnet_liquidity: int | None
+    x: Decimal | None
+    literal: str
+    source: str
+    date: str
+    fetched_at: int
+    lineage: list[Lineage]
 
 
 class StaticMetadata(BaseModel):
@@ -608,12 +682,17 @@ class Bundle(BaseModel):
     # condition) or to point C at an unrelated field (false). Reversible.
     system_tcr: Decimal | None = None
     pool_detectors: PoolDetectors
+    # DET-32 (B-9). Optional in the type so the store's older shapes still
+    # validate; `det_32` fails a bundle that lacks it.
+    offvenue_share: OffvenueShare | None = None
     static_metadata: StaticMetadata
     counts: Counts
     attribution_method: Literal["per_position", "protocol_level_fallback", "direct"]
     first_run_literals: FirstRunLiterals | None = None
-    gate_results: list[GateResult] = []
-    log_entries: list[LogEntry] = []
+    # B-9 (P-7.05 S14): `gate_results` and `log_entries` REMOVED. The first was
+    # stamped after `finalise()`, so no stored bundle replayed its own hash
+    # (Step-3 as-counted); the gate record owns results (R13) and `eventlog.py`
+    # is the one log (R14).
 
     @model_validator(mode="after")
     def _check(self):
@@ -798,6 +877,19 @@ class ConcentrationLine(BaseModel):
     disclosure_source: str | None
 
 
+class OffMainnetLine(BaseModel):
+    """P-7.05 (Amin's ruling on S1): GHO supply minted against off-mainnet
+    facilitators is backed on other chains, which this tree does not trace. It is
+    a NAMED LINE with its share of `supply_ruled`, never inside a backed bar - the
+    one tree figure over `supply_ruled`, carved out of P-5.01 R1 by that ruling."""
+
+    amount: int
+    share_of_supply_ruled: Decimal
+    denominator: Literal["supply_ruled"] = "supply_ruled"
+    literal: str
+    facilitators: list[dict[str, Any]]
+
+
 class VerifiabilityTree(BaseModel):
     token: str
     run_block: int
@@ -815,6 +907,9 @@ class VerifiabilityTree(BaseModel):
     denominators: dict[str, str]
     paired_assets: list[PairedAssetRow]
     concentration: ConcentrationLine | None
+    # Present only where off-mainnet facilitators hold a level (GHO). Excluded
+    # from serialisation when None, so a token without one keeps its tree bytes.
+    off_mainnet_line: OffMainnetLine | None = None
     checks: list[GateResult] = []
     flags: list[str] = []
 
@@ -822,15 +917,20 @@ class VerifiabilityTree(BaseModel):
 def finalise_tree(tree: VerifiabilityTree) -> VerifiabilityTree:
     """`tree_hash` over the tree with `tree_hash` excluded - the bundle's own
     convention (`finalise`), same O-2 serialisation."""
-    payload = tree.model_dump(mode="python", exclude={"tree_hash"})
+    payload = tree.model_dump(mode="python", exclude=_tree_exclude(tree, {"tree_hash"}))
     h = hashlib.sha256(json.dumps(payload, sort_keys=True, separators=(",", ":"),
                                   ensure_ascii=False, default=_default)
                        .encode("utf-8")).hexdigest()
     return tree.model_copy(update={"tree_hash": h})
 
 
+def _tree_exclude(tree: VerifiabilityTree, base: set) -> set:
+    return base | ({"off_mainnet_line"} if tree.off_mainnet_line is None else set())
+
+
 def serialise_tree(tree: VerifiabilityTree) -> str:
-    return json.dumps(tree.model_dump(mode="python"), sort_keys=True,
+    return json.dumps(tree.model_dump(mode="python", exclude=_tree_exclude(tree, set())),
+                      sort_keys=True,
                       separators=(",", ":"), ensure_ascii=False, default=_default)
 
 

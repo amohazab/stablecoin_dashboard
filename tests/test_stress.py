@@ -118,7 +118,7 @@ def test_a_zero_cell_report_is_never_promotable(tmp_path):
     assert not ok
     assert path == tmp_path / f"out/rehearsal/LUSD/stress-{b.header.run_block}.json"
     written = StressReport.model_validate_json(path.read_text(encoding="utf-8"))
-    assert written.cells == [] and len(written.checks) == 25  # +DET-46/47/51
+    assert written.cells == [] and len(written.checks) == 26  # +DET-32-lineage (B-9)
 
 
 # --- B-3a: DET-50's three branches, the kill decode, DET-52's plumbing -------

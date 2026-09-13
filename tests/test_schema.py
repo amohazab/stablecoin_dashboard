@@ -118,7 +118,12 @@ def a_bundle(first_run=True, **kw):
                               sell_side_capacity={"value": "34.3750",
                                                   "source": "fixture",
                                                   "date": "2026-09-12"},
-                              reads={"balance": cr("balanceOf(address)", COL)},
+                              # B-9: DET-76(e) is S1, so a `recurses` node
+                              # carries its disclosure pair with provenance.
+                              disclosure_cadence="continuous - PoR feed",
+                              last_disclosure_date="2026-09-03",
+                              reads={"balance": cr("balanceOf(address)", COL),
+                                     "last_disclosure_date": cr("latestRoundData()", CF)},
                               lineage=["collateral_read"])],
         oracle_rows=[OracleRow(
             node_address=COL, market_or_reserve_address=CTRL, feed_or_source=CF,
@@ -321,7 +326,7 @@ def test_the_mirrors_carry_m4_and_bias_and_retire_member2_target():
     from factory.config import load
     for token, n in (("crvUSD", 18), ("GHO", 9), ("LUSD", 9)):
         cfg = load(REPO / "config", token)
-        assert cfg.sheet["sheet_hash"] == "32f8aa5d"      # C3+'s stamp; C5 left ad7c35c2
+        assert cfg.sheet["sheet_hash"] == "5486f264"      # B-9 S9 stamp (P-7.05); C3+ was 32f8aa5d
         assert len(cfg.m4_fields) == n
         assert len(cfg.bias_table) == 9
         assert {str(r["date"]) for r in cfg.bias_table} == {"2026-09-13"}

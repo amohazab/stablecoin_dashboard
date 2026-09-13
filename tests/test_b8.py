@@ -30,11 +30,9 @@ from factory.validate.harness import (
 
 REPO = pathlib.Path(__file__).resolve().parents[1]
 NEW = ("DET-06", "DET-16", "DET-22", "DET-28", "DET-34", "DET-67", "DET-72")
-EXPECTED = {
-    "crvUSD": dict.fromkeys(NEW, "pass"),
-    "GHO": {**dict.fromkeys(NEW, "pass"), "DET-28": "fail", "DET-67": "fail", "DET-72": "fail"},
-    "LUSD": {**dict.fromkeys(NEW, "pass"), "DET-06": "fail", "DET-67": "fail"},
-}
+# B-9 (P-7.03 ruling 1): the five rows that failed at B-8 - GHO DET-28/67/72,
+# LUSD DET-06/67 - pass on the B-9 artifacts, which is what this table pins.
+EXPECTED = {t: dict.fromkeys(NEW, "pass") for t in ("crvUSD", "GHO", "LUSD")}
 
 
 @pytest.fixture(scope="module")

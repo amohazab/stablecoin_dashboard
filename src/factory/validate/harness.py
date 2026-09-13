@@ -401,6 +401,62 @@ def det_68(b: Bundle, ctx) -> None:
             raise Level3(f"DET-68: none-holder row {r.power} needs absence provenance")
 
 
+def det_71(b: Bundle, ctx) -> None:
+    """LUSD empty-surface control (R-41), S1, Level 3 (B-9, P-7.03 ruling 3).
+
+    Nine rows, A2 = none, A6 = `immutable` on every row, A8 an absence read, and
+    each row's `reads` evidencing no owner: `owner()` read at `run_block` (a zero
+    answer) or its selector absent, on every contract. Not applicable to a token
+    that is not the control."""
+    if b.header.token != "LUSD":
+        return None
+    rows = b.admin_surface
+    if len(rows) != 9 or len({r.power for r in rows}) != 9:
+        raise Level3(f"DET-71: nine rows required, got {len(rows)}")
+    for r in rows:
+        if r.holder_type != "none" or r.holder_address is not None:
+            raise Level3(f"DET-71: {r.power} holder {r.holder_type}")
+        if r.upgradeability != "immutable":
+            raise Level3(f"DET-71: {r.power} A6 {r.upgradeability!r}, not immutable")
+        if not isinstance(r.provenance, AbsenceRead):
+            raise Level3(f"DET-71: {r.power} A8 is not an absence read")
+        owners = {k: v for k, v in r.reads.items() if k.startswith("owner:")}
+        if not owners:
+            raise Level3(f"DET-71: {r.power} carries no owner() evidence")
+        for k, v in owners.items():
+            ok = ((isinstance(v, ContractRead) and v.function == "owner()"
+                   and v.block == b.header.run_block)
+                  or (isinstance(v, AbsenceRead) and v.method == "selector_absence_scan"))
+            if not ok:
+                raise Level3(f"DET-71: {r.power} {k} is neither owner() at run_block nor "
+                             "a selector absence")
+    return None
+
+
+def det_76e(b: Bundle, ctx) -> None:
+    """DET-76(e), S1, Level 3 (B-9, P-7.01 R7): every `recurses` node has
+    `disclosure_cadence` and `last_disclosure_date` with provenance - a contract
+    read at `run_block` (PoR `latestRoundData`, cbETH's `exchangeRate`) or a
+    dated analyst row. Limbs (a)-(d) are not this row (A-16's list)."""
+    for n in b.nodes:
+        if n.label != "recurses":
+            continue
+        if not n.disclosure_cadence:
+            raise Level3(f"DET-76(e): {n.symbol} has no disclosure_cadence")
+        try:
+            _dt.date.fromisoformat(n.last_disclosure_date or "")
+        except ValueError:
+            raise Level3(f"DET-76(e): {n.symbol} last_disclosure_date "
+                         f"{n.last_disclosure_date!r} (staleness uncomputable)") from None
+        prov = n.reads.get("last_disclosure_date")
+        if isinstance(prov, ContractRead):
+            if prov.block != b.header.run_block:
+                raise Level3(f"DET-76(e): {n.symbol} disclosure read off run_block")
+        elif not isinstance(prov, AnalystSupplied):
+            raise Level3(f"DET-76(e): {n.symbol} disclosure date without provenance")
+    return None
+
+
 def det_08(b: Bundle, ctx) -> tuple[str, int] | None:
     """Unlisted node routing: U >= 5% -> T-09 (L2); 0 < U < 5% -> T-01 (L1)."""
     u = sum((n.share_of_backing for n in b.nodes if n.label == "unlisted"), Decimal(0))
@@ -443,6 +499,14 @@ def det_33(b: Bundle, ctx) -> tuple[str, int] | None:
     return None
 
 
+# DET-55's letter: `EMA_lag` on every crvUSD row, `Tellor_fallback` on every LUSD
+# row; GHO's §7 line is "instant observation, nearly exact" with no oracle
+# counterfactual (B-9, set from each sheet's §7 assumption line).
+DET55_ENUMS = {"crvUSD": ("instant_optimistic_counterfactual", "EMA_lag"),
+               "GHO": ("instant", None),
+               "LUSD": ("instant_with_fallback_counterfactual", "Tellor_fallback")}
+
+
 def det_55(b: Bundle, ctx) -> None:
     """Oracle-dependency table: a row per priced node, ema_window typed."""
     priced = {n.address for n in b.nodes if n.value > 0}
@@ -461,11 +525,23 @@ def det_55(b: Bundle, ctx) -> None:
         if uc.type == "ema_window":
             if uc.ema_window_s <= 0:
                 raise Level3(f"DET-55: non-positive ema_window_s on {r.node_address}")
-        elif uc.heartbeat_s is not None and uc.heartbeat_s <= 0:
-            raise Level3(f"DET-55: non-positive heartbeat_s on {r.node_address}")
-        elif uc.heartbeat_s is None and not r.adapter_class:
-            raise Level3(f"DET-55: {r.node_address} has neither a heartbeat nor an "
-                         "adapter class naming why it has none")
+        else:
+            # B-9: `heartbeat_s = {form, value, provenance}`, neither form = fail;
+            # a `deviation_heartbeat` row carries `deviation` with its class-I
+            # `analyst_supplied`; a `nav_schedule` row carries none (A-19).
+            if uc.heartbeat_s is None or uc.heartbeat_s.value <= 0:
+                raise Level3(f"DET-55: {r.node_address} heartbeat_s absent or non-positive")
+            if uc.type == "deviation_heartbeat" and uc.deviation is None:
+                raise Level3(f"DET-55: {r.node_address} deviation absent")
+    want = DET55_ENUMS.get(b.header.token)
+    if want is None:
+        raise NotYetImplemented(f"DET-55: no assumption/counterfactual pair for "
+                                f"{b.header.token}")
+    bad = [r.node_address for r in b.oracle_rows
+           if (r.assumption_applied, r.counterfactual_ref) != want]
+    if bad:
+        raise Level3(f"DET-55: {len(bad)} row(s) off {b.header.token}'s "
+                     f"(assumption_applied, counterfactual_ref) {want}: {bad[:3]}")
 
 
 # --- DET-66 vocabularies and helpers (rubric line 102) -----------------------
@@ -870,8 +946,20 @@ def det_19(b: Bundle, t: VerifiabilityTree) -> None:
                 "staleness.D.share"):
         if t.denominators.get(key) != "backing_value":
             raise Level3(f"DET-19: {key} declares {t.denominators.get(key)!r}")
-    if "supply_ruled" in t.denominators.values():
-        raise Level3("DET-19: a figure declared over supply_ruled (R1 forbids it)")
+    over_supply = {k for k, v in t.denominators.items() if v == "supply_ruled"}
+    # P-5.01 R1 forbids a tree figure over `supply_ruled`; P-7.05's ruling on S1
+    # carves out exactly one - the off-mainnet facilitator line - which replays.
+    if over_supply - {"off_mainnet_line.share_of_supply_ruled"}:
+        raise Level3(f"DET-19: figure(s) declared over supply_ruled {sorted(over_supply)} "
+                     "(R1 forbids it)")
+    om = t.off_mainnet_line
+    if (om is None) != (not over_supply):
+        raise Level3("DET-19: off-mainnet line and its denominator declared apart")
+    if om is not None:
+        want = sum(f.bucket_level for f in b.facilitators if f.facilitator_class == "off_mainnet")
+        if om.amount != want or abs(om.share_of_supply_ruled
+                                    - Decimal(want) / Decimal(b.supply.supply_ruled)) > TREE_TOL:
+            raise Level3("DET-19: off-mainnet line does not replay from facilitators[]")
     if t.denominators.get("root.stabilizer_debt") != "amount":
         raise Level3("DET-19: the stabilizer line is an amount")
 
@@ -1141,6 +1229,124 @@ def det_72(b: Bundle, t: VerifiabilityTree) -> str:
         raise Level3("DET-72: " + "; ".join(bad))
     return (f"{onchain} on-chain paths consistent" if onchain
             else "no on-chain redemption path (R1 = none)")
+
+
+def det_05(b: Bundle, t: VerifiabilityTree) -> str:
+    """Stabilizer netting (R-14a), S2 (B-9, P-7.05 S13). (a) no node is the
+    token or an operation address; (b) `credited_backing_value == 0`; (c) the
+    paired leg attributable to the LP share at par replays; (d) `residual = LP
+    position value - debt` replays - both in 18-dp units at par, floor (the
+    adapter's named default). (e) is DET-25's."""
+    token = _token_address(b)
+    ops = b.stabilizer.operations
+    bad_nodes = {n.address for n in b.nodes} & ({token} | {o.operation_address for o in ops})
+    if bad_nodes:
+        raise Level3(f"DET-05(a): backed-branch node(s) {sorted(bad_nodes)}")
+    if b.stabilizer.credited_backing_value != 0:
+        raise Level3("DET-05(b): credited_backing_value != 0")
+    if not ops:
+        return "no stabilizer operations: (c)/(d) not applicable"
+    for o in ops:
+        if None in (o.paired_asset_address, o.lp_balance, o.lp_total_supply,
+                    o.net_non_self_referential_value, o.residual, o.protocol_lp_share):
+            raise Level3(f"DET-05: {o.operation_address} position fields absent")
+        paired = o.paired_asset_address
+        dec = o.coin_decimals[paired]
+        paired_18 = o.pool_composition[paired] * 10 ** (18 - dec)
+        stable = sum(v for a, v in o.pool_composition.items() if a != paired)
+        sup = o.lp_total_supply
+        net = o.lp_balance * paired_18 // sup if sup else 0
+        value = o.lp_balance * (paired_18 + stable) // sup if sup else 0
+        if o.net_non_self_referential_value != net:
+            raise Level3(f"DET-05(c): {o.operation_address} {o.net_non_self_referential_value} "
+                         f"replays as {net}")
+        if o.residual != value - o.current_debt:
+            raise Level3(f"DET-05(d): {o.operation_address} residual replay")
+        share = Decimal(o.lp_balance) / Decimal(sup) if sup else Decimal(0)
+        if abs(o.protocol_lp_share - share) > TREE_TOL:
+            raise Level3(f"DET-05: {o.operation_address} protocol_lp_share replay")
+    return f"{len(ops)} operations net and residual replay at par"
+
+
+DET15_BOUND = Decimal("0.001")          # (c): unexplained <= 0.1% of supply_ruled
+
+
+def det_15(b: Bundle, t: VerifiabilityTree) -> str:
+    """Supply decomposition (R-8), S2 (B-9, P-7.01 R2). (a) `supply_ruled` =
+    `totalSupply` + burn-and-mint bridged amounts, each provenanced; (b) O per
+    token - crvUSD Σ mint principal + Σ stabilizer debt, GHO Σ bucket levels,
+    LUSD Σ trove gross debt; (c) residual = supply_ruled - O with named causes,
+    unexplained <= 0.1% of `supply_ruled`, GHO exactly 0; (d) the bundle half -
+    the tree's root carries the same `supply_ruled`."""
+    sp = b.supply
+    if "total_supply" not in sp.reads:
+        raise Level3("DET-15(a): totalSupply read absent")
+    burn = sum(x.amount for x in sp.bridges if x.bridge_type == "burn_and_mint")
+    if any("amount" not in x.reads for x in sp.bridges):
+        raise Level3("DET-15(a): a bridged amount without provenance")
+    if sp.supply_ruled != sp.total_supply + burn:
+        raise Level3(f"DET-15(a): supply_ruled {sp.supply_ruled} != totalSupply + burn")
+    token = b.header.token
+    if token == "crvUSD":
+        o = (sum(m.principal_sum for m in b.markets if m.origination_class == "mint")
+             + sum(x.current_debt for x in b.stabilizer.operations))
+    elif token == "GHO":
+        o = sum(f.bucket_level for f in b.facilitators)
+    elif token == "LUSD":
+        o = sum(m.gross_debt_sum for m in b.markets)
+    else:
+        raise NotYetImplemented(f"DET-15(b): no O for {token}")
+    if sp.origination_sum != o:
+        raise Level3(f"DET-15(b): origination_sum {sp.origination_sum} != O {o}")
+    if sp.residual != sp.supply_ruled - o:
+        raise Level3("DET-15(c): residual != supply_ruled - O")
+    named = sum(c.amount for c in sp.residual_causes)
+    if any(not c.reads for c in sp.residual_causes):
+        raise Level3("DET-15(c): a named cause without provenance")
+    if sp.residual_unexplained is None or sp.residual_unexplained != sp.residual - named:
+        raise Level3(f"DET-15(c): residual_unexplained {sp.residual_unexplained} != "
+                     f"residual - named {sp.residual - named}")
+    if token == "GHO" and sp.residual != 0:
+        raise Level3(f"DET-15(c): GHO override 0, residual {sp.residual}")
+    frac = Decimal(abs(sp.residual_unexplained)) / Decimal(sp.supply_ruled)
+    if frac > DET15_BOUND:
+        raise Level3(f"DET-15(c): unexplained {frac:.6%} of supply_ruled > 0.1%")
+    if t.root.supply_ruled != sp.supply_ruled:
+        raise Level3("DET-15(d): tree root supply_ruled differs")
+    return (f"residual {sp.residual} = {len(sp.residual_causes)} named causes {named} + "
+            f"unexplained {sp.residual_unexplained} ({frac * 100:.6f}% of supply_ruled)")
+
+
+OFFVENUE_NOT_COMPUTED = "off-venue share: not computed"
+
+
+def det_32(b: Bundle, t: VerifiabilityTree) -> str:
+    """Off-venue share and the 25% trigger (O9), S2 (B-9). The route is carried
+    in the scope text - `run_tree_checks` records strings - as DET-35's T-21 is:
+    `T-02 (L1)` above 25% unrounded, `T-22 (L1)` when not computed; the dated
+    §11.6 open point rides the T-02 text. A missing line, X without components
+    or a wrong route fails."""
+    o = b.offvenue_share
+    if o is None:
+        raise Level3("DET-32: offvenue_share line missing")
+    if o.lineage != ["offvenue_llama"] or not o.source or not o.date:
+        raise Level3("DET-32: source, date or lineage absent")
+    comps = (o.dex_liquidity_total_discovered, o.curve_mainnet_liquidity)
+    if o.x is None:
+        if any(c is not None for c in comps) or o.literal != OFFVENUE_NOT_COMPUTED:
+            raise Level3("DET-32: not-computed form carries components or a wrong literal")
+        return f"T-22 (L1) off-venue share not computed — source {o.source}, fetched {o.date}"
+    if any(c is None for c in comps) or comps[0] <= 0:
+        raise Level3("DET-32: X without both components")
+    want = Decimal(1) - Decimal(comps[1]) / Decimal(comps[0])
+    if abs(o.x - want) > TREE_TOL:
+        raise Level3(f"DET-32: X {o.x} replays as {want}")
+    if not o.literal.endswith("% of discovered DEX liquidity lies outside modeled venues"):
+        raise Level3(f"DET-32: literal {o.literal!r}")
+    if o.x > Decimal("0.25"):
+        return (f"T-02 (L1) off-venue share > 25%: X {o.x:.6f} ({comps[1]} / {comps[0]}); "
+                f"open point memo §11.6, dated {o.date}")
+    return f"X {o.x:.6f} ({comps[1]} / {comps[0]}), no trigger; fetched {o.date}"
 
 
 def run_tree_checks(bundle: Bundle, tree: VerifiabilityTree) -> list[GateResult]:
@@ -1618,6 +1824,19 @@ def det_23c(b: Bundle, t: VerifiabilityTree, r: StressReport) -> str | None:
     return f"no stabilizer_* in any of {len(r.cells)} cell lineages"
 
 
+def det_32_lineage(b: Bundle, t: VerifiabilityTree, r: StressReport) -> str:
+    """DET-32's last clause, S2/stress (B-9): `exit_depth` lineage contains no
+    `offvenue_*` - no cell lineage and no exit-depth read draws on the off-venue
+    fetch."""
+    bad = [c.id for c in r.cells if any(str(x).startswith("offvenue_") for x in c.lineage)]
+    if bad:
+        raise Level3(f"DET-32: offvenue_* in cell lineage {bad[:3]}")
+    keys = [k for k in r.exit_depth.reads if "offvenue" in k or "llama.fi" in k]
+    if keys:
+        raise Level3(f"DET-32: exit_depth reads draw on the off-venue fetch {keys[:3]}")
+    return f"no offvenue_* in {len(r.cells)} cell lineages or exit_depth reads"
+
+
 def det_25(b: Bundle, t: VerifiabilityTree, r: StressReport) -> str | None:
     """Stabilizer debt excluded from forced-sell volume, every cell."""
     if not r.cells:
@@ -2029,6 +2248,8 @@ CHECKS: list[Check] = [
     Check("DET-68", "S1", 3, det_68), Check("DET-08", "S1", 2, det_08),
     Check("DET-10", "S1", 3, det_10),
     Check("DET-29a", "S1", 3, det_29a),                # B-8, P-7.03's recorded readings
+    Check("DET-71", "S1", 3, det_71),                  # B-9, P-7.03 ruling 3
+    Check("DET-76e", "S1", 3, det_76e),                # B-9, P-7.01 R7
     Check("DET-82", "S1", 3, det_82),
     Check("DET-52", "S1", 3, det_52),
     # S2 - the tree (P-5.01 R6); Level 2 = the report is not published.
@@ -2039,6 +2260,8 @@ CHECKS: list[Check] = [
     Check("DET-22", "S2", 2, det_22), Check("DET-28", "S2", 2, det_28),
     Check("DET-34", "S2", 2, det_34), Check("DET-67", "S2", 2, det_67),
     Check("DET-72", "S2", 2, det_72),
+    Check("DET-05", "S2", 2, det_05), Check("DET-15", "S2", 2, det_15),   # B-9
+    Check("DET-32", "S2", 2, det_32),                                     # B-9
     # S2 - the stress module (P-6.04, B-2). Same stage, different consumer.
     Check("DET-24", "S2", 2, det_24, "stress"),
     Check("DET-29bc", "S2", 2, det_29bc, "stress"),
@@ -2051,6 +2274,7 @@ CHECKS: list[Check] = [
     Check("DET-27", "S2", 2, det_27, "stress"),
     Check("DET-69", "S2", 2, det_69, "stress"),
     Check("DET-23c", "S2", 2, det_23c, "stress"),
+    Check("DET-32-lineage", "S2", 2, det_32_lineage, "stress"),          # B-9
     Check("DET-25", "S2", 2, det_25, "stress"),
     Check("DET-37", "S2", 2, det_37, "stress"),
     Check("DET-38", "S2", 2, det_38, "stress"),
