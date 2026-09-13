@@ -1,0 +1,20 @@
+# Analyst hand-verification of promoted stress artifacts (P-7.01 R11). Signed rows,
+# C3+ (P-7.04); the page's verification sentence renders only from these.
+
+[[verification]]
+artifact = "out/stress/crvUSD/25963950.json"
+artifact_hash = "1617c079f59423ed93cfe7f86bdd11f93aa271283e9ba565a96f2c0be7e8d295"
+sheet = "out/spotcheck/crvUSD/stress-25963950.md"
+date = 2026-09-13
+
+[[verification]]
+artifact = "out/stress/GHO/25963961.json"
+artifact_hash = "f552948030af6545cf4810dff5d855deb9472f7242945a576c37bd4894b1a1c6"
+sheet = "out/spotcheck/GHO/stress-25963961.md"
+date = 2026-09-13
+
+[[verification]]
+artifact = "out/stress/LUSD/25963959.json"
+artifact_hash = "1db98f26573362eed41d7fb5b61fa6f479800b7b4236372dc3e1623d64326705"
+sheet = "out/spotcheck/LUSD/stress-25963959.md"
+date = 2026-09-13

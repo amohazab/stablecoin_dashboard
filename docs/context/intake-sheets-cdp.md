@@ -23,7 +23,7 @@
 | WETH | WETH → ETH | transparent → `terminal` |
 | wstETH | LST | `terminal_other_layer` |
 | sfrxETH | LST | `terminal_other_layer` |
-| WBTC | WBTC | `recurses` (custodian PoR) |
+| WBTC | WBTC | `recurses` (custodian PoR); `disclosure_cadence` = continuous — Chainlink WBTC PoR feed (Ethereum) + BitGo transparency dashboard; `last_disclosure_date` = per-run read of the WBTC PoR feed `updatedAt` [ANALYST-SUPPLIED 2026-09-13: data.chain.link/feeds/ethereum/mainnet/wbtc-por; docs.chain.link/data-feeds/proof-of-reserve; feed 0xa81FE04086865e63E12dD3776978E49DEEa2ea4e, `description()` verified at B-9, heartbeat 86400] |
 | tBTC | tBTC | deferred (§4.4) — [FIRST-RUN READ: WalletRegistry read; label ∈ {`terminal_other_layer`, `recurses`} per DET-76(c); unreachable ⇒ unlabeled-in-run → §8.2] |
 | cbBTC (largest mint-market borrow flow, Curve News wk32 2026) | cbBTC / custodial BTC | `recurses` (Coinbase custody attestation); `disclosure_cadence` = continuous — Chainlink PoR feed (Ethereum) + Coinbase PoR page, near-real-time refresh; `last_disclosure_date` = per-run read of the Ethereum PoR feed `updatedAt` [ANALYST-SUPPLIED 2026-09-03: Chainlink PoR adopted for cbBTC 2025-05-29 (Coinbase/Chainlink announcements); Coinbase CDP docs state ~per-minute refresh; page coinbase.com/cbbtc/proof-of-reserves] |
 | weETH | LRT family | `terminal_other_layer` |
@@ -140,7 +140,11 @@ Note: PegKeeper pools and Curve pools are markets, not redemption (§5); holder 
  
 **Qualifier block (memo §13):** expected — `mint` — DAO, veto: Emergency DAO; `set_oracle` — DAO; `upgrade` — none (immutable); `seize` — none. Delay buckets are per-run reads (DET-68 A4). Final content follows Phase B.
  
-**Audit status (memo §14):** audits [VERIFIED 2026-09-01: crvUSD infrastructure: MixBytes 2023-06-05, ChainSecurity 2024-01-24, ChainSecurity 2025-02-21; PegKeeperV2: ChainSecurity 2023-12-12; FastBridge (cross-chain crvUSD): ChainSecurity 2024-10-25; LlamaLend: MixBytes 2024 — docs.curve.finance/developer/security]; bug bounty [ANALYST-SUPPLIED 2026-09-01: Curve: bug bounty program stated on docs (platform/max not surfaced); GHO: Immunefi (LlamaRisk Mar 2026); Liquity: active bounty (TokenBrice) — max values first-run analyst entry]; last material change audited [ANALYST-SUPPLIED 2026-09-01: LlamaLend V2 audit status not surfaced — analyst entry]. Staleness date: set at Phase B. Never scored.
+**Audit status (memo §14)** — structured (DET-73; P-7.01 R20):
+- `audits[]` [VERIFIED 2026-09-01: docs.curve.finance/developer/security]: MixBytes 2023-06-05, crvUSD infrastructure · ChainSecurity 2024-01-24, crvUSD infrastructure · ChainSecurity 2025-02-21, crvUSD infrastructure · ChainSecurity 2023-12-12, PegKeeperV2 · ChainSecurity 2024-10-25, FastBridge (cross-chain crvUSD) · MixBytes 2024-09-02, LlamaLend [ANALYST-SUPPLIED 2026-09-13: report cover date; review 2024-02-06 → 2024-05-31, last re-audit commit cd8476a; 2024-10-02 is the announcement; source mixbytes/audits_public "Curve Finance/Curve Lending"]
+- `bug_bounty` = {platform: Curve (self-run, docs.curve.finance/developer/security), max: USD 250,000} [ANALYST-SUPPLIED 2026-09-13: replaces the 2026-09-01 "platform/max not surfaced" entry; no Immunefi listing exists]
+- `last_material_change_audited` = yes [ANALYST-SUPPLIED 2026-09-13: recorded reading — the mainnet mint Controllers/AMMs are immutable 2023 deployments inside ChainSecurity's audited series (2025-02-21, V1 32f85fe … V15 16b29c2, Controller.vy and AMM.vy in scope throughout); their last material change is their deployment; V12+ Controller changes are not deployed on those markets; byte-identity against a specific commit not performed]
+- `staleness_date` = 2026-09-13. Never scored.
  
 **Counterparty enumeration (memo §14):** n/a — archetype #1 holds no off-chain counterparties. WBTC custodian captured in §4 look-through.
  
@@ -205,14 +209,16 @@ Note: PegKeeper pools and Curve pools are markets, not redemption (§5); holder 
 |---|---|---|
 | aWETH → WETH → ETH | aTokens / WETH | transparent → `terminal` |
 | awstETH / arETH → LST | LST | `terminal_other_layer` |
-| aWBTC → WBTC | WBTC | `recurses` |
-| aUSDC → USDC | USDC | `recurses` (Circle) |
-| aUSDT → USDT | USDT | `recurses` (Tether) |
+| aWBTC → WBTC | WBTC | `recurses`; `disclosure_cadence` = continuous — Chainlink WBTC PoR feed (Ethereum) + BitGo transparency dashboard; `last_disclosure_date` = per-run read of the WBTC PoR feed `updatedAt` [ANALYST-SUPPLIED 2026-09-13: data.chain.link/feeds/ethereum/mainnet/wbtc-por; docs.chain.link/data-feeds/proof-of-reserve; feed 0xa81FE04086865e63E12dD3776978E49DEEa2ea4e, `description()` verified at B-9, heartbeat 86400] |
+| aUSDC → USDC | USDC | `recurses` (Circle); `disclosure_cadence` = monthly third-party attestation (Deloitte), Circle transparency page; `last_disclosure_date` = 2026-07-31 [ANALYST-SUPPLIED 2026-09-13: the July 2026 examination report PDF on Circle's transparency page; report dates 2026-07-08 and 2026-07-31; assertion signed 2026-08-27, published early September] |
+| aUSDT → USDT | USDT | `recurses` (Tether); `disclosure_cadence` = quarterly BDO attestation + daily transparency page; `last_disclosure_date` = 2026-06-30 [ANALYST-SUPPLIED 2026-09-13: tether.io/transparency; Q2 2026 as-of, published 2026-07-31] |
 | aDAI / aUSDS / asDAI → DAI/USDS | DAI/USDS | `recurses_truncated` (Sky) [FIRST-RUN READ: attribution] |
 | aLINK, aAAVE, other governance tokens | governance/volatile | `terminal` |
 | aweETH / other LRTs | LRT | `terminal_other_layer` — memo §4.5 LRT-family row (ruled 2026-09-02; §11 item 2 resolved) [FIRST-RUN READ: attribution] |
-| acbETH | cbETH | `recurses` — memo §4.5 cbETH row (ruled 2026-09-02; §11 item 2 resolved); disclosure cadence re-scoped to this sheet by that row and still owed [FIRST-RUN READ: attribution] |
-| GSM boxed waEthUSDC / waEthUSDT | USDC / USDT via memo §4.3 | `recurses` [ANALYST-SUPPLIED 2026-09-12: the GSMs' `UNDERLYING_ASSET()` is `waEthUSDC` 0xd4fa2d31b7968e448877f69a96de69f5de8cd23e and `waEthUSDT` 0x7bc3485026ac48b6cf9baf0a377477fff5703af8 — `StataTokenV2` (ERC-4626) behind proxies on verified implementation 0x487c2c53c0866f0a73ae317bd1a28f63adcd9ad1, NOT bare USDC/USDT. The walk wrapper → aToken → underlying closes at USDC and USDT and is a production read every run; balances are SHARES and convert at `convertToAssets` (1.185074933 / 1.174832582 at 25946240). Memo §4.3 pass-through, no level consumed. P-6.05; Inventory B F14.] |
+| acbETH | cbETH | `recurses` — memo §4.5 cbETH row (ruled 2026-09-02; §11 item 2 resolved); disclosure cadence re-scoped to this sheet by that row; `disclosure_cadence` = on-chain exchange rate, continuous; "no third-party reserve attestation published"; `last_disclosure_date` = per-run read of the last update of cbETH's exchange-rate oracle at `run_block` (the Builder names the concrete getter or event at B-9 and stops if none exists) [ANALYST-SUPPLIED 2026-09-13: coinbase.com cbETH page] [FIRST-RUN READ: attribution] |
+| GSM boxed waEthUSDC / waEthUSDT | USDC / USDT via memo §4.3 | `recurses` [ANALYST-SUPPLIED 2026-09-12: the GSMs' `UNDERLYING_ASSET()` is `waEthUSDC` 0xd4fa2d31b7968e448877f69a96de69f5de8cd23e and `waEthUSDT` 0x7bc3485026ac48b6cf9baf0a377477fff5703af8 — `StataTokenV2` (ERC-4626) behind proxies on verified implementation 0x487c2c53c0866f0a73ae317bd1a28f63adcd9ad1, NOT bare USDC/USDT. The walk wrapper → aToken → underlying closes at USDC and USDT and is a production read every run; balances are SHARES and convert at `convertToAssets` (1.185074933 / 1.174832582 at 25946240). Memo §4.3 pass-through, no level consumed. P-6.05; Inventory B F14.] Disclosure: waEthUSDC inherits the USDC row's, waEthUSDT the USDT row's (memo §4.3 pass-through). |
+| cbBTC | cbBTC / custodial BTC | `recurses` (Coinbase custody attestation); `disclosure_cadence` = continuous — Chainlink PoR feed (Ethereum) + Coinbase PoR page, near-real-time refresh; `last_disclosure_date` = per-run read of the Ethereum PoR feed `updatedAt` [ANALYST-SUPPLIED 2026-09-13: the crvUSD section's cbBTC form (2026-09-03) applied to the same asset; feed 0xcbe87dc0cf9d807848a3e703b01a90b28ecfb2a7, heartbeat 86400] |
+| sUSDe | memo §4.5 via P-3.24 R-2 (Ethena off-chain attestations) | `recurses`; `disclosure_cadence` = monthly custodian attestations (Copper, Ceffu, Kraken Custody) + weekly PoR since 2026-01; `last_disclosure_date` = 2026-08-26 [ANALYST-SUPPLIED 2026-09-13: As of 23:59 UTC August 26th 2026 — ethena.fi/blog/custodian-attestations-of-assets-backing-usde-august-3] |
 | Any other | — | unlisted → §8.2 quarantine rule |
  
 Expected verifiability result (Step-5 done-condition): a defensible non-trivial split — meaningful `recurses` weight via stables and WBTC, one `recurses_truncated` slice, remainder `terminal` / `terminal_other_layer`.
@@ -278,6 +284,33 @@ NAMED DEFAULTS (implementer, not rubric): `pegkeeper_lp_share`, `paired_units_he
 - GSM freezer check failed (role absent or bands ineffective in modeled range) → L1 (memo §6.3 H2), per GSM instance.
 - (a), (b): archetype defaults.
 **Oracle sources (memo §7):** Aave price oracle → Chainlink feed per reserve [VERIFIED 2026-09-01: Aave V3 Ethereum price sources per reserve are in the address book (e.g., WETH_ORACLE 0x5424384B…, wstETH 0xe1D97bF6…, WBTC 0xDaa4B74C…, USDC 0x3f73F03a…, USDT 0x260326c2…, cbETH 0x889399C3…, rETH 0x6929706c…); several are CAPO/SVR adapters over Chainlink. Underlying Chainlink deviation bands: ETH/USD 0.5%, BTC/USD 0.5%, USDC/USD 0.25%, USDT/USD 0.25%, cbBTC/USD 2% (data.chain.link; yearn/monitoring PR #310). Heartbeats [FIRST-RUN READ: per feed]. Instant-observation assumption holds for ≤1% bands. Sources: bgd-labs/aave-address-book main (GhoEthereum.sol, AaveV3Ethereum.sol, GovernanceV3Ethereum.sol); data.chain.link]. §7 assumption: instant observation, nearly exact given ~0.5–1% deviation triggers.
+
+**Oracle feed table (DET-54 / DET-55 / DET-81; P-7.01 R21)** [ANALYST-SUPPLIED 2026-09-13: deviation and heartbeat from Chainlink's feed directory (the data source of data.chain.link), fetched 2026-09-13 by tools/c3plus_feed_lookup.py; `type` read from the bundle's `update_condition.type`, confirmed by Amin]. A CAPO wrapper inherits its base feed's deviation and heartbeat; the base is the component `description()` names before `USD`. `nav_schedule` rows are excluded from DET-54's X and DET-81's T-26 (A-19). The 2026-09-01 line's `cbBTC/USD 2%` is a feed the cbBTC reserve row does not use; that row prices off BTC/USD.
+
+| node | symbol | feed_or_source | class · description() | update_condition.type | deviation | heartbeat_s (form documented unless stated) | source | date |
+|---|---|---|---|---|---|---|---|---|
+| 0x2260fac5e5542a773aa44fbcfedf7c193bc2c599 | WBTC | 0xdaa4b74c6bac4e25188e64ebc68db5050b690cac | capo-rate · wBTC/BTC/USD | `deviation_heartbeat` (bundle)` | 0.5% (BTC/USD) | 3600 | Chainlink feed directory (data.chain.link), fetched 2026-09-13 | 2026-09-13 |
+| 0xbe9895146f7af43049ca1c1ae358b0541ea49704 | cbETH | 0x889399c34461b25d70d43931e6ce9e40280e617b | capo-rate · Capped cbETH / ETH / USD | `deviation_heartbeat` (bundle)` | 0.5% (ETH/USD) | 3600 | Chainlink feed directory (data.chain.link), fetched 2026-09-13 | 2026-09-13 |
+| 0xae78736cd615f374d3085123a210448e74fc6393 | rETH | 0x6929706c42d637df5ebf7f0bcff2af47f84ea69d | capo-rate · Capped rETH / ETH / USD | `deviation_heartbeat` (bundle)` | 0.5% (ETH/USD) | 3600 | Chainlink feed directory (data.chain.link), fetched 2026-09-13 | 2026-09-13 |
+| 0x9d39a5de30e57443bff2a8307a4256c8797a3497 | sUSDe | 0x42bc86f2f08419280a99d8fbea4672e7c30a86ec | capo-rate · Capped sUSDe / USDT / USD | `deviation_heartbeat` (bundle)` | 0.25% (USDT/USD) | 86400 | Chainlink feed directory (data.chain.link), fetched 2026-09-13 | 2026-09-13 |
+| 0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee | weETH | 0x87625393534d5c102cadb66d37201df24cc26d4c | capo-rate · Capped weETH / eETH(ETH) / USD | `deviation_heartbeat` (bundle)` | 0.5% (ETH/USD) | 3600 | Chainlink feed directory (data.chain.link), fetched 2026-09-13 | 2026-09-13 |
+| 0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0 | wstETH | 0xe1d97bf61901b075e9626c8a2340a7de385861ef | capo-rate · Capped wstETH / stETH(ETH) / USD | `deviation_heartbeat` (bundle)` | 0.5% (ETH/USD) | 3600 | Chainlink feed directory (data.chain.link), fetched 2026-09-13 | 2026-09-13 |
+| 0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48 | USDC | 0x3f73f03aa83b2a48ed27e964ed0fdb590332095b | capo-stable · Capped USDC / USD | `deviation_heartbeat` (bundle)` | 0.25% (USDC/USD) | 82800 | Chainlink feed directory (data.chain.link), fetched 2026-09-13 | 2026-09-13 |
+| 0xdac17f958d2ee523a2206206994597c13d831ec7 | USDT | 0x260326c220e469358846b187ee53328303efe19c | capo-stable · Capped USDT/USD | `deviation_heartbeat` (bundle)` | 0.25% (USDT/USD) | 86400 | Chainlink feed directory (data.chain.link), fetched 2026-09-13 | 2026-09-13 |
+| 0xd4fa2d31b7968e448877f69a96de69f5de8cd23e | waEthUSDC | 0x3f73f03aa83b2a48ed27e964ed0fdb590332095b | capo-stable · Capped USDC / USD | `deviation_heartbeat` (bundle)` | 0.25% (USDC/USD) | 82800 | Chainlink feed directory (data.chain.link), fetched 2026-09-13 | 2026-09-13 |
+| 0x7bc3485026ac48b6cf9baf0a377477fff5703af8 | waEthUSDT | 0x260326c220e469358846b187ee53328303efe19c | capo-stable · Capped USDT/USD | `deviation_heartbeat` (bundle)` | 0.25% (USDT/USD) | 86400 | Chainlink feed directory (data.chain.link), fetched 2026-09-13 | 2026-09-13 |
+| 0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2 | WETH | 0x5424384b256154046e9667ddfaaa5e550145215e | raw · ETH / USD | `deviation_heartbeat` (bundle)` | 0.5% (ETH/USD) | 3600 | Chainlink feed directory (data.chain.link), fetched 2026-09-13 | 2026-09-13 |
+| 0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf | cbBTC | 0xb41e773f507f7a7ea890b1afb7d2b660c30c8b0a | raw · BTC / USD | `deviation_heartbeat` (bundle)` | 0.5% (BTC/USD) | 3600 | Chainlink feed directory (data.chain.link), fetched 2026-09-13 | 2026-09-13 |
+| 0x18084fba666a33d37592fa2633fd49a74dd93a88 | tBTC | 0xb41e773f507f7a7ea890b1afb7d2b660c30c8b0a | raw · BTC / USD | `deviation_heartbeat` (bundle)` | 0.5% (BTC/USD) | 3600 | Chainlink feed directory (data.chain.link), fetched 2026-09-13 | 2026-09-13 |
+| 0x83f20f44975d03b1b09e64809b757c47f942beea | sDAI | 0xf83b85205241c3bcca0a09d32fae65c16e0cf236 | capo-rate · Capped sDAI / DAI / USD | `deviation_heartbeat` (bundle)` | 0.25% | 3600 | Chainlink feed directory (data.chain.link), fetched 2026-09-13 | 2026-09-13 |
+| 0x6b175474e89094c44da98b954eedeac495271d0f | DAI | 0x5c66322ca59bb61e867b28195576dbd8da4b08de | capo-stable · Capped DAI/USD | `deviation_heartbeat` (bundle)` | 0.25% | 3600 | Chainlink feed directory (data.chain.link), fetched 2026-09-13 | 2026-09-13 |
+| 0xdc035d45d973e3ec169d2276ddab16f1e407384f | USDS | 0x94c7fd62fd0506e71d8142e9d36687fc72a86b02 | capo-stable · Capped USDS/USD | `deviation_heartbeat` (bundle)` | 0.3% | 82800 | Chainlink feed directory (data.chain.link), fetched 2026-09-13 | 2026-09-13 |
+| 0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9 | AAVE | 0xf02c1e2a3b77c1cacc72f72b44f7d0a4c62e4a85 | raw · AAVE / USD | `deviation_heartbeat` (bundle)` | 1% | 3600 | Chainlink feed directory (data.chain.link), fetched 2026-09-13 | 2026-09-13 |
+| 0x514910771af9ca656af840dff83e8264ecf986ca | LINK | 0xc7e9b623ed51f033b32ae7f1282b1ad62c28c183 | raw · LINK / USD | `deviation_heartbeat` (bundle)` | 0.5% | 3600 | Chainlink feed directory (data.chain.link), fetched 2026-09-13 | 2026-09-13 |
+| 0x5a0f93d040de44e78f251b03c43be9cf317dcf64 | JAAA | 0xf77f2537dba4ffd60f77facdfb2c1706364fa03d | nav · JAAA NAV - Aave LlamaGuard (USD Scaled) | `nav_schedule` (A-19)` | n/a — excluded from X (A-19) | form observed_max — computed at B-9 from the adapter's round history at `run_block`; no analyst value | deviation: A-19; heartbeat: B-9 read | 2026-09-13; heartbeat at B-9 |
+| 0x14d60e7fdc0d71d8611742720e4c50e7a974020c | USCC | 0x14cb2e810eb93b79363f489d45a972b609e47230 | nav · USCC NAV - Aave LlamaGuard (USD Scaled) | `nav_schedule` (A-19)` | n/a — excluded from X (A-19) | 86400 (form documented) | deviation: A-19; heartbeat: docs.superstate.com/investors/smart-contracts ("NAV per share put on-chain once per day") | 2026-09-13 |
+| 0x43415eb6ff9db7e26a15b704e7a3edce97d31c4e | USTB | 0x5ae4d93b9b9626dc3289e1afb14b821fd3c95f44 | nav · USTB NAV - Aave LlamaGuard (USD Scaled) | `nav_schedule` (A-19)` | n/a — excluded from X (A-19) | 86400 (form documented) | deviation: A-19; heartbeat: docs.superstate.com/investors/smart-contracts ("NAV per share put on-chain once per day") | 2026-09-13 |
+
  
 **Redemption-rights (memo §12) — holder paths: 1 + N GSMs** (ruled 2026-09-02, P3: every live GSM gets its own R-block and its own H2 freezer check; live-GSM enumeration at freeze; GSM variant parameters [RE-SCOPED TO INTAKE: fee/price strategy, exposure cap, 4626 allocation per instance]; one block shown)
  
@@ -312,7 +345,11 @@ Note: Path 1 can close (freezer, §6.3 H2) — this is why paths are recorded se
  
 **Qualifier block (memo §13):** expected — `mint` — DAO + timelock, 1–7 d (A4, verified 2026-09-01), veto: Guardian; `upgrade` — DAO + timelock, 1–7 d (A4, verified 2026-09-01), veto: Guardian; `set_oracle` — DAO + timelock, 1–7 d (A4, verified 2026-09-01); `seize` — role (GSM liquidator), none. Final content follows Phase B. Note for §11.11: GSM and facilitator sit under different holders/delays — the first test of whether token-level suffices.
  
-**Audit status (memo §14):** audits [VERIFIED 2026-09-01: GSM: SigmaPrime, Certora, independent review by Emanuele Ricci (AIP-8, Jan 2024); GHO token/stewards audits enumerated on Aave Immunefi page (LlamaRisk Mar 2026)]; bug bounty [ANALYST-SUPPLIED 2026-09-01: Curve: bug bounty program stated on docs (platform/max not surfaced); GHO: Immunefi (LlamaRisk Mar 2026); Liquity: active bounty (TokenBrice) — max values first-run analyst entry]; last material change audited [ANALYST-SUPPLIED 2026-09-01: stata-based GSM variant audit not surfaced]. Staleness date: set at Phase B. Never scored.
+**Audit status (memo §14)** — structured (DET-73; P-7.01 R20):
+- `audits[]` [ANALYST-SUPPLIED 2026-09-13: github.com/aave/gho-core/tree/main/audits; aave-dao/gho-origin/certora/reports; immunefi.com/bug-bounty/aave]: SigmaPrime 2023-10-23, GSM (v2.4; scope includes Gsm4626.sol; commits e4ea98c, 7c03c52) · Certora 2023-12-07, GSM formal verification (work 2023-08-09 → 2023-12-07, commit f368bef, scope Gsm.sol and Gsm4626.sol; no publication date on the document) · Emanuele Ricci 2024-01, GSM (AIP-8) · Certora 2024-03-14, GhoStewardV2 · Certora 2024-06-11, UpgradeableGHO · Certora 2024-09-15, ModularGhoStewards · Certora 2025-07-15, RemoteGSM · OpenZeppelin 2022-08-12, GHO token · OpenZeppelin 2022-11-10, GHO token · ABDK 2023-03-01, GHO · Certora 2023-02-28, GHO formal verification · SigmaPrime 2023-07-06, GHO
+- `bug_bounty` = {platform: Immunefi, max: USD 1,000,000} [ANALYST-SUPPLIED 2026-09-13: immunefi.com/bug-bounty/aave]
+- `last_material_change_audited` = yes [ANALYST-SUPPLIED 2026-09-13: recorded reading — the stata GSMs are Gsm4626, in SigmaPrime's 2023-10-23 scope]
+- `staleness_date` = 2026-09-13. Never scored.
  
 **Counterparty enumeration (memo §14):** n/a — archetype #1 holds no off-chain counterparties. WBTC custodian captured in §4 look-through.
  
@@ -431,6 +468,13 @@ NAMED DEFAULTS (implementer, not rubric): `pegkeeper_lp_share`, `paired_units_he
 - (d) Mechanism near bound → L1: TCR within 10pp of the Recovery Mode threshold, i.e., TCR < 160% given the 150% threshold [VERIFIED 2026-09-01: CCR = 150% — LiquityBase.sol]. Mirrored in the monitoring brief.
 - (a): composition shift cannot fire (single node); (b) supply jump: archetype default, two-branch.
 **Oracle sources (memo §7):** LUSD PriceFeed — Chainlink ETH/USD primary, Tellor fallback [VERIFIED 2026-09-01: logic per memo §7.3 (4h timeout, 50% deviation, 5% reconciliation); PriceFeed address [FIRST-RUN READ: TroveManager.priceFeed()]; Chainlink ETH/USD 0.5% deviation (data.chain.link). Counterfactual line retained. Source: liquity/dev main — PriceFeed.sol, TroveManager.sol, LiquityBase.sol]. §7 assumption: instant observation, nearly exact; one fallback-engaged counterfactual line under metric 4.
+
+**Oracle feed table (DET-54 / DET-55 / DET-81; P-7.01 R21)** [ANALYST-SUPPLIED 2026-09-13: deviation and heartbeat from Chainlink's feed directory (the data source of data.chain.link), fetched 2026-09-13 by tools/c3plus_feed_lookup.py; `type` read from the bundle's `update_condition.type`, confirmed by Amin]. A CAPO wrapper inherits its base feed's deviation and heartbeat; the base is the component `description()` names before `USD`. `nav_schedule` rows are excluded from DET-54's X and DET-81's T-26 (A-19).
+
+| node | symbol | feed_or_source | class · description() | update_condition.type | deviation | heartbeat_s (form documented unless stated) | source | date |
+|---|---|---|---|---|---|---|---|---|
+| 0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee | ETH (LUSD) | 0x5f4ec3df9cbd43714fe2740f5e3616155c5b8419 | raw (Liquity PriceFeed over Chainlink ETH/USD, Tellor fallback) · ETH/USD (sheet l.433) | `deviation_heartbeat` (bundle)` | 0.5% (ETH/USD) | 3600 | Chainlink feed directory (data.chain.link), fetched 2026-09-13 | 2026-09-13 |
+
  
 **Redemption-rights (memo §12) — holder paths: 1 — the reference profile**
  
@@ -463,7 +507,11 @@ NAMED DEFAULTS (implementer, not rubric): `pegkeeper_lp_share`, `paired_units_he
  
 **Qualifier block (memo §13):** *"No admin power can alter backing — immutable."* [FIRST-RUN READ: live value]. Contrast (memo §7.3): no admin keys, but an automated on-chain oracle fallback.
  
-**Audit status (memo §14):** audits [VERIFIED 2026-09-01: Trail of Bits (with invariants), Coinspect (2021-03) — coinspect.com; TokenBrice summary]; bug bounty [ANALYST-SUPPLIED 2026-09-01: Curve: bug bounty program stated on docs (platform/max not surfaced); GHO: Immunefi (LlamaRisk Mar 2026); Liquity: active bounty (TokenBrice) — max values first-run analyst entry]; last material change audited: n/a — immutable, no changes since deployment [FIRST-RUN READ: live value]. Staleness date: set at Phase B. Never scored.
+**Audit status (memo §14)** — structured (DET-73; P-7.01 R20):
+- `audits[]` [ANALYST-SUPPLIED 2026-09-13: docs.liquity.org/liquity-v1/documentation/resources]: Trail of Bits 2021-01, Liquity v1 security assessment · Coinspect 2021-03, Liquity v1
+- `bug_bounty` = {platform: none — V1 program discontinued at V2 launch; V2 on Cantina, max: n/a} [ANALYST-SUPPLIED 2026-09-13: docs.liquity.org/liquity-v1/documentation/bug-bounty; the 2026-09-01 "active bounty (TokenBrice)" entry was stale and is corrected here]
+- `last_material_change_audited` = yes by R20 (P-7.01): deployment audited, immutable since [FIRST-RUN READ: live value]
+- `staleness_date` = 2026-09-13. Never scored.
  
 **Counterparty enumeration (memo §14):** n/a — archetype #1 holds no off-chain counterparties.
  
@@ -483,4 +531,4 @@ NAMED DEFAULTS (implementer, not rubric): `pegkeeper_lp_share`, `paired_units_he
 | FR-L10 | LUSD § Admin surface — `upgrade` A2 | `admin_surface[upgrade].holder` | EIP-1967 admin slot on each of the seven contracts; all-zero => `none`, recorded as absence reads | open |
 | FR-L11 | LUSD § Admin surface — `pause` A2 | `admin_surface[pause].holder` | selector-absence scan over `eth_getCode` of the seven for `pause`, `unpause` and `setPaused`; ownership renounced, evidenced by a storage-slot read of the owner slot returning zero | open |
 | FR-L12 | LUSD § Qualifier block | `admin_surface[].holder_type` all `none` | the nine A1 rows jointly; the qualifier is asserted only if every row's holder is `none` under FR-L07 to FR-L11's absence evidence | open |
-| FR-L13 | LUSD § Audit status | `static_metadata.last_material_change_audited` | `no` by construction — no code change is possible; evidenced by FR-L08's and FR-L10's zero slots rather than asserted | open |
+| FR-L13 | LUSD § Audit status | `static_metadata.last_material_change_audited` | `yes` by R20 (P-7.01): deployment audited, immutable since — no code change is possible; evidenced by FR-L08's and FR-L10's zero slots rather than asserted | open |

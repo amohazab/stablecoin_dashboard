@@ -4,7 +4,7 @@
 **Date:** 2026-09-03.
 **Checksum algorithm (declared 2026-09-03):** SHA-256, first 8 hex digits, over the raw bytes of the LF-normalized file. The stamp is computed over LF-normalised bytes; on-disk line endings (CRLF on Windows) do not affect it.
  
-**Governing artifacts (checksums):** `archetype-memo-1-cdp.md` 17553d7b · `intake-sheets-cdp.md` ad7c35c2 · `phase-b-checklist.md` 54620383 — all at status "Phase B COMPLETE — 2026-09-02".
+**Governing artifacts (checksums):** `archetype-memo-1-cdp.md` 17553d7b · `intake-sheets-cdp.md` 32f8aa5d · `phase-b-checklist.md` 54620383 — all at status "Phase B COMPLETE — 2026-09-02".
  
 **Historical checksums — unreproducible, retained (2026-09-03):** the previous values `f65f5f72` · `976085c9` · `6c7c6708` reproduce under no tested scheme: 0 of 3 files matched across 126 scheme × byte-form combinations (14 schemes — CRC-32, Adler-32, and first-8/last-8 of MD5, SHA-1, SHA-256, SHA3-256, BLAKE2b, BLAKE2s — over 9 byte forms). The three values were authored during the Step-2 design sessions in a chat environment where no byte-level hash of the repository files was ever computed; the working explanation is that the stamps were authored, not machine-computed over these bytes. Pre-import drift is not excluded by evidence, but under either explanation the values are unrecoverable. Provenance boundary: commit 5aef7c4 (2026-09-03), clean tree for `docs/context/` — bytes as committed are the earliest verifiable state. Retained, never deleted.
 **Place in the pipeline (brief §7):** deterministic checks in plain code run first, in stage order; then one LLM-as-judge call with structured output. generate → evaluate → one revision → ship or quarantine.
@@ -382,6 +382,7 @@ Consciously merged: assumptions-narrative fidelity → LLM-01 + LLM-03; "stress 
 | T-25 | harness error | 2 | — | G-6 | DET-85 |
 | T-26 | credited price feed stale | 1 | oracle table | R-50 | DET-81 |
 | T-27 | bridged supply jump | 1 | supply | R-53 | DET-62 |
+| T-28 | gate failure | 2 | — | A-17 (rubric) | report stage |
  
 All rows have a computing owner. Non-computable properties are in Appendix A. Judge-side events (`judge_span_not_found`) are gate-evaluation-record events, not rows here.
  
@@ -475,6 +476,10 @@ All rows have a computing owner. Non-computable properties are in Appendix A. Ju
 - **A-13** §6.3 H1 / DET-45: `r_j` carries the deployed regulator's `+1` denominator guard — `get_ratio` is `debt * ONE // (1 + debt + balance)`, not `debt / (debt + balance)`; the guard is in the deployed source and the model ports it rather than the algebraic form (P-6.01 R-B4.2, P-6.08).
 - **A-14** §7.2 / DET-44: `EMA_lag`'s window is the bundle's `ema_window_s` — the transitive maximum over an oracle's constituent pools — because no `MA_EXP_TIME` getter exists on the deployed AMMs to read (P-3.31; P-6.01 R-B4.8, P-6.09).
 - **A-15** §6.2.7 m3 / DET-41: at zero exit depth with a positive numerator the ratio is undefined, stored `null`, rendered ∞, and treated as +∞ along the LP axis so R-29's monotonicity holds by ruling rather than by luck (P-6.01 R-B4.14, P-6.09).
+- **A-16** §8.1.3 / DET-85, DET-13(c): for as long as any rubric entry is unregistered in the harness, the gate-evaluation record's completeness is measured over the registered entries; every unregistered entry is enumerated by ID with its queue item in the gate record and their count is printed on the methodology page; an unregistered entry is not a gate result — no `result` value is added and `not_applicable` keeps its token-scope meaning; the enumeration shrinks only by registration, and the amendment is spent when it is empty (P-7.01 R1).
+- **A-17** §8.1.1 / §3 / DET-12, DET-59: the trigger table gains **T-28 "gate failure"**, Level 2, section —, computing owner = the report stage, so a failed deterministic check is logged and DET-59's banner has a category; counting per A-2 (one row), table 27 → 28 rows (P-7.01 R15).
+- **A-18** §2.1: "Named defaults: temperature 0; model string and prompt hash in the gate-evaluation record" reads "Named defaults: model default; sampling parameters not settable — recorded null; thinking setting, model string and prompt hash in the gate-evaluation record" (P-7.01 R12).
+- **A-19** §1 / DET-55, DET-54, DET-81: DET-55's `update_condition.type` enum gains `nav_schedule`; rows of that type are excluded from DET-54's X and from DET-81's T-26 staleness test, and carry `heartbeat_s = {form = documented, value = the documented NAV publication interval, provenance}` (P-7.03).
 ## 6. Evaluation-loop contract
  
 1. Deterministic stages run in order S0 → S1 → S2 → S3; a failure at a stage stops at that stage's consequence (Level 3 / Level 2); S3 data-consistency failures are Level 2; DET-13 runs last.

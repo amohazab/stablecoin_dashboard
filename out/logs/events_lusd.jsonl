@@ -1,3 +1,4 @@
 {"date":"2026-09-10","set_file_hash":null,"sheet_hash":"c7298252","source":"P-4.15","token":"LUSD","type":"intake_trigger"}
 {"date":"2026-09-10","freeze_block":25948081,"set_file_hash":"fa6eb720","set_file_path":"config/frozen_set_lusd.json","source":"P-4.16 — LUSD freeze, |F| = 1 at coverage 0.9798, no R-20 waiver","token":"LUSD","type":"freeze"}
 {"date":"2026-09-13","set_file_hash":"8bebc8a0","sheet_hash":"ad7c35c2","source":"P-6.07 — member2_target 0xdac17f958d2ee523a2206206994597c13d831ec7 filled from stress 33ac5713; 19 sell-side values signed 2026-09-12","token":"LUSD","type":"intake_trigger"}
+{"date":"2026-09-13","set_file_hash":"8bebc8a0","sheet_hash":"32f8aa5d","source":"P-7.04 — C3+ signed edit: disclosure rows, feed table, audit rows (R7, R20, R21); rubric A-16–A-19","token":"LUSD","type":"intake_trigger"}

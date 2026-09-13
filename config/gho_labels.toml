@@ -313,3 +313,24 @@ registry_address = "0x46d52e41c2f300bc82217ce22b920c34995204eb"
 locator_read = "Bridge.activeWalletPubKeyHash()"
 source = "sourced to config/labels.toml's crvUSD row (P-3.37), unchanged: chain-verified hop walk 2026-09-04 at block 25906321: tBTC.owner() -> TBTCVault 0x9c070027cdc9dc8f82416b2e5314e11dfb4fe3cd (ContractName=TBTCVault); .bridge() -> 0x5e4861a80b55f035d899f66772117f00fa0e8e7b (TransparentUpgradeableProxy -> impl 0x7d43c925..., Bridge); .contractReferences()[2] -> 0x46d52e41c2f300bc82217ce22b920c34995204eb (TransparentUpgradeableProxy -> impl 0x420c99a4..., ContractName=WalletRegistry). Closure: WalletRegistry.walletOwner() returns the Bridge. P-3.32 route-2 pattern"
 date = 2026-09-04
+
+# ---- Proof-of-reserve feeds (DET-76(e)): SIGNED 2026-09-13, C3+ (P-7.04) --------
+# Same entry class as config/labels.toml's; a PoR feed answers staleness, not DET-55 price gap.
+
+[[por_feed]]
+node_address = "0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf"
+symbol = "cbBTC"
+feed_address = "0xcbe87dc0cf9d807848a3e703b01a90b28ecfb2a7"
+description = "cbBTC Reserves"
+heartbeat = 86400
+source = "as config/labels.toml cbBTC row (P-3.35); Chainlink feed directory (data.chain.link) cbbtc-por / lombard-por / wbtc-por, heartbeat fetched 2026-09-13 by tools/c3plus_feed_lookup.py (C3+, P-7.04)"
+date = 2026-09-13
+
+[[por_feed]]
+node_address = "0x2260fac5e5542a773aa44fbcfedf7c193bc2c599"
+symbol = "WBTC"
+feed_address = "0xa81fe04086865e63e12dd3776978e49deea2ea4e"
+description = "WBTC Proof of Reserves"
+heartbeat = 86400
+source = "data.chain.link/feeds/ethereum/mainnet/wbtc-por (Amin, C3+ signed 2026-09-13, P-7.04); description() verified at B-9"
+date = 2026-09-13

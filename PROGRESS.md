@@ -7635,3 +7635,71 @@ Status: IN PROGRESS (opened 2026-09-13, P-7.01).
 - **Follow-ups spawned:** B-9's declared diff gains the five fixes (ruling 1)
   and DET-71's registration with its A6 and `owner()` reads (ruling 3); C3+ on
   Amin's values.
+
+## P-7.04 — C3+: the signed intake edit, A-16–A-19, the disclosure / feed / audit values
+
+- **Date:** 2026-09-13
+- **Type:** decision + implementation
+- **Confirmed by:** Amin
+- **Content:**
+  **SIGNATURE.** The C3+ signature file
+  (`out/reports/step7-c3plus-signature-draft.md`, sha256 `2f50d49b…482b` over
+  LF, 219 lines) was read back, matched in the design chat and confirmed; every
+  value below was applied from that file, anchors asserted unique.
+  **SHEET EDIT** (`intake_trigger`, R-47 stamp) **`ad7c35c2` → `32f8aa5d`**: the
+  11 DET-76(e) disclosure rows — crvUSD WBTC; GHO WBTC, USDC, USDT, cbETH, the
+  GSM boxed pair by inheritance, and two new node rows, cbBTC and sUSDe — each
+  `[ANALYST-SUPPLIED 2026-09-13: …]`; a per-token oracle feed table under
+  "Oracle sources (memo §7)" (21 GHO rows, 1 LUSD) with the CAPO/base-feed note;
+  the three §14 audit lines as structured DET-73 blocks; FR-L13's read spec →
+  `yes` by R20. FIRST-RUN READ tags 34 / 46 / 13 unchanged, identities hold;
+  bias and m4 parses intact. **`rubric_change`** (DET-87) **`94c0b20a` →
+  `fe23432a`**: A-16 (DET-85 measured over registered entries while any is
+  unregistered; spent when the enumeration is empty), A-17 (T-28 "gate failure",
+  Level 2, §3 27 → 28 rows), A-18 (2.1: model default, sampling parameters
+  recorded null), A-19 (`nav_schedule`, excluded from DET-54's X and DET-81's
+  T-26); the header sheets-line to `32f8aa5d`. Memo `17553d7b` and checklist
+  `54620383` unchanged. `CLAUDE.md` carries no stamp to update.
+  `harness.TRIGGER_TABLE` gains `T-28: 2` so DET-12's runtime table matches the
+  printed one.
+  **CONFIG.** `labels.toml`: `heartbeat = 86400` on the cbBTC and LBTC
+  `[[por_feed]]` rows, a WBTC row (`0xa81fe040…ea4e`, "WBTC Proof of Reserves",
+  `description()` verified at B-9); `gho_labels.toml`: cbBTC and WBTC
+  `[[por_feed]]` rows; `config/verifications.toml` created (three rows, dated
+  2026-09-13). Mirrors regenerated at `32f8aa5d`; GHO's gains the generator's
+  `[disclosure.cbBTC]` block from the new node row; LUSD's FR-L13 spec.
+  **LOGS.** Three `intake_trigger` events, 2026-09-13, `sheet_hash 32f8aa5d`,
+  set files `9ebdd282` / `062b5a0c` / `8bebc8a0` unchanged. **Consequence:** the
+  promoted bundles carry `ad7c35c2`, so `factory.stress` stops on "sheet stamps
+  disagree" (P-6.01 R3) for all three tokens until B-9's re-runs, which DET-77
+  then chains to these events.
+  **RECORDED READINGS (Amin's).** crvUSD `last_material_change_audited = yes`:
+  the mainnet mint Controllers/AMMs are immutable 2023 deployments inside
+  ChainSecurity's 2025-02-21 series (V1 32f85fe … V15 16b29c2); V12+ changes are
+  not deployed there; byte-identity not performed. GHO `yes`: the stata GSMs are
+  Gsm4626, in SigmaPrime's 2023-10-23 scope. DET-73 LUSD bounty: "none — V1
+  discontinued at V2 launch; V2 on Cantina", replacing the stale "active bounty
+  (TokenBrice)"; Curve's: self-run, max USD 250,000, no Immunefi listing. cbETH
+  `last_disclosure_date`: a read form, the last update of cbETH's exchange-rate
+  oracle at `run_block` — the Builder names the getter or event at B-9 and stops
+  if none exists; "no third-party reserve attestation published" renders as a
+  literal.
+  **PROVENANCE.** Deviation and heartbeat for the 19 feed rows: Chainlink's feed
+  directory (the data source of data.chain.link), fetched 2026-09-13 by
+  `tools/c3plus_feed_lookup.py`, committed here; a re-run reproduced Amin's file
+  byte-for-byte, and the standard `btc-usd` / `eth-usd` / `usdc-usd` entries
+  equal the tool's `-svr` / `-shared-svr` matches. USTB / USCC `heartbeat_s`
+  86400 (docs.superstate.com); JAAA `observed_max` at B-9. AAVE/USD's 1% sits at
+  DET-54's inclusive "≤ 1%" boundary.
+  **AS-COUNTED.** Design layer: A-16's first milestone named a step the brief
+  does not have. Builder: one message's parts carried no BEGIN/END markers.
+  **DIFF** 15 files +369 / −20; **194 tests**, ruff clean; 21 bundle, tree and
+  stress artifacts unchanged.
+- **Artifacts:** `docs/context/intake-sheets-cdp.md` · `docs/context/rubic_v1.md`;
+  `config/{labels,gho_labels}.toml` · `config/{crvusd,gho,lusd}_sheet.toml` ·
+  `config/verifications.toml` (new); `out/logs/events_{crvusd,gho,lusd}.jsonl`;
+  `src/factory/validate/harness.py`; `tests/test_discovery.py` · `tests/test_schema.py`;
+  `tools/c3plus_feed_lookup.py` (new); `PROGRESS.md`.
+- **Follow-ups spawned:** B-9 — the bundle event under R4 plus P-7.03's five fixes and
+  DET-71; `config.load` reads `[[por_feed]]` `heartbeat`; cbETH's read named; WBTC's
+  `description()` verified; JAAA's `observed_max`; three re-runs clear the stale pairing.

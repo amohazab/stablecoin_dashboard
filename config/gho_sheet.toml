@@ -1,10 +1,10 @@
 # DERIVED MIRROR - NOT AUTHORITATIVE (P-3.04 binding).
 # Source of truth: docs/context/intake-sheets-cdp.md, GHO section.
-# Derived from sheet version sha256_first8 = ad7c35c2.
+# Derived from sheet version sha256_first8 = 32f8aa5d.
 # DET-77's sheet_hash check binds this mirror to that source; drift is caught
 # mechanically, never trusted away. Regenerated, never hand-patched.
 schema_version = 1
-sheet_hash = "ad7c35c2"
+sheet_hash = "32f8aa5d"
 
 near_bound_threshold = 0.80
 counterparties = "n/a - archetype #1 holds no off-chain counterparties"
@@ -15,6 +15,12 @@ attribution_method = "per_position"
 m4_fields = ["gho_sourceable", "collateral_sellable", "gsm_mint_headroom", "binding_side", "facilitator_bucket_levels", "freezer_state", "exit_depth_cell", "lp_flight_share", "counterfactual_ref"]
 # bias_table[] date - the P-6.07 signed edit's; the sheet table has no date column (P-7.01 R8).
 bias_table_date = 2026-09-13
+
+# cbBTC disclosure fields - mirrored from the stamped sheet (D-8; owner: sheet, not labels.toml per C-8)
+[disclosure.cbBTC]
+disclosure_cadence = "continuous — Chainlink PoR feed (Ethereum) + Coinbase PoR page, near-real-time refresh"
+last_disclosure_date = "per-run read of the Ethereum PoR feed `updatedAt`"
+source = "ANALYST-SUPPLIED 2026-09-13: the crvUSD section's cbBTC form (2026-09-03) applied to the same asset; feed 0xcbe87dc0cf9d807848a3e703b01a90b28ecfb2a7, heartbeat 86400"
 
 # first_run_reads[] - 46 rows mirrored from the stamped sheet.
 # status stays "open" until a stamped sheet edit retires the prose tag (P-3.14).

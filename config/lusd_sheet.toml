@@ -1,10 +1,10 @@
 # DERIVED MIRROR - NOT AUTHORITATIVE (P-3.04 binding).
 # Source of truth: docs/context/intake-sheets-cdp.md, LUSD section.
-# Derived from sheet version sha256_first8 = ad7c35c2.
+# Derived from sheet version sha256_first8 = 32f8aa5d.
 # DET-77's sheet_hash check binds this mirror to that source; drift is caught
 # mechanically, never trusted away. Regenerated, never hand-patched.
 schema_version = 1
-sheet_hash = "ad7c35c2"
+sheet_hash = "32f8aa5d"
 
 near_bound_threshold = 0.80
 counterparties = "n/a - archetype #1 holds no off-chain counterparties"
@@ -107,7 +107,7 @@ status = "open"
 tag_id = "FR-L13"
 sheet_location = "LUSD § Audit status"
 bundle_field_path = "`static_metadata.last_material_change_audited`"
-read_spec = "`no` by construction — no code change is possible; evidenced by FR-L08's and FR-L10's zero slots rather than asserted"
+read_spec = "`yes` by R20 (P-7.01): deployment audited, immutable since — no code change is possible; evidenced by FR-L08's and FR-L10's zero slots rather than asserted"
 status = "open"
 
 # bias_table[] - DET-53, 9 rows mirrored from the stamped sheet; the four mandatory rows are the memo-derived literals.
