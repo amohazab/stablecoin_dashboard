@@ -676,6 +676,46 @@ DET10_FREEZE_MAX_AGE_DAYS = 100          # R-a2; (f) via T-17
 DET10_SIZE_BASED_REASONS = frozenset({"added_since_freeze",
                                       "tail_beyond_freeze_coverage"})
 
+DET29A_FIELDS = ("freeze_date", "freeze_block", "freeze_discovery_total", "freeze_coverage")
+DET29A_WAIVER_PREFIX = "coverage unreachable at"
+
+
+def det_29a(b: Bundle, ctx) -> tuple[str, int] | None:
+    """Frozen set file properties (R-16, R-20; S1, Level 3; T-20 Level 1).
+
+    RECORDED READINGS (Amin, P-7.03), not amendments: the set file's per-pool
+    `tvl_at_par` IS DET-29(a)'s `freeze_tvl` (`PoolRow.freeze_tvl` is already
+    copied from it); a waiver whose `reason` opens "coverage unreachable at …"
+    is the rubric's record with its elaboration. The set file is parsed by
+    `run.execute` into `ctx["frozen_set"]` — the harness does no file I/O.
+    """
+    from factory.freeze import DUST_FLOOR_USD, FREEZE_COVERAGE_TARGET
+    fs = ctx["frozen_set"]
+    missing = [k for k in DET29A_FIELDS if fs.get(k) is None]
+    if missing or fs.get("chain_id") != 1:
+        raise Level3(f"DET-29(a): set file fields missing {missing} or chain_id "
+                     f"{fs.get('chain_id')!r} != 1")
+    if not fs.get("scope", {}).get("par_eligibility"):
+        raise Level3("DET-29(a): no declared par-at-balances valuation scope")
+    for p in fs.get("pools", []):
+        if p.get("tvl_at_par") is None:
+            raise Level3(f"DET-29(a): pool {p.get('address')} has no freeze_tvl (tvl_at_par)")
+        if not p.get("stabilizer") and p["tvl_at_par"] < DUST_FLOOR_USD:
+            raise Level3(f"DET-29(a): non-stabilizer pool {p['address']} freeze_tvl "
+                         f"{p['tvl_at_par']} < {DUST_FLOOR_USD}")
+    coverage = Decimal(str(fs["freeze_coverage"]))
+    if coverage >= FREEZE_COVERAGE_TARGET:
+        return None
+    w = fs.get("r20_waiver")
+    if not w or not w.get("date") or not str(w.get("reason", "")).startswith(
+            DET29A_WAIVER_PREFIX) or w.get("achieved_coverage") is None:
+        raise Level3(f"DET-29(a): freeze_coverage {coverage} < {FREEZE_COVERAGE_TARGET} "
+                     "without a waiver record {date, reason, achieved_coverage}")
+    if Decimal(str(w["achieved_coverage"])) != coverage:
+        raise Level3(f"DET-29(a): waiver achieved_coverage {w['achieved_coverage']} "
+                     f"!= freeze_coverage {coverage}")
+    return ("T-20", 1)
+
 
 def det_10(b: Bundle, ctx) -> tuple[str, int] | None:
     """Frozen set integrity (rubric line 81; S1).
@@ -884,6 +924,222 @@ def det_11(b: Bundle, t: VerifiabilityTree) -> str | None:
     if t.paired_assets and (t.concentration is None or not t.concentration.label):
         raise Level3("DET-11: concentration line missing")
     return scope
+
+
+# --- B-8 (P-7.01 R1): buckets (a)+(b) at S2 — pure over the bundle and tree ---
+# Each registers at its rubric stage and level with `consumer = "tree"`, the
+# module that already runs `fn(bundle, tree)`. A row that fails on today's data
+# registers failing (P-6.08's DET-69 precedent); its scope or message names why.
+
+
+def _token_address(b: Bundle) -> str:
+    """The token's own address, from the provenance of its `totalSupply()` read
+    — every adapter makes that read on the token itself."""
+    p = b.supply.reads["total_supply"]
+    return p.source_contract if isinstance(p, ContractRead) else p.contract
+
+
+def det_06(b: Bundle, t: VerifiabilityTree) -> str | None:
+    """Position netting (R-2). (a) the token's own address is no node; (b) per
+    market, Σ net_debt − Σ surplus = Σ gross_debt − Σ stablecoin_in_position
+    exactly — the aggregate form of `net = max(gross − s, 0)`, `surplus =
+    max(s − gross, 0)` (per-position rows live in the raw dump, P-3.05); (d) both
+    disclosure sums present. (c)'s base-CR replay has no field yet."""
+    token = _token_address(b)
+    if any(n.address == token for n in b.nodes):
+        raise Level3(f"DET-06(a): the token's own address {token} is a node")
+    if not b.markets:
+        return ("no markets[] rows: GHO originates on facilitators[], which carry no "
+                "in-position stablecoin field; (c)'s base-CR replay has no field yet (B-10)")
+    for m in b.markets:
+        if min(m.net_debt_sum, m.surplus_sum, m.stablecoin_in_position_sum) < 0:
+            raise Level3(f"DET-06(b): {m.symbol} negative netting sum")
+        lhs = m.net_debt_sum - m.surplus_sum
+        rhs = m.gross_debt_sum - m.stablecoin_in_position_sum
+        if lhs != rhs:
+            raise Level3(f"DET-06(b): {m.symbol} net − surplus {lhs} != gross − "
+                         f"stablecoin_in_position {rhs} (surplus_sum {m.surplus_sum}, "
+                         f"stablecoin_in_position_sum {m.stablecoin_in_position_sum})")
+    return "(c)'s base-state CR replay is dormant: no printed base-CR field until B-10's table"
+
+
+def det_16(b: Bundle, t: VerifiabilityTree) -> None:
+    """Stabilizer-over-supply line (R-9): `X = Σ stabilizer debt / supply_ruled`
+    (1e-6), present on every token, 0 where no stabilizer class exists. The
+    rendered "0% — no stabilizer mechanism" literal is the S3 half."""
+    debt = sum(o.current_debt for o in b.stabilizer.operations)
+    x = Decimal(debt) / Decimal(b.supply.supply_ruled)
+    if b.supply.stabilizer_over_supply is None:
+        raise Level3("DET-16: stabilizer_over_supply absent")
+    if abs(b.supply.stabilizer_over_supply - x) > TREE_TOL:
+        raise Level3(f"DET-16: stabilizer_over_supply {b.supply.stabilizer_over_supply} "
+                     f"replays as {x}")
+    if not b.stabilizer.operations and b.supply.stabilizer_over_supply != 0:
+        raise Level3("DET-16: no stabilizer class but a non-zero line")
+
+
+def det_22(b: Bundle, t: VerifiabilityTree) -> str:
+    """Stabilizer slice, S2 half (R-12): the slice value = Σ `current_debt`
+    (the tree's `root.stabilizer_debt`), `ceiling_aggregate` = Σ `debt_ceiling`,
+    both exact; every operation row carries its ceiling and utilization field.
+    Labels, captions and the par/pro-cyclical line are the S3 half; the net
+    position value itself is DET-05(c)'s field."""
+    ops = b.stabilizer.operations
+    debt, ceil = sum(o.current_debt for o in ops), sum(o.debt_ceiling for o in ops)
+    if t.root.stabilizer_debt != debt:
+        raise Level3(f"DET-22: root.stabilizer_debt {t.root.stabilizer_debt} "
+                     f"!= Σ current_debt {debt}")
+    if b.stabilizer.ceiling_aggregate != ceil:
+        raise Level3(f"DET-22: ceiling_aggregate {b.stabilizer.ceiling_aggregate} "
+                     f"!= Σ debt_ceiling {ceil}")
+    if b.supply.supply_ruled <= 0:
+        raise Level3("DET-22: supply_ruled must be positive for the % of supply")
+    return (f"{len(ops)} operation rows; slice {debt}, ceiling {ceil}" if ops
+            else "no stabilizer operations: slice 0, ceiling 0 (R-9)")
+
+
+def det_28(b: Bundle, t: VerifiabilityTree) -> str:
+    """Asset-in-a-box (R-14b), over the assembly's existing enforcement
+    (`gho._class_of`, `boxed_asset_walk`, `_boxed`). No GSM in the stabilizer
+    table; `gsm_count` = live GSM rows; each boxed asset a backed-branch node
+    with its §4 label, a balance read and a price read at `run_block`, and the
+    feed address on the node row (DET-55 row required); probe provenance on the
+    GSM row. GSM-minted supply inside `backed_supply` is DET-15's."""
+    gsm_addrs = {g.address for g in b.gsms}
+    for o in b.stabilizer.operations:
+        if {o.operation_address, o.paired_pool_address} & gsm_addrs:
+            raise Level3(f"DET-28: GSM {o.operation_address} in the stabilizer table")
+    if b.counts.gsm_count != len(b.gsms):
+        raise Level3(f"DET-28: gsm_count {b.counts.gsm_count} != {len(b.gsms)} GSM rows")
+    if not b.gsms:
+        return "gsm_count = 0 explicit; no GSM class on this token"
+    nodes = {n.address: n for n in b.nodes}
+    missing = []
+    for g in b.gsms:
+        if not {"getExposureCap()", "getAvailableLiquidity()"} <= set(g.reads):
+            raise Level3(f"DET-28: GSM {g.address} has no probe provenance")
+        n = nodes.get(g.underlying_asset)
+        if n is None:
+            raise Level3(f"DET-28: GSM {g.address} boxed asset {g.underlying_asset} is no node")
+        if n.label not in TREE_LABELS[:4]:
+            raise Level3(f"DET-28: boxed node {n.symbol} label {n.label}")
+        price = [k for k, p in n.reads.items()
+                 if isinstance(p, ContractRead) and p.block == b.header.run_block
+                 and ("price" in k.lower() or "latestrounddata" in p.function.lower())]
+        if not price:
+            missing.append(f"{n.symbol}: no price read on the node row")
+        if not getattr(n, "feed_address", None):
+            missing.append(f"{n.symbol}: no feed address on the node row")
+    if missing:
+        raise Level3("DET-28: " + "; ".join(missing))
+    return f"{len(b.gsms)} live GSMs, boxed nodes present"
+
+
+# DET-34's closed reasons plus the one ruled extension (P-3.24 R-4: carried in
+# DET-34's validity rules citing that entry).
+DET34_REASONS = frozenset({"non_market_contract", "volatile_collateral_circular",
+                           "tail_beyond_freeze_coverage", "added_since_freeze",
+                           "self_referential_wrapper"})
+
+
+def det_34(b: Bundle, t: VerifiabilityTree) -> str:
+    """§5.4 exclusion reasons (over `freeze.classify_exclusions`, its existing
+    enforcement): every above-floor non-F pool row carries exactly one reason
+    from the closed set; `volatile_collateral_circular` only where a paired
+    asset is a volatile node of the token; no F row carries a reason. The
+    at-freeze `below_dust_floor` record is the set file's, written by
+    `freeze.build_freeze` / `serialise_set_file`."""
+    from factory.freeze import DUST_FLOOR_USD
+    volatile = {n.address for n in b.nodes if n.node_class == "volatile"}
+    listed = 0
+    for p in b.pools:
+        if p.in_frozen_set:
+            if p.exclusion_reason is not None:
+                raise Level3(f"DET-34: frozen pool {p.address} carries {p.exclusion_reason}")
+            continue
+        listed += 1
+        if p.exclusion_reason not in DET34_REASONS:
+            raise Level3(f"DET-34: {p.address} reason {p.exclusion_reason!r} outside the set")
+        if p.tvl_at_par < DUST_FLOOR_USD and p.exclusion_reason != "added_since_freeze":
+            raise Level3(f"DET-34: below-floor pool {p.address} listed, not counted")
+        if p.exclusion_reason == "volatile_collateral_circular" and \
+                not set(p.paired_assets) & volatile:
+            raise Level3(f"DET-34: {p.address} circular without a volatile paired node")
+    return (f"{listed} above-floor non-F rows reasoned; below_dust_floor at freeze is "
+            "the set file's (freeze.build_freeze)")
+
+
+# NAMED IMPLEMENTER DEFAULT (B-8): how `state_conditional(C)`'s C renders inside
+# R8. The bundle's C is a FIELD REF (P-4.16 R3); the rubric's verified string
+# renders the condition, `enforceable_unless_TCR<MCR (see R7)`, and the sheet's
+# R6 cell names it `state_conditional(TCR < MCR)`. An unmapped ref is an error.
+R8_CONDITION_TEXT = {"system_tcr": "TCR<MCR"}
+
+
+def _derive_r8(p) -> str:
+    """DET-67's derivation (I-2, R-43), in its canonical order."""
+    if p.r1_path == "none":
+        return "n/a"
+    if p.r1_path == "issuer_offchain":
+        kinds = {g["kind"] for g in p.r6_gates}
+        return ("enforceable_offchain" if p.r9_legal_claim == "yes" and kinds == {"none"}
+                else "discretionary")
+    kinds = [g["kind"] for g in p.r6_gates]
+    unless = []
+    if "pausable" in kinds:
+        unless.append("paused")
+    for g in p.r6_gates:
+        if g["kind"] == "state_conditional":
+            unless.append(R8_CONDITION_TEXT[g["param"]])
+    s = "enforceable" + ("_unless_" + "_or_".join(unless) if unless else "")
+    if "capacity_limited" in kinds:
+        s += " (see R7)"
+    for g in p.r6_gates:
+        if g["kind"] == "notice_period":
+            s += f" ({g['param']}-day notice)"
+    return s
+
+
+def det_67(b: Bundle, t: VerifiabilityTree) -> str:
+    """R8 computed, never hand-keyed: `r8_source = computed` and `r8` equals
+    the derivation from R1/R6/R9, string-exact, on every path."""
+    bad = []
+    for i, p in enumerate(b.redemption_paths):
+        if p.r8_source != "computed":
+            bad.append(f"path {i}: r8_source {p.r8_source}")
+        want = _derive_r8(p)
+        if p.r8 != want:
+            bad.append(f"path {i} ({p.r1_path}): r8 {p.r8!r} != derived {want!r}")
+    if bad:
+        raise Level3("DET-67: " + "; ".join(bad))
+    return f"{len(b.redemption_paths)} paths derive exactly"
+
+
+def det_72(b: Bundle, t: VerifiabilityTree) -> str:
+    """Non-qualifying powers ↔ R6 gates (R-40): for each on-chain path,
+    `pausable ∈ R6` iff some held pause/freeze_asset/blacklist_address row's A7
+    scope includes the path's R10 contract or its governing freezer."""
+    freezers = {g.address: g.freezer_address for g in b.gsms}
+    rows = [r for r in b.admin_surface
+            if r.power in ("pause", "freeze_asset", "blacklist_address")
+            and r.holder_type != "none"]
+    bad, onchain = [], 0
+    for i, p in enumerate(b.redemption_paths):
+        if p.r1_path == "none":
+            continue
+        onchain += 1
+        prov = p.r10_provenance
+        contract = prov.source_contract if isinstance(prov, ContractRead) else prov.contract
+        targets = {contract, freezers.get(contract)} - {None}
+        matched = [r.power for r in rows if targets & set(r.scope)]
+        marked = any(g["kind"] == "pausable" for g in p.r6_gates)
+        if marked != bool(matched):
+            bad.append(f"path {i} R10 {contract}: pausable {'marked' if marked else 'unmarked'}"
+                       f", matching rows {matched or 'none'}")
+    if bad:
+        raise Level3("DET-72: " + "; ".join(bad))
+    return (f"{onchain} on-chain paths consistent" if onchain
+            else "no on-chain redemption path (R1 = none)")
 
 
 def run_tree_checks(bundle: Bundle, tree: VerifiabilityTree) -> list[GateResult]:
@@ -1771,11 +2027,17 @@ CHECKS: list[Check] = [
     Check("DET-66", "S1", 3, det_66),
     Check("DET-68", "S1", 3, det_68), Check("DET-08", "S1", 2, det_08),
     Check("DET-10", "S1", 3, det_10),
+    Check("DET-29a", "S1", 3, det_29a),                # B-8, P-7.03's recorded readings
     Check("DET-82", "S1", 3, det_82),
     Check("DET-52", "S1", 3, det_52),
     # S2 - the tree (P-5.01 R6); Level 2 = the report is not published.
     Check("DET-14", "S2", 2, det_14), Check("DET-19", "S2", 2, det_19),
     Check("DET-70", "S2", 2, det_70), Check("DET-11", "S2", 2, det_11),
+    # B-8 (P-7.01 R1): buckets (a)+(b) at S2, consumer "tree", bundle + tree only.
+    Check("DET-06", "S2", 2, det_06), Check("DET-16", "S2", 2, det_16),
+    Check("DET-22", "S2", 2, det_22), Check("DET-28", "S2", 2, det_28),
+    Check("DET-34", "S2", 2, det_34), Check("DET-67", "S2", 2, det_67),
+    Check("DET-72", "S2", 2, det_72),
     # S2 - the stress module (P-6.04, B-2). Same stage, different consumer.
     Check("DET-24", "S2", 2, det_24, "stress"),
     Check("DET-29bc", "S2", 2, det_29bc, "stress"),

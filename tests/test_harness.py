@@ -74,6 +74,11 @@ def a_ctx(**kw):
         ],
         last_event=last_event,
         frozen_set_members={FROZEN_POOL},
+        frozen_set={"chain_id": 1, "freeze_date": "2026-09-04", "freeze_block": 25905210,
+                    "freeze_discovery_total": 86180625, "freeze_coverage": "0.9860",
+                    "scope": {"par_eligibility": "paired_asset class + numeraire"},
+                    "pools": [{"address": FROZEN_POOL, "tvl_at_par": 48308600,
+                               "stabilizer": True}]},
         last_run_ratio={FROZEN_POOL: Decimal("0.5605")},
     )
     base.update(kw)

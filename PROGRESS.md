@@ -7574,3 +7574,64 @@ Status: IN PROGRESS (opened 2026-09-13, P-7.01).
   R9's "Target `len(CHECKS)` **94** (52 + 19 + 4 + 1 + 2 + 6 + R1's 10)" counts DET-74 twice — it is one of the 19 S3 rows (rubric l.298) and one of R1's ten — so the target is **93**, R1's buckets (a)+(b) register **9** rows — 8 at B-8, DET-71 at B-9 with its evidence read, and DET-74 registers with the S3 rows; P-7.01 stands unedited.
 - **Artifacts:** `PROGRESS.md`. No code change.
 - **Follow-ups spawned:** none.
+
+## P-7.03 — B-8: eight rows registered, five failing on today's data; DET-71 to B-9
+
+- **Date:** 2026-09-13
+- **Type:** implementation
+- **Confirmed by:** Amin
+- **Content:**
+  **PLAN NOTE.** B-8 runs before C3+ — no signed value is needed for buckets
+  (a)+(b); C3+ applies when Amin's values are back; B-9 follows.
+  **REGISTERED, `len(CHECKS)` 52 → 60.** S2, Level 2, `consumer = "tree"`,
+  `fn(bundle, tree)`: DET-06, 16, 22, 28, 34, 67, 72. S1, Level 3: `DET-29a`,
+  over `ctx["frozen_set"]` parsed in `run.execute` (the harness does no I/O).
+  Bucket (a) replays its assembly-time enforcement (DET-28 over `gho._class_of`
+  / `_boxed`; DET-34 over `freeze.classify_exclusions`, with P-3.24 R-4's
+  `self_referential_wrapper`). Named defaults: DET-06(b) as the aggregate
+  identity Σ net − Σ surplus = Σ gross − Σ stablecoin_in_position, (c)'s base-CR
+  replay dormant until B-10; the token's address from `supply.reads.total_supply`;
+  DET-67's `R8_CONDITION_TEXT {system_tcr: TCR<MCR}`; DET-22's net-position line
+  is DET-05(c)'s.
+  **RESULTS, no artifact rewritten (21 hashes equal):** crvUSD 8/8; `DET-29a`
+  passes crvUSD and LUSD and returns T-20 Level 1 on GHO. **Failing:** GHO
+  DET-28 (boxed nodes carry no price read, no feed address), DET-67
+  (`enforceable_unless_paused` lacks " (see R7)"), DET-72 (pause/freeze_asset
+  scopes are the Aave Pools); LUSD DET-06 (`surplus_sum` = CollSurplusPool
+  `getETH()` 1,626.00, `lusd.py:351`), DET-67 (`enforceable_unless_[TCR<MCR]`;
+  R6 lacks DET-66's ruled `capacity_limited`, which `det_66` does not assert).
+  **RULINGS (Amin's, as stated).** (1) The five adapter fixes — DET-06 LUSD
+  `surplus_sum` → 0; DET-28 GHO boxed price read + feed address; DET-67 GHO `r8`
+  and LUSD R6 strings; DET-72 GHO pause/freeze scopes = GSMs and freezers — join
+  B-9's declared diff. DET-28 premise, a recorded reading: R-14(b)'s "Chainlink
+  price" is the price the protocol consumes, AaveOracle's CAPO wrapper over the
+  Chainlink feed; `feed_address` = the wrapper, read = `getAssetPrice`. No
+  amendment. (2) DET-29(a) option (i), a recorded reading: `tvl_at_par` is the
+  set file's `freeze_tvl` (`PoolRow.freeze_tvl` already carries it); GHO's
+  waiver reason counts as the literal with the elaboration. Registered now;
+  GHO carries T-20 Level 1 each run by the rubric. (3) DET-71 option (ii),
+  registered at B-9 with the fix: `lusd.py` emits A6 on all nine rows and an
+  explicit `owner()` read at `run_block` per contract. **The slot the eight A8
+  strings read:** storage slot 0 (`OWNER_SLOT`, `lusd.py:65`) of TroveManager
+  only (`lusd.py:277`), never asserted zero; its word `0x…df9eb223bafbe5…` is
+  the ActivePool address — the contract the bundle's own `total_debt` and
+  `collateral` reads call — so slot 0 is LiquityBase's pool pointer, not
+  `_owner`.
+  **TESTS 183 → 194:** `tests/test_b8.py` (result table on the three artifacts,
+  one mutation per S2 row, `_derive_r8` = the rubric's three verified strings,
+  `DET-29a` on the three set files and two fail-closed cases);
+  `test_tree.py`'s routing fixture LUSD → crvUSD, LUSD now failing DET-06;
+  `test_harness.py`'s `a_ctx` gains `frozen_set`. Ruff clean.
+  **AS-COUNTED.** Builder: the addendum put the S3 entry DET-74 in bucket (b)
+  and summed 62; design layer carried it into R9's 94 — P-7.01-A1. Builder: the
+  C3+ draft's LUSD feed address `0x5f4ec3df…8419` was written from recall, then
+  verified equal to `oracle_rows[0].feed_or_source`. Builder (Step 4): A8's
+  `OWNER_SLOT` (`lusd.py:65`) read TroveManager's slot 0, LiquityBase's
+  ActivePool pointer, not `_owner`; the no-owner limb of LUSD's admin surface
+  was unevidenced until B-9's owner() read.
+- **Artifacts:** `src/factory/validate/harness.py` · `src/factory/run.py`;
+  `tests/test_b8.py` (new) · `tests/test_tree.py` · `tests/test_harness.py`;
+  `PROGRESS.md`. No adapter, config, `docs/context/` or artifact change.
+- **Follow-ups spawned:** B-9's declared diff gains the five fixes (ruling 1)
+  and DET-71's registration with its A6 and `owner()` reads (ruling 3); C3+ on
+  Amin's values.

@@ -83,11 +83,14 @@ def test_det70_qualifier_replays_and_a_null_bucket_fails():
 
 
 def test_a_tree_with_a_failing_check_goes_to_rehearsal(tmp_path):
-    b, t = _tree("LUSD", 25955393)
+    # B-8: crvUSD at 25963950 passes every tree-consumer row; LUSD, used here
+    # until B-8, now fails DET-06 on its `surplus_sum` and routes to rehearsal
+    # on its own (P-7.01 R1 registers failing rows failing).
+    b, t = _tree("crvUSD", 25963950)
     path, ok = emit(tmp_path, b, t)
-    assert ok and path == tmp_path / "out/trees/LUSD/25955393.json"
+    assert ok and path == tmp_path / "out/trees/crvUSD/25963950.json"
     broken = t.model_copy(update={"root": t.root.model_copy(update={"backing_value": 1})})
     path, ok = emit(tmp_path, b, broken)
-    assert not ok and path == tmp_path / "out/rehearsal/LUSD/tree-25955393.json"
+    assert not ok and path == tmp_path / "out/rehearsal/crvUSD/tree-25963950.json"
     written = VerifiabilityTree.model_validate_json(path.read_text(encoding="utf-8"))
     assert {r.entry_id: r.result for r in written.checks}["DET-14"] == "fail"

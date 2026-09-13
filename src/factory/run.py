@@ -588,6 +588,9 @@ def execute(repo: pathlib.Path, rpc_url: str, token: str) -> dict:
            # OUTSIDE the bundle so the gate compares the emitted table against
            # the signed set file and the prior run, never against itself.
            "frozen_set_members": fs_members(cfg.frozen_set_path),
+           # DET-29(a) (B-8): the set file's own properties, parsed here so
+           # the harness stays free of file I/O.
+           "frozen_set": json.loads(cfg.frozen_set_path.read_text(encoding="utf-8")),
            "last_run_ratio": last_run_ratios(repo / BUNDLES, token,
                                              cfg.frozen_set_path,
                                              bundle.header.run_block)}
