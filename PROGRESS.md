@@ -46,7 +46,7 @@ Status: DONE (opened 2026-09-08; done-condition met 2026-09-11, P-4.20). Record:
 Status: DONE (opened 2026-09-11; done-condition met 2026-09-11, P-5.04). Record: src/factory/tree.py; out/trees/.
 
 ## Step 6 — CDP stress module
-Status: IN PROGRESS (opened 2026-09-12).
+Status: DONE (opened 2026-09-12; done-condition met 2026-09-13, P-6.12).
 
 ## P-3.01 — Block 0.1 anomaly dispositions; Python stack ruling; checksum task
 - **Date:** 2026-09-03
@@ -7245,3 +7245,96 @@ Status: IN PROGRESS (opened 2026-09-12).
   at 25963961: wstETH **8200 / 8300 / 10600** bps, verified pinned with nothing
   on the record to compare to); the B-5 report's 37-pair table printed with
   values; DET-43's twelve-value curves; then R17's done-condition and close.
+
+## P-6.12 — Step 6 closed: DET-43's curves and the M2 cells corrected; the spot-check generator; A-13–A-15 signed; R17 met
+
+- **Date:** 2026-09-13
+- **Type:** implementation
+- **Confirmed by:** Amin
+- **Content:**
+  **DET-43's TWELVE VALUES.** Three FOUR-point curves per insulated token on
+  DET-31's `S_POINTS` grid, as `assumptions.m2_curves = {target: {s: depth}}`
+  (field widened to `dict[str, Any]`; twelve values flattened into prose are not
+  checkable). At s = 0.005/0.01/0.02/0.05 — crvUSD t0.97 16,594,498 / 18,177,430
+  / 19,309,370 / 20,337,883, t0.93 15,778,813 / 17,343,849 / 18,455,179 /
+  19,464,665, t0.88 14,789,805 / 16,301,561 / 17,386,079 / 18,372,756; LUSD
+  t0.97 7,227,196 / 7,986,248 / 8,536,113 / 9,037,655, t0.93 6,913,226 /
+  7,645,837 / 8,176,549 / 8,660,620, t0.88 6,520,713 / 7,220,270 / 7,727,037 /
+  8,189,267. **GHO has none** — DET-43 needs no stable node and `gsm_count = 0`.
+  **R-B7.1 — A DEFECT OF MINE, CAUGHT BY THE WIDENED REPLAY.** Every Member-2
+  cell carried the **UNSHOCKED** depth, identical across all three targets, so
+  the depeg target had no effect on the exit side of the cells whose whole
+  scenario is that depeg — while JOINT already used the recomputed curve for the
+  same target. A defect against DET-43's letter, carried from B-4b. Now
+  `exit_depth_cell` is the recomputed depth at the cell's target at s = 2%, LP
+  haircut on top. **Order named:** the withdrawal happens FIRST at the pool's
+  true rates — LP flight is a physical removal, not a repricing. **crvUSD 7
+  cells moved, LUSD 10** (crvUSD's lp60 cells were already 0 under R-B4.14, and
+  shocking a zero leaves a zero): M2-t0.88-lp0 19,949,655.92 → 17,386,079.28;
+  LUSD M2-t0.97-lp0 8,805,760.10 → 8,536,113.35. Asserted over all 47 / 23
+  cells: **`m1`, `m2`, `m3.ratio` and `m3.forced_sell_volume` identical to the
+  byte** — the ratio stays exactly 0, the numerator being 0 by construction.
+  Leaf diff vs `HEAD`: crvUSD 14 added / 1 removed / 16 changed (14 exit-depth
+  leaves + DET-43's row + hash); LUSD 14 / 1 / 22; **GHO 193 / 0 / 1 — its hash
+  ONLY**, no cell, metric, depth or read, exactly as R-B7.1 said. Five LP-0
+  replays per token pass; the "LP 0" qualifier is why haircut cells are not
+  compared.
+  **R-B7.2 — THE RUBRIC EDIT, SIGNED.** A-13 (`r_j` carries the deployed
+  regulator's `+1` denominator guard), A-14 (`EMA_lag`'s window is the bundle's
+  `ema_window_s`; no `MA_EXP_TIME` getter exists), A-15 (zero depth with a
+  positive numerator → undefined, rendered ∞, +∞ along the LP axis) inserted
+  after A-12 as single lines. The header's claim that on-disk bytes and hash
+  input are identical on every platform is replaced by "the stamp is computed
+  over LF-normalised bytes; on-disk line endings (CRLF on Windows) do not
+  affect it" — **the file IS CRLF on disk** (`text: set`), so the old claim was
+  false here. Applied byte-level, file uniformly CRLF: 84,619 → 85,412 bytes, 4
+  insertions / 1 deletion, **stamp `c5846eaa` → `94c0b20a`** (DET-87's
+  `rubric_change` evidence). **No `intake_trigger` is owed:** DET-77's condition
+  is the sheet version and the rubric checksum is not a sheet field; `config/`
+  shows no modification at all and the Governing-artifacts line is unchanged.
+  **THE GENERATOR, FINAL FORM.** Expected values come from the ARTIFACT, never
+  a fresh read — filling an expected column through the adapter's own endpoint
+  verifies replay, not provider honesty (binding 1) — so `Mechanism` gained
+  `reserve_params` and `emode_params`, 193 leaves on GHO. **Amin's independent
+  hand read confirms it: wstETH 8200 / 8300 / 10600 bps**, matching row one to
+  the digit; row two is the same asset on another instance at 7850 / 8100 —
+  which is why the model reads per (instance, reserve). `m1.pre` is a hand sum
+  on all three: LUSD's 72 troves; crvUSD's nine markets at **75,627,383.89 /
+  76,084,870.38 = 0.9939871556…**, the headline cell exactly (the bundle's
+  per-market sums reproduce the raw dump to the wei). Also carried: `i`/`j` in
+  every `get_dy`, the pinned-read note, the **padded-buffer note** from Amin's
+  LUSD run (old Vyper returns ~4 KB; decode the first 32-byte word), `bad_debt`
+  in base units. Sheets **81 / 141 / 141**.
+  **R17 MET, THREE ROWS.** Per token: promoted artifact; `sheet_hash` == mirror;
+  `stale_sheet` false; cell set 47 / 47 / 23; **25/25**; DET-31 ground truth
+  within ε; R-29's gates; DET-43; DET-44's IDs; hand-verified sheet — **crvUSD
+  2026-09-13, GHO 2026-09-13, LUSD 2026-09-13** (LUSD's `get_dy` returned a
+  padded buffer whose first word matched to the wei). Two precisions,
+  as-measured: DET-31's ground truth is on the **K90** pools (crvUSD 3 of 5 F
+  pools; depth is computed over K90), and `--allow-stale-sheet` cannot reach a
+  promotion because `emit` requires `not stale_sheet` for `ok`. Final hashes
+  **crvUSD 1617c079 · GHO f5529480 · LUSD 1db98f26**; `len(CHECKS)` **52** (27
+  tree + 25 stress); **178 tests**, ruff clean.
+  **QUEUE (P-4.01):** #24 the regulator's `set_parameters` holder — DET-68 row
+  accuracy; #25 DET-75's field-existence clause unimplemented; #26 FR-14's
+  mirror rows name absent bundle fields; #27 Chainlink round-history reference
+  points; #28 DET-52's stale-date branch has no trigger row. **#29 is nothing**
+  — the CRLF claim is fixed under R-B7.2. A-9 … A-15 applied; DET-32 to Step 7.
+  **WHAT STEP 7 INHERITS.** Three promoted stress artifacts with their trees and
+  bundles as the ONLY number source, the LLM writing prose around them and
+  originating nothing; the S3 checks and the judge loop (generate → evaluate →
+  one revision → ship or quarantine) on green deterministic predecessors;
+  DET-32's off-venue share, parked at T-22's literal and owed its P5 pointer;
+  DET-53's bias table, on the sheets and read by no code; `member2_target`
+  consumption in prose; and the three spot-check sheets as the reader's
+  verification path — the one place a reported number traces to a pinned call
+  without re-running the pipeline.
+- **Artifacts:** `src/factory/stress.py`, `src/factory/lusd_cells.py`,
+  `src/factory/gho_cells.py`, `src/factory/schema.py`,
+  `src/factory/spotcheck.py`, `src/factory/validate/harness.py`,
+  `docs/context/rubic_v1.md` (stamp **94c0b20a**), `CLAUDE.md`,
+  `out/stress/crvUSD/25963950.json` (**1617c079**),
+  `out/stress/GHO/25963961.json` (**f5529480**),
+  `out/stress/LUSD/25963959.json` (**1db98f26**).
+- **Follow-ups:** Step 7 — report generation and the evaluation loop, per the
+  inheritance paragraph above.

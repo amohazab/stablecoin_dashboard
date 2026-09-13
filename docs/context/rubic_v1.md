@@ -2,7 +2,7 @@
  
 **Status:** v1 FINAL — Step 2 CLOSED 2026-09-03; self-test (a)-list empty.
 **Date:** 2026-09-03.
-**Checksum algorithm (declared 2026-09-03):** SHA-256, first 8 hex digits, over the raw bytes of the LF-normalized file (line endings pinned by `.gitattributes`, so on-disk bytes and hash input are identical on every platform).
+**Checksum algorithm (declared 2026-09-03):** SHA-256, first 8 hex digits, over the raw bytes of the LF-normalized file. The stamp is computed over LF-normalised bytes; on-disk line endings (CRLF on Windows) do not affect it.
  
 **Governing artifacts (checksums):** `archetype-memo-1-cdp.md` 17553d7b · `intake-sheets-cdp.md` ad7c35c2 · `phase-b-checklist.md` 54620383 — all at status "Phase B COMPLETE — 2026-09-02".
  
@@ -472,6 +472,9 @@ All rows have a computing owner. Non-computable properties are in Appendix A. Ju
 - **A-10** §6.2.5 / DET-50 counts §5.10 venue contributions in the exit-depth share, the boxed asset resolving through §4.3; and the share is measured at the fill block on the set in force, not "at freeze" — no depth exists at a freeze block (P-6.01 R6, R7; P-3.09-A1).
 - **A-11** §3b / DET-24's comparand is the recorded scope condition, `pool_composition_at_block` having no bundle field (P-6.01 R-B2.5).
 - **A-12** §6.3 H1 / DET-45: the regulator's `is_killed` is global; the flag applies to every keeper (P-6.01 R8).
+- **A-13** §6.3 H1 / DET-45: `r_j` carries the deployed regulator's `+1` denominator guard — `get_ratio` is `debt * ONE // (1 + debt + balance)`, not `debt / (debt + balance)`; the guard is in the deployed source and the model ports it rather than the algebraic form (P-6.01 R-B4.2, P-6.08).
+- **A-14** §7.2 / DET-44: `EMA_lag`'s window is the bundle's `ema_window_s` — the transitive maximum over an oracle's constituent pools — because no `MA_EXP_TIME` getter exists on the deployed AMMs to read (P-3.31; P-6.01 R-B4.8, P-6.09).
+- **A-15** §6.2.7 m3 / DET-41: at zero exit depth with a positive numerator the ratio is undefined, stored `null`, rendered ∞, and treated as +∞ along the LP axis so R-29's monotonicity holds by ruling rather than by luck (P-6.01 R-B4.14, P-6.09).
 ## 6. Evaluation-loop contract
  
 1. Deterministic stages run in order S0 → S1 → S2 → S3; a failure at a stage stops at that stage's consequence (Level 3 / Level 2); S3 data-consistency failures are Level 2; DET-13 runs last.

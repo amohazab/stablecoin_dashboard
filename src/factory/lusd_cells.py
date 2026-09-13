@@ -391,10 +391,18 @@ def build(b, cfg, rpc, raw_bytes, mech, states, numeraire, venues, reads, _cr,
     # IS the shocked stable: the numerator is zero by construction and the ratio
     # is EXACTLY zero, not a rounded one.
     base = crash_path(troves, base_price, mcr, sp_balance)
-    curves = {str(t): shocked_depth(states, numeraire, k90, t) for t in TARGETS}
+    # DET-43's three FOUR-point curves, on DET-31's own s grid (B-7).
+    from factory.stress import S_POINTS
+    curves = {str(t): {str(s): shocked_depth(states, numeraire, k90, t,
+                                             Decimal(0), s)
+                       for s in S_POINTS}
+              for t in TARGETS}
 
     def insulated(cid, member, target, lp):
-        depth = depth_after_flight(states, numeraire, k90, lp, Decimal("0.02"))
+        # R-B7.1: the paired stable AT ITS TARGET, LP haircut on top. At lp = 0
+        # this is DET-43's recomputed curve for that target, which is what the
+        # entry's replay asserts against.
+        depth = shocked_depth(states, numeraire, k90, target, lp, Decimal("0.02"))
         return Cell(
             id=cid, member=member, shock=None, lst=None, lp=lp, target=target,
             m1=MetricOne(
@@ -431,7 +439,7 @@ def build(b, cfg, rpc, raw_bytes, mech, states, numeraire, venues, reads, _cr,
     shock, target = Decimal("-0.50"), Decimal("0.93")
     jprice = int(Decimal(base_price) * (Decimal(1) + shock))
     jres = crash_path(troves, jprice, mcr, sp_balance)
-    jdepth = curves[str(target)]
+    jdepth = curves[str(target)]["0.02"]
     jbad = jres["bad_debt"]
     cells.append(Cell(
         id="JOINT", member="JOINT", shock=shock, lst=Decimal(0), lp=Decimal(0),
@@ -483,7 +491,7 @@ def build(b, cfg, rpc, raw_bytes, mech, states, numeraire, venues, reads, _cr,
         "oracle_assumption": ORACLE_LITERAL,
         "engagement_thresholds": notes["engagement"],
         "structural_insulation": INSULATION_LITERAL,
-        "m2_curves": "; ".join(f"{k}: {v}" for k, v in sorted(curves.items())),
+        "m2_curves": curves,
     }
 
 

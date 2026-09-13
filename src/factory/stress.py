@@ -746,17 +746,44 @@ def _depth_after_flight(states: dict, numeraire: str, k90: list[str],
 
 
 def _shocked_depth(states: dict, numeraire: str, k90: list[str],
-                   target: Decimal) -> int:
-    """DET-43's Member-2 curve: depth at s = 2% recomputed in par terms against
+                   target: Decimal, s: Decimal = Decimal("0.02")) -> int:
+    """DET-43's Member-2 curve: depth at `s` recomputed in par terms against
     the SHOCKED paired asset. R-B2.6 evaluates the bound in rate-scaled space,
     so a paired asset worth `target` is its rate scaled by `target` — one
-    change, in the one place par enters."""
-    s_num = int((Decimal(1) - Decimal("0.02")) * S_DEN)
+    change, in the one place par enters.
+
+    B-7: `s` defaults to 2% because that is the point the cells consume, but
+    the entry wants the whole four-point curve per target, so the bound is a
+    parameter rather than a constant.
+    """
+    return _shocked_depth_after_flight(states, numeraire, k90, target,
+                                       Decimal(0), s)
+
+
+def _shocked_depth_after_flight(states: dict, numeraire: str, k90: list[str],
+                                target: Decimal, lp: Decimal,
+                                s: Decimal = Decimal("0.02")) -> int:
+    """R-B7.1: a Member-2 cell's exit depth — the paired stable AT ITS TARGET,
+    with the cell's LP-flight haircut applied on top (DET-41).
+
+    ORDER, and why. The withdrawal happens first at the pool's true rates: LP
+    flight is a physical removal of the paired asset, not a repricing, and a
+    depositor leaving does not leave at the depegged rate. The scenario's price
+    then applies to what remains. Reversing the two would haircut a pool that
+    had already been marked down and understate both.
+
+    At `lp = 0` this IS DET-43's recomputed curve, which is why the entry's
+    replay is against the LP-0 cells.
+    """
+    s_num = int((Decimal(1) - s) * S_DEN)
     total = 0
     for addr in k90:
         p = states[addr]
         i = p.coins.index(numeraire)
         j = 1 - i
+        if lp > 0:
+            amount = int(Decimal(p.total_supply) * lp)
+            _dy, p = withdraw_one_coin(p, amount, j)
         rates = list(p.rates)
         rates[j] = int(Decimal(rates[j]) * target)
         total += pool_depth(p.__class__(**{**p.__dict__, "rates": tuple(rates)}),
@@ -903,20 +930,32 @@ def build_cells(b, report_bits: dict) -> tuple[list, list, dict]:
                                                          res["eligible_debt"])
 
     # --- Member 2 + compound + joint: DET-43, crvUSD is structurally insulated -
-    curves: dict[str, int] = {}
-    for target in TARGETS:
-        curves[str(target)] = _shocked_depth(states, numeraire, k90, target)
+    # DET-43 wants three FOUR-point curves — twelve values — not three scalars.
+    # The s grid is DET-31's own `S_POINTS`, so the two curves are comparable
+    # point for point; the cells still consume the s = 2% entry.
+    curves: dict[str, dict[str, int]] = {
+        str(target): {str(s): _shocked_depth(states, numeraire, k90, target, s)
+                      for s in S_POINTS}
+        for target in TARGETS}
+    # R-B7.1: a Member-2 cell's venue set is priced with the paired stable AT
+    # ITS TARGET - the cell's own scenario - not at par. Until B-7 these cells
+    # carried the UNSHOCKED depth, identical across all three targets, while
+    # the JOINT cell used the recomputed curve for the same target: a defect
+    # against DET-43's letter, carried from B-4b and caught by the widened
+    # replay. `m3.ratio` stays exactly 0 either way - the numerator is 0 by
+    # construction (DET-43) - so only the depth each cell reports moves.
     for target in TARGETS:
         for lp in LPS:
-            depth, _ = _depth_after_flight(states, numeraire, k90, lp)
+            depth = _shocked_depth_after_flight(states, numeraire, k90, target, lp)
             cid = _cell_id("M2", target=target, lp=lp)
             cells.append(_insulated_cell(cid, "M2", target, lp, depth, base_value,
                                          base_debt, supply_ruled, m4_for, ema,
                                          counterfactuals))
     cells.append(_insulated_cell("M2-compound", "M2_COMPOUND", Decimal("0.93"),
                                  Decimal(0),
-                                 _depth_after_flight(states, numeraire, k90,
-                                                     Decimal(0))[0],
+                                 _shocked_depth_after_flight(
+                                     states, numeraire, k90, Decimal("0.93"),
+                                     Decimal(0)),
                                  base_value, base_debt, supply_ruled, m4_for, ema,
                                  counterfactuals))
     # --- the joint cell: -50% x 0.93, LST 0, LP 0 (memo §6.2.6) --------------
@@ -931,7 +970,7 @@ def build_cells(b, report_bits: dict) -> tuple[list, list, dict]:
                   / Decimal(ONE_E18)) for m in oracle}
     res = run_cell(positions, prices, shocked, discount, cap, bandxy)
     pre_v = sum(p.collateral * shocked[p.market] // ONE_E18 for p in positions)
-    depth = curves[str(target)]
+    depth = curves[str(target)]["0.02"]
     bad = res["bad_debt"]
     m4 = m4_for("JOINT", Decimal(0), {
         "effective": mech.effective_headroom, "naive": mech.naive_headroom,
@@ -1053,8 +1092,7 @@ def build_crvusd_cells(b, cfg, rpc, raw_bytes, mech, states, numeraire, frozen,
                    # which the check replays against each cell's exit depth.
                    "structural_insulation":
                        "structurally insulated; exposed through exit venues only",
-                   "m2_curves": "; ".join(
-                       f"{k}: {v}" for k, v in sorted(notes["curves"].items()))}
+                   "m2_curves": notes["curves"]}
     if "undefined_ratio" in notes:
         assumptions["undefined_ratio"] = notes["undefined_ratio"]
     if "ema_pairs" in notes:
@@ -1162,14 +1200,17 @@ def fold(inputs: dict, rpc=None) -> StressReport:
                 mech_reads, _cr, depth_after_flight, ks["90"])
             mech = mech.model_copy(update={"h2_routing": {
                 a: r["routing"] for a, r in notes["routing"].items()},
-                "reads": mech_reads})
+                "reads": mech_reads,
+                "reserve_params": notes["reserve_params"],
+                "emode_params": notes["emode_params"]})
         else:                              # LUSD: a trove book and a pool (B-6)
             from factory.lusd_cells import build as build_lusd
             ks = k_subsets([r for r in b.pools if r.in_frozen_set])
             mech_reads = {}
             cells, refs, notes, assumptions = build_lusd(
                 b, cfg, rpc, inputs["raw"], mech, states, numeraire, venues,
-                mech_reads, _cr, depth_after_flight, _shocked_depth, ks["90"])
+                mech_reads, _cr, depth_after_flight,
+                _shocked_depth_after_flight, ks["90"])
             mech = mech.model_copy(update={"reads": mech_reads})
     return StressReport(
         header=StressHeader(

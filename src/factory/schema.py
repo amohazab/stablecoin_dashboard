@@ -1056,6 +1056,14 @@ class Mechanism(BaseModel):
     reads: dict[str, Provenance] = {}                 # B-4a's own provenance
     h2_routing: dict[Address, str] = {}               # GHO, B-5
     binding_side: dict[str, str] = {}
+    # B-7: the per-(instance, reserve) risk parameters and the live eMode
+    # categories, VALUES not just provenance. `mechanism.reads` records that the
+    # call was made; the spot-check sheet's expected column needs what it
+    # returned, and it must come from the pipeline's own state - re-reading
+    # through the adapter's endpoint to fill an expected column would verify
+    # replay rather than provider honesty (spotcheck binding 1).
+    reserve_params: dict[str, dict[str, int]] = {}    # GHO
+    emode_params: dict[str, int] = {}                 # GHO
     sp_balance: int | None = None                     # LUSD, B-6
     base_rate: int | None = None
     redemption_capacity: int | None = None
@@ -1131,7 +1139,10 @@ class StressReport(BaseModel):
     mechanism: Mechanism
     cells: list[Cell] = []
     reference_points: list[dict[str, Any]] = []       # DET-48, B-4
-    assumptions: dict[str, str] = {}                  # DET-57, B-7
+    # DET-57. Values are literals except `m2_curves`, which DET-43 requires as
+    # three four-point curves — `{target: {s: depth}}` — so the type is widened
+    # to Any rather than flattening twelve values into prose (B-7).
+    assumptions: dict[str, Any] = {}
     checks: list[GateResult] = []
     flags: list[str] = []
 

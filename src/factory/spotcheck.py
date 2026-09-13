@@ -582,6 +582,97 @@ def _bad_debt_source(bundle) -> str:
             "not the receiving troves' post-CR")
 
 
+def _reserve_table(report) -> list[str]:
+    """B-7: every (instance, reserve) pair's published risk parameters, so a
+    hand read of `getReserveConfigurationData` has something to compare to.
+
+    The values come from the promoted artifact, never from a read made here:
+    an expected column filled by re-reading through the adapter's own endpoint
+    would verify replay, not provider honesty (binding 1).
+    """
+    p = report.mechanism.reserve_params
+    if not p:
+        return []
+    out = ["", f"## 2c. The {len(p)} (instance, reserve) pairs — expected values",
+           "",
+           "`getReserveConfigurationData(asset)` on the instance's data "
+           "provider returns ten words; words 2, 3 and 4 are **LTV**, "
+           "**liquidation threshold** and **liquidation bonus**, all in bps. "
+           "The price is that instance's own `AaveOracle.getAssetPrice(asset)` "
+           "at 8 dp (DET-81). Word 1 is `decimals`.", "",
+           "| instance | reserve | dec | LTV | liq. threshold | bonus | price (8dp) |",
+           "|---|---|---|---|---|---|---|"]
+    for key, row in sorted(p.items()):
+        inst, asset = key.split(":", 1)
+        out.append(f"| `{inst[:10]}` | `{asset}` | {row['decimals']} | "
+                   f"{row['ltv']} | **{row['liquidation_threshold']}** | "
+                   f"{row['liquidation_bonus']} | {row['price']} |")
+    em = report.mechanism.emode_params
+    if em:
+        out += ["", f"The {len(em)} live eMode categories. Where a position "
+                    "claims one, ITS liquidation threshold replaces the "
+                    "per-reserve value above:", "",
+                "| instance | category | liq. threshold (bps) |", "|---|---|---|"]
+        for key, lt in sorted(em.items()):
+            inst, cat = key.split(":", 1)
+            out.append(f"| `{inst[:10]}` | {cat} | **{lt}** |")
+    return out
+
+
+def _market_subtotals(bundle, report) -> list[str]:
+    """B-7: `m1.pre` as a hand sum of at most 40 rows.
+
+    LUSD prints its whole trove book; crvUSD's and GHO's books are thousands of
+    positions, so the sum is taken one level up — per market for crvUSD (nine
+    rows, each with the market's own oracle), per reserve for GHO (34 rows,
+    each with its own price and decimals).
+    """
+    from decimal import Decimal as D
+
+    head = next((c for c in report.cells if c.id == "M1-s50-d0-lp0"), None)
+    if head is None:
+        return []
+    E18 = D(10 ** 18)
+    ll = report.mechanism.llamma
+    if ll is not None:
+        out = ["", "## 2b. `m1.pre` as a hand sum — per market", "",
+               f"Nine markets, each at its own `price_oracle()` shocked by "
+               f"{head.shock}. Collateral is the bundle's "
+               f"`external_collateral_sum` in the asset's own decimals.", "",
+               "| market | sym | dec | collateral | oracle | shocked | value | net debt |",
+               "|---|---|---|---|---|---|---|---|"]
+        tv, td = 0, 0
+        for m in sorted(bundle.markets, key=lambda x: -x.gross_debt_sum):
+            o = ll.markets.get(m.amm_address)
+            if o is None:
+                continue
+            sh = int(D(o.oracle) * (D(1) + head.shock))
+            coll18 = m.external_collateral_sum * 10 ** (18 - m.decimals)
+            v = coll18 * sh // 10 ** 18
+            tv += v
+            td += m.net_debt_sum
+            out.append(f"| `{m.address[:10]}` | {m.symbol} | {m.decimals} | "
+                       f"{D(m.external_collateral_sum) / D(10 ** m.decimals):,.6f} | "
+                       f"{D(o.oracle) / E18:,.2f} | {D(sh) / E18:,.2f} | "
+                       f"{D(v) / E18:,.2f} | {D(m.net_debt_sum) / E18:,.2f} |")
+        out += [f"| **total** | | | | | | **{D(tv) / E18:,.2f}** | "
+                f"**{D(td) / E18:,.2f}** |", "",
+                f"`m1.pre.ratio` = {D(tv) / E18:,.2f} / {D(td) / E18:,.2f} = "
+                f"**{head.m1.pre.ratio}**."]
+        return out
+    if report.mechanism.reserve_params:
+        return ["", "## 2b. `m1.pre` as a hand sum — per reserve", "",
+                "GHO's book is 2,160 positions across three instances; the sum "
+                "is taken per reserve from §2c's prices and decimals, with the "
+                f"cell's factor {head.shock} on every volatile and tail "
+                "reserve and 1 on the stables (DET-39, R-B5.1). The per-reserve "
+                "collateral totals are in `out/raw/<block>.json`, which is "
+                "gitignored and regenerable at `run_block` (P-3.05).", "",
+                f"`m1.pre.ratio` = **{head.m1.pre.ratio}**; `m1.post.ratio` = "
+                f"**{head.m1.post.ratio}**."]
+    return []
+
+
 def _m2_source(bundle) -> str:
     if bundle.gsms:
         return "boxed holdings + the attributed slice"
@@ -813,7 +904,9 @@ def write_stress(bundle, report, out_dir: pathlib.Path) -> pathlib.Path:
             "Member-1 cells carry `redemption_capacity = 0, reason = \"crash "
             "path excluded\"`, which is the entry's own wording.",
         ]
+    lines += _market_subtotals(bundle, report)
     lines += _trove_table(bundle, report, out_dir)
+    lines += _reserve_table(report)
     # The Member-2 headline and its counterfactual pair. For GHO this is the
     # cell that carries the report's largest finding — the GSM leaving the
     # venue set — so it is printed in full rather than left to the artifact.
@@ -852,6 +945,12 @@ def write_stress(bundle, report, out_dir: pathlib.Path) -> pathlib.Path:
         f"{bundle.header.run_block}** — the same block the bundle was assembled "
         "at (R-13). Pin the block inside the JSON-RPC body; a `tag` query "
         "parameter is silently ignored by some proxies (P-3.39).",
+        "",
+        "**Decoding note.** Pools compiled with old Vyper (0.2.8 and earlier) "
+        "return a padded buffer rather than a single word — LUSD's "
+        "`0xed279fdd` answers `get_dy` with ~4 KB. **Decode the first 32-byte "
+        "word**; the rest is padding. Verified by the analyst on 2026-09-13, "
+        "whose first word matched this sheet to the wei.",
         "",
         f"The depth m3 divides by is the sum over K-subset(0.90) = {len(ks)} "
         "pools. On each, call `get_dy` with the recorded `dx` — **`i` and `j` "

@@ -472,6 +472,17 @@ def build(b, cfg, rpc, raw_bytes, mech, states, numeraire, venues, reads, _cr,
                  "gsm_supply", "price_read", "collateral_read", "debt_read"]))
 
     notes["routing"] = routing
+    # B-7: the values behind DET-81's reads, so the spot-check sheet can state
+    # an expected LTV / liquidation threshold / bonus for each of the 37 pairs.
+    notes["reserve_params"] = {
+        f"{inst}:{asset}": {"ltv": res.ltv,
+                            "liquidation_threshold": res.liquidation_threshold,
+                            "liquidation_bonus": res.liquidation_bonus,
+                            "price": res.price,
+                            "decimals": decimals.get(asset, 18)}
+        for (inst, asset), res in sorted(params.items())}
+    notes["emode_params"] = {f"{inst}:{cat}": lt
+                             for (inst, cat), lt in sorted(emode_lt.items())}
     notes["base_bad_debt"] = base_bad
     notes["hf_below_1_base"] = sum(
         1 for p in positions

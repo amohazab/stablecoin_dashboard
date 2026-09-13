@@ -1190,10 +1190,41 @@ def det_43(b: Bundle, t: VerifiabilityTree, r: StressReport) -> str | None:
     lit = r.assumptions.get("structural_insulation", "")
     if "structurally insulated; exposed through exit venues only" not in lit:
         raise Level3("DET-43: the structural-insulation literal is absent")
-    curves = r.assumptions.get("m2_curves", "")
-    if curves.count(":") < 3:
-        raise Level3("DET-43: the three recomputed depth curves are absent")
-    return "ten exact zeros, the literal, and three recomputed curves"
+    # B-7: three FOUR-point curves, twelve values, on DET-31's own s grid.
+    curves = r.assumptions.get("m2_curves")
+    want_t = {"0.97", "0.93", "0.88"}
+    want_s = {str(p.s) for p in r.exit_depth.depth_curve}
+    if not isinstance(curves, dict) or set(curves) != want_t:
+        raise Level3(f"DET-43: m2_curves must carry {sorted(want_t)}, got "
+                     f"{sorted(curves) if isinstance(curves, dict) else type(curves).__name__}")
+    n = 0
+    for tgt, row in sorted(curves.items()):
+        if not isinstance(row, dict) or set(row) != want_s:
+            raise Level3(f"DET-43: curve {tgt} is not four-point on DET-31's "
+                         f"grid {sorted(want_s)}")
+        pts = [row[s] for s in sorted(row, key=Decimal)]
+        if any(b < a for a, b in zip(pts, pts[1:], strict=False)):
+            raise Level3(f"DET-43: curve {tgt} is not monotone in s")
+        n += len(row)
+    if n != 12:
+        raise Level3(f"DET-43: {n} curve values, the entry requires twelve")
+    # R-B7.1: each curve's s = 2% point replays against the corresponding LP-0
+    # Member-2 cell — the entry's own clause, and the LP-0 qualifier is why the
+    # haircut cells are not compared. The JOINT cell replays against the joint
+    # target's value on the same grid.
+    replays = 0
+    for c in _cells(r, "M2") + _cells(r, "M2_COMPOUND") + _cells(r, "JOINT"):
+        if c.lp != 0 or c.target is None:
+            continue
+        want = curves.get(str(c.target), {}).get("0.02")
+        if want is None:
+            raise Level3(f"DET-43: {c.id} target {c.target} has no curve")
+        if c.m3.exit_depth != want:
+            raise Level3(f"DET-43: {c.id} exit_depth {c.m3.exit_depth} != "
+                         f"curve[{c.target}][0.02] {want}")
+        replays += 1
+    return (f"ten exact zeros, the literal, twelve curve values on DET-31's "
+            f"grid with s = 2% marked, and {replays} LP-0 cell replays")
 
 
 def det_44(b: Bundle, t: VerifiabilityTree, r: StressReport) -> str | None:
