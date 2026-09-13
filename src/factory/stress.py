@@ -1234,8 +1234,8 @@ def fold(inputs: dict, rpc=None) -> StressReport:
 # ------------------------------------------------------------------ I/O -----
 
 
-def emit(repo: pathlib.Path, bundle, tree,
-         report: StressReport) -> tuple[pathlib.Path, bool]:
+def emit(repo: pathlib.Path, bundle, tree, report: StressReport,
+         m4_fields: tuple[str, ...] | None = None) -> tuple[pathlib.Path, bool]:
     """Run the stress checks, stamp, and route. The routing is the only write.
 
     Promotion needs THREE things: every check passing, a non-empty cell set,
@@ -1245,7 +1245,7 @@ def emit(repo: pathlib.Path, bundle, tree,
     """
     from factory.validate.harness import run_stress_checks
     report = report.model_copy(update={
-        "checks": run_stress_checks(bundle, tree, report)})
+        "checks": run_stress_checks(bundle, tree, report, m4_fields)})
     ok = (all(r.result == "pass" for r in report.checks)
           and bool(report.cells)
           and not report.header.stale_sheet)
@@ -1283,7 +1283,8 @@ def main(repo: pathlib.Path, token: str, allow_stale_sheet: bool = False,
             f"rpc pinned to {rpc.run_block}, bundle is {inputs['bundle'].header.run_block}"
             " — R-13 requires one block per run and it is the bundle's.")
     report = fold(inputs, rpc)
-    path, ok = emit(repo, inputs["bundle"], inputs["tree"], report)
+    path, ok = emit(repo, inputs["bundle"], inputs["tree"], report,
+                    inputs["cfg"].m4_fields)
     written = StressReport.model_validate_json(path.read_text(encoding="utf-8"))
     return path, ok, written
 

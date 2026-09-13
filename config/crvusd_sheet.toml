@@ -1,6 +1,6 @@
 # DERIVED MIRROR - NOT AUTHORITATIVE (P-3.04 binding).
 # Source of truth: docs/context/intake-sheets-cdp.md, crvUSD section.
-# Derived from sheet version sha256_first8 = ad7c35c2 (signed 2026-09-04, P-3.12).
+# Derived from sheet version sha256_first8 = ad7c35c2.
 # DET-77's sheet_hash check binds this mirror to that source; drift is caught
 # mechanically, never trusted away. Regenerated, never hand-patched.
 schema_version = 1
@@ -9,7 +9,12 @@ sheet_hash = "ad7c35c2"
 near_bound_threshold = 0.80
 counterparties = "n/a - archetype #1 holds no off-chain counterparties"
 attribution_method = "direct"
-member2_target = ""   # null until the R-a1 refresh (Step 6/7); nothing consumes it in Step 3
+# member2_target - not mirrored: DET-50's owner is the set file (R-B3.6, P-7.01 R8).
+
+# m4_fields[] - DET-38's exact per-cell m4 key set, 18 keys, mirrored from the stamped sheet.
+m4_fields = ["effective", "naive", "is_killed", "alpha", "beta", "provide_allowed", "withdraw_allowed", "burn_capacity", "stabilizer_debt_post_cell", "ceiling_aggregate", "utilization_post_cell", "pegkeeper_lp_share", "paired_units_held", "pool_tilt_post_cell", "exit_depth_cell", "lp_flight_share", "oracle_spot_gap", "counterfactual_ref"]
+# bias_table[] date - the P-6.07 signed edit's; the sheet table has no date column (P-7.01 R8).
+bias_table_date = 2026-09-13
 
 # cbBTC disclosure fields - mirrored from the stamped sheet (D-8; owner: sheet, not labels.toml per C-8)
 [disclosure.cbBTC]
@@ -258,10 +263,72 @@ bundle_field_path = "`nodes[tBTC].label`, `nodes[tBTC].label_provenance`"
 read_spec = "tBTC `WalletRegistry` read; label ∈ {`terminal_other_layer`, `recurses`} per DET-76(c); unreachable ⇒ unlabeled-in-run → §8.2"
 status = "open"
 
-# ---- Deferred by ruling, present-and-empty -------------------------------
-# sell_side_capacity - per volatile node; lands at the R-a1 refresh (R-a4).
-# m4_fields[]        - Step 6.
-# bias_table[]       - Step 6 (Appendix C seed).
+# bias_table[] - DET-53, 9 rows mirrored from the stamped sheet; the four mandatory rows are the memo-derived literals.
+
+[[bias_table]]
+mechanism = "Collateral-sell-side bound"
+tokens = ["crvUSD", "GHO"]
+direction = "overstates"
+reason = "full bound treated as immediately absorbable"
+mandatory = true
+
+[[bias_table]]
+mechanism = "GSM cap headroom (H2.i)"
+tokens = ["GHO"]
+direction = "overstates"
+reason = "full cap headroom treated as instantly mintable"
+mandatory = true
+
+[[bias_table]]
+mechanism = "Liquidator recycling (H5)"
+tokens = ["GHO"]
+direction = "understates"
+reason = "no multi-round capital recycling"
+mandatory = true
+
+[[bias_table]]
+mechanism = "Stability Pool refills (H3)"
+tokens = ["LUSD"]
+direction = "understates"
+reason = "no SP deposits between liquidation waves"
+mandatory = true
+
+[[bias_table]]
+mechanism = "PegKeeper effective headroom (H1)"
+tokens = ["crvUSD"]
+direction = "overstates"
+reason = "full effective headroom treated as deployed within the window; peer co-deployment dynamics omitted — runs conservative"
+mandatory = false
+
+[[bias_table]]
+mechanism = "H4 redemption capacity"
+tokens = ["LUSD"]
+direction = "overstates"
+reason = "full schedule capacity treated as immediately available; base-rate decay (regenerative, 12h half-life) omitted — runs conservative"
+mandatory = false
+
+[[bias_table]]
+mechanism = "H5 liquidator appetite (composite)"
+tokens = ["GHO"]
+direction = "both"
+reason = "two named opposite-sign terms; DET-47 `binding_side` states per cell which dominates"
+mandatory = false
+
+[[bias_table]]
+mechanism = "Pool exit depth — no LP inflow"
+tokens = ["all"]
+direction = "understates"
+reason = "no LP inflow modeled"
+mandatory = false
+
+[[bias_table]]
+mechanism = "Pool exit depth — LP sticky at flight-0"
+tokens = ["all"]
+direction = "overstates"
+reason = "static composition; spread disclosed by the LP-flight grid"
+mandatory = false
+
+# sell_side_capacity - DET-52, per volatile node, signed at P-6.07.
 
 [[sell_side_capacity]]
 address = "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"

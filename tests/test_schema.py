@@ -9,7 +9,14 @@ from decimal import Decimal
 import pytest
 from pydantic import ValidationError
 
-from factory.mirror import count_first_run_tags, generate, parse_first_run_reads
+from factory.mirror import (
+    BIAS_MANDATORY,
+    count_first_run_tags,
+    generate,
+    parse_bias_table,
+    parse_first_run_reads,
+    parse_m4_fields,
+)
 from factory.provenance import AbsenceRead, ContractRead
 from factory.schema import (
     AdminRow,
@@ -276,6 +283,49 @@ def test_every_stored_bundle_still_loads_as_a_prior():
     assert stored, "no promoted bundles to regression-test against"
     for f in stored:
         PriorBundle(**json.loads(f.read_text(encoding="utf-8")))
+
+
+def test_bias_table_parses_nine_rows_with_the_four_mandatory_literals():
+    """C5 (P-7.01 R8): DET-53's rows per token, the four ★ rows exactly the
+    rubric's memo-derived literals, every direction inside the closed enum."""
+    sheet = REPO / "docs/context/intake-sheets-cdp.md"
+    for token in ("crvUSD", "GHO", "LUSD"):
+        rows = parse_bias_table(sheet, token)
+        assert len(rows) == 9
+        assert {r["mechanism"]: r["direction"] for r in rows if r["mandatory"]} \
+            == BIAS_MANDATORY
+        assert all(r["direction"] in {"overstates", "understates", "both"} for r in rows)
+        assert all("★" not in r["mechanism"] for r in rows)
+
+
+def test_bias_parse_refuses_a_dropped_mandatory_mark(tmp_path):
+    sheet = REPO / "docs/context/intake-sheets-cdp.md"
+    text = sheet.read_text(encoding="utf-8").replace(
+        "| Stability Pool refills (H3) ★ |", "| Stability Pool refills (H3) |")
+    broken = tmp_path / "sheet.md"
+    broken.write_text(text, encoding="utf-8")
+    with pytest.raises(ValueError, match="DET-53"):
+        parse_bias_table(broken, "LUSD")
+
+
+def test_m4_fields_parse_equals_the_cell_builders_in_order():
+    from factory.gho_cells import M4_KEYS as GHO
+    from factory.lusd_cells import M4_KEYS as LUSD
+    from factory.stress import M4_KEYS as CRVUSD
+    sheet = REPO / "docs/context/intake-sheets-cdp.md"
+    for token, code in (("crvUSD", CRVUSD), ("GHO", GHO), ("LUSD", LUSD)):
+        assert tuple(parse_m4_fields(sheet, token)) == code
+
+
+def test_the_mirrors_carry_m4_and_bias_and_retire_member2_target():
+    from factory.config import load
+    for token, n in (("crvUSD", 18), ("GHO", 9), ("LUSD", 9)):
+        cfg = load(REPO / "config", token)
+        assert cfg.sheet["sheet_hash"] == "ad7c35c2"      # stamp unchanged by C5
+        assert len(cfg.m4_fields) == n
+        assert len(cfg.bias_table) == 9
+        assert {str(r["date"]) for r in cfg.bias_table} == {"2026-09-13"}
+        assert "member2_target" not in cfg.sheet
 
 
 def test_mirror_preserves_det75_identity():

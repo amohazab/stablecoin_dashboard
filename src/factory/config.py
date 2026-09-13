@@ -150,6 +150,11 @@ class Config:
     # row carrying all three cells. EMPTY until B-3b's signed edit lands Amin's
     # 19 values, which is what keeps the check inert rather than half-armed.
     sell_side: dict[str, dict] = field(default_factory=dict)
+    # C5 (P-7.01 R8): DET-38's `m4_fields[]` and DET-53's `bias_table[]`, read
+    # from the mirror, which the generator derives from the stamped sheet. EMPTY
+    # when a mirror predates C5; `_m4_keys` fails closed on an empty tuple.
+    m4_fields: tuple[str, ...] = ()
+    bias_table: list[dict] = field(default_factory=list)
 
     def root(self, root_id: str) -> Root:
         if root_id not in self.roots:
@@ -283,6 +288,9 @@ def load(config_dir: Path, token: str) -> Config:
                         "date": _date(r["date"])}
     return Config(token=token, frozen_set_path=config_dir / files["frozen_set"],
                   sell_side=sell_side,
+                  m4_fields=tuple(sheet_raw.get("m4_fields", ())),
+                  bias_table=[dict(r, date=_date(sheet_raw["bias_table_date"]))
+                              for r in sheet_raw.get("bias_table", [])],
                   facilitator_classes=fac_cls, admin_delays=admin_delays,
                   unlabeled_by_threshold=labels_raw.get("unlabeled_by_threshold"),
                   roots=roots, labels=labels, paired=paired, lend=lend, sheet=sheet_raw,

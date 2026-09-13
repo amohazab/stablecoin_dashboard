@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import datetime as _dt
 from collections.abc import Callable
+from contextvars import ContextVar
 from dataclasses import dataclass
 from decimal import Decimal
 
@@ -1072,11 +1073,9 @@ def det_38(b: Bundle, t: VerifiabilityTree, r: StressReport) -> str | None:
     return f"m4 key set exact on {len(r.cells)} cells ({len(want)} keys)"
 
 
-def _m4_keys(b: Bundle) -> tuple:
-    """The token's own `m4_fields[]`. crvUSD's 18, GHO's 9 and LUSD's 9 are
-    different contracts (P-6.07's signed edit), and DET-38 checks each against
-    its own. The branch is on SHAPE, never on the token's name: a GSM set makes
-    it GHO, a live stabilizer makes it crvUSD, neither makes it LUSD."""
+def _code_m4_keys(b: Bundle) -> tuple:
+    """The cell builder's emission order for this bundle's shape — a GSM set is
+    GHO's builder, a live stabilizer crvUSD's, neither LUSD's."""
     if b.gsms:
         from factory.gho_cells import M4_KEYS as GHO_KEYS
         return GHO_KEYS
@@ -1085,6 +1084,29 @@ def _m4_keys(b: Bundle) -> tuple:
         return LUSD_KEYS
     from factory.stress import M4_KEYS
     return M4_KEYS
+
+
+# C5 (P-7.01 R8): DET-38's letter is "the sheet's `m4_fields[]`", and the mirror
+# now carries it. The mirror's list reaches the pure check through this context
+# variable, set by `run_stress_checks` for the duration of one run — NAMED
+# IMPLEMENTER DEFAULT: the stress arity stays `fn(bundle, tree, report)` and the
+# harness still does no file I/O of its own (P-3.43 ruling 1).
+_M4_FIELDS: ContextVar[tuple[str, ...] | None] = ContextVar("m4_fields", default=None)
+
+
+def _m4_keys(b: Bundle) -> tuple:
+    """The token's own `m4_fields[]`, from the mirror. The builder's constant
+    must equal it in order; a difference is a DET-38 failure, because the cells
+    were built to a key set the sheet does not carry. No mirror list = fail
+    closed (DET-85: an exception is `error`, never `pass`)."""
+    sheet_keys = _M4_FIELDS.get()
+    if not sheet_keys:
+        raise RuntimeError("DET-38: no m4_fields[] supplied from the mirror")
+    code_keys = _code_m4_keys(b)
+    if tuple(sheet_keys) != tuple(code_keys):
+        raise Level3(f"DET-38: mirror m4_fields {list(sheet_keys)} != the cell "
+                     f"builder's M4_KEYS {list(code_keys)}")
+    return tuple(sheet_keys)
 
 
 def det_39(b: Bundle, t: VerifiabilityTree, r: StressReport) -> str | None:
@@ -1712,21 +1734,27 @@ def det_35(b: Bundle, t: VerifiabilityTree, r: StressReport) -> str | None:
 
 
 def run_stress_checks(bundle: Bundle, tree: VerifiabilityTree,
-                      report: StressReport) -> list[GateResult]:
+                      report: StressReport,
+                      m4_fields: tuple[str, ...] | None = None) -> list[GateResult]:
     """The stress entries, same fail-closed shape as `run_tree_checks`: an
     exception is `error`, never `pass`, and every entry yields a result so a
-    rehearsal artifact records WHICH failed. EMPTY at B-1 — the Step-6 entries
-    land from B-2 on, and `len(CHECKS)` is unchanged by this block."""
+    rehearsal artifact records WHICH failed. `m4_fields` is the mirror's
+    DET-38 key set (C5); without it DET-38 errors on any report with cells."""
     results = []
-    for chk in (c for c in CHECKS if c.stage == "S2" and c.consumer == "stress"):
-        try:
-            scope = chk.fn(bundle, tree, report)
-            results.append(GateResult(entry_id=chk.entry_id, result="pass",
-                                      scope_condition=scope if isinstance(scope, str) else None))
-        except Level3:
-            results.append(GateResult(entry_id=chk.entry_id, result="fail"))
-        except Exception:                                   # DET-85 fail-closed
-            results.append(GateResult(entry_id=chk.entry_id, result="error"))
+    token = _M4_FIELDS.set(tuple(m4_fields) if m4_fields else None)
+    try:
+        for chk in (c for c in CHECKS if c.stage == "S2" and c.consumer == "stress"):
+            try:
+                scope = chk.fn(bundle, tree, report)
+                results.append(GateResult(entry_id=chk.entry_id, result="pass",
+                                          scope_condition=scope if isinstance(scope, str)
+                                          else None))
+            except Level3:
+                results.append(GateResult(entry_id=chk.entry_id, result="fail"))
+            except Exception:                               # DET-85 fail-closed
+                results.append(GateResult(entry_id=chk.entry_id, result="error"))
+    finally:
+        _M4_FIELDS.reset(token)
     return results
 
 

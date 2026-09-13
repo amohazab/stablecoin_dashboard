@@ -82,6 +82,26 @@ def test_the_sheet_stop_fires_and_the_dev_flag_routes_to_rehearsal(tmp_path):
     assert written.header.stale_sheet is True
 
 
+def test_det38_reads_the_mirror_and_asserts_the_builder_constant():
+    """C5 (P-7.01 R8). On each promoted artifact DET-38 passes with the
+    mirror's key set; a mirror list that differs from the builder's constant
+    fails; no mirror list at all is `error`, never `pass` (DET-85)."""
+    from factory.config import load
+    from factory.schema import StressReport as SR
+    from factory.validate.harness import run_stress_checks
+    for token in ("crvUSD", "GHO", "LUSD"):
+        b, t = latest_bundle(REPO, token), latest_tree(REPO, token)
+        r = SR.model_validate_json(
+            (REPO / f"out/stress/{token}/{b.header.run_block}.json").read_text(encoding="utf-8"))
+        keys = load(REPO / "config", token).m4_fields
+        det38 = {g.entry_id: g for g in run_stress_checks(b, t, r, keys)}["DET-38"]
+        assert det38.result == "pass"
+        swapped = (keys[1], keys[0], *keys[2:])
+        assert {g.entry_id: g for g in run_stress_checks(b, t, r, swapped)}[
+            "DET-38"].result == "fail"
+        assert {g.entry_id: g for g in run_stress_checks(b, t, r)}["DET-38"].result == "error"
+
+
 def test_a_zero_cell_report_is_never_promotable(tmp_path):
     """A clean sheet pairing and no cells still routes to rehearsal.
 

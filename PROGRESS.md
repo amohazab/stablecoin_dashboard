@@ -7477,3 +7477,67 @@ Status: IN PROGRESS (opened 2026-09-13, P-7.01).
 - **Follow-ups spawned:** C5 (R8); the C3+ signature file drafted blank (R4,
   R7, R20, R21, R23 values); P-3.08-A1 drafted for confirmation (R3); A-16 /
   A-17 / A-18 lines ride C3+'s `rubric_change` (R23).
+
+## P-7.02 — C5: the mirror parse — `bias_table[]`, `m4_fields[]`, DET-38 from the mirror
+
+- **Date:** 2026-09-13
+- **Type:** implementation
+- **Confirmed by:** Amin
+- **Content:**
+  **R8 APPLIED (P-7.01).** `mirror.parse_bias_table(sheet, token)` reads the
+  table under "stock-only capacity — direction of error per mechanism" inside
+  `_section`: nine rows per token as `{mechanism, tokens, direction, reason,
+  mandatory}`, direction asserted in `{overstates, understates, both}`, a
+  trailing ★ = `mandatory` and stripped from `mechanism`, and the ★ set
+  asserted equal to DET-53's four literals with their directions
+  (`BIAS_MANDATORY`) — a dropped ★ or a flipped direction fails regeneration.
+  `mirror.parse_m4_fields` reads the `<token> (N): …` line, N asserted against
+  the list. `generate()` emits `m4_fields = [...]`, `bias_table_date =
+  2026-09-13` and nine `[[bias_table]]` rows; `config.load` exposes
+  `cfg.m4_fields` / `cfg.bias_table` (the date on every row).
+  **Named default:** `BIAS_TABLE_DATE` is the P-6.07 edit's date, a constant in
+  `mirror.py` citing R8 — the sheet table has no date column; a later edit of
+  the table owes a new date.
+  **STAMP UNCHANGED, proven:** sheet `ad7c35c2` before and after;
+  `git diff --stat docs/` empty; `config/` diff = the three mirrors only
+  (+219 / −18). Mirrors (LF bytes, sha256[:8]) `crvusd_sheet.toml`
+  `0930a2dc` → `fb8c54f5` (14,545 B), `gho_sheet.toml` `e22b6d37` → `965fba1e`
+  (18,266 B), `lusd_sheet.toml` `180dd3d4` → `51178155` (7,533 B). No
+  `intake_trigger`: DET-77 binds `sheet_hash`, not mirror bytes. The
+  `member2_target = ""` line is retired, replaced by a comment naming the set
+  file as DET-50's owner; the stale "signed 2026-09-04, P-3.12" and "lands at
+  the R-a1 refresh" generator text is gone.
+  **DET-38 FROM THE MIRROR.** `_m4_keys` returns the mirror's list and raises
+  `Level3` if it differs, in order, from the cell builder's `M4_KEYS`
+  (`_code_m4_keys`, the old shape branch); no list = `RuntimeError` →
+  `error` (DET-85). The list reaches the pure check through a `ContextVar` set
+  by `run_stress_checks(..., m4_fields)` — **named default:** the stress arity
+  stays `fn(bundle, tree, report)` and the harness does no file I/O
+  (P-3.43 R1); `stress.emit` / `main` pass `cfg.m4_fields`. All three sheet
+  lists equal their constants in order. **Re-checked without re-folding:**
+  crvUSD / GHO / LUSD 25/25 on the promoted artifacts with the mirror's keys,
+  DET-38 "m4 key set exact on 47 / 47 / 23 cells (18 / 9 / 9 keys)";
+  `stress_hash` `1617c079` / `f5529480` / `1db98f26` untouched, no artifact
+  written. `len(CHECKS)` 52.
+  **TESTS 178 → 183** (+4 `test_schema.py`: nine rows and the four literals ×3,
+  a dropped ★ refused, m4 parse = builder constants in order ×3, mirrors carry
+  both and no `member2_target`; +1 `test_stress.py`: DET-38 pass / fail on a
+  swapped list / error with none, on all three artifacts); P-3.15's reproduce
+  test green; ruff clean.
+  **AS-COUNTED, the Builder's:** the first bias parse read the `|---|` separator
+  as a malformed row; it raised inside `generate()` before any mirror was
+  written — fixed with a separator match. P-7.01's append found `PROGRESS.md`
+  CRLF in the working tree (`i/lf w/crlf`); the append was written in the
+  file's own convention and proven against the committed LF blob, byte-exact.
+  **DEFERRED, one sentence:** generalising `extract_cbbtc_disclosure` to LBTC
+  rides B-9 with the disclosure fields it would feed (keys are symbols today).
+  **FLAG → C3+:** FR-L13's read spec (sheet l.486) says
+  `static_metadata.last_material_change_audited` is "`no` by construction",
+  against R20's `yes` reading — sheet text, corrected in the signed edit.
+- **Artifacts:** `src/factory/mirror.py` · `src/factory/config.py` ·
+  `src/factory/validate/harness.py` · `src/factory/stress.py`;
+  `config/{crvusd,gho,lusd}_sheet.toml` (regenerated);
+  `tests/test_schema.py` · `tests/test_stress.py`; `PROGRESS.md`. No
+  `docs/context/`, adapter, bundle, tree or stress artifact change.
+- **Follow-ups spawned:** C3+'s signature file (drafted blank this session);
+  B-8 opens after it.
