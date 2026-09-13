@@ -7077,3 +7077,84 @@ Status: IN PROGRESS (opened 2026-09-12).
   (R17's done-condition for crvUSD); then B-5 — GHO: DET-46's H2 routing,
   H5/DET-47, the Member-2 numerators, 47 cells, and DET-69 resolving when
   `h2_routing` fills.
+
+## P-6.10 — B-5: GHO's cells; tail reserves in solvency; the buy-side cap; DET-46/47; the second promoted stress artifact
+
+- **Date:** 2026-09-13
+- **Type:** implementation
+- **Confirmed by:** Amin
+- **Content:**
+  **R-B5.1 — TAIL RESERVES ARE IN SOLVENCY, OUT OF ABSORPTION.** 34 reserves
+  appear across GHO's 2,160 positions; **15 carry no §4 node** (1.549% of
+  attributed weight), left unlabeled FOR THE TREE at freeze time — a
+  verifiability question, not a solvency one. Aave prices them, lends against
+  them and does not liquidate on their account. The first cut excluded them from
+  the health factor and called **148 positions insolvent AT THE UNSHOCKED BASE
+  STATE, $18,112,854.72 of GHO debt under water** — phantom bad debt that would
+  have been booked in all 47 cells. Under R-B5.1: **54 positions, every one
+  dust, $1.70 total**, the largest owing $0.27; `0x3290b7e095` alone went from
+  hf 0.0001 against $9.0M of GHO debt to healthy once its LBTC counts. The
+  residual error direction is in the artifact's own literal: tail reserves are
+  shocked as volatile with no LST axis, **overstating** bad debt where one is a
+  stable.
+  **R-B5.2 — THE CAP IS ON THE RECEIVED AMOUNT.** `_deliverable` bounds depth at
+  999/1000 of the pool's paired balance; `BRACKET_DOUBLINGS` 8 → 12. A sold-side
+  cap would clip a physically fine depth — crvUSD sells 9,490,084 into an
+  8,702,609 paired balance and still receives less than the pool holds.
+  **Measured margins at s = 2%: crvUSD 10.7% / 12.0% / 13.0%, LUSD 13.0% — the
+  cap never binds on any existing sell-side curve.** It was added for the buy
+  side, unbracketed because the seed `2 * balances[i]` SHRINKS after LP
+  withdrawal and `get_dy` asymptotes (probed marginal price **-0.00000999** at
+  dx 10,000,000). Second buy-side fix: the LP-flight haircut was **removed** —
+  DET-47 defines `pool_buy_side_depth` with no LP term and the code applied one.
+  **A DEFECT OF MINE, CAUGHT IN THE RUN'S OWN STDOUT.** `mechanism.reads`
+  printed **0** while 130 reads had genuinely been made: `build_mechanism`
+  returns early with no PegKeepers, and B-5's reads went into the dict
+  `build_exit_depth` had already snapshotted, so every write landed nowhere. The
+  cell builder now keeps its own dict, as crvUSD's mechanism does. `stress_hash`
+  **0468af87 → 0e16f7ce**; every other number reproduced to the digit. **148
+  pinned reads, all at 25963961** (R-13) — 37 (instance, reserve) pairs read for
+  configuration and for that instance's own price (DET-81), 2 `checkUpkeep`, 18
+  venue reads.
+  **DET-46 ROUTING.** `check_pass = automated ∧ lower >= 0.88`. Both GSMs:
+  automated freezer answers `checkUpkeep(bytes)`, bands [0.99, 1.01] — **both
+  `freezer_effective`, T-08 does not fire**; depth removal stays DET-35's line.
+  **DET-69 now passes on GHO**, `marked == consumed == ['pause']` — C2's
+  `consumed_by ["DET-46 freezer"]` mark finally has its consumer. DET-47's
+  argmin is asserted on 37 Member-1 and joint cells; Member-2 cells carry both
+  sides without a verdict, the entry's own scope.
+  **THE NUMBERS.** M1-s50-d0-lp0: m1 pre **1.217476** post **1.685336** (it
+  RISES — liquidation removes more debt than collateral), `share_below_100`
+  0.43076777, `bad_debt` **9,144,278.65 GHO** = 1.308% of supply, m3.ratio
+  **0.48438313**, `binding_side` **collateral_sellable** — 37.0M sellable
+  against 289.7M sourceable, so GHO's constraint is the other side of the trade,
+  not its mint. R-29 holds on all three axes; **at s70 the ratio crosses to
+  2.56–2.60**. M2-t0.93-lp0: forced_sell 21,706,312.84 against exit depth
+  **274,713.73** — the GSM leaves under `freezer_effective` and depth falls by a
+  factor of 69 (counterfactual 18,878,193.90); **ratio 79.014299**. At lp30/lp60
+  depth is **0**, ratio undefined (R-B4.14, 6 cells): the GHO/crvUSD pool is
+  drained at 30% LP flight already (350k crvUSD held against a ~416k
+  single-sided withdrawal), so M1's lp30 and lp60 columns coincide and M2's
+  carry the undefined ratio. JOINT: 30,850,591.49 =
+  9,144,278.65 + 21,706,312.84, disjoint by construction, ratio 112.300872.
+  **FIVE CHECKS WERE crvUSD-SHAPED**, each a defect against the entry's own
+  text, now token-aware: DET-38, DET-41, DET-42, DET-44 (GHO carries
+  `oracle_assumption` in place of `EMA_lag`, R13) and DET-69.
+  **CRVUSD DID NOT MOVE.** Re-run after the reads fix: **byte-identical**, sha256
+  `24c20d20eedf79b4a827…` before and after. Against `HEAD` the full leaf diff
+  over 13,285 leaves is **6 added, 0 removed, 1 changed** — the DET-46/47 rows
+  and `header.stress_hash`. `len(CHECKS)` **49 → 51**; GHO 24/24, crvUSD 24/24,
+  165 tests, ruff clean.
+- **Artifacts:** `src/factory/aave.py` (new), `src/factory/gho_cells.py` (new),
+  `src/factory/depth.py`, `src/factory/stress.py`,
+  `src/factory/validate/harness.py`, `src/factory/spotcheck.py`,
+  `tests/test_depth.py`, `tests/test_stress.py`, `.gitignore`,
+  `out/stress/GHO/25963961.json` (**0e16f7ce**, the second promoted stress
+  artifact), `out/stress/crvUSD/25963950.json` (**2368288f**, re-promoted).
+- **Follow-ups:** Amin's hand verification of GHO's spot-check sheet (R17's
+  crvUSD leg was verified 2026-09-13: three pinned `get_dy` reads through his
+  own RPC reproduced the sheet to the wei). B-6 (LUSD). B-7: the spot-check
+  generator — state `i` and `j` in every `get_dy`, say the calls are pinned
+  reads at `run_block`, print per-market subtotals so `m1.pre` is a hand sum,
+  print `bad_debt` in base units beside the rounded figure — then R17's
+  done-condition and close.

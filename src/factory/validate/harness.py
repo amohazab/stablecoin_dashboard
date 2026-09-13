@@ -1061,7 +1061,7 @@ def det_38(b: Bundle, t: VerifiabilityTree, r: StressReport) -> str | None:
     """Four metrics per cell; `m4` = the sheet's key set exactly, no composite."""
     if not r.cells:
         return "no cells"
-    want = set(_m4_keys())
+    want = set(_m4_keys(b))
     for c in r.cells:
         if set(c.m4) != want:
             raise Level3(f"DET-38: {c.id} m4 key set differs: "
@@ -1072,7 +1072,12 @@ def det_38(b: Bundle, t: VerifiabilityTree, r: StressReport) -> str | None:
     return f"m4 key set exact on {len(r.cells)} cells ({len(want)} keys)"
 
 
-def _m4_keys() -> tuple:
+def _m4_keys(b: Bundle) -> tuple:
+    """The token's own `m4_fields[]`. crvUSD's 18 and GHO's 9 are different
+    contracts (P-6.07's signed edit), and DET-38 checks each against its own."""
+    if b.gsms:
+        from factory.gho_cells import M4_KEYS as GHO_KEYS
+        return GHO_KEYS
     from factory.stress import M4_KEYS
     return M4_KEYS
 
@@ -1116,8 +1121,15 @@ def det_41(b: Bundle, t: VerifiabilityTree, r: StressReport) -> str | None:
     """
     if not r.cells:
         return "no cells"
-    d31 = next((p.pool_depth for p in r.exit_depth.depth_curve
+    # The identity is against the exit depth a holder actually faces at s = 2%
+    # — pool depth PLUS the §5.10 venue term where one exists. DET-35 keeps the
+    # GSM contribution on its own line; DET-41's "equals DET-31 depth(0.02)"
+    # means the same quantity, which for a token with no GSM is the pool line
+    # and for GHO is the total.
+    _pt = next((p for p in r.exit_depth.depth_curve
                 if p.s == Decimal("0.02")), None)
+    d31 = None if _pt is None else (_pt.total if r.exit_depth.gsm_venues
+                                    else _pt.pool_depth)
     for c in _cells(r, "M1"):
         if c.lp == 0 and d31 is not None and c.m3.exit_depth != d31:
             raise Level3(f"DET-41: {c.id} LP-0 exit_depth {c.m3.exit_depth} != "
@@ -1151,8 +1163,12 @@ def det_42(b: Bundle, t: VerifiabilityTree, r: StressReport) -> str | None:
         if ins and c.m3.forced_sell_volume != 0:
             raise Level3(f"DET-42: {c.id} forced_sell != 0 on an insulated token")
     j = _cells(r, "JOINT")
-    if j and j[0].m3.forced_sell_volume != j[0].m2.bad_debt:
-        raise Level3("DET-42: joint forced_sell != bad_debt_joint + m2_slice")
+    if j:
+        m2 = next((c.m3.forced_sell_volume for c in _cells(r, "M2")), 0)
+        want = j[0].m2.bad_debt + (0 if ins else m2)
+        if j[0].m3.forced_sell_volume != want:
+            raise Level3(f"DET-42: joint forced_sell {j[0].m3.forced_sell_volume} "
+                         f"!= bad_debt_joint + m2_slice {want}")
     return ("structurally_insulated: every Member-2 numerator is 0 by "
             "construction" if ins else "numerators per token")
 
@@ -1179,9 +1195,17 @@ def det_44(b: Bundle, t: VerifiabilityTree, r: StressReport) -> str | None:
     """Counterfactual lines: present, under metric 4, never cells."""
     if not r.cells:
         return "no cells"
-    need = {"M1": {"H1_kill", "EMA_lag"},
-            "JOINT": {"H1_kill", "EMA_lag", "H1_v1_contagion"},
-            "M2": {"H1_v1_contagion"}, "M2_COMPOUND": {"H1_v1_contagion"}}
+    # The entry names a DIFFERENT required set per token: crvUSD `H1_kill`,
+    # `H1_v1_contagion` and `EMA_lag`; GHO `H2_freezer` on Member 2, compound
+    # and joint, with no H1 line and no EMA_lag — GHO has no LLAMMA, and §7's
+    # instant-observation assumption is carried as a literal instead (R13).
+    if b.gsms:
+        need = {"M1": set(), "JOINT": {"H2_freezer"},
+                "M2": {"H2_freezer"}, "M2_COMPOUND": {"H2_freezer"}}
+    else:
+        need = {"M1": {"H1_kill", "EMA_lag"},
+                "JOINT": {"H1_kill", "EMA_lag", "H1_v1_contagion"},
+                "M2": {"H1_v1_contagion"}, "M2_COMPOUND": {"H1_v1_contagion"}}
     for c in r.cells:
         ids = {ln.id for ln in c.counterfactual_lines}
         if not need[c.member] <= ids:
@@ -1192,6 +1216,9 @@ def det_44(b: Bundle, t: VerifiabilityTree, r: StressReport) -> str | None:
            if ln.id == "EMA_lag"]
     if any(not ln.approximation_flag for ln in ema):
         raise Level3("DET-44: EMA_lag without approximation_flag")
+    if b.gsms and not r.assumptions.get("oracle_assumption"):
+        raise Level3("DET-44: GHO carries no EMA_lag and must state §7's "
+                     "oracle assumption as a literal instead (R13)")
     return f"required IDs on every cell; {len(ema)} EMA_lag lines flagged"
 
 
@@ -1424,12 +1451,67 @@ def det_69(b: Bundle, t: VerifiabilityTree, r: StressReport) -> str | None:
     if r.mechanism.effective_headroom is not None:
         # α and β enter `_get_max_ratio`; the kill flag gates each keeper's term
         consumed |= {"set_parameters", "pause"}
+    if r.mechanism.h2_routing:
+        # B-5: DET-46's routing is now computed, so GHO's EMERGENCY_ADMIN row
+        # finally has the consumer R18's mark promised it.
+        consumed |= {"pause"}
     if marked != consumed:
         raise Level3(f"DET-69: marked {sorted(marked)} != consumed {sorted(consumed)}")
     for row in b.admin_surface:
         if row.live_model_input and not row.consumed_by:
             raise Level3(f"DET-69: {row.power} marked live but carries no consumed_by")
     return f"marked == consumed == {sorted(marked) or 'none'}"
+
+
+def det_46(b: Bundle, t: VerifiabilityTree, r: StressReport) -> str | None:
+    """H2 state-conditional routing (PQ-4, R-25), S2.
+
+    `check_pass = automated_freezer_present ∧ freeze_lower_bound >= 0.88`, and
+    the routing follows it. A failing check is Level 1 T-08 with the entry's
+    literal — reported as a trigger, not raised, because the entry assigns
+    Level 1 and the report still publishes.
+    """
+    if not b.gsms:
+        return "no GSM: H2 routing does not apply to this token"
+    routing = r.mechanism.h2_routing
+    if set(routing) != {g.address for g in b.gsms}:
+        raise Level3(f"DET-46: routing rows {sorted(routing)} != live GSMs")
+    failed = [a for a, route in routing.items() if route != "freezer_effective"]
+    if failed:
+        return ("T-08", 1)
+    return (f"freezer_effective on {len(routing)} GSM(s); depth removal owned "
+            "by DET-35")
+
+
+def det_47(b: Bundle, t: VerifiabilityTree, r: StressReport) -> str | None:
+    """H5 which side binds (PQ-5, D-4), S2.
+
+    SCOPE IS THE ENTRY'S: "per Member 1 and joint cell". Member-2 cells carry
+    both sides' values without a verdict, which is why `binding_side` is not
+    asserted over them.
+    """
+    if not b.gsms:
+        return "no GSM: H5's two-sided capacity does not apply to this token"
+    checked = 0
+    for c in _cells(r, "M1") + _cells(r, "JOINT"):
+        src = _m4v(c, "gho_sourceable")
+        sell = _m4v(c, "collateral_sellable")
+        side = _m4v(c, "binding_side")
+        if not isinstance(src, int) or not isinstance(sell, int):
+            raise Level3(f"DET-47: {c.id} carries no two-sided capacity")
+        want = "collateral_sellable" if sell <= src else "gho_sourceable"
+        if side != want:
+            raise Level3(f"DET-47: {c.id} binding_side {side} != argmin {want} "
+                         f"(sourceable {src}, sellable {sell})")
+        checked += 1
+    return (f"argmin asserted on {checked} Member-1 and joint cells; ties to "
+            "`collateral_sellable` (named default); Member-2 cells carry both "
+            "sides without a verdict, the entry's own scope")
+
+
+def _m4v(c, key):
+    v = c.m4.get(key)
+    return v.get("value") if isinstance(v, dict) else v
 
 
 def det_50(b: Bundle, t: VerifiabilityTree, r: StressReport) -> str | None:
@@ -1565,6 +1647,8 @@ CHECKS: list[Check] = [
     Check("DET-44", "S2", 2, det_44, "stress"),
     Check("DET-48", "S2", 2, det_48, "stress"),
     Check("DET-49", "S2", 2, det_49, "stress"),
+    Check("DET-46", "S2", 2, det_46, "stress"),
+    Check("DET-47", "S2", 2, det_47, "stress"),
 ]
 
 

@@ -571,11 +571,14 @@ def write_stress(bundle, report, out_dir: pathlib.Path) -> pathlib.Path:
     from decimal import Decimal
 
     E = Decimal(10 ** 18)
-    head = next(c for c in report.cells if c.id == "M1-s50-d0-lp0")
+    head = next((c for c in report.cells if c.id == "M1-s50-d0-lp0"),
+                report.cells[0])
     m = report.mechanism
     ks = report.exit_depth.k_subsets.get("90", [])
-    d31 = next((p.pool_depth for p in report.exit_depth.depth_curve
-                if p.s == Decimal("0.02")), 0)
+    _p2 = next((p for p in report.exit_depth.depth_curve
+                if p.s == Decimal("0.02")), None)
+    d31 = 0 if _p2 is None else (_p2.total if report.exit_depth.gsm_venues
+                                 else _p2.pool_depth)
     lines = [
         f"# Stress spot-check — {bundle.header.token} @ {bundle.header.run_block}",
         "",
@@ -607,24 +610,39 @@ def write_stress(bundle, report, out_dir: pathlib.Path) -> pathlib.Path:
         f"equal to DET-31 depth(0.02) = {Decimal(d31) / E:,.2f} |",
         f"| m3.ratio | {head.m3.ratio} | forced_sell ÷ exit_depth |",
         "",
-        "## 2. DET-45, from the bundle's own keeper rows",
-        "",
-        f"- effective **{Decimal(m.effective_headroom) / E:,.2f}** ≤ naive "
-        f"**{Decimal(m.naive_headroom) / E:,.2f}**",
-        f"- gate views: provide_allowed {set(m.provide_allowed.values())}, "
-        f"withdraw_allowed {len(m.withdraw_allowed)} × 2²⁵⁶−1; reason "
-        f"`{m.gate_reason}`",
-        "",
-        "| keeper | debt | balance | ceiling | r | max_ratio | allowed |",
-        "|---|---|---|---|---|---|---|",
     ]
-    for a, row in sorted((m.llamma.keeper_state if m.llamma else {}).items()):
-        lines.append(
-            f"| `{a[:10]}` | {Decimal(row['debt']) / E:,.2f} | "
-            f"{Decimal(row['balance']) / E:,.2f} | "
-            f"{Decimal(row['ceiling']) / E:,.2f} | "
-            f"{Decimal(row['r']) / E:.8f} | {Decimal(row['max_ratio']) / E:.6f} | "
-            f"{Decimal(row['allowed']) / E:,.2f} |")
+    if m.effective_headroom is not None:
+        lines += [
+            "## 2. DET-45, from the bundle's own keeper rows", "",
+            f"- effective **{Decimal(m.effective_headroom) / E:,.2f}** "
+            f"≤ naive **{Decimal(m.naive_headroom) / E:,.2f}**",
+            f"- gate views: provide_allowed "
+            f"{set(m.provide_allowed.values())}, withdraw_allowed "
+            f"{len(m.withdraw_allowed)} × 2²⁵⁶−1; "
+            f"reason `{m.gate_reason}`", "",
+            "| keeper | debt | balance | ceiling | r | max_ratio | allowed |",
+            "|---|---|---|---|---|---|---|"]
+        for a, row in sorted((m.llamma.keeper_state if m.llamma else {}).items()):
+            lines.append(
+                f"| `{a[:10]}` | {Decimal(row['debt']) / E:,.2f} | "
+                f"{Decimal(row['balance']) / E:,.2f} | "
+                f"{Decimal(row['ceiling']) / E:,.2f} | "
+                f"{Decimal(row['r']) / E:.8f} | "
+                f"{Decimal(row['max_ratio']) / E:.6f} | "
+                f"{Decimal(row['allowed']) / E:,.2f} |")
+    elif m.h2_routing:
+        # GHO has no PegKeepers: its mechanism section is DET-46's routing
+        # and DET-47's binding side, which is what a hand check needs.
+        lines += ["## 2. DET-46 routing, and DET-47's binding side", "",
+                  "| GSM | routing |", "|---|---|"]
+        for a, route in sorted(m.h2_routing.items()):
+            lines.append(f"| `{a[:10]}` | {route} |")
+        lines += ["",
+                  f"- `gho_sourceable` {head.m4.get('gho_sourceable')}",
+                  f"- `collateral_sellable` "
+                  f"{head.m4.get('collateral_sellable')}",
+                  f"- `gsm_mint_headroom` {head.m4.get('gsm_mint_headroom')}",
+                  f"- **`binding_side` {head.m4.get('binding_side')}**"]
     lines += [
         "",
         "## 3. One call to reproduce on Etherscan",

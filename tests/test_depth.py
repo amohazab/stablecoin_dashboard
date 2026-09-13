@@ -148,8 +148,30 @@ def test_an_unbracketed_depth_raises_rather_than_returning_the_edge(monkeypatch)
     import factory.depth as d
     raw, p = _states("plain_v6")[0]
     monkeypatch.setattr(d, "_below_bound", lambda *a, **k: False)
+    # R-B5.2 put a physical cap ahead of the doubling limit: a pool that cannot
+    # DELIVER returns the deliverable maximum rather than raising. To reach the
+    # raise, the pool must be able to deliver forever, which is what the second
+    # stub says. Both guards are exercised - the cap by
+    # `test_the_deliverability_cap_returns_the_maximum`.
+    monkeypatch.setattr(d, "_deliverable", lambda *a, **k: True)
     with pytest.raises(DepthError, match="not bracketed"):
         d.pool_depth(p, raw["i"], raw["j"], int(Decimal("0.98") * S_DEN), S_DEN)
+
+
+def test_the_deliverability_cap_returns_the_maximum(monkeypatch):
+    """R-B5.2: when the price bound is never reached but the pool runs dry, the
+    depth is the deliverable maximum and the point says so — the bracket edge
+    is still never returned as if it were a bound-derived depth."""
+    import factory.depth as d
+    raw, p = _states("plain_v6")[0]
+    monkeypatch.setattr(d, "_below_bound", lambda *a, **k: False)
+    monkeypatch.setattr(d, "_deliverable",
+                        lambda _p, _i, _j, dx: dx < 3 * 10 ** 24)
+    notes: dict = {}
+    got = d.pool_depth(p, raw["i"], raw["j"], int(Decimal("0.98") * S_DEN),
+                       S_DEN, notes)
+    assert 0 < got <= 3 * 10 ** 24
+    assert notes[p.address] == d.CAP_LITERAL
 
 
 # --- B-3a: the Member-2 selector ---------------------------------------------

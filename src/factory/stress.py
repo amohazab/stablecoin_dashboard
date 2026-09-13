@@ -699,6 +699,29 @@ def _cell_id(member: str, **kw) -> str:
     return "M2-compound" if member == "M2_COMPOUND" else "JOINT"
 
 
+def depth_after_flight(states: dict, numeraire: str, k90: list[str],
+                       lp: Decimal, s: Decimal = Decimal("0.02"),
+                       buy: bool = False) -> int:
+    """B-5's caller: the same withdrawal, at an arbitrary bound and direction.
+
+    `buy=True` swaps the indices — selling the PAIRED asset into the numeraire
+    — which is DET-47's `pool_buy_side_depth`, the side a liquidator sources
+    GHO from. The bound there is the minimum liquidation bonus, not 2%.
+    """
+    s_num = int((Decimal(1) - s) * S_DEN)
+    total = 0
+    for addr in k90:
+        p = states[addr]
+        i = p.coins.index(numeraire)
+        j = 1 - i
+        if lp > 0:
+            amount = int(Decimal(p.total_supply) * lp)
+            _dy, p = withdraw_one_coin(p, amount, j)
+        total += (pool_depth(p, j, i, s_num, S_DEN) if buy
+                  else pool_depth(p, i, j, s_num, S_DEN))
+    return total
+
+
 def _depth_after_flight(states: dict, numeraire: str, k90: list[str],
                         lp: Decimal) -> tuple[int, dict]:
     """DET-41's `exit_depth_cell`: depth(2%) on K-subset(0.90) after the cell's
@@ -1126,6 +1149,20 @@ def fold(inputs: dict, rpc=None) -> StressReport:
         if mech.llamma is not None:
             cells, refs, notes, assumptions = build_crvusd_cells(
                 b, cfg, rpc, inputs["raw"], mech, states, numeraire, frozen, reads)
+        elif b.gsms:                       # GHO: no AMM, an Aave book (B-5)
+            from factory.gho_cells import build as build_gho
+            ks = k_subsets([r for r in b.pools if r.in_frozen_set])
+            # The cell builder's reads are the MECHANISM's, exactly as crvUSD's
+            # are: `build_mechanism` keeps a dict of its own, and `exit_depth`
+            # has already snapshotted the pool/GSM dict above. A shared dict
+            # would be written after that snapshot and land nowhere.
+            mech_reads: dict = {}
+            cells, refs, notes, assumptions = build_gho(
+                b, cfg, rpc, inputs["raw"], mech, states, numeraire, venues,
+                mech_reads, _cr, depth_after_flight, ks["90"])
+            mech = mech.model_copy(update={"h2_routing": {
+                a: r["routing"] for a, r in notes["routing"].items()},
+                "reads": mech_reads})
     return StressReport(
         header=StressHeader(
             token=b.header.token, run_block=b.header.run_block,

@@ -224,7 +224,14 @@ def withdraw_one_coin(p: PoolState, lp_amount: int, i: int) -> tuple[int, PoolSt
 # Named implementer defaults (P-6.01 R4, ruled 2026-09-12).
 BISECT_TOL = 10 ** 18          # one whole token of the sold side
 BISECT_MAX_ITER = 128
-BRACKET_DOUBLINGS = 8
+BRACKET_DOUBLINGS = 12
+# R-B5.2's PHYSICAL CAP. A swap can deliver at most what the received side
+# holds: buying GHO out of a pool cannot take more GHO than the pool has. The
+# cap is therefore on the RECEIVED amount, never on the amount sold - crvUSD's
+# USDT pool sells 9,490,084 crvUSD into an 8,702,609 USDT balance, so a cap on
+# the sold side would clip a depth that is physically fine. It is a physical
+# constraint, not a substitute for any entry's price bound: when the bound is
+# not reached inside it, the depth IS the cap and the point says so.
 
 
 def marginal_price(p: PoolState, i: int, j: int, dx: int) -> tuple[int, int]:
@@ -261,7 +268,28 @@ def _below_bound(p: PoolState, i: int, j: int, dx: int, s_num: int, s_den: int) 
     return num * s_den < s_num * den
 
 
-def pool_depth(p: PoolState, i: int, j: int, s_num: int, s_den: int) -> int:
+CAP_LITERAL = ("bound not reached within the pool's deliverable balance — "
+               "depth is the deliverable maximum")
+
+
+# `get_dy` ASYMPTOTES to the received balance and never exceeds it, so
+# "delivers less than the balance" is true at every size and would never fire.
+# Drained is therefore within 0.1% of the balance - far outside the 10.7-13.0%
+# margins the sell-side curves actually run at, which is what keeps crvUSD and
+# LUSD byte-identical under this cap.
+DRAINED_NUM, DRAINED_DEN = 999, 1000
+
+
+def _deliverable(p: PoolState, i: int, j: int, dx: int) -> bool:
+    """Can the pool actually hand over what a `dx`-sized swap asks for?"""
+    try:
+        return get_dy(p, i, j, dx) * DRAINED_DEN < p.balances[j] * DRAINED_NUM
+    except (DepthError, ZeroDivisionError, ValueError):
+        return False
+
+
+def pool_depth(p: PoolState, i: int, j: int, s_num: int, s_den: int,
+               notes: dict | None = None) -> int:
     """Units of coin `i` sellable before the marginal price falls below
     `1 - s`, where `s = s_num_gap / s_den` — `s_num` is the NUMERATOR OF
     `1 - s`. Returns coin-`i` base units (R-B2.1: token base units, never
@@ -269,6 +297,21 @@ def pool_depth(p: PoolState, i: int, j: int, s_num: int, s_den: int) -> int:
     lo, hi = 0, 2 * p.balances[i]
     doublings = 0
     while not _below_bound(p, i, j, hi, s_num, s_den):
+        if not _deliverable(p, i, j, hi):
+            # The pool runs out of the received coin before the price bound is
+            # reached. Bisect on DELIVERABILITY instead and return that maximum.
+            a, z = lo, hi
+            for _ in range(BISECT_MAX_ITER):
+                if z - a <= BISECT_TOL:
+                    break
+                mid = (a + z) // 2
+                if _deliverable(p, i, j, mid):
+                    a = mid
+                else:
+                    z = mid
+            if notes is not None:
+                notes[p.address] = CAP_LITERAL
+            return a
         hi *= 2
         doublings += 1
         if doublings > BRACKET_DOUBLINGS:
@@ -289,6 +332,7 @@ def pool_depth(p: PoolState, i: int, j: int, s_num: int, s_den: int) -> int:
     return lo
 
 
-__all__ = ["A_PRECISION", "BISECT_TOL", "DepthError", "FEE_DENOMINATOR",
+__all__ = ["A_PRECISION", "BISECT_TOL", "CAP_LITERAL", "DepthError",
+           "FEE_DENOMINATOR",
            "PRECISION", "PoolState", "dynamic_fee", "get_D", "get_dy", "get_y",
            "marginal_price", "pool_depth", "withdraw_one_coin", "xp_mem"]

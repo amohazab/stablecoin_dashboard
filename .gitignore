@@ -11,3 +11,5 @@ out/raw/
 out/spotcheck/
 # Aborted runs and failing trees - never promoted, never committed (P-3.38, P-5.03)
 out/rehearsal/
+# Session-local reports; regenerable from the promoted artifact (B-5)
+out/reports/
