@@ -7564,3 +7564,13 @@ Status: IN PROGRESS (opened 2026-09-13, P-7.01).
   unedited**, per rule 2.
 - **Artifacts:** `PROGRESS.md`. No code change.
 - **Follow-ups spawned:** the docstring sentence at B-10.
+
+## P-7.01-A1 — AMEND P-7.01 — R9's arithmetic
+
+- **Date:** 2026-09-13
+- **Type:** AMEND
+- **Confirmed by:** Amin
+- **Content:**
+  R9's "Target `len(CHECKS)` **94** (52 + 19 + 4 + 1 + 2 + 6 + R1's 10)" counts DET-74 twice — it is one of the 19 S3 rows (rubric l.298) and one of R1's ten — so the target is **93**, R1's buckets (a)+(b) register **9** rows — 8 at B-8, DET-71 at B-9 with its evidence read, and DET-74 registers with the S3 rows; P-7.01 stands unedited.
+- **Artifacts:** `PROGRESS.md`. No code change.
+- **Follow-ups spawned:** none.
