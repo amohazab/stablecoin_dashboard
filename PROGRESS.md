@@ -7541,3 +7541,26 @@ Status: IN PROGRESS (opened 2026-09-13, P-7.01).
   `docs/context/`, adapter, bundle, tree or stress artifact change.
 - **Follow-ups spawned:** C3+'s signature file (drafted blank this session);
   B-8 opens after it.
+
+## P-3.08-A1 — AMEND P-3.08 — the phased `bundle_hash` definition, superseded
+
+- **Date:** 2026-09-13
+- **Type:** AMEND
+- **Confirmed by:** Amin
+- **Content:**
+  P-3.08 records: *"`bundle_hash` is computed over the bundle alone in Step 3,
+  and over the bundle **plus the flat table** once that exists (Step 7,
+  DET-84)."* **Superseded (P-7.01 R3).** `header.bundle_hash` keeps its Step-3
+  meaning, the bundle alone: the verifiability tree and the stress report pin
+  it (`source_bundle_hash`, P-5.01 R2, P-6.01 R2), and folding a table built
+  from those artifacts back into it has no fixed point. The flat table's hash
+  enters `report_hash = sha256(bundle_hash ‖ tree_hash ‖ stress_hash ‖
+  table_hash ‖ template_hash ‖ pipeline_version ‖ sheet_hash)` on the report
+  manifest; DET-13(a) binds on `report_hash`, and DET-84's "component of
+  `bundle_hash`" reads as rubric 0.1's report bundle. The phased sentence in
+  `schema.py`'s module docstring (l.8-10) changes when the manifest lands
+  (B-10). **No retroactive consequence:** no flat table exists, and every
+  stored `bundle_hash` was computed over the bundle alone. **P-3.08 stands
+  unedited**, per rule 2.
+- **Artifacts:** `PROGRESS.md`. No code change.
+- **Follow-ups spawned:** the docstring sentence at B-10.
