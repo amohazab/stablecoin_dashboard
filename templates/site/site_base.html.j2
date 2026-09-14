@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}{{ s.title }}{% endblock %}</title>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+<main>
+<header class="page">
+  <h1>{% block heading %}{{ s.title }}{% endblock %}</h1>
+  <p class="meta">{{ s.author }}</p>
+{% block lede %}{% endblock %}
+{% block nav %}{% endblock %}
+</header>
+{% block body %}{% endblock %}
+</main>
+</body>
+</html>

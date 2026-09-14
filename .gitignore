@@ -13,3 +13,5 @@ out/spotcheck/
 out/rehearsal/
 # Session-local reports; regenerable from the promoted artifact (B-5)
 out/reports/
+# Design-chat context exports (tools/export_context.py)
+out/context-*/

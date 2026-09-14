@@ -324,6 +324,15 @@ def rows_nested(rows: dict, prefix: str) -> dict:
     return out
 
 
+def environment(tpl: pathlib.Path) -> Environment:
+    """The one Jinja2 environment: `StrictUndefined`, autoescape keyed on the real
+    extensions (the templates end `.j2`). Shared by the report pages and the site
+    pages (`factory.site`, Step 9)."""
+    return Environment(loader=FileSystemLoader(str(tpl)),
+                       autoescape=select_autoescape(["html", "j2"], default_for_string=True),
+                       undefined=StrictUndefined, keep_trailing_newline=True)
+
+
 def render_token(repo: pathlib.Path, token: str, doc: dict, grid: dict, man: dict, rec: dict,
                  bundle, stress, out: pathlib.Path) -> dict:
     """Render the three pages into `out` (B-11b: a staging directory under
@@ -474,9 +483,7 @@ def render_token(repo: pathlib.Path, token: str, doc: dict, grid: dict, man: dic
         paras = [x.strip() for x in re.split(r"\n\s*\n", text) if x.strip()]
         return Markup('<div class="prose-slot" data-slot="{}">{}</div>').format(
             name, Markup("").join(Markup("<p>{}</p>").format(x) for x in paras))
-    env = Environment(loader=FileSystemLoader(str(tpl)),
-                      autoescape=select_autoescape(["html", "j2"], default_for_string=True),
-                      undefined=StrictUndefined, keep_trailing_newline=True)
+    env = environment(tpl)
     env.filters["fmt"] = fmt
     ctx = dict(token=token, rows=rows, v=v, c=c, raw=raw, ids=ids, label=label, cells=cells,
                grid=grid, doc=doc, man=man, rec=rec, w=w, tnames=tnames, log=log,

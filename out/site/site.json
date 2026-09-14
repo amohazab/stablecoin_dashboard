@@ -1,0 +1,102 @@
+{
+ "a16": {
+  "count": 6,
+  "ids": [
+   "DET-09",
+   "DET-75",
+   "DET-76abcd",
+   "DET-81",
+   "DET-23abd",
+   "DET-64"
+  ]
+ },
+ "branch": "master",
+ "log_rows": 11,
+ "repo_url": "https://github.com/amohazab/stablecoin_dashboard",
+ "tokens": {
+  "GHO": {
+   "figures": "Supply $699.0M · Bad debt, headline scenario $8.6M · Exit liquidity, headline scenario $18.8M",
+   "finding": "GHO's supply of $699.0M is minted entirely through Aave facilitators, and 21.5% of that supply ($150.0M) is issued against off-mainnet facilitators on Arbitrum, Monad and Plasma, whose backing is not traced by this tree.",
+   "outcome": "published_without_banner_by_ruling",
+   "pill": "<span class=\"pill red\">4 notice(s): freeze coverage below target, off-venue share 92.4%, gate failure and harness error</span>",
+   "report_hash": "447281cb4b87dcd40bd17e9fd0a8b9db741d4fd2c825262d5e1a0a15dd6183d1",
+   "rewrites": {
+    "index.html": {
+     "after": "0b8f8404f7975d625bea1f4b3fd86777b4e5e4db2012c2e0e35a80f2c5ddaeb3",
+     "before": "f0e396e3fe7610c496b50601593f1eea012a1c044df4f068ec2f259b9cf628db",
+     "substitutions": [
+      {
+       "new": "href=\"https://github.com/amohazab/stablecoin_dashboard/blob/master/docs/context/archetype-memo-1-cdp.md\"",
+       "old": "href=\"../../../docs/context/archetype-memo-1-cdp.md\""
+      },
+      {
+       "new": "href=\"https://github.com/amohazab/stablecoin_dashboard/blob/master/docs/context/intake-sheets-cdp.md\"",
+       "old": "href=\"../../../docs/context/intake-sheets-cdp.md\""
+      },
+      {
+       "new": "<a href=\"../index.html\">all tokens</a><a href=\"index.html\">report</a><a href=\"appendix.html\">appendix</a><a href=\"verify.html\">verify</a>",
+       "old": "<a href=\"index.html\">report</a><a href=\"appendix.html\">appendix</a><a href=\"verify.html\">verify</a>"
+      }
+     ]
+    }
+   },
+   "run_block": 25974932
+  },
+  "LUSD": {
+   "figures": "Supply $26.2M · Bad debt, headline scenario $0, structurally zero · Exit liquidity, headline scenario $8.8M",
+   "finding": "Every LUSD in supply, $26.2M, is accounted for as trove debt, so the residual is $0: there is no unexplained gap between what's issued and what's backed.",
+   "outcome": "published",
+   "pill": "<span class=\"pill green\">No warnings this run</span>",
+   "report_hash": "003b4fcd0638ac8ecc7f5b741c212bd3945356560174af11409c36a9c03e7da7",
+   "rewrites": {
+    "index.html": {
+     "after": "37f55aec87dcb2390193a5c0c53c889bc4f3fbf16c216786c0bbdc22fb1e028e",
+     "before": "75a2882f5c90d0e194750a1f61f90128456961e14c948395d3a23298bf526e43",
+     "substitutions": [
+      {
+       "new": "href=\"https://github.com/amohazab/stablecoin_dashboard/blob/master/docs/context/archetype-memo-1-cdp.md\"",
+       "old": "href=\"../../../docs/context/archetype-memo-1-cdp.md\""
+      },
+      {
+       "new": "href=\"https://github.com/amohazab/stablecoin_dashboard/blob/master/docs/context/intake-sheets-cdp.md\"",
+       "old": "href=\"../../../docs/context/intake-sheets-cdp.md\""
+      },
+      {
+       "new": "<a href=\"../index.html\">all tokens</a><a href=\"index.html\">report</a><a href=\"appendix.html\">appendix</a><a href=\"verify.html\">verify</a>",
+       "old": "<a href=\"index.html\">report</a><a href=\"appendix.html\">appendix</a><a href=\"verify.html\">verify</a>"
+      }
+     ]
+    }
+   },
+   "run_block": 25974949
+  },
+  "crvUSD": {
+   "figures": "Supply $2.1B · Bad debt, headline scenario $6, structurally zero · Exit liquidity, headline scenario $20.4M",
+   "finding": "Of the total supply of $2.1B, only $82.9M is backed by the traced mint-market collateral this report follows; the residual of $2.0B is described as crvUSD minted but not borrowed, held by the protocol's own contracts, not in circulation, with the named causes accounting for it.",
+   "outcome": "published_without_banner_by_ruling",
+   "pill": "<span class=\"pill red\">3 notice(s): judge instability, gate failure and harness error</span>",
+   "report_hash": "8ac6132bc407aad7549f4d9f7ab127e229b521c03c58f5a8a66f03576c4f2912",
+   "rewrites": {
+    "index.html": {
+     "after": "fb56ee7c795fcf261ed10b92ac37da60b19599166481c64a22aaca982c1c93c5",
+     "before": "996a25d10a522f2aaa6da730f85dbed525590be7265ef3dae4fd59a905acb37a",
+     "substitutions": [
+      {
+       "new": "href=\"https://github.com/amohazab/stablecoin_dashboard/blob/master/docs/context/archetype-memo-1-cdp.md\"",
+       "old": "href=\"../../../docs/context/archetype-memo-1-cdp.md\""
+      },
+      {
+       "new": "href=\"https://github.com/amohazab/stablecoin_dashboard/blob/master/docs/context/intake-sheets-cdp.md\"",
+       "old": "href=\"../../../docs/context/intake-sheets-cdp.md\""
+      },
+      {
+       "new": "<a href=\"../index.html\">all tokens</a><a href=\"index.html\">report</a><a href=\"appendix.html\">appendix</a><a href=\"verify.html\">verify</a>",
+       "old": "<a href=\"index.html\">report</a><a href=\"appendix.html\">appendix</a><a href=\"verify.html\">verify</a>"
+      }
+     ]
+    }
+   },
+   "run_block": 25974925
+  }
+ }
+}

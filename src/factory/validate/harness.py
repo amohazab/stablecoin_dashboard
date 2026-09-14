@@ -3200,7 +3200,9 @@ def det_60(b: Bundle, t: VerifiabilityTree, r: StressReport, page: dict) -> str:
     """Log entries complete: every trigger fired this run has exactly one entry
     (Level 1: its open entry, lifecycle (ii); Level 2/3: its fire line dated this
     run); closed schema; level per DET-12; resolution fields set together.
-    NAMED DEFAULT: the methodology page's row count waits for Step 9's page."""
+    The methodology-page row-count clause is evaluated by `factory.site`, which refuses
+    to write the site when the page's rendered log rows differ from the quarantine lines
+    across the three logs (P-9.01 D1): the page is site-level, the harness per token."""
     from factory.eventlog import open_entries, quarantine_lines
     token = page["table"]["token"]
     table = page["trigger_table"]

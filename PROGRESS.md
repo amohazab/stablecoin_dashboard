@@ -8435,3 +8435,77 @@ Status: IN PROGRESS (opened 2026-09-14).
   this entry. No code, config or `docs/context/` change.
 - **Follow-ups spawned:** the build (kickoff §3), then P-9.02 after Amin's
   browser review.
+
+## P-9.02 — The site: selector, methodology, the recorded rewrites, the Pages workflow, README
+
+- **Date:** 2026-09-14
+- **Type:** implementation
+- **Confirmed by:** Amin
+- **Content:**
+  **P-9.01 COMMITTED** at `4bd8f93`: the slice and the scratch file diff empty,
+  sha256 `95c536c4…6b7e` on both.
+  **BUILT.**
+  - `uv run python -m factory.site` runs with no RPC, no API and no arguments,
+    and is deterministic: a second build is byte-identical. It writes
+    `out/site/{index,methodology}.html`, `site.css` and `site.json`.
+  - `templates/site/` renders through `render.environment()`, the one Jinja2
+    environment, now extracted from `render_token`. `wording.toml` gains
+    `[repo]` (branch `master`), `[nav]` and `[site]`.
+  - For future renders, `index.html.j2` builds the memo/sheet links from
+    `[repo]`, and `base.html.j2`'s nav gains "all tokens". `det_60`'s docstring
+    names `factory.site` (D1).
+  **CARDS.** Each finding is the slot's first sentence, asserted equal to the
+  record's highest-pass text (D5). The figures line shows the three cards
+  through `Formatter`, each asserted equal to the page's card: crvUSD $2.1B ·
+  $6, structurally zero · $20.4M; GHO $699.0M · $8.6M · $18.8M; LUSD $26.2M ·
+  $0, structurally zero · $8.8M. Pills are copied (D6); outcomes come from
+  `out/evaluation/` (D12).
+  **METHODOLOGY.**
+  - Reader layer: eight short sections, with the behavioral-tier sentence
+    verbatim and the open-notices sentence derived from the outcomes.
+  - Specialist block: the six mechanisms; A-16 **6** with queue items; outcomes
+    94/96 · 87/96 · 96/96 with committed-record links and D12's sentence; the
+    log, **11 rows** (open ×7, resolved by ×2, resolution of ×2).
+  - Amin's browser review, four template edits: a selector lede (`[site]
+    lede`); the ruling clause in "Gates"; "Open notices" naming the ruling from
+    the record's `publication.ruling`; "results" → "checks passed".
+  **FAIL-CLOSED, before any write:** incomplete page set; `unregistered`
+  disagreement (D2); slot or card mismatch (D5); log rows ≠ Σ quarantine lines
+  (D1); a DET-79 literal on a new page (D9); a rewrite form not present once
+  (D4).
+  **NAMED DEFAULTS:** `TOKEN_ORDER` must equal the site's token directories;
+  first sentence = first paragraph to its first ". "; inverse substitution
+  (D8); no nav in the selector header (§3.2's "nothing else").
+  **REWRITES (D4), index.html only, sha256[:8]:** crvUSD `996a25d1` →
+  `fb56ee7c`, GHO `f0e396e3` → `0b8f8404`, LUSD `75a2882f` → `37f55aec`. Each
+  page's diff is 3 lines: two hrefs and the nav line. Appendix, verify and data/
+  are byte-identical. A fresh LUSD rehearsal render emits the same three forms.
+  **template_hash** `aa81c051` → `665c1bab`; manifests keep `aa81c051`.
+  **WORKFLOW** `pages.yml` puts `environment:` in block style (D13); action
+  versions are named defaults. **README.md** is 38 lines, and notes that no
+  LICENSE exists.
+  **TESTS 300 → 305** (`tests/test_site.py`: committed-state build, rewrites
+  once plus a byte-identical rebuild, the literal stop, the row-count stop, the
+  workflow as text); no test pinned template_hash; ruff clean.
+  **AS-COUNTED.** Builder:
+  - P-9.01 was appended at **85** content lines once the rulings filled its
+    slots (65 accepted at the draft);
+  - Inventory D cited the withdrawal at `__main__.py` l.576; it is l.574–575;
+  - two long lines and one wrong test assertion were fixed before the suite
+    ran.
+  Design layer: the 20-line growth of P-9.01 from 65 to 85 came from the
+  design layer's ruling text.
+- **Artifacts:** `src/factory/site.py` (new) · `src/factory/report/render.py` ·
+  `src/factory/validate/harness.py`; `templates/site/` (new) ·
+  `templates/{base,index}.html.j2` · `templates/wording.toml`;
+  `out/site/{index.html,methodology.html,site.css,site.json}` (new) ·
+  `out/site/{crvUSD,GHO,LUSD}/index.html` (rewritten);
+  `.github/workflows/pages.yml`, `README.md`, `tests/test_site.py` (new).
+  Housekeeping: `.env.example` restored (unintended deletion); `.gitignore` +
+  `out/context-*/`; `tools/export_context.py` committed. `PROGRESS.md`.
+- **Follow-ups spawned:**
+  - Amin: push, enable Pages (source "GitHub Actions"), trigger `pages`; P-9.03
+    closes Step 9 when the site is live and all five pages are opened.
+  - Step 8: the report stage's withdrawal (`__main__.py` l.574–575) would
+    delete the root pages if every token were withdrawn; queued, not fixed.
+  - P-7.11's three $0 fixes, still queued.

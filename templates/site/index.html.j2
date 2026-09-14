@@ -1,0 +1,18 @@
+{% extends "site/site_base.html.j2" %}
+{% block lede %}  <p class="lede">{{ s.lede }}</p>
+{% endblock %}
+{% block body %}
+<div class="token-cards">
+{% for c in cards %}
+<article class="token-card">
+  <h2><a href="{{ c.token }}/index.html">{{ c.token }}</a></h2>
+  <p class="meta">read {{ c.read }} · block {{ c.run_block }} · report <code title="{{ c.report_hash }}">{{ c.report_hash[:8] }}</code></p>
+  <p class="finding">{{ c.finding }}</p>
+  <p class="meta figures">{{ c.figures }}</p>
+  <div class="pills">{{ c.pill }}</div>
+  <nav class="links"><a href="{{ c.token }}/index.html">report</a><a href="{{ c.token }}/appendix.html">appendix</a><a href="{{ c.token }}/verify.html">verify</a></nav>
+</article>
+{% endfor %}
+</div>
+<nav class="links site-foot"><a href="methodology.html">methodology</a><a href="{{ repo_url }}">repository</a></nav>
+{% endblock %}

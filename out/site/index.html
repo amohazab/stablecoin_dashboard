@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stablecoin Dashboard</title>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+<main>
+<header class="page">
+  <h1>Stablecoin Dashboard</h1>
+  <p class="meta">structural risk reports for CDP stablecoins · Amin Mohazab · github.com/amohazab</p>
+  <p class="lede">Automated structural risk reports: every figure is read from Ethereum at one fixed block and traces to the contract call that produced it — see the methodology page.</p>
+
+
+</header>
+
+<div class="token-cards">
+
+<article class="token-card">
+  <h2><a href="crvUSD/index.html">crvUSD</a></h2>
+  <p class="meta">read 2026-09-14 09:53 UTC · block 25974925 · report <code title="8ac6132bc407aad7549f4d9f7ab127e229b521c03c58f5a8a66f03576c4f2912">8ac6132b</code></p>
+  <p class="finding">Of the total supply of $2.1B, only $82.9M is backed by the traced mint-market collateral this report follows; the residual of $2.0B is described as crvUSD minted but not borrowed, held by the protocol&#39;s own contracts, not in circulation, with the named causes accounting for it.</p>
+  <p class="meta figures">Supply $2.1B · Bad debt, headline scenario $6, structurally zero · Exit liquidity, headline scenario $20.4M</p>
+  <div class="pills"><span class="pill red">3 notice(s): judge instability, gate failure and harness error</span></div>
+  <nav class="links"><a href="crvUSD/index.html">report</a><a href="crvUSD/appendix.html">appendix</a><a href="crvUSD/verify.html">verify</a></nav>
+</article>
+
+<article class="token-card">
+  <h2><a href="GHO/index.html">GHO</a></h2>
+  <p class="meta">read 2026-09-14 09:55 UTC · block 25974932 · report <code title="447281cb4b87dcd40bd17e9fd0a8b9db741d4fd2c825262d5e1a0a15dd6183d1">447281cb</code></p>
+  <p class="finding">GHO&#39;s supply of $699.0M is minted entirely through Aave facilitators, and 21.5% of that supply ($150.0M) is issued against off-mainnet facilitators on Arbitrum, Monad and Plasma, whose backing is not traced by this tree.</p>
+  <p class="meta figures">Supply $699.0M · Bad debt, headline scenario $8.6M · Exit liquidity, headline scenario $18.8M</p>
+  <div class="pills"><span class="pill red">4 notice(s): freeze coverage below target, off-venue share 92.4%, gate failure and harness error</span></div>
+  <nav class="links"><a href="GHO/index.html">report</a><a href="GHO/appendix.html">appendix</a><a href="GHO/verify.html">verify</a></nav>
+</article>
+
+<article class="token-card">
+  <h2><a href="LUSD/index.html">LUSD</a></h2>
+  <p class="meta">read 2026-09-14 09:58 UTC · block 25974949 · report <code title="003b4fcd0638ac8ecc7f5b741c212bd3945356560174af11409c36a9c03e7da7">003b4fcd</code></p>
+  <p class="finding">Every LUSD in supply, $26.2M, is accounted for as trove debt, so the residual is $0: there is no unexplained gap between what&#39;s issued and what&#39;s backed.</p>
+  <p class="meta figures">Supply $26.2M · Bad debt, headline scenario $0, structurally zero · Exit liquidity, headline scenario $8.8M</p>
+  <div class="pills"><span class="pill green">No warnings this run</span></div>
+  <nav class="links"><a href="LUSD/index.html">report</a><a href="LUSD/appendix.html">appendix</a><a href="LUSD/verify.html">verify</a></nav>
+</article>
+
+</div>
+<nav class="links site-foot"><a href="methodology.html">methodology</a><a href="https://github.com/amohazab/stablecoin_dashboard">repository</a></nav>
+
+</main>
+</body>
+</html>

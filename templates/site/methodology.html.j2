@@ -1,0 +1,100 @@
+{% extends "site/site_base.html.j2" %}
+{% block title %}Methodology — {{ s.title }}{% endblock %}
+{% block heading %}How these reports are made{% endblock %}
+{% block nav %}<nav class="links meta"><a href="index.html">{{ w.nav.all_tokens }}</a><a href="{{ repo_url }}">repository</a></nav>
+{% endblock %}
+{% block body %}
+<div class="method">
+<p class="lede">{{ s.title }} publishes structural risk reports for stablecoins backed by collateralised debt positions: what backs each token, how much of that backing can be checked on-chain, and how it holds up under stress. An automated pipeline produces them; this page explains the rules it follows.</p>
+
+<section>
+<h2>Every number traces to a pinned call</h2>
+<p class="prose">Every figure in a report is computed from Ethereum data read at one fixed block. Each value is stored with the contract call that produced it, so anyone can repeat that call on their own node, at that block, and get the same number. An AI model writes the explanatory text around the figures. It never supplies a number: its text is checked against the report's data table before anything is published.</p>
+</section>
+
+<section>
+<h2>Gates, and why their log is public</h2>
+<p class="prose">A gate is a check that must pass before a report is published. A minor finding publishes with a visible notice; a serious one withholds the report, except where a recorded ruling published a page regardless — the two cases on this site are stated under Open notices. Every time a gate fires, a public log records the date, the token, what kind of check fired, how serious it was, and how it was resolved. Anyone can say their work is checked; a log of checks stopping reports is the evidence. The log below holds {{ n_log }} entries.</p>
+</section>
+
+<section>
+<h2>One revision, no hand edits</h2>
+<p class="prose">A report gets one revision. If it fails its checks a second time, the fault is treated as a fault in the template, the rules or the prompts: those are fixed and the report is generated again. No report is edited by hand, and no gate can be switched off for a single run.</p>
+</section>
+
+<section>
+<h2>Same scenarios, each protocol's own mechanics</h2>
+<p class="prose">The archetype fixes the scenarios so the three pages are comparable; what happens under each shock is modelled from each protocol's own contracts.</p>
+</section>
+
+<section>
+<h2>Checked by hand</h2>
+<p class="prose">For each token, the analyst repeated a sample of the stress calls through an independent node at the report's block and compared the results with the published artifact. Each token's verify page lists the calls, so you can repeat them too.</p>
+</section>
+
+<section>
+<h2>Open notices</h2>
+<p class="prose">{{ notices_sentence }}</p>
+</section>
+
+<section>
+<h2>What is not covered yet</h2>
+<p class="prose">{{ w.behavioral_tier }}</p>
+</section>
+
+<section>
+<h2>References such as P-7.11</h2>
+<p class="prose">The appendix pages cite entries such as P-7.11. These are entries in the project's decision log, <a href="{{ blob }}/PROGRESS.md">PROGRESS.md</a>, where every ruling and implementation step is recorded in the order it was confirmed.</p>
+</section>
+
+<h2 class="specialists">{{ w.specialists }}</h2>
+<details>
+<summary>The six mechanisms behind the claim</summary>
+<ol class="plain">
+<li>One block, one table, one formatter: every contract read in a run carries the run's <code>run_block</code> (rubric 0.5, R-13); every rendered figure replays from a flat-table field (DET-84) and is formatted by one rule (DET-89).</li>
+<li>Fail-closed: a missing or erroring gate result means no publication (DET-85, T-25).</li>
+<li>Gate integrity: the page embeds the hash of what it was built from; no page publishes with an open Level 2/3 entry, and no override or output-edit resolution exists (DET-13). Pages published by ruling carry their open entries, shown in the table below.</li>
+<li>The stale-page banner: "Last successful run / Current run: quarantined", and "Under review" after four quarantined runs (DET-59, memo §8.1.2).</li>
+<li>The public log: category-level, one entry per trigger fired (DET-60, memo §8.1.3); this page's row count is checked against the log when the site is built.</li>
+<li>Numbers never originate from the model: generate → evaluate → one revision → ship or quarantine; findings patch templates, rubrics or prompts, never a report (brief §6–§7, rubric §6 and 2.2, LLM-01).</li>
+</ol>
+</details>
+
+<details>
+<summary>Rubric entries not yet registered ({{ a16.count }})</summary>
+<p class="prose">{{ a16.count }} rubric entries are not yet registered in the harness. Until they are, a report's completeness is measured over the registered entries (rubric amendment A-16); each is listed here with its queue item.</p>
+<table class="striped">
+<tr><th>entry</th><th>queue item</th></tr>
+{% for u in a16.ids %}<tr><td><code>{{ u.entry_id }}</code></td><td>{{ u.queue_item }}</td></tr>
+{% endfor %}
+</table>
+</details>
+
+<details>
+<summary>Outcome per token</summary>
+<table class="striped">
+<tr><th>token</th><th>block</th><th>report</th><th class="num">checks passed</th><th>outcome</th><th>open log entries</th><th>gate record</th></tr>
+{% for o in outcomes %}<tr><td><a href="{{ o.token }}/index.html">{{ o.token }}</a></td><td>{{ o.run_block }}</td><td><code title="{{ o.report_hash }}">{{ o.report_hash[:8] }}</code></td><td class="num">{{ o.passed }}/{{ o.total }}</td><td><code>{{ o.outcome }}</code></td><td>{% if o.open %}{% for e in o.open %}<code>{{ e.id }}</code> {{ e.trigger }}{% if not loop.last %}, {% endif %}{% endfor %}{% else %}none{% endif %}</td><td><a href="{{ o.record_url }}">committed record</a></td></tr>
+{% endfor %}
+</table>
+<p class="prose">Each page's <code>data/evaluation-&lt;block&gt;.json</code> is the gate record as rendered; the ruled outcome is in the committed record, linked in the last column.</p>
+</details>
+
+<details>
+<summary>The public log ({{ n_log }} rows)</summary>
+<table class="striped">
+<tr><th>entry</th><th>date</th><th>token</th><th>category</th><th>trigger</th><th class="num">level</th><th>resolution type</th><th>resolution date</th><th>status</th></tr>
+{% for r in log_rows %}<tr class="log-row"><td><code>{{ r.id }}</code></td><td>{{ r.date }}</td><td>{{ r.token }}</td><td>{{ r.category }}</td><td>{{ r.trigger }}</td><td class="num">{{ r.level }}</td><td>{{ r.resolution_type }}</td><td>{{ r.resolution_date }}</td><td>{{ r.status }}</td></tr>
+{% endfor %}
+</table>
+<p class="meta">{{ n_log }} rows, one per quarantine line in the three token logs.</p>
+</details>
+
+<nav class="links">
+  <a href="{{ blob }}/{{ w.memo.section }}">archetype memo</a>
+  <a href="{{ blob }}/{{ w.memo.sheet }}">intake sheet</a>
+  <a href="{{ blob }}/docs/context/rubic_v1.md">rubric</a>
+  <a href="{{ blob }}/PROGRESS.md">PROGRESS.md</a>
+</nav>
+</div>
+{% endblock %}

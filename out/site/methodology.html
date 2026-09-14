@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Methodology — Stablecoin Dashboard</title>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+<main>
+<header class="page">
+  <h1>How these reports are made</h1>
+  <p class="meta">structural risk reports for CDP stablecoins · Amin Mohazab · github.com/amohazab</p>
+
+<nav class="links meta"><a href="index.html">all tokens</a><a href="https://github.com/amohazab/stablecoin_dashboard">repository</a></nav>
+
+</header>
+
+<div class="method">
+<p class="lede">Stablecoin Dashboard publishes structural risk reports for stablecoins backed by collateralised debt positions: what backs each token, how much of that backing can be checked on-chain, and how it holds up under stress. An automated pipeline produces them; this page explains the rules it follows.</p>
+
+<section>
+<h2>Every number traces to a pinned call</h2>
+<p class="prose">Every figure in a report is computed from Ethereum data read at one fixed block. Each value is stored with the contract call that produced it, so anyone can repeat that call on their own node, at that block, and get the same number. An AI model writes the explanatory text around the figures. It never supplies a number: its text is checked against the report's data table before anything is published.</p>
+</section>
+
+<section>
+<h2>Gates, and why their log is public</h2>
+<p class="prose">A gate is a check that must pass before a report is published. A minor finding publishes with a visible notice; a serious one withholds the report, except where a recorded ruling published a page regardless — the two cases on this site are stated under Open notices. Every time a gate fires, a public log records the date, the token, what kind of check fired, how serious it was, and how it was resolved. Anyone can say their work is checked; a log of checks stopping reports is the evidence. The log below holds 11 entries.</p>
+</section>
+
+<section>
+<h2>One revision, no hand edits</h2>
+<p class="prose">A report gets one revision. If it fails its checks a second time, the fault is treated as a fault in the template, the rules or the prompts: those are fixed and the report is generated again. No report is edited by hand, and no gate can be switched off for a single run.</p>
+</section>
+
+<section>
+<h2>Same scenarios, each protocol's own mechanics</h2>
+<p class="prose">The archetype fixes the scenarios so the three pages are comparable; what happens under each shock is modelled from each protocol's own contracts.</p>
+</section>
+
+<section>
+<h2>Checked by hand</h2>
+<p class="prose">For each token, the analyst repeated a sample of the stress calls through an independent node at the report's block and compared the results with the published artifact. Each token's verify page lists the calls, so you can repeat them too.</p>
+</section>
+
+<section>
+<h2>Open notices</h2>
+<p class="prose">crvUSD&#39;s and GHO&#39;s pages were published by a recorded ruling (P-7.11) from their last evaluation run, with the quarantine banner removed and the open notices kept in each page&#39;s notices pill; LUSD&#39;s page passed every check.</p>
+</section>
+
+<section>
+<h2>What is not covered yet</h2>
+<p class="prose">The behavioral tier — how the token trades: peg deviation, liquidity, holder concentration and flows — will come from an external monitoring service and is pending.</p>
+</section>
+
+<section>
+<h2>References such as P-7.11</h2>
+<p class="prose">The appendix pages cite entries such as P-7.11. These are entries in the project's decision log, <a href="https://github.com/amohazab/stablecoin_dashboard/blob/master/PROGRESS.md">PROGRESS.md</a>, where every ruling and implementation step is recorded in the order it was confirmed.</p>
+</section>
+
+<h2 class="specialists">Detail for specialists</h2>
+<details>
+<summary>The six mechanisms behind the claim</summary>
+<ol class="plain">
+<li>One block, one table, one formatter: every contract read in a run carries the run's <code>run_block</code> (rubric 0.5, R-13); every rendered figure replays from a flat-table field (DET-84) and is formatted by one rule (DET-89).</li>
+<li>Fail-closed: a missing or erroring gate result means no publication (DET-85, T-25).</li>
+<li>Gate integrity: the page embeds the hash of what it was built from; no page publishes with an open Level 2/3 entry, and no override or output-edit resolution exists (DET-13). Pages published by ruling carry their open entries, shown in the table below.</li>
+<li>The stale-page banner: "Last successful run / Current run: quarantined", and "Under review" after four quarantined runs (DET-59, memo §8.1.2).</li>
+<li>The public log: category-level, one entry per trigger fired (DET-60, memo §8.1.3); this page's row count is checked against the log when the site is built.</li>
+<li>Numbers never originate from the model: generate → evaluate → one revision → ship or quarantine; findings patch templates, rubrics or prompts, never a report (brief §6–§7, rubric §6 and 2.2, LLM-01).</li>
+</ol>
+</details>
+
+<details>
+<summary>Rubric entries not yet registered (6)</summary>
+<p class="prose">6 rubric entries are not yet registered in the harness. Until they are, a report's completeness is measured over the registered entries (rubric amendment A-16); each is listed here with its queue item.</p>
+<table class="striped">
+<tr><th>entry</th><th>queue item</th></tr>
+<tr><td><code>DET-09</code></td><td>P-4.01 (DET-09 set-file inputs: GHO discovery_m absent, LUSD 0.4459 - ruling)</td></tr>
+<tr><td><code>DET-75</code></td><td>P-4.01 #25/#26 (field-existence clause; FR-14 fields)</td></tr>
+<tr><td><code>DET-76abcd</code></td><td>P-4.01 (DET-76 limbs a-d beside the registered DET-76e)</td></tr>
+<tr><td><code>DET-81</code></td><td>P-4.01 (GHO [[reference_feed]] rows, gap column - P-7.05)</td></tr>
+<tr><td><code>DET-23abd</code></td><td>P-4.01 (DET-23 limbs a/b/d beside the registered DET-23c)</td></tr>
+<tr><td><code>DET-64</code></td><td>P-4.01 (GHO attribution cross-check: aggregate reads)</td></tr>
+
+</table>
+</details>
+
+<details>
+<summary>Outcome per token</summary>
+<table class="striped">
+<tr><th>token</th><th>block</th><th>report</th><th class="num">checks passed</th><th>outcome</th><th>open log entries</th><th>gate record</th></tr>
+<tr><td><a href="crvUSD/index.html">crvUSD</a></td><td>25974925</td><td><code title="8ac6132bc407aad7549f4d9f7ab127e229b521c03c58f5a8a66f03576c4f2912">8ac6132b</code></td><td class="num">94/96</td><td><code>published_without_banner_by_ruling</code></td><td><code>crvUSD:10</code> T-28, <code>crvUSD:11</code> T-25, <code>crvUSD:12</code> T-24</td><td><a href="https://github.com/amohazab/stablecoin_dashboard/blob/master/out/evaluation/crvUSD/25974925.json">committed record</a></td></tr>
+<tr><td><a href="GHO/index.html">GHO</a></td><td>25974932</td><td><code title="447281cb4b87dcd40bd17e9fd0a8b9db741d4fd2c825262d5e1a0a15dd6183d1">447281cb</code></td><td class="num">87/96</td><td><code>published_without_banner_by_ruling</code></td><td><code>GHO:9</code> T-02, <code>GHO:10</code> T-20, <code>GHO:11</code> T-28, <code>GHO:12</code> T-25</td><td><a href="https://github.com/amohazab/stablecoin_dashboard/blob/master/out/evaluation/GHO/25974932.json">committed record</a></td></tr>
+<tr><td><a href="LUSD/index.html">LUSD</a></td><td>25974949</td><td><code title="003b4fcd0638ac8ecc7f5b741c212bd3945356560174af11409c36a9c03e7da7">003b4fcd</code></td><td class="num">96/96</td><td><code>published</code></td><td>none</td><td><a href="https://github.com/amohazab/stablecoin_dashboard/blob/master/out/evaluation/LUSD/25974949.json">committed record</a></td></tr>
+
+</table>
+<p class="prose">Each page's <code>data/evaluation-&lt;block&gt;.json</code> is the gate record as rendered; the ruled outcome is in the committed record, linked in the last column.</p>
+</details>
+
+<details>
+<summary>The public log (11 rows)</summary>
+<table class="striped">
+<tr><th>entry</th><th>date</th><th>token</th><th>category</th><th>trigger</th><th class="num">level</th><th>resolution type</th><th>resolution date</th><th>status</th></tr>
+<tr class="log-row"><td><code>crvUSD:10</code></td><td>2026-09-14</td><td>crvUSD</td><td>gate failure</td><td>T-28</td><td class="num">2</td><td>—</td><td>—</td><td>open</td></tr>
+<tr class="log-row"><td><code>crvUSD:11</code></td><td>2026-09-14</td><td>crvUSD</td><td>harness error</td><td>T-25</td><td class="num">2</td><td>—</td><td>—</td><td>open</td></tr>
+<tr class="log-row"><td><code>crvUSD:12</code></td><td>2026-09-14</td><td>crvUSD</td><td>judge instability</td><td>T-24</td><td class="num">2</td><td>—</td><td>—</td><td>open</td></tr>
+<tr class="log-row"><td><code>GHO:9</code></td><td>2026-09-14</td><td>GHO</td><td>off-venue share &gt; 25%</td><td>T-02</td><td class="num">1</td><td>—</td><td>—</td><td>open</td></tr>
+<tr class="log-row"><td><code>GHO:10</code></td><td>2026-09-14</td><td>GHO</td><td>freeze coverage below target</td><td>T-20</td><td class="num">1</td><td>—</td><td>—</td><td>open</td></tr>
+<tr class="log-row"><td><code>GHO:11</code></td><td>2026-09-14</td><td>GHO</td><td>gate failure</td><td>T-28</td><td class="num">2</td><td>—</td><td>—</td><td>open</td></tr>
+<tr class="log-row"><td><code>GHO:12</code></td><td>2026-09-14</td><td>GHO</td><td>harness error</td><td>T-25</td><td class="num">2</td><td>—</td><td>—</td><td>open</td></tr>
+<tr class="log-row"><td><code>LUSD:7</code></td><td>2026-09-14</td><td>LUSD</td><td>gate failure</td><td>T-28</td><td class="num">2</td><td>—</td><td>—</td><td>resolved by LUSD:9</td></tr>
+<tr class="log-row"><td><code>LUSD:8</code></td><td>2026-09-14</td><td>LUSD</td><td>judge instability</td><td>T-24</td><td class="num">2</td><td>—</td><td>—</td><td>resolved by LUSD:10</td></tr>
+<tr class="log-row"><td><code>LUSD:9</code></td><td>2026-09-14</td><td>LUSD</td><td>gate failure</td><td>T-28</td><td class="num">2</td><td>template change</td><td>2026-09-14</td><td>resolution of LUSD:7</td></tr>
+<tr class="log-row"><td><code>LUSD:10</code></td><td>2026-09-14</td><td>LUSD</td><td>judge instability</td><td>T-24</td><td class="num">2</td><td>template change</td><td>2026-09-14</td><td>resolution of LUSD:8</td></tr>
+
+</table>
+<p class="meta">11 rows, one per quarantine line in the three token logs.</p>
+</details>
+
+<nav class="links">
+  <a href="https://github.com/amohazab/stablecoin_dashboard/blob/master/docs/context/archetype-memo-1-cdp.md">archetype memo</a>
+  <a href="https://github.com/amohazab/stablecoin_dashboard/blob/master/docs/context/intake-sheets-cdp.md">intake sheet</a>
+  <a href="https://github.com/amohazab/stablecoin_dashboard/blob/master/docs/context/rubic_v1.md">rubric</a>
+  <a href="https://github.com/amohazab/stablecoin_dashboard/blob/master/PROGRESS.md">PROGRESS.md</a>
+</nav>
+</div>
+
+</main>
+</body>
+</html>

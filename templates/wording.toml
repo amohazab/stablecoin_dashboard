@@ -314,3 +314,18 @@ staleness = "not assessed in this pilot"
 [memo]
 section = "docs/context/archetype-memo-1-cdp.md"
 sheet = "docs/context/intake-sheets-cdp.md"
+
+# Step 9 (P-9.01 D4): the repository the memo/sheet links resolve to, on its real
+# default branch; the header nav's link back to the selector page.
+[repo]
+url = "https://github.com/amohazab/stablecoin_dashboard"
+branch = "master"
+
+[nav]
+all_tokens = "all tokens"
+
+# Step 9 (P-9.01): the selector and methodology pages.
+[site]
+title = "Stablecoin Dashboard"
+author = "structural risk reports for CDP stablecoins · Amin Mohazab · github.com/amohazab"
+lede = "Automated structural risk reports: every figure is read from Ethereum at one fixed block and traces to the contract call that produced it — see the methodology page."
