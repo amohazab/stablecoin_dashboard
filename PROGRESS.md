@@ -51,6 +51,9 @@ Status: DONE (opened 2026-09-12; done-condition met 2026-09-13, P-6.12).
 ## Step 7 — Report generation + evaluation loop
 Status: DONE (opened 2026-09-13; done-condition met 2026-09-14, P-7.11).
 
+## Step 9 — Static site v1
+Status: IN PROGRESS (opened 2026-09-14).
+
 ## P-3.01 — Block 0.1 anomaly dispositions; Python stack ruling; checksum task
 - **Date:** 2026-09-03
 - **Type:** flag-disposition
@@ -8336,3 +8339,99 @@ Status: DONE (opened 2026-09-13; done-condition met 2026-09-14, P-7.11).
       grid, because <reason>");
     - the guard accepting numerically equal percentages with fewer decimals;
     - pass 2 skipped when pass 1's only defects lie outside prose.
+
+## P-9.01 — Step 9 opened: Inventory D, the rulings
+
+- **Date:** 2026-09-14
+- **Type:** decision
+- **Confirmed by:** Amin
+- **Content:**
+  **OPENED AT** `26cb1a9`, pushed to `origin/master`: 300 tests, ruff clean,
+  `len(CHECKS)` 96. report_hash `8ac6132b` / `447281cb` / `003b4fcd`, each
+  byte-equal to its `out/site/<T>/data/manifest.json`; `out/site/` tracked
+  (22 files). Inventory D is at `out/reports/step9-inventory-d.md` (76 lines,
+  gitignored). **Echo differences:** (1) `.env.example` shows as deleted and
+  `out/context-step9/` and `tools/export_context.py` are untracked. Step 9
+  touches none of them, and none is staged. (2) The default branch is
+  **`master`**, not `main` → D4.
+  **RULED BY AMIN (2026-09-13/14), as stated.**
+  - Site title "Stablecoin Dashboard". Author line "structural risk reports for
+    CDP stablecoins · Amin Mohazab · github.com/amohazab".
+  - **Selector** `out/site/index.html`: three token cards (name, run date and
+    block, one-line finding, notices pill, links to report / appendix /
+    verify), plus links to the methodology page and the repository. Same
+    stylesheet, no JavaScript. Rendered by the generator from manifests and
+    gate records, never hand-written.
+  - **Methodology** `out/site/methodology.html`: non-specialist first,
+    specialist below, with the content list of kickoff §3.3.
+  - **Deployment:** GitHub Actions on `workflow_dispatch` uploads `out/site/`
+    as the Pages artifact. No build on the runner, no secrets, no API. Pages
+    is enabled by Amin.
+  - **Done** when the site is live and Amin has opened all five pages. Memo and
+    sheet links resolve to the repository's files on GitHub. README.md ≤ 40
+    lines.
+  - No `--llm` run in Step 9. Step 8 stays deferred. P-7.11's three $0 fixes
+    are not Step 9's.
+  **DECISION POINTS** (Inventory D §F; each ruling recorded as stated).
+  - D1 DET-60's row-count clause is enforced at site build: `factory.site`
+    refuses to write when rendered log rows ≠ Σ quarantine lines; det_60's
+    docstring names it. — Ruled: confirmed.
+  - D2 A-16's count and the six IDs with their queue items, from the gate
+    records' `unregistered` (identical ×6). — Ruled: confirmed.
+  - D3 `templates/site/` sits inside template_hash; no re-render, so manifests
+    keep `aa81c051`. — Ruled: confirmed.
+  - D4 Two recorded, idempotent rewrites of the three token index pages:
+    - memo/sheet hrefs → `https://github.com/amohazab/stablecoin_dashboard/blob/master/docs/context/<file>`;
+    - an "all tokens" link in the header nav.
+    Templates fixed for future renders (`wording.toml [repo]`, `index.html.j2`,
+    `base.html.j2`); appendix, verify and data/ untouched. — Ruled: confirmed
+    with the branch as it is: `master`, links `…/blob/master/docs/context/<file>`;
+    no rename. Rewrite (ii) reaches index.html only; appendix/verify gain the
+    link at a future render. wording.toml [repo] carries url and branch.
+  - D5 The finding is the first sentence of the rendered `structural_summary`,
+    asserted equal to the record's highest-pass text. FLAG: all three lead on
+    supply accounting, not stress. — Ruled: confirmed as the first sentence of
+    the rendered structural_summary, asserted equal to the record's highest-pass
+    text. Addition: under the sentence, one meta line with the page's three
+    stat-card figures in compact form from the same table rows the cards use
+    (`supply.supply_ruled`, `headline.m2.bad_debt` with "structurally zero" when
+    the flag is set, `headline.m3.exit_depth`), through render.Formatter — no
+    new number originates here.
+  - D6 The notices pill is copied from the page, colour included.
+    — Ruled: confirmed.
+  - D7 `out/site/style.css` stays byte-identical; the new pages add `site.css`.
+    — Ruled: confirmed.
+  - D8 `out/site/site.json`, no timestamp or HEAD; two builds are
+    byte-identical ("before" by inverse substitution). — Ruled: confirmed
+    (inverse substitution as implementer default).
+  - D9 DET-79's `literals` are scanned over the two new pages; a match stops
+    the build. — Ruled: confirmed, literals only.
+  - D10 One log row per quarantine line, with a status column from
+    `open_entries`; the T-id appears in the specialist table only.
+    — Ruled: confirmed in the refined form: one row per quarantine line with
+    date · token · category · level · resolution type · resolution date ("—"
+    when null) · status from open_entries; entry id and T-id in the specialist
+    table only.
+  - D11 URL `https://amohazab.github.io/stablecoin_dashboard/`.
+    — Ruled: confirmed.
+  - D12 Outcome, results and triggers are read from
+    `out/evaluation/<T>/<blk>.json`; the site copies carry the outcome as
+    rendered. — Ruled: confirmed, plus one specialist-block sentence: each
+    page's data/evaluation-<blk>.json is the record as rendered; the ruled
+    outcome is in the committed record, linked at
+    …/blob/master/out/evaluation/<T>/<blk>.json.
+  - D13 `environment:` in block style (the flow form is not valid YAML); the
+    workflow test is a text assertion, with no new dependency.
+    — Ruled: confirmed: block-style `environment:`, text assertions, no PyYAML.
+  **AS-COUNTED.** Design layer: the kickoff assumed branch `main`; §3.5's
+  flow-style `environment:` was invalid YAML; the D5 flag was stated for crvUSD
+  only — it holds for all three. Builder: message 1/2 carried no END marker of
+  its own. Content count 65 at the draft: accepted by ruling (a rulings entry;
+  P-7.01 precedent).
+  **CONVENTIONS CARRIED FORWARD:** BEGIN/END markers; entry drafts as scratch
+  files read back with the measured count; reports over ~120 lines to
+  `out/reports/`; analyst values drafted blank.
+- **Artifacts:** `PROGRESS.md` — the `## Step 9` heading and status line, and
+  this entry. No code, config or `docs/context/` change.
+- **Follow-ups spawned:** the build (kickoff §3), then P-9.02 after Amin's
+  browser review.
