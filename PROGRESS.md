@@ -7975,3 +7975,104 @@ Status: IN PROGRESS (opened 2026-09-13, P-7.01).
 - **Follow-ups spawned:** the stop on the S3 failures (report §5): B-11c template literals
   and `fmt` routing; rulings on DET-79's `#\d+` vs DET-73, R19's patterns over the appendix and
   verify, the token `decimals()` read, and the retirement of S1/S2; then B-12.
+
+## P-5.01-A2 — AMEND P-5.01 — R1's `supply_ruled` rule, a second carve-out
+
+- **Date:** 2026-09-14
+- **Type:** AMEND
+- **Confirmed by:** Amin
+- **Content:**
+  R1's "shares over `backing_value` only, nothing over `supply_ruled`" carries a second carve-out beside P-5.01-A1's off-mainnet line: the stabilizer ceiling aggregate's share of `supply_ruled`, folded tree-side for DET-22 (B-11d); DET-19's allowed set gains `stabilizer_slice.ceiling_share_of_supply_ruled`, no bundle leaf; P-5.01 and P-5.01-A1 stand unedited.
+- **Artifacts:** `PROGRESS.md`. The code rides P-7.08.
+- **Follow-ups spawned:** none.
+
+## P-7.08 — B-11c/c′/d: the rubric literals placed, the copied rows, the signed edit, the decimals read; S3 14/15 ×3; B-11 closed
+
+- **Date:** 2026-09-14
+- **Type:** decision + implementation
+- **Confirmed by:** Amin
+- **Content:**
+  **P-7.07 COMMITTED** at `2c5ec34`.
+  **AMIN'S RULINGS on the B-11b stop, as stated.** (a) B-11c is template-only. (b)1 the bare
+  `#\d+` leaves R19's list; `P-\d+\.\d+` stays. (b)2 DET-79's citation and `}}` patterns read
+  index.html only — the appendix literals and the verify sheet are verbatim (R11/R19), and
+  the appendix heading reads "artifact literals, verbatim; P-references are entries in the
+  project's decision log". (b)3 the token `decimals()` read is not deferred (B-11d). (b)4 S1/S2
+  retire in B-11d's signed edit, with "DET-47" out of the bias reason. (c) the other failures
+  register failing until fixed. Report §4's named defaults accepted; P-7.07 at 76 accepted.
+  Later rulings: B-11c′ copied rows, tree-side slice and ceiling share, M2 via sheet tag D;
+  `template_hash` = `templates/**` + `src/factory/report/{render,svg}.py`, sorted repo-relative
+  paths, LF; route (i); P-5.01-A2.
+  **B-11c (templates).** In the specialist layer:
+  - DET-29c: §5.7's one-liner with the freeze date and the K90 share;
+  - DET-36: three lines, the rule line on index only where the appendix lacks `lp_flight` ("once");
+  - DET-54: the literal by branch;
+  - DET-56: the three scope-out sentences;
+  - DET-57: `par_numeraire` verbatim;
+  - DET-73: the staleness date on the audit line.
+  The freshness pill carries the worst node's weight (DET-18). Figures now through `fmt`:
+  pill days, tree day pills ("same day" at zero), grid and chart-A labels from the cells' shock,
+  and T-02's flag pill naming its own value. Cleared DET-18, 29c, 36, 54, 56, 57, 73 and
+  DET-89's figure limb; 78 / 78 / 79.
+  **B-11c′.**
+  - Tree fold: `StabilizerSlice {debt, ceiling_aggregate, operation_count,
+    ceiling_share_of_supply_ruled}`. DET-22's S2 half replays it; DET-19 allows the share as
+    R1's second carve-out, with a replay.
+  - Mirror parses: `[audit_tag_date]` (§14 lines) and `[[node_note]]`. Named default:
+    `applies_to` = the row's aTokens less the leading "a".
+  - Rows: `stabilizer.slice.*`; `stabilizer.op.<addr>.{debt_ceiling, utilization, net_position}`
+    (named default: net position = DET-05(c)'s paired leg at par); `exit.curve.s<p>.s`
+    (denominator `price_impact`); `audit.tag_date.*`; `note.<i>.*`.
+  - Page: the slice row, the ceiling row with its share captioned as the upper bound, the
+    operation table, the net-position line, tag dates on their lines, chart B's labels through
+    `fmt`, and M2's note on GHO's DAI / sDAI / USDS rows (named default).
+  **SIGNED EDIT** (Amin 2026-09-14, the signature for all four and the `rubric_change`):
+  - A: S1 retires (l.41; the nested FIRST-RUN READ stays);
+  - B: S2 retires (l.109);
+  - C: "DET-47" leaves the H5 reason (l.88/255/454);
+  - D: the DAI/USDS row (l.215) gains the memo's l.116 Sky tag verbatim, at the end of the third cell.
+  Sheet **`5486f264` → `29682310`**; rubric header re-stamp **`0261c364` → `f1e16ea8`**. Mirrors
+  regenerated; `BIAS_TABLE_DATE` 2026-09-14. Three `intake_trigger` events, 2026-09-14, set
+  files unchanged.
+  **DECLARED DIFF:** `supply.reads.decimals`, one `ContractRead` per token, asserting 18.
+  **P-4.16 at 25970226 / 25970233 / 25970249**, not promoted. `run_start_time`, `sheet_hash` and
+  `offvenue_share` (a live fetch) were pinned. Leaves 2,617 → 2,622 · 2,029 → 2,034 · 791 → 796:
+  six differing leaves each (five decimals-read leaves + `bundle_hash`), undeclared 0.
+  `dbddf680` / `6a215285` / `581bcb4c` reproduced; 15 stored bundles load via `PriorBundle`.
+  The tree-side additions are not bundle leaves. **DET-83** (≤ 3600 s, Level 3) forbids
+  promoting a re-assembly at a stored block, hence route (i).
+  **RUNS, 2026-09-14** (S0/S1 26/26, tree 14/14, stress 26/26; crvUSD re-folded for `GHO@25974932`):
+
+  | token | block | bundle | tree | stress | table | report |
+  |---|---|---|---|---|---|---|
+  | crvUSD | 25974925 | `aa826538` | `aceafe61` | `d1fae157` | `048b1b98` | `c62b7a12` |
+  | GHO | 25974932 | `6b7d77e3` | `46740d07` | `986887b7` | `4e3a73d6` | `3322dc6c` |
+  | LUSD | 25974949 | `9908ce39` | `a88f33f1` | `f01967bb` | `ed3b11e5` | `e480125e` |
+
+  Template `11b6036e`; rows 576 / 610 / 367.
+  **REPORT STAGE ×3:** S0 3, S1 23, S2 41; **S3 14/15, DET-79's `[slot:` alone**; outcome
+  blocked_S3; `out/site/` absent; unregistered 20. GHO triggers: T-20 L1, and T-02 L1 at DET-32's
+  X **0.924342** on the fresh fetch (0.928382 at B-9).
+  **LIGHT SAMPLE (Amin's, 2026-09-14):** matched to the wei ×3 through his RPC with
+  `tools/light_sample_check.py`, which now reads the newest `stress-<block>.md`.
+  `verifications.toml` gains rows for `d1fae157` / `986887b7` / `f01967bb`; earlier rows stay.
+  The old-block report and record files B-11c re-ran were restored to P-7.07.
+  **TESTS 256 → 264** (`tests/test_b11d.py` new); ruff clean.
+  **AS-COUNTED.** Design layer:
+  - the B-11 rulings omitted the rubric's required literals;
+  - R19's bare `#\d+` contradicted DET-73's literal;
+  - B-11d proposed promotion at the stored block (option (ii)) against DET-83.
+  Builder:
+  - the per-operation template sliced the address at `p[13:]` (fixed before the recorded run);
+  - three messages reached Amin without their END marker.
+  **B-11 CLOSED** at seven rounds against the inventory's three.
+- **Artifacts:** `docs/context/intake-sheets-cdp.md` · `docs/context/rubic_v1.md`;
+  `config/{crvusd,gho,lusd}_sheet.toml` · `config/verifications.toml`; `out/logs/events_{crvusd,gho,lusd}.jsonl`;
+  `src/factory/{mirror,run,schema,tree}.py` · `src/factory/adapters/{gho,lusd}.py` ·
+  `src/factory/report/{__main__,manifest,render,table}.py` · `src/factory/validate/harness.py`;
+  `templates/{appendix,index}.html.j2` · `templates/{manifest,wording}.toml`; `tools/light_sample_check.py`;
+  `tests/test_b11d.py` (new) · `tests/{test_b10,test_discovery,test_render,test_s3,test_schema}.py`;
+  `out/{bundles,trees,stress,evaluation}/<T>/<blk>.json` ×3 · `out/report/<T>/<blk>/{table,grid,manifest}.json` ×3;
+  `PROGRESS.md`.
+- **Follow-ups spawned:** B-12 — the log, flags, banner and integrity rows (R14/R15);
+  `out/site/` fills when B-13 fills the prose slots.

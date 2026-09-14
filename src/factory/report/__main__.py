@@ -103,7 +103,7 @@ def build(repo: pathlib.Path, token: str) -> dict:
     report_checks = run_report_checks(b, t, s, {"table": doc, "grid": grid, "mirror": mirror_j})
     parts = {"bundle_hash": b.header.bundle_hash, "tree_hash": t.tree_hash,
              "stress_hash": s.header.stress_hash, "table_hash": doc["table_hash"],
-             "template_hash": manifest.template_hash(repo / "templates"),
+             "template_hash": manifest.template_hash(repo),
              "pipeline_version": b.header.pipeline_version, "sheet_hash": b.header.sheet_hash}
     man = manifest.build(token, b.header.run_block, parts)
     s01 = evaluate_harness(b, harness_ctx(repo, load(repo / "config", token), b, token))

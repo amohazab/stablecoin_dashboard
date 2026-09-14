@@ -33,7 +33,7 @@
 <h2>Reference prices, per collateral</h2>
 <table class="striped">{% for f in ids('refpoint.') if f.endswith('.literal') %}<tr><td>{{ v(f[:-8] ~ '.symbol') }}</td><td>{{ v(f) }}</td></tr>{% endfor %}</table>
 
-<h2>Artifact literals</h2>
+<h2>Artifact literals, verbatim; P-references are entries in the project's decision log</h2>
 <table class="striped">
 <tr><td><code>perimeter</code></td><td>{{ v('tree.root.perimeter') }}</td></tr>
 <tr><td><code>admin banner</code></td><td>{{ v('verif.banner') }}</td></tr>

@@ -76,7 +76,8 @@
 {% if ids('verif.truncated.') %}
 <table class="striped"><tr><th>depth-truncated node</th><th>reason</th><th class="num">share of backing</th></tr>
 {% for f in ids('verif.truncated.') if f.endswith('.share') %}
-<tr><td>{{ rows[f].label[11:] }}</td><td>{{ v(f[:-6] ~ '.reason') }}</td><td class="num" title="{{ f }}">{{ v(f) }}</td></tr>
+{% set sym = raw('tree.node.' ~ f.split('.')[2] ~ '.symbol') if ('tree.node.' ~ f.split('.')[2] ~ '.symbol') in rows else '' %}
+<tr><td>{{ rows[f].label[11:] }}</td><td>{{ v(f[:-6] ~ '.reason') }}{% for n in ids('note.') if n.endswith('.applies_to') and sym in raw(n) %}<br><span class="meta">{{ v(n[:-11] ~ '.note') }} {{ w.rubric.tag_date.format(date=v(n[:-11] ~ '.date')) }}</span>{% endfor %}</td><td class="num" title="{{ f }}">{{ v(f) }}</td></tr>
 {% endfor %}</table>
 {% endif %}
 {% if ids('verif.staleness.0x') %}
@@ -100,10 +101,19 @@
 {% endfor %}
 <tr><td>unexplained after named causes</td><td class="num" title="supply.residual_unexplained">{{ v('supply.residual_unexplained') }}</td></tr>
 <tr><td>stabilizer debt ÷ supply</td><td class="num" title="supply.stabilizer_over_supply">{{ v('supply.stabilizer_over_supply') }}</td></tr>
+<tr><td>{{ w.rubric.slice_row }}</td><td class="num" title="stabilizer.slice.debt">{{ v('stabilizer.slice.debt') }} ({{ v('supply.stabilizer_over_supply') }} of supply)</td></tr>
+<tr><td>{{ w.rubric.ceiling_row }}</td><td class="num" title="stabilizer.slice.ceiling_aggregate">{{ v('stabilizer.slice.ceiling_aggregate') }} ({{ v('stabilizer.slice.ceiling_share') }} of supply)</td></tr>
 {% if 'supply.off_mainnet.amount' in rows %}
 <tr><td>{{ v('supply.off_mainnet.literal') }}</td><td class="num" title="supply.off_mainnet.amount">{{ v('supply.off_mainnet.amount') }} ({{ v('supply.off_mainnet.share') }} of supply)</td></tr>
 {% endif %}
 </table>
+{% if ids('stabilizer.op.') %}
+<table class="striped"><tr><th>stabilizer operation</th><th class="num">ceiling</th><th class="num">utilization</th><th class="num">net position value</th></tr>
+{% for f in ids('stabilizer.op.') if f.endswith('.debt_ceiling') %}{% set p = f[:-13] %}
+<tr><td><code>{{ p[14:] | fmt('address') }}</code></td><td class="num">{{ v(f) }}</td><td class="num">{{ v(p ~ '.utilization') }}</td><td class="num">{{ v(p ~ '.net_position') }}</td></tr>
+{% endfor %}</table>
+<p class="meta">{{ w.rubric.net_position_line }}</p>
+{% endif %}
 {% set seen = namespace(list=[]) %}
 {% for f in ids('supply.cause.') if f.endswith('.family') %}{% if raw(f) not in seen.list %}{% set seen.list = seen.list + [raw(f)] %}{% endif %}{% endfor %}
 {% for fam in seen.list %}
@@ -139,6 +149,11 @@
 <details><summary>{{ w.summaries.chart_b }}</summary>
 <figure class="wide">{{ chart_b | safe }}<figcaption>{{ w.charts.b_caption }}</figcaption></figure>
 <p class="meta">Depeg scenario target: <code>{{ v('exit.member2_target') }}</code> · <a href="appendix.html">every scenario in the appendix</a></p>
+<p class="meta">{{ w.rubric.lp_sticky_line.format(exit=v('headline.m3.exit_depth')) }}</p>
+<p class="meta">{{ w.rubric.lp_grid_line }}</p>
+{# DET-36's "once": the appendix prints the lp_flight literal verbatim where the stress model carries it #}
+{% if 'assumption.lp_flight' not in rows %}<p class="meta">{{ w.rubric.lp_rule_line }}</p>{% endif %}
+<p class="meta">{{ w.rubric.freeze_line.format(date=v('header.freeze_date')) }} {{ w.rubric.k_share.format(share=v('exit.sensitivity.K90.share_of_F')) }}</p>
 <div class="slot">{{ slot('member1_opening') }}</div>
 <div class="slot">{{ slot('member2_opening') }}</div>
 </details>
@@ -182,12 +197,18 @@
 <td>{{ w.oracle.staleness }}</td></tr>
 {% endfor %}</table>
 <p class="meta">{{ w.reference_prices.format(n=n_refs) }}</p>
+{% if 'oracle.max_deviation.value_bps' not in rows %}<p class="meta">{{ w.rubric.observation_ema }}</p>
+{% elif raw('oracle.max_deviation.value_bps') <= 100 %}<p class="meta">{{ w.rubric.observation_exact.format(x=v('oracle.max_deviation.value_bps')) }}</p>
+{% else %}{% set weak = namespace(names=[]) %}{% for f in ids('oracle.0x') if f.endswith('.deviation_bps') and raw(f) > 100 %}{% set n = 'tree.node.' ~ f.split('.')[1] ~ '.symbol' %}{% set weak.names = weak.names + [raw(n) if n in rows else (f.split('.')[1] | fmt('address'))] %}{% endfor %}<p class="meta">{{ w.rubric.observation_weaker.format(nodes=(weak.names | unique | join(', ')), x=v('oracle.max_deviation.value_bps')) }}</p>
+{% endif %}
+<p class="meta">{{ w.rubric.scope_manipulation }} {% if ids('headline.cf.Tellor_fallback.') %}{{ w.rubric.scope_failure_tellor }}{% else %}{{ w.rubric.scope_failure }}{% endif %} {{ w.rubric.scope_sequencer }}</p>
 <div class="slot">{{ slot('flag_explanations') }}</div>
 </details>
 
 <details><summary>{{ w.summaries.audits }}</summary>
 <ul class="plain">{% for f in ids('audit.') if f.endswith('.firm') %}<li>{{ v(f) }} {{ v(f[:-5] ~ '.date') }} — {{ v(f[:-5] ~ '.scope') }}</li>{% endfor %}</ul>
-<p class="meta">Bug bounty: {{ v('audit.bug_bounty.platform') }}, max {{ v('audit.bug_bounty.max') }}. Last material change audited: {{ v('audit.last_material_change_audited') }}. Counterparties: {{ v('audit.counterparties') }}</p>
+{% if 'audit.tag_date.audits' in rows %}<p class="meta">Audit list {{ w.rubric.tag_date.format(date=v('audit.tag_date.audits')) }}</p>{% endif %}
+<p class="meta">Bug bounty: {{ v('audit.bug_bounty.platform') }}, max {{ v('audit.bug_bounty.max') }}{% if 'audit.tag_date.bug_bounty' in rows %} {{ w.rubric.tag_date.format(date=v('audit.tag_date.bug_bounty')) }}{% endif %}. Last material change audited: {{ v('audit.last_material_change_audited') }}{% if 'audit.tag_date.last_material_change_audited' in rows %} {{ w.rubric.tag_date.format(date=v('audit.tag_date.last_material_change_audited')) }}{% endif %}. {{ w.rubric.audit_status.format(date=v('audit.staleness_date')) }} Counterparties: {{ v('audit.counterparties') }}</p>
 </details>
 
 <nav class="links">

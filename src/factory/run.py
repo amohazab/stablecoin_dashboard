@@ -454,6 +454,12 @@ def assemble(cfg: Config, rpc: RpcClient, repo: pathlib.Path, token: str,
 
     # ---- supply + bridges (three-state) -------------------------------------
     ts = int(rpc.read([Call(CRVUSD, "totalSupply()", ("uint256",))])[0].one())
+    # B-11d (DET-89): the token's own `decimals()`, read with provenance at run_block -
+    # the one declared leaf `supply.reads.decimals`. The page's base-unit formatter
+    # divides by 1e18, so any other value stops assembly before the harness.
+    token_decimals = int(rpc.read([Call(CRVUSD, "decimals()", ("uint8",))])[0].one())
+    if token_decimals != 18:
+        raise AssemblyStop(f"crvUSD decimals() = {token_decimals}; base units assume 18")
     bridge_rows = []
     for b in getattr(cfg, "bridges", []):
         amt = int(rpc.read([Call(CRVUSD, "balanceOf(address)", ("uint256",),
@@ -471,7 +477,8 @@ def assemble(cfg: Config, rpc: RpcClient, repo: pathlib.Path, token: str,
                     + sum(o.current_debt for o in ops),
                     residual=0, stabilizer_over_supply=Decimal(
                         sum(o.current_debt for o in ops)) / Decimal(ts),
-                    reads={"total_supply": _cr(CRVUSD, "totalSupply()", rb)})
+                    reads={"total_supply": _cr(CRVUSD, "totalSupply()", rb),
+                           "decimals": _cr(CRVUSD, "decimals()", rb)})
     supply.residual = supply.supply_ruled - supply.origination_sum
     causes, pointer = residual_causes(rpc, repo, cf, markets, ops, rb)
     supply.residual_causes = causes

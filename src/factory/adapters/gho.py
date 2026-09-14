@@ -517,6 +517,13 @@ def build(cfg, rpc, http_get=None, key: str = "", from_block: int = 0):
     reads += n
     supply_total = int(rpc.read([Call(gho, "totalSupply()", ("uint256",))])[0].one())
     reads += 1
+    # B-11d (DET-89): the token's own `decimals()`, read with provenance at run_block -
+    # the one declared leaf `supply.reads.decimals`. The page's base-unit formatter
+    # divides by 1e18, so any other value stops assembly before the harness.
+    token_decimals = int(rpc.read([Call(gho, "decimals()", ("uint8",))])[0].one())
+    reads += 1
+    if token_decimals != 18:
+        raise GhoAdapterStop(f"GHO decimals() = {token_decimals}; base units assume 18")
     check_supply_identity(facilitators, supply_total)
     gsms, n = read_gsms(rpc, registry, http_get=http_get, key=key, from_block=from_block)
     reads += n
@@ -647,6 +654,9 @@ def build(cfg, rpc, http_get=None, key: str = "", from_block: int = 0):
                     stabilizer_over_supply=Decimal(0),
                     reads={"total_supply": ContractRead(
                         source_contract=gho, function="totalSupply()", args=[],
+                        block=rpc.run_block),
+                           "decimals": ContractRead(
+                        source_contract=gho, function="decimals()", args=[],
                         block=rpc.run_block)})
 
     from factory.run import static_metadata_of

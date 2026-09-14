@@ -907,6 +907,17 @@ class ResidualFamily(BaseModel):
     count: int
 
 
+class StabilizerSlice(BaseModel):
+    """B-11c′ (DET-22's S3 half): the slice total and the ceiling total, folded
+    tree-side so the page prints them without computing. The ceiling's share of
+    `supply_ruled` is R1's second carve-out (P-5.01-A2, Amin 2026-09-14)."""
+
+    debt: int
+    ceiling_aggregate: int
+    operation_count: int
+    ceiling_share_of_supply_ruled: Decimal
+
+
 class OracleMaxDeviation(BaseModel):
     """R-B11.5: DET-54's X - the largest signed deviation across the token's
     `deviation_heartbeat` rows (A-19 excludes `nav_schedule`), with the feed
@@ -943,6 +954,7 @@ class VerifiabilityTree(BaseModel):
     nodes: list[TreeNode] = []
     residual_cause_families: list[ResidualFamily] = []
     oracle_max_deviation: OracleMaxDeviation | None = None
+    stabilizer_slice: StabilizerSlice | None = None
     checks: list[GateResult] = []
     flags: list[str] = []
 

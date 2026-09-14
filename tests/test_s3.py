@@ -38,7 +38,7 @@ from factory.validate.harness import (
 )
 
 REPO = pathlib.Path(__file__).resolve().parents[1]
-BLOCKS = {"crvUSD": 25970226, "GHO": 25970233, "LUSD": 25970249}
+BLOCKS = {"crvUSD": 25974925, "GHO": 25974932, "LUSD": 25974949}
 S3_IDS = {"DET-14cd", "DET-22-S3", "DET-29c", "DET-17", "DET-18", "DET-36", "DET-53", "DET-54",
           "DET-56", "DET-57", "DET-73", "DET-74", "DET-79", "DET-88", "DET-89"}
 
@@ -106,31 +106,31 @@ def test_det17(inputs):
 
 def test_det18(inputs):
     assert "D = 0" in run(det_18, "LUSD", inputs, fresh(inputs["LUSD"][3]))
-    page = inputs["crvUSD"][3]
-    ok = "<p>disclosures 0.2 d on average; worst cbBTC 1 d, 6.1% of backing</p>"
-    assert "D = 3" in run(det_18, "crvUSD", inputs, fresh(page, index=ok))
+    assert "D = 3" in run(det_18, "crvUSD", inputs, fresh(inputs["crvUSD"][3]))
+    # GHO: weighted days (20.3) differ from the worst node's (76.0), so only the pill
+    # carries all four; crvUSD's per-node WBTC row happens to (weighted 1.0 = worst 1.0).
+    page = inputs["GHO"][3]
+    assert "D = 8" in run(det_18, "GHO", inputs, fresh(page))            # B-11c's pill
     with pytest.raises(Level3, match="worst weight"):
-        run(det_18, "crvUSD", inputs, fresh(page, index=ok.replace(", 6.1% of backing", "")))
+        run(det_18, "GHO", inputs, edit(page, "index", "76.0 d old, 3.5% of backing",
+                                        "76.0 d old"))
 
 
 def test_det22_s3(inputs):
-    page = inputs["LUSD"][3]
-    ok = ("<table><tr><td>protocol stabilizer debt</td><td>0</td><td>0</td></tr>"
-          "<tr><td>ceiling aggregate, the slice's upper bound</td><td>0</td><td>0</td></tr>"
-          "</table>")
-    assert "slice row" in run(det_22_s3, "LUSD", inputs, fresh(page, index=ok))
+    page = inputs["crvUSD"][3]                   # B-11c′: slice, ceiling share, 5 operations
+    assert run(det_22_s3, "crvUSD", inputs, fresh(page)) == (
+        "slice row, ceiling bound, 5 operation row(s)")
     with pytest.raises(Level3, match="protocol stabilizer debt"):
-        run(det_22_s3, "LUSD", inputs, fresh(page, index=ok.replace("stabilizer", "stabiliser")))
+        run(det_22_s3, "crvUSD", inputs, edit(page, "index", "<td>protocol stabilizer debt</td>",
+                                              "<td>stabilizer debt</td>"))
 
 
 def test_det29c(inputs):
     page = inputs["crvUSD"][3]
-    line = ("<p>modeled pools: the largest pools covering 90% of the frozen set, which itself "
-            "covered 95% of discovered on-Curve liquidity at freeze time (2026-09-04). "
-            "K-subset share of the frozen set: 94.9%</p>")
-    assert "one-liner printed" in run(det_29c, "crvUSD", inputs, fresh(page, index=line))
+    assert "one-liner printed" in run(det_29c, "crvUSD", inputs, fresh(page))
     with pytest.raises(Level3, match="one-liner"):
-        run(det_29c, "crvUSD", inputs, fresh(page, index=line.replace("09-04", "09-05")))
+        run(det_29c, "crvUSD", inputs, edit(page, "index", "at freeze time (2026-09-04)",
+                                            "at freeze time (2026-09-05)"))
 
 
 def test_det36(inputs):
@@ -154,19 +154,17 @@ def test_det53(inputs):
 
 def test_det54(inputs):
     page = inputs["GHO"][3]
-    ok = "<p>instant observation — nearly exact: Chainlink deviation triggers ≤ 1%</p>"
-    assert run(det_54, "GHO", inputs, fresh(page, index=ok)) == "X = 100 bps"
+    assert run(det_54, "GHO", inputs, fresh(page)) == "X = 100 bps"
     with pytest.raises(Level3, match="nearly-exact"):
-        run(det_54, "GHO", inputs, fresh(page, index=ok.replace("≤ 1%", "≤ 0.5%")))
+        run(det_54, "GHO", inputs, edit(page, "index", "triggers ≤ 1.00%", "triggers ≤ 0.50%"))
+    assert "EMA windows listed" in run(det_54, "crvUSD", inputs, fresh(inputs["crvUSD"][3]))
 
 
 def test_det56(inputs):
     page = inputs["LUSD"][3]
-    ok = ("<p>oracle manipulation out of scope — feed control reported under the admin-power "
-          "surface</p><p>sequencer/infra risk n/a — mainnet only</p>")
-    assert "printed" in run(det_56, "LUSD", inputs, fresh(page, index=ok))
+    assert "printed" in run(det_56, "LUSD", inputs, fresh(page))
     with pytest.raises(Level3, match="sequencer"):
-        run(det_56, "LUSD", inputs, fresh(page, index=ok.replace(" — mainnet only", "")))
+        run(det_56, "LUSD", inputs, edit(page, "index", "n/a — mainnet only", "n/a"))
 
 
 def test_det57(inputs):
@@ -191,13 +189,24 @@ def test_det73(inputs):
 
 def test_det74(inputs):
     page = inputs["LUSD"][3]
-    ok = "<p>audit and bounty tags dated 2026-09-13</p>"
-    assert "class S absent" in run(det_74, "LUSD", inputs, fresh(page, index=ok))
+    assert "class S absent" in run(det_74, "LUSD", inputs, fresh(page))
+    undated = fresh(page)
+    undated["html"]["index"] = undated["html"]["index"].replace("2026-09-13", "2026-09-12")
     with pytest.raises(Level3, match="class D"):
-        run(det_74, "LUSD", inputs, fresh(page))
+        run(det_74, "LUSD", inputs, undated)
+    crv = inputs["crvUSD"][3]                    # B-11d's signed edit retired S1/S2
+    assert "class S absent" in run(det_74, "crvUSD", inputs, fresh(crv))
+    stale = fresh(crv)
+    stale["sheet_text"] = crv["sheet_text"].replace(
+        "ceiling [FIRST-RUN READ: debt_ceiling]",
+        "ceiling [ANALYST-SUPPLIED 2026-09-01: USDC ceiling not web-resolvable]", 1)
     with pytest.raises(Level3, match=r"class S tag\(s\) still in the consumed sheet version "
-                                     r"\['S1', 'S2'\]"):
-        run(det_74, "crvUSD", inputs, fresh(inputs["crvUSD"][3], index=ok))
+                                     r"\['S1'\]"):
+        run(det_74, "crvUSD", inputs, stale)
+    gho = inputs["GHO"][3]                       # M2 from the sheet tag, on DAI/sDAI/USDS
+    assert "class S absent" in run(det_74, "GHO", inputs, fresh(gho))
+    with pytest.raises(Level3, match=r"\['M2 2026-09-01'\]"):
+        run(det_74, "GHO", inputs, edit(gho, "index", " (analyst-supplied 2026-09-01)", ""))
 
 
 def test_det79_and_its_placeholder_case(inputs):
@@ -210,6 +219,17 @@ def test_det79_and_its_placeholder_case(inputs):
         run(det_79, "LUSD", inputs, fresh(clean, index="<p>frozen on [freeze date]</p>"))
     with pytest.raises(Level3, match=r"index '\[slot:' x6"):         # the expected fail
         run(det_79, "LUSD", inputs, fresh(page))
+
+
+def test_det79_citations_read_index_only(inputs):
+    r"""Amin's ruling (B-11b stop): no bare #\d+; P-refs and }} count on index only."""
+    page = inputs["crvUSD"][3]
+    clean = fresh(page)
+    clean["html"] = {"index": "<main><p>archetype #1</p></main>",
+                     "appendix": "<p>perimeter (P-3.20)</p>", "verify": "<pre>{'a': {}}</pre>"}
+    assert "0 matches" in run(det_79, "crvUSD", inputs, clean)
+    with pytest.raises(Level3, match=r"index /P-"):
+        run(det_79, "crvUSD", inputs, fresh(clean, index="<p>see P-7.01</p>"))
 
 
 def test_det88(inputs):
@@ -235,8 +255,10 @@ def test_det89(inputs):
     stray["html"] = {**clean["html"], "index": "<p>at 0.500% price impact</p>"}
     with pytest.raises(Level3, match=r"index:0\.500%"):
         det_89(b2, t, s, stray)
+    no_dec = b.model_copy(update={"supply": b.supply.model_copy(
+        update={"reads": {k: v for k, v in b.supply.reads.items() if k != "decimals"}})})
     with pytest.raises(Level3, match=r"no decimals\(\) read"):
-        det_89(b, t, s, clean)
+        det_89(no_dec, t, s, clean)
 
 
 def test_run_report_checks_splits_the_stages(inputs):
@@ -255,6 +277,9 @@ def test_routing_blocks_the_site_and_records_the_outcome(tmp_path):
                 "docs/context", "templates"):
         if (REPO / sub).exists():
             shutil.copytree(REPO / sub, tmp_path / sub)
+    for code in ("src/factory/report/render.py", "src/factory/report/svg.py"):   # template_hash
+        (tmp_path / code).parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(REPO / code, tmp_path / code)
     (tmp_path / "out/site/LUSD").mkdir(parents=True)
     (tmp_path / "out/site/LUSD/index.html").write_text("stale", encoding="utf-8")
     r = build(tmp_path, "LUSD")
@@ -263,10 +288,10 @@ def test_routing_blocks_the_site_and_records_the_outcome(tmp_path):
     assert len(rec.results) == 82 and [x.result for x in rec.results
                                        if x.entry_id == "DET-79"] == ["fail"]
     assert not (tmp_path / "out/site").exists()                  # withdrawn, then emptied
-    stage = tmp_path / "out/rehearsal/LUSD/25970249"
+    stage = tmp_path / "out/rehearsal/LUSD/25974949"
     assert {p.name for p in stage.iterdir()} >= {"index.html", "appendix.html", "verify.html"}
     assert (stage.parent / "style.css").exists()
-    ev = json.loads((stage / "data/evaluation-25970249.json").read_text(encoding="utf-8"))
+    ev = json.loads((stage / "data/evaluation-25974949.json").read_text(encoding="utf-8"))
     assert ev["outcome"] == "blocked_S3"
     assert record.GateRecord.model_validate(ev).outcome == "blocked_S3"
 

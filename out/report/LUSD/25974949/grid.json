@@ -1,0 +1,1039 @@
+{
+ "cells": [
+  {
+   "id": "M1-s20-d0-lp0",
+   "lp": "0",
+   "lst": "0",
+   "m1": {
+    "gap": "0E-27",
+    "post": {
+     "ratio": "5.597427214902948358559470295",
+     "share_below_100": "0"
+    },
+    "pre": {
+     "ratio": "5.597427214902948358559470295",
+     "share_below_100": "0"
+    }
+   },
+   "m2": {
+    "bad_debt": 0,
+    "pct_supply": "0"
+   },
+   "m3": {
+    "exit_depth": 8802460314933502733128198,
+    "forced_sell_volume": 0,
+    "ratio": "0"
+   },
+   "m4": {
+    "counterfactual_ref": [
+     "Tellor_fallback"
+    ],
+    "exit_depth_cell": 8802460314933502733128198,
+    "lp_flight_share": "0",
+    "recovery_mode_flag": false,
+    "redemption_capacity": {
+     "reason": "crash path excluded",
+     "value": 0
+    },
+    "redistributed_debt": 0,
+    "redistributed_positions_below_100": 0,
+    "sp_effective_cell": 7570912350446127682698220,
+    "tcr_post": "5.597427214902948358559470295"
+   },
+   "member": "M1",
+   "shock": "-0.20",
+   "source_path": "stress/cells/[id=M1-s20-d0-lp0]",
+   "target": null
+  },
+  {
+   "id": "M1-s20-d0-lp30",
+   "lp": "0.30",
+   "lst": "0",
+   "m1": {
+    "gap": "0E-27",
+    "post": {
+     "ratio": "5.597427214902948358559470295",
+     "share_below_100": "0"
+    },
+    "pre": {
+     "ratio": "5.597427214902948358559470295",
+     "share_below_100": "0"
+    }
+   },
+   "m2": {
+    "bad_debt": 0,
+    "pct_supply": "0"
+   },
+   "m3": {
+    "exit_depth": 5625013619074032704954553,
+    "forced_sell_volume": 0,
+    "ratio": "0"
+   },
+   "m4": {
+    "counterfactual_ref": [
+     "Tellor_fallback"
+    ],
+    "exit_depth_cell": 5625013619074032704954553,
+    "lp_flight_share": "0.30",
+    "recovery_mode_flag": false,
+    "redemption_capacity": {
+     "reason": "crash path excluded",
+     "value": 0
+    },
+    "redistributed_debt": 0,
+    "redistributed_positions_below_100": 0,
+    "sp_effective_cell": 5299638645312289377888754,
+    "tcr_post": "5.597427214902948358559470295"
+   },
+   "member": "M1",
+   "shock": "-0.20",
+   "source_path": "stress/cells/[id=M1-s20-d0-lp30]",
+   "target": null
+  },
+  {
+   "id": "M1-s20-d0-lp60",
+   "lp": "0.60",
+   "lst": "0",
+   "m1": {
+    "gap": "0E-27",
+    "post": {
+     "ratio": "5.597427214902948358559470295",
+     "share_below_100": "0"
+    },
+    "pre": {
+     "ratio": "5.597427214902948358559470295",
+     "share_below_100": "0"
+    }
+   },
+   "m2": {
+    "bad_debt": 0,
+    "pct_supply": "0"
+   },
+   "m3": {
+    "exit_depth": 2447566069833479704061621,
+    "forced_sell_volume": 0,
+    "ratio": "0"
+   },
+   "m4": {
+    "counterfactual_ref": [
+     "Tellor_fallback"
+    ],
+    "exit_depth_cell": 2447566069833479704061621,
+    "lp_flight_share": "0.60",
+    "recovery_mode_flag": false,
+    "redemption_capacity": {
+     "reason": "crash path excluded",
+     "value": 0
+    },
+    "redistributed_debt": 0,
+    "redistributed_positions_below_100": 0,
+    "sp_effective_cell": 3028364940178451073079288,
+    "tcr_post": "5.597427214902948358559470295"
+   },
+   "member": "M1",
+   "shock": "-0.20",
+   "source_path": "stress/cells/[id=M1-s20-d0-lp60]",
+   "target": null
+  },
+  {
+   "id": "M1-s35-d0-lp0",
+   "lp": "0",
+   "lst": "0",
+   "m1": {
+    "gap": "0E-27",
+    "post": {
+     "ratio": "4.547909612108645541329051418",
+     "share_below_100": "0"
+    },
+    "pre": {
+     "ratio": "4.547909612108645541329051418",
+     "share_below_100": "0"
+    }
+   },
+   "m2": {
+    "bad_debt": 0,
+    "pct_supply": "0"
+   },
+   "m3": {
+    "exit_depth": 8802460314933502733128198,
+    "forced_sell_volume": 0,
+    "ratio": "0"
+   },
+   "m4": {
+    "counterfactual_ref": [
+     "Tellor_fallback"
+    ],
+    "exit_depth_cell": 8802460314933502733128198,
+    "lp_flight_share": "0",
+    "recovery_mode_flag": false,
+    "redemption_capacity": {
+     "reason": "crash path excluded",
+     "value": 0
+    },
+    "redistributed_debt": 0,
+    "redistributed_positions_below_100": 0,
+    "sp_effective_cell": 7570912350446127682698220,
+    "tcr_post": "4.547909612108645541329051418"
+   },
+   "member": "M1",
+   "shock": "-0.35",
+   "source_path": "stress/cells/[id=M1-s35-d0-lp0]",
+   "target": null
+  },
+  {
+   "id": "M1-s35-d0-lp30",
+   "lp": "0.30",
+   "lst": "0",
+   "m1": {
+    "gap": "0E-27",
+    "post": {
+     "ratio": "4.547909612108645541329051418",
+     "share_below_100": "0"
+    },
+    "pre": {
+     "ratio": "4.547909612108645541329051418",
+     "share_below_100": "0"
+    }
+   },
+   "m2": {
+    "bad_debt": 0,
+    "pct_supply": "0"
+   },
+   "m3": {
+    "exit_depth": 5625013619074032704954553,
+    "forced_sell_volume": 0,
+    "ratio": "0"
+   },
+   "m4": {
+    "counterfactual_ref": [
+     "Tellor_fallback"
+    ],
+    "exit_depth_cell": 5625013619074032704954553,
+    "lp_flight_share": "0.30",
+    "recovery_mode_flag": false,
+    "redemption_capacity": {
+     "reason": "crash path excluded",
+     "value": 0
+    },
+    "redistributed_debt": 0,
+    "redistributed_positions_below_100": 0,
+    "sp_effective_cell": 5299638645312289377888754,
+    "tcr_post": "4.547909612108645541329051418"
+   },
+   "member": "M1",
+   "shock": "-0.35",
+   "source_path": "stress/cells/[id=M1-s35-d0-lp30]",
+   "target": null
+  },
+  {
+   "id": "M1-s35-d0-lp60",
+   "lp": "0.60",
+   "lst": "0",
+   "m1": {
+    "gap": "0E-27",
+    "post": {
+     "ratio": "4.547909612108645541329051418",
+     "share_below_100": "0"
+    },
+    "pre": {
+     "ratio": "4.547909612108645541329051418",
+     "share_below_100": "0"
+    }
+   },
+   "m2": {
+    "bad_debt": 0,
+    "pct_supply": "0"
+   },
+   "m3": {
+    "exit_depth": 2447566069833479704061621,
+    "forced_sell_volume": 0,
+    "ratio": "0"
+   },
+   "m4": {
+    "counterfactual_ref": [
+     "Tellor_fallback"
+    ],
+    "exit_depth_cell": 2447566069833479704061621,
+    "lp_flight_share": "0.60",
+    "recovery_mode_flag": false,
+    "redemption_capacity": {
+     "reason": "crash path excluded",
+     "value": 0
+    },
+    "redistributed_debt": 0,
+    "redistributed_positions_below_100": 0,
+    "sp_effective_cell": 3028364940178451073079288,
+    "tcr_post": "4.547909612108645541329051418"
+   },
+   "member": "M1",
+   "shock": "-0.35",
+   "source_path": "stress/cells/[id=M1-s35-d0-lp60]",
+   "target": null
+  },
+  {
+   "id": "M1-s50-d0-lp0",
+   "lp": "0",
+   "lst": "0",
+   "m1": {
+    "gap": "0E-27",
+    "post": {
+     "ratio": "3.498392009314342724098632540",
+     "share_below_100": "0"
+    },
+    "pre": {
+     "ratio": "3.498392009314342724098632540",
+     "share_below_100": "0"
+    }
+   },
+   "m2": {
+    "bad_debt": 0,
+    "pct_supply": "0"
+   },
+   "m3": {
+    "exit_depth": 8802460314933502733128198,
+    "forced_sell_volume": 0,
+    "ratio": "0"
+   },
+   "m4": {
+    "counterfactual_ref": [
+     "Tellor_fallback"
+    ],
+    "exit_depth_cell": 8802460314933502733128198,
+    "lp_flight_share": "0",
+    "recovery_mode_flag": false,
+    "redemption_capacity": {
+     "reason": "crash path excluded",
+     "value": 0
+    },
+    "redistributed_debt": 0,
+    "redistributed_positions_below_100": 0,
+    "sp_effective_cell": 7570912350446127682698220,
+    "tcr_post": "3.498392009314342724098632540"
+   },
+   "member": "M1",
+   "shock": "-0.50",
+   "source_path": "stress/cells/[id=M1-s50-d0-lp0]",
+   "target": null
+  },
+  {
+   "id": "M1-s50-d0-lp30",
+   "lp": "0.30",
+   "lst": "0",
+   "m1": {
+    "gap": "0E-27",
+    "post": {
+     "ratio": "3.498392009314342724098632540",
+     "share_below_100": "0"
+    },
+    "pre": {
+     "ratio": "3.498392009314342724098632540",
+     "share_below_100": "0"
+    }
+   },
+   "m2": {
+    "bad_debt": 0,
+    "pct_supply": "0"
+   },
+   "m3": {
+    "exit_depth": 5625013619074032704954553,
+    "forced_sell_volume": 0,
+    "ratio": "0"
+   },
+   "m4": {
+    "counterfactual_ref": [
+     "Tellor_fallback"
+    ],
+    "exit_depth_cell": 5625013619074032704954553,
+    "lp_flight_share": "0.30",
+    "recovery_mode_flag": false,
+    "redemption_capacity": {
+     "reason": "crash path excluded",
+     "value": 0
+    },
+    "redistributed_debt": 0,
+    "redistributed_positions_below_100": 0,
+    "sp_effective_cell": 5299638645312289377888754,
+    "tcr_post": "3.498392009314342724098632540"
+   },
+   "member": "M1",
+   "shock": "-0.50",
+   "source_path": "stress/cells/[id=M1-s50-d0-lp30]",
+   "target": null
+  },
+  {
+   "id": "M1-s50-d0-lp60",
+   "lp": "0.60",
+   "lst": "0",
+   "m1": {
+    "gap": "0E-27",
+    "post": {
+     "ratio": "3.498392009314342724098632540",
+     "share_below_100": "0"
+    },
+    "pre": {
+     "ratio": "3.498392009314342724098632540",
+     "share_below_100": "0"
+    }
+   },
+   "m2": {
+    "bad_debt": 0,
+    "pct_supply": "0"
+   },
+   "m3": {
+    "exit_depth": 2447566069833479704061621,
+    "forced_sell_volume": 0,
+    "ratio": "0"
+   },
+   "m4": {
+    "counterfactual_ref": [
+     "Tellor_fallback"
+    ],
+    "exit_depth_cell": 2447566069833479704061621,
+    "lp_flight_share": "0.60",
+    "recovery_mode_flag": false,
+    "redemption_capacity": {
+     "reason": "crash path excluded",
+     "value": 0
+    },
+    "redistributed_debt": 0,
+    "redistributed_positions_below_100": 0,
+    "sp_effective_cell": 3028364940178451073079288,
+    "tcr_post": "3.498392009314342724098632540"
+   },
+   "member": "M1",
+   "shock": "-0.50",
+   "source_path": "stress/cells/[id=M1-s50-d0-lp60]",
+   "target": null
+  },
+  {
+   "id": "M1-s70-d0-lp0",
+   "lp": "0",
+   "lst": "0",
+   "m1": {
+    "gap": "0E-27",
+    "post": {
+     "ratio": "2.099035205588605634458074036",
+     "share_below_100": "0"
+    },
+    "pre": {
+     "ratio": "2.099035205588605634458074036",
+     "share_below_100": "0"
+    }
+   },
+   "m2": {
+    "bad_debt": 0,
+    "pct_supply": "0"
+   },
+   "m3": {
+    "exit_depth": 8802460314933502733128198,
+    "forced_sell_volume": 0,
+    "ratio": "0"
+   },
+   "m4": {
+    "counterfactual_ref": [
+     "Tellor_fallback"
+    ],
+    "exit_depth_cell": 8802460314933502733128198,
+    "lp_flight_share": "0",
+    "recovery_mode_flag": false,
+    "redemption_capacity": {
+     "reason": "crash path excluded",
+     "value": 0
+    },
+    "redistributed_debt": 0,
+    "redistributed_positions_below_100": 0,
+    "sp_effective_cell": 7570912350446127682698220,
+    "tcr_post": "2.099035205588605634458074036"
+   },
+   "member": "M1",
+   "shock": "-0.70",
+   "source_path": "stress/cells/[id=M1-s70-d0-lp0]",
+   "target": null
+  },
+  {
+   "id": "M1-s70-d0-lp30",
+   "lp": "0.30",
+   "lst": "0",
+   "m1": {
+    "gap": "0E-27",
+    "post": {
+     "ratio": "2.099035205588605634458074036",
+     "share_below_100": "0"
+    },
+    "pre": {
+     "ratio": "2.099035205588605634458074036",
+     "share_below_100": "0"
+    }
+   },
+   "m2": {
+    "bad_debt": 0,
+    "pct_supply": "0"
+   },
+   "m3": {
+    "exit_depth": 5625013619074032704954553,
+    "forced_sell_volume": 0,
+    "ratio": "0"
+   },
+   "m4": {
+    "counterfactual_ref": [
+     "Tellor_fallback"
+    ],
+    "exit_depth_cell": 5625013619074032704954553,
+    "lp_flight_share": "0.30",
+    "recovery_mode_flag": false,
+    "redemption_capacity": {
+     "reason": "crash path excluded",
+     "value": 0
+    },
+    "redistributed_debt": 0,
+    "redistributed_positions_below_100": 0,
+    "sp_effective_cell": 5299638645312289377888754,
+    "tcr_post": "2.099035205588605634458074036"
+   },
+   "member": "M1",
+   "shock": "-0.70",
+   "source_path": "stress/cells/[id=M1-s70-d0-lp30]",
+   "target": null
+  },
+  {
+   "id": "M1-s70-d0-lp60",
+   "lp": "0.60",
+   "lst": "0",
+   "m1": {
+    "gap": "0E-27",
+    "post": {
+     "ratio": "2.099035205588605634458074036",
+     "share_below_100": "0"
+    },
+    "pre": {
+     "ratio": "2.099035205588605634458074036",
+     "share_below_100": "0"
+    }
+   },
+   "m2": {
+    "bad_debt": 0,
+    "pct_supply": "0"
+   },
+   "m3": {
+    "exit_depth": 2447566069833479704061621,
+    "forced_sell_volume": 0,
+    "ratio": "0"
+   },
+   "m4": {
+    "counterfactual_ref": [
+     "Tellor_fallback"
+    ],
+    "exit_depth_cell": 2447566069833479704061621,
+    "lp_flight_share": "0.60",
+    "recovery_mode_flag": false,
+    "redemption_capacity": {
+     "reason": "crash path excluded",
+     "value": 0
+    },
+    "redistributed_debt": 0,
+    "redistributed_positions_below_100": 0,
+    "sp_effective_cell": 3028364940178451073079288,
+    "tcr_post": "2.099035205588605634458074036"
+   },
+   "member": "M1",
+   "shock": "-0.70",
+   "source_path": "stress/cells/[id=M1-s70-d0-lp60]",
+   "target": null
+  },
+  {
+   "id": "M2-t0.97-lp0",
+   "lp": "0",
+   "lst": null,
+   "m1": {
+    "gap": "0",
+    "post": {
+     "ratio": "6.996784018628685448200028799",
+     "share_below_100": "0"
+    },
+    "pre": {
+     "ratio": "6.996784018628685448200028799",
+     "share_below_100": "0"
+    }
+   },
+   "m2": {
+    "bad_debt": 0,
+    "pct_supply": "0"
+   },
+   "m3": {
+    "exit_depth": 8532901125492743946649938,
+    "forced_sell_volume": 0,
+    "ratio": "0"
+   },
+   "m4": {
+    "counterfactual_ref": [
+     "Tellor_fallback"
+    ],
+    "exit_depth_cell": 8532901125492743946649938,
+    "lp_flight_share": "0",
+    "recovery_mode_flag": false,
+    "redemption_capacity": {
+     "reason": "redeemable before baseRate + 0.005 > 0.02 at the decayed rate 0.000022121531647455",
+     "value": 785656786777343086065787
+    },
+    "redistributed_debt": 0,
+    "redistributed_positions_below_100": 0,
+    "sp_effective_cell": 7570912350446127682698220,
+    "tcr_post": "6.996784018628685448200028799"
+   },
+   "member": "M2",
+   "shock": null,
+   "source_path": "stress/cells/[id=M2-t0.97-lp0]",
+   "target": "0.97"
+  },
+  {
+   "id": "M2-t0.97-lp30",
+   "lp": "0.30",
+   "lst": null,
+   "m1": {
+    "gap": "0",
+    "post": {
+     "ratio": "6.996784018628685448200028799",
+     "share_below_100": "0"
+    },
+    "pre": {
+     "ratio": "6.996784018628685448200028799",
+     "share_below_100": "0"
+    }
+   },
+   "m2": {
+    "bad_debt": 0,
+    "pct_supply": "0"
+   },
+   "m3": {
+    "exit_depth": 5450562044568417537522708,
+    "forced_sell_volume": 0,
+    "ratio": "0"
+   },
+   "m4": {
+    "counterfactual_ref": [
+     "Tellor_fallback"
+    ],
+    "exit_depth_cell": 5450562044568417537522708,
+    "lp_flight_share": "0.30",
+    "recovery_mode_flag": false,
+    "redemption_capacity": {
+     "reason": "redeemable before baseRate + 0.005 > 0.02 at the decayed rate 0.000022121531647455",
+     "value": 785656786777343086065787
+    },
+    "redistributed_debt": 0,
+    "redistributed_positions_below_100": 0,
+    "sp_effective_cell": 7570912350446127682698220,
+    "tcr_post": "6.996784018628685448200028799"
+   },
+   "member": "M2",
+   "shock": null,
+   "source_path": "stress/cells/[id=M2-t0.97-lp30]",
+   "target": "0.97"
+  },
+  {
+   "id": "M2-t0.97-lp60",
+   "lp": "0.60",
+   "lst": null,
+   "m1": {
+    "gap": "0",
+    "post": {
+     "ratio": "6.996784018628685448200028799",
+     "share_below_100": "0"
+    },
+    "pre": {
+     "ratio": "6.996784018628685448200028799",
+     "share_below_100": "0"
+    }
+   },
+   "m2": {
+    "bad_debt": 0,
+    "pct_supply": "0"
+   },
+   "m3": {
+    "exit_depth": 2368307448371305427604845,
+    "forced_sell_volume": 0,
+    "ratio": "0"
+   },
+   "m4": {
+    "counterfactual_ref": [
+     "Tellor_fallback"
+    ],
+    "exit_depth_cell": 2368307448371305427604845,
+    "lp_flight_share": "0.60",
+    "recovery_mode_flag": false,
+    "redemption_capacity": {
+     "reason": "redeemable before baseRate + 0.005 > 0.02 at the decayed rate 0.000022121531647455",
+     "value": 785656786777343086065787
+    },
+    "redistributed_debt": 0,
+    "redistributed_positions_below_100": 0,
+    "sp_effective_cell": 7570912350446127682698220,
+    "tcr_post": "6.996784018628685448200028799"
+   },
+   "member": "M2",
+   "shock": null,
+   "source_path": "stress/cells/[id=M2-t0.97-lp60]",
+   "target": "0.97"
+  },
+  {
+   "id": "M2-t0.93-lp0",
+   "lp": "0",
+   "lst": null,
+   "m1": {
+    "gap": "0",
+    "post": {
+     "ratio": "6.996784018628685448200028799",
+     "share_below_100": "0"
+    },
+    "pre": {
+     "ratio": "6.996784018628685448200028799",
+     "share_below_100": "0"
+    }
+   },
+   "m2": {
+    "bad_debt": 0,
+    "pct_supply": "0"
+   },
+   "m3": {
+    "exit_depth": 8173452746439219719562462,
+    "forced_sell_volume": 0,
+    "ratio": "0"
+   },
+   "m4": {
+    "counterfactual_ref": [
+     "Tellor_fallback"
+    ],
+    "exit_depth_cell": 8173452746439219719562462,
+    "lp_flight_share": "0",
+    "recovery_mode_flag": false,
+    "redemption_capacity": {
+     "reason": "redeemable before baseRate + 0.005 > 0.02 at the decayed rate 0.000022121531647455",
+     "value": 785656786777343086065787
+    },
+    "redistributed_debt": 0,
+    "redistributed_positions_below_100": 0,
+    "sp_effective_cell": 7570912350446127682698220,
+    "tcr_post": "6.996784018628685448200028799"
+   },
+   "member": "M2",
+   "shock": null,
+   "source_path": "stress/cells/[id=M2-t0.93-lp0]",
+   "target": "0.93"
+  },
+  {
+   "id": "M2-t0.93-lp30",
+   "lp": "0.30",
+   "lst": null,
+   "m1": {
+    "gap": "0",
+    "post": {
+     "ratio": "6.996784018628685448200028799",
+     "share_below_100": "0"
+    },
+    "pre": {
+     "ratio": "6.996784018628685448200028799",
+     "share_below_100": "0"
+    }
+   },
+   "m2": {
+    "bad_debt": 0,
+    "pct_supply": "0"
+   },
+   "m3": {
+    "exit_depth": 5217944015447381823520233,
+    "forced_sell_volume": 0,
+    "ratio": "0"
+   },
+   "m4": {
+    "counterfactual_ref": [
+     "Tellor_fallback"
+    ],
+    "exit_depth_cell": 5217944015447381823520233,
+    "lp_flight_share": "0.30",
+    "recovery_mode_flag": false,
+    "redemption_capacity": {
+     "reason": "redeemable before baseRate + 0.005 > 0.02 at the decayed rate 0.000022121531647455",
+     "value": 785656786777343086065787
+    },
+    "redistributed_debt": 0,
+    "redistributed_positions_below_100": 0,
+    "sp_effective_cell": 7570912350446127682698220,
+    "tcr_post": "6.996784018628685448200028799"
+   },
+   "member": "M2",
+   "shock": null,
+   "source_path": "stress/cells/[id=M2-t0.93-lp30]",
+   "target": "0.93"
+  },
+  {
+   "id": "M2-t0.93-lp60",
+   "lp": "0.60",
+   "lst": null,
+   "m1": {
+    "gap": "0",
+    "post": {
+     "ratio": "6.996784018628685448200028799",
+     "share_below_100": "0"
+    },
+    "pre": {
+     "ratio": "6.996784018628685448200028799",
+     "share_below_100": "0"
+    }
+   },
+   "m2": {
+    "bad_debt": 0,
+    "pct_supply": "0"
+   },
+   "m3": {
+    "exit_depth": 2262625588437046843878902,
+    "forced_sell_volume": 0,
+    "ratio": "0"
+   },
+   "m4": {
+    "counterfactual_ref": [
+     "Tellor_fallback"
+    ],
+    "exit_depth_cell": 2262625588437046843878902,
+    "lp_flight_share": "0.60",
+    "recovery_mode_flag": false,
+    "redemption_capacity": {
+     "reason": "redeemable before baseRate + 0.005 > 0.02 at the decayed rate 0.000022121531647455",
+     "value": 785656786777343086065787
+    },
+    "redistributed_debt": 0,
+    "redistributed_positions_below_100": 0,
+    "sp_effective_cell": 7570912350446127682698220,
+    "tcr_post": "6.996784018628685448200028799"
+   },
+   "member": "M2",
+   "shock": null,
+   "source_path": "stress/cells/[id=M2-t0.93-lp60]",
+   "target": "0.93"
+  },
+  {
+   "id": "M2-t0.88-lp0",
+   "lp": "0",
+   "lst": null,
+   "m1": {
+    "gap": "0",
+    "post": {
+     "ratio": "6.996784018628685448200028799",
+     "share_below_100": "0"
+    },
+    "pre": {
+     "ratio": "6.996784018628685448200028799",
+     "share_below_100": "0"
+    }
+   },
+   "m2": {
+    "bad_debt": 0,
+    "pct_supply": "0"
+   },
+   "m3": {
+    "exit_depth": 7724085309435026006690741,
+    "forced_sell_volume": 0,
+    "ratio": "0"
+   },
+   "m4": {
+    "counterfactual_ref": [
+     "Tellor_fallback"
+    ],
+    "exit_depth_cell": 7724085309435026006690741,
+    "lp_flight_share": "0",
+    "recovery_mode_flag": false,
+    "redemption_capacity": {
+     "reason": "redeemable before baseRate + 0.005 > 0.02 at the decayed rate 0.000022121531647455",
+     "value": 785656786777343086065787
+    },
+    "redistributed_debt": 0,
+    "redistributed_positions_below_100": 0,
+    "sp_effective_cell": 7570912350446127682698220,
+    "tcr_post": "6.996784018628685448200028799"
+   },
+   "member": "M2",
+   "shock": null,
+   "source_path": "stress/cells/[id=M2-t0.88-lp0]",
+   "target": "0.88"
+  },
+  {
+   "id": "M2-t0.88-lp30",
+   "lp": "0.30",
+   "lst": null,
+   "m1": {
+    "gap": "0",
+    "post": {
+     "ratio": "6.996784018628685448200028799",
+     "share_below_100": "0"
+    },
+    "pre": {
+     "ratio": "6.996784018628685448200028799",
+     "share_below_100": "0"
+    }
+   },
+   "m2": {
+    "bad_debt": 0,
+    "pct_supply": "0"
+   },
+   "m3": {
+    "exit_depth": 4927147584375763944877115,
+    "forced_sell_volume": 0,
+    "ratio": "0"
+   },
+   "m4": {
+    "counterfactual_ref": [
+     "Tellor_fallback"
+    ],
+    "exit_depth_cell": 4927147584375763944877115,
+    "lp_flight_share": "0.30",
+    "recovery_mode_flag": false,
+    "redemption_capacity": {
+     "reason": "redeemable before baseRate + 0.005 > 0.02 at the decayed rate 0.000022121531647455",
+     "value": 785656786777343086065787
+    },
+    "redistributed_debt": 0,
+    "redistributed_positions_below_100": 0,
+    "sp_effective_cell": 7570912350446127682698220,
+    "tcr_post": "6.996784018628685448200028799"
+   },
+   "member": "M2",
+   "shock": null,
+   "source_path": "stress/cells/[id=M2-t0.88-lp30]",
+   "target": "0.88"
+  },
+  {
+   "id": "M2-t0.88-lp60",
+   "lp": "0.60",
+   "lst": null,
+   "m1": {
+    "gap": "0",
+    "post": {
+     "ratio": "6.996784018628685448200028799",
+     "share_below_100": "0"
+    },
+    "pre": {
+     "ratio": "6.996784018628685448200028799",
+     "share_below_100": "0"
+    }
+   },
+   "m2": {
+    "bad_debt": 0,
+    "pct_supply": "0"
+   },
+   "m3": {
+    "exit_depth": 2130516223125289089287359,
+    "forced_sell_volume": 0,
+    "ratio": "0"
+   },
+   "m4": {
+    "counterfactual_ref": [
+     "Tellor_fallback"
+    ],
+    "exit_depth_cell": 2130516223125289089287359,
+    "lp_flight_share": "0.60",
+    "recovery_mode_flag": false,
+    "redemption_capacity": {
+     "reason": "redeemable before baseRate + 0.005 > 0.02 at the decayed rate 0.000022121531647455",
+     "value": 785656786777343086065787
+    },
+    "redistributed_debt": 0,
+    "redistributed_positions_below_100": 0,
+    "sp_effective_cell": 7570912350446127682698220,
+    "tcr_post": "6.996784018628685448200028799"
+   },
+   "member": "M2",
+   "shock": null,
+   "source_path": "stress/cells/[id=M2-t0.88-lp60]",
+   "target": "0.88"
+  },
+  {
+   "id": "M2-compound",
+   "lp": "0",
+   "lst": null,
+   "m1": {
+    "gap": "0",
+    "post": {
+     "ratio": "6.996784018628685448200028799",
+     "share_below_100": "0"
+    },
+    "pre": {
+     "ratio": "6.996784018628685448200028799",
+     "share_below_100": "0"
+    }
+   },
+   "m2": {
+    "bad_debt": 0,
+    "pct_supply": "0"
+   },
+   "m3": {
+    "exit_depth": 8173452746439219719562462,
+    "forced_sell_volume": 0,
+    "ratio": "0"
+   },
+   "m4": {
+    "counterfactual_ref": [
+     "Tellor_fallback"
+    ],
+    "exit_depth_cell": 8173452746439219719562462,
+    "lp_flight_share": "0",
+    "recovery_mode_flag": false,
+    "redemption_capacity": {
+     "reason": "redeemable before baseRate + 0.005 > 0.02 at the decayed rate 0.000022121531647455",
+     "value": 785656786777343086065787
+    },
+    "redistributed_debt": 0,
+    "redistributed_positions_below_100": 0,
+    "sp_effective_cell": 7570912350446127682698220,
+    "tcr_post": "6.996784018628685448200028799"
+   },
+   "member": "M2_COMPOUND",
+   "shock": null,
+   "source_path": "stress/cells/[id=M2-compound]",
+   "target": "0.93"
+  },
+  {
+   "id": "JOINT",
+   "lp": "0",
+   "lst": "0",
+   "m1": {
+    "gap": "0E-27",
+    "post": {
+     "ratio": "3.498392009314342724098632540",
+     "share_below_100": "0"
+    },
+    "pre": {
+     "ratio": "3.498392009314342724098632540",
+     "share_below_100": "0"
+    }
+   },
+   "m2": {
+    "bad_debt": 0,
+    "pct_supply": "0"
+   },
+   "m3": {
+    "exit_depth": 8173452746439219719562462,
+    "forced_sell_volume": 0,
+    "ratio": "0"
+   },
+   "m4": {
+    "counterfactual_ref": [
+     "Tellor_fallback"
+    ],
+    "exit_depth_cell": 8173452746439219719562462,
+    "lp_flight_share": "0",
+    "recovery_mode_flag": false,
+    "redemption_capacity": {
+     "reason": "redeemable before baseRate + 0.005 > 0.02 at the decayed rate 0.000022121531647455",
+     "value": 785656786777343086065787
+    },
+    "redistributed_debt": 0,
+    "redistributed_positions_below_100": 0,
+    "sp_effective_cell": 7570912350446127682698220,
+    "tcr_post": "3.498392009314342724098632540"
+   },
+   "member": "JOINT",
+   "shock": "-0.50",
+   "source_path": "stress/cells/[id=JOINT]",
+   "target": "0.93"
+  }
+ ]
+}

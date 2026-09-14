@@ -1,5 +1,6 @@
 """
-Light-sample verification for B-9 — one pinned get_dy per token through your own RPC.
+Light-sample verification — one pinned get_dy per token through your own RPC.
+B-11d: the sheets and blocks are read from the newest stress-<run_block>.md filenames.
 
 Run from the repo root (reads ETH_RPC_URL from .env or the environment):
     python tools/light_sample_check.py
@@ -16,12 +17,24 @@ import re
 import sys
 import urllib.request
 
-SHEETS = {
-    "crvUSD": "out/spotcheck/crvUSD/stress-25970226.md",
-    "GHO": "out/spotcheck/GHO/stress-25970233.md",
-    "LUSD": "out/spotcheck/LUSD/stress-25970249.md",
-}
-BLOCKS = {"crvUSD": 25970226, "GHO": 25970233, "LUSD": 25970249}
+TOKENS = ("crvUSD", "GHO", "LUSD")
+
+
+def latest_sheets():
+    """B-11d: each token's newest stress spot-check sheet, block read from the
+    filename `stress-<run_block>.md` - no constants to edit per run."""
+    sheets, blocks = {}, {}
+    for token in TOKENS:
+        d = os.path.join("out", "spotcheck", token)
+        found = sorted((int(m.group(1)), f) for f in (os.listdir(d) if os.path.isdir(d) else [])
+                       if (m := re.fullmatch(r"stress-(\d+)\.md", f)))
+        if found:
+            blocks[token], name = found[-1]
+            sheets[token] = os.path.join(d, name)
+        else:
+            sheets[token] = os.path.join(d, "stress-<none>.md")
+    return sheets, blocks
+
 
 LINE = re.compile(
     r"`(0x[0-9a-fA-F]{40})`\s*→\s*`get_dy\(i=(-?\d+),\s*j=(-?\d+),\s*dx=(\d+)\)`\s*=\s*(\d+)"
@@ -60,6 +73,7 @@ def eth_call(url, to, data, block):
 def main():
     url = rpc_url()
     ok_all = True
+    SHEETS, BLOCKS = latest_sheets()
     for token, path in SHEETS.items():
         if not os.path.exists(path):
             print(f"{token}: sheet not found at {path}")

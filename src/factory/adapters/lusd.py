@@ -337,6 +337,13 @@ def build(cfg, rpc, http_get=catalog_get):
         Call(sp, "getTotalLUSDDeposits()", ("uint256",)),
     ])
     reads += 6
+    # B-11d (DET-89): the token's own `decimals()`, read with provenance at run_block -
+    # the one declared leaf `supply.reads.decimals`. The page's base-unit formatter
+    # divides by 1e18, so any other value stops assembly before the harness.
+    token_decimals = int(rpc.read([Call(s["lusd"], "decimals()", ("uint8",))])[0].one())
+    reads += 1
+    if token_decimals != 18:
+        raise LusdAdapterStop(f"LUSD decimals() = {token_decimals}; base units assume 18")
     total_supply, ap_debt, dp_debt, ap_eth, dp_eth, sp_deposits = (
         int(r.one()) for r in pool_reads)
 
@@ -495,6 +502,7 @@ def build(cfg, rpc, http_get=catalog_get):
         stabilizer_over_supply=Decimal(0),
         stability_pool_deposits=sp_deposits,        # R18: numeric, not prose
         reads={"total_supply": _cr(s["lusd"], "totalSupply()", rb),
+               "decimals": _cr(s["lusd"], "decimals()", rb),
                "stability_pool_deposits": _cr(sp, "getTotalLUSDDeposits()", rb)})
 
     admin, n = read_admin_surface(rpc, s, csp)

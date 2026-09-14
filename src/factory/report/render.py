@@ -217,7 +217,7 @@ def _days_words(v: Any) -> str:
     return f"{d} day" if d == "1" else f"{d} days"
 
 
-def pills(rows: dict, rec: dict, tnames: dict, w: dict) -> list[tuple[str, str]]:
+def pills(rows: dict, rec: dict, tnames: dict, w: dict, v=None) -> list[tuple[str, str]]:
     """(colour, text) for freshness, governance delay and flags (R-B11.1(b)).
     NAMED DEFAULT: freshness green to 30 days, amber to 92 (DET-74's class-I
     staleness limit), red beyond; governance red at under a day, amber otherwise,
@@ -228,9 +228,12 @@ def pills(rows: dict, rec: dict, tnames: dict, w: dict) -> list[tuple[str, str]]
     if avg and avg["value"] is not None and worst:
         d = Decimal(str(worst["value"]))
         colour = "green" if d <= p["fresh_days"] else "amber" if d <= p["stale_days"] else "red"
+        # B-11c (DET-18, DET-89): every figure in the pill through `fmt`, and the worst
+        # node's weight beside its days.
         fresh = (colour, p["freshness"].format(
-            avg=_days_words(avg["value"]), worst=rows["verif.staleness.worst.symbol"]["value"],
-            days=_days_words(worst["value"])))
+            avg=v("verif.staleness.weighted_days"),
+            worst=rows["verif.staleness.worst.symbol"]["value"],
+            days=v("verif.staleness.worst.days"), share=v("verif.staleness.worst.share")))
     else:
         fresh = ("green", p["freshness_none"])
     held = [a for a in admin_rows(rows) if a["power"] in QUALIFYING and a["holder_type"] != "none"]
@@ -246,7 +249,13 @@ def pills(rows: dict, rec: dict, tnames: dict, w: dict) -> list[tuple[str, str]]
         flag = ("green", p["flags_none"])
     else:
         lvl = max(t["level"] for t in trig)
-        names = join_words([tnames.get(t["trigger"], (t["trigger"], ""))[0] for t in trig])
+        # B-11c (DET-89): a trigger whose rubric name carries a figure reads its own
+        # table value through `fmt` instead (`trigger_pill` in wording.toml).
+        tp = w.get("trigger_pill", {})
+        names = join_words([
+            re.sub(r"\{([a-z0-9_.]+)\}", lambda m: v(m.group(1)), tp[t["trigger"]])
+            if t["trigger"] in tp else tnames.get(t["trigger"], (t["trigger"], ""))[0]
+            for t in trig])
         flag = ("red" if lvl >= 2 else "amber", p["flags"].format(n=len(trig), names=names))
     return [fresh, gov, flag]
 
@@ -359,8 +368,9 @@ def render_token(repo: pathlib.Path, token: str, doc: dict, grid: dict, man: dic
             if raw(f) == "recurses_truncated":
                 pill = w["tree"]["truncated_pill"]
             elif f"verif.staleness.{a}.staleness_days" in rows:
-                pill = w["tree"]["days_pill"].format(
-                    days=_days(raw(f"verif.staleness.{a}.staleness_days")))
+                d = f"verif.staleness.{a}.staleness_days"
+                pill = (w["tree"]["days_pill_zero"] if Decimal(str(raw(d))) == 0
+                        else w["tree"]["days_pill"].format(days=v(d)))
             col.append((raw(f"tree.node.{a}.symbol"), v(f"tree.node.{a}.share"), pill))
         columns.append(col)
     tree_svg = svg.tree_diagram(root_lines, side, bars, columns, w["tree"]["caption"])
@@ -379,13 +389,14 @@ def render_token(repo: pathlib.Path, token: str, doc: dict, grid: dict, man: dic
     if not sz_flag:
         top_a = max(shocks, key=lambda s: Decimal(raw(f"panel.M1-s{s}-d0-lp0.m2.bad_debt")))
         chart_a = svg.line_chart(
-            [(f"−{s}%", Decimal(raw(f"panel.M1-s{s}-d0-lp0.m2.bad_debt")),
+            [(fmt(cells[f"M1-s{s}-d0-lp0"]["shock"], "ratio", "shock"),
+              Decimal(raw(f"panel.M1-s{s}-d0-lp0.m2.bad_debt")),
               c(f"panel.M1-s{s}-d0-lp0.m2.bad_debt")) for s in shocks],
             w["charts"]["a_title"], w["charts"]["a_axis"], w["charts"]["a_y"],
             [(Decimal(0), fmt(0, "base_units", compact=True)),
              (Decimal(raw(f"panel.M1-s{top_a}-d0-lp0.m2.bad_debt")),
               c(f"panel.M1-s{top_a}-d0-lp0.m2.bad_debt"))])
-    curve = [(f"{Decimal(p) * 100}%", Decimal(raw(f"exit.curve.s{p}.pool_depth")),
+    curve = [(v(f"exit.curve.s{p}.s"), Decimal(raw(f"exit.curve.s{p}.pool_depth")),
               Decimal(raw(f"exit.curve.s{p}.gsm_contribution")), c(f"exit.curve.s{p}.total"))
              for p in ("0.005", "0.01", "0.02", "0.05")]
     chart_b = svg.stacked_columns(curve, w["charts"]["b_title"],
@@ -415,7 +426,7 @@ def render_token(repo: pathlib.Path, token: str, doc: dict, grid: dict, man: dic
                 shade = ("s0" if d == 0 else "s1" if d < Decimal("0.001") else "s2"
                          if d < Decimal("0.1") else "s3" if d < 1 else "s4")
                 line.append((shade, v(fid), fid))
-        grid_rows.append((f"−{s}%", line))
+        grid_rows.append((fmt(cells[f"M1-s{s}-d0-lp0"]["shock"], "ratio", "shock"), line))
 
     def reading(shock: str, lp: str) -> str:
         fid = f"panel.M1-s{shock}-d0-lp{lp}.m3.ratio"
@@ -446,7 +457,7 @@ def render_token(repo: pathlib.Path, token: str, doc: dict, grid: dict, man: dic
                tree_svg=tree_svg, chart_a=chart_a, chart_b=chart_b, collapse=collapse,
                grid_rows=grid_rows, grid_reading=grid_reading, infer_unit=infer_unit, fmt=fmt,
                sz_flag=sz_flag, sz_reason=sz_reason,
-               pills=pills(rows, rec, tnames, w), governance=governance_sentence(rows, w),
+               pills=pills(rows, rec, tnames, w, v), governance=governance_sentence(rows, w),
                power_sentences=power_sentences(rows, w), tip=tip,
                headline_m4=headline_m4, cell_m4=cell_m4, n_refs=n_refs,
                slot=lambda name: f"[slot: {name} — pending B-13]")

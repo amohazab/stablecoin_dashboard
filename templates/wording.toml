@@ -16,12 +16,38 @@ specialists = "Detail for specialists"
 [pills]
 fresh_days = 30
 stale_days = 92
-freshness = "Disclosures {avg} old on average · worst {worst}, {days}"
+freshness = "Disclosures {avg} old on average · worst {worst}, {days} old, {share} of backing"
 freshness_none = "No collateral depends on off-chain disclosures"
 governance = "Rule changes: {delay}"
 governance_immutable = "Rules cannot be changed: immutable contracts"
 flags_none = "No warnings this run"
 flags = "{n} notice(s): {names}"
+
+# B-11c (DET-89): triggers whose rubric name carries a threshold figure; the pill
+# names the token's own value instead, through fmt.
+[trigger_pill]
+T-02 = "off-venue share {exit.offvenue.x}"
+
+# B-11c: the rubric's literals, placed where their clauses name them, inside the
+# specialist layer (R-B11.1 keeps the reader layer plain).
+[rubric]
+lp_sticky_line = "Headline exit liquidity {exit} — LP capital assumed sticky."
+lp_grid_line = "LP-flight grid 0% / 30% / 60% — assumed scenario modifier, not data-derived."
+lp_rule_line = "Modeling rule: single-sided withdrawal of the paired asset."
+freeze_line = "modeled pools: the largest pools covering 90% of the frozen set, which itself covered 95% of discovered on-Curve liquidity at freeze time ({date})."
+k_share = "K-subset share of the frozen set: {share}"
+observation_exact = "instant observation — nearly exact: Chainlink deviation triggers ≤ {x}"
+observation_weaker = "instant observation — weaker for {nodes}: deviation {x}; shock cells at ≥ 20% still trigger immediately; residual error ≤ {x}"
+observation_ema = "instant observation — knowingly optimistic: LLAMMA prices off an EMA oracle; see counterfactual line EMA_lag"
+scope_manipulation = "oracle manipulation out of scope — feed control reported under the admin-power surface (the oracle settings rows of the admin-power table)."
+scope_failure = "oracle failure/staleness out of scope."
+scope_failure_tellor = "oracle failure/staleness: see the Tellor_fallback counterfactual line."
+scope_sequencer = "sequencer/infra risk n/a — mainnet only."
+audit_status = "Audit status as of {date}."
+tag_date = "(analyst-supplied {date})"
+slice_row = "protocol stabilizer debt"
+ceiling_row = "ceiling aggregate — the upper bound of the protocol stabilizer slice"
+net_position_line = "Net position of each stabilizer operation: pro-cyclical, non-credited; valued at par."
 
 [governance]
 immutable = "No one can change the rules: the contracts are immutable."
@@ -64,7 +90,8 @@ gsm_freeze = "pausing GSM swaps"
 caption = "Where the backing sits and how far it can be checked on-chain; shares are of the value of all backing collateral."
 off_mainnet = "minted for other chains — not traced here ({share})"
 truncated_pill = "truncated"
-days_pill = "{days} d old"
+days_pill = "{days} old"
+days_pill_zero = "same day"
 
 [tree.bars]
 terminal = "Checkable on-chain"
@@ -130,7 +157,7 @@ lp_grid = "Liquidity-provider flight is an assumed modifier of 0%, 30% and 60%, 
 sell_side_bound = "Collateral that liquidations must sell is bounded by the analyst's dated sell-side capacity per volatile collateral."
 h5_slippage_bound = "What liquidators can buy is bounded by the smallest liquidation bonus among the shocked reserves."
 gsm_fee_exit = "A GSM counts as an exit at its exit fee, and only where that fee is below the price impact sellers accept."
-par_numeraire = "Paired assets are counted at 1.00 for exit liquidity."
+par_numeraire = "paired assets counted at 1.00 for depth"
 shock_grid_fixed = "The shock grid is fixed by the archetype memo, not tuned per token."
 lst_discount_grid = "Liquid-staking tokens take an additional discount of 0%, 5% or 10%."
 member2_target = "The depeg scenario targets the paired stablecoin named in the frozen pool set."

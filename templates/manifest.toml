@@ -28,7 +28,11 @@ percent_decimals = 2
 literals = ["{{", "}}", "{%", "[TODO", "TBD", "lorem", "XXX", "<placeholder",
             "[FIRST-RUN READ", "[ANALYST-SUPPLIED", "[VERIFIED", "[RE-SCOPED", "[VERIFY]",
             "[addr]", "[date]", "[freeze date]", "[slot:"]
-patterns = ['\[[A-Z][A-Z -]+:', 'block N\b', '\bN%', 'P-\d+\.\d+', '#\d+']
+patterns = ['\[[A-Z][A-Z -]+:', 'block N\b', '\bN%', 'P-\d+\.\d+']
+# Amin, 2026-09-14 (B-11b stop): the bare `#\d+` is dropped (it matched DET-73's own
+# "archetype #1"); the citation pattern and `}}` read index.html only - the appendix's
+# artifact literals and the verify sheet are verbatim (R11, R19).
+index_only = ['P-\d+\.\d+', '}}']
 
 # DET-80's seven prose slots.
 [[prose_slots]]

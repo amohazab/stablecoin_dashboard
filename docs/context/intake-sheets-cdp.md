@@ -38,7 +38,7 @@ Expected verifiability result (Step-5 done-condition): majority `terminal` / `te
 - Discovery: active PegKeeper set read from the PegKeeper regulator / registry contract, never hardcoded [VERIFIED 2026-09-01: regulator 0x36a04CAffc681fa179558B2Aaba30395CDdd855f exposes peg_keepers (DynArray of PegKeeperInfo) — discovery source confirmed. Source: PegKeeperRegulator.vy (curvefi/curve-stablecoin master) + verified deploy 0x36a04CAffc681fa179558B2Aaba30395CDdd855f (Etherscan)].
 - Version: [VERIFIED 2026-09-01: all four docs-listed keepers are V2 under the regulator: USDC 0x9201da0D97CaAAff53f01B2fB56767C7072dE340, USDT 0xFb726F57d251aB5C731E5C64eD4F5F94351eF9F3, pyUSD 0x3fA20eAa107DE08B38a8734063D605d5842fe09C, frxUSD 0x338Cb2D827112d989A861cDe87CD9FfD913A1f9D. Source: docs.curve.finance static/deployments.json (snapshot 2026-08-21)].
 - Instances:
-  - crvUSD/USDC keeper — pool [FIRST-RUN READ: live value]; ceiling [ANALYST-SUPPLIED 2026-09-01: USDC ceiling not web-resolvable (history: 25M 2024 → 45M by Aug 2025 → raised Oct 2025 vote, ×3 claimed); [FIRST-RUN READ: debt_ceiling]]
+  - crvUSD/USDC keeper — pool [FIRST-RUN READ: live value]; ceiling [FIRST-RUN READ: debt_ceiling]
   - crvUSD/USDT keeper — pool [FIRST-RUN READ: live value]; ceiling [VERIFIED 2026-09-01: USDT ceiling $135M — Curve News July 2026 recap]
   - crvUSD/pyUSD keeper — [VERIFIED 2026-09-01: pyUSD keeper active (docs deployments 2026-08-21); ceiling history 15M→5M (Sept 2024)→15M (Aug 2025) → current [FIRST-RUN READ: debt_ceiling]]
   - Other keepers added since 2025 — [FIRST-RUN READ: live value]
@@ -85,7 +85,7 @@ NAMED DEFAULTS (implementer, not rubric): `pegkeeper_lp_share`, `paired_units_he
 | Stability Pool refills (H3) ★ | LUSD | understates | no SP deposits between liquidation waves |
 | PegKeeper effective headroom (H1) | crvUSD | overstates | full effective headroom treated as deployed within the window; peer co-deployment dynamics omitted — runs conservative |
 | H4 redemption capacity | LUSD | overstates | full schedule capacity treated as immediately available; base-rate decay (regenerative, 12h half-life) omitted — runs conservative |
-| H5 liquidator appetite (composite) | GHO | both | two named opposite-sign terms; DET-47 `binding_side` states per cell which dominates |
+| H5 liquidator appetite (composite) | GHO | both | two named opposite-sign terms; `binding_side` states per cell which dominates |
 | Pool exit depth — no LP inflow | all | understates | no LP inflow modeled |
 | Pool exit depth — LP sticky at flight-0 | all | overstates | static composition; spread disclosed by the LP-flight grid |
 
@@ -106,7 +106,7 @@ NAMED DEFAULTS (implementer, not rubric): `pegkeeper_lp_share`, `paired_units_he
 - Member 2 target stable: set at pool-set freeze (memo §6.2.5) — expected USDC or USDT (set at first freeze; not a Phase B item). Forced-sell numerator zero by construction → structural-insulation finding; Member 2 told via exit-depth curve + metric 4 (PegKeeper LP share).
 **Quarantine instances (memo §8.1):**
 - (c) Market-count: mint-market count from the controller factory. Addition with known node → L1; removal → L2. Lend-market count changes are logged but do not trigger (excluded by the supply-origination gate).
-- (d) Mechanism near bound → L1: any PegKeeper debt > 80% of its ceiling, or aggregate PegKeeper debt > 80% of aggregate ceiling [ANALYST-SUPPLIED 2026-09-01: USDT $135M (Curve News July 2026); others first-run read]. Mirrored in the monitoring brief.
+- (d) Mechanism near bound → L1: any PegKeeper debt > 80% of its ceiling, or aggregate PegKeeper debt > 80% of aggregate ceiling. Mirrored in the monitoring brief.
 - (a), (b): archetype defaults (10pp / 25% two-branch).
 **Oracle sources (memo §7):** per-market price oracle contracts [FIRST-RUN READ: AMM.price_oracle_contract() per market], crvUSD price aggregator [VERIFIED 2026-09-01: AggregateStablePrice v3 0x18672b1b0c623a30089A280Ed9256379fb0E4E62; composition [FIRST-RUN READ: price_pairs()]; frxUSD pool oracle added Aug 2025 (Curve News)], LLAMMA EMA smoothing [VERIFIED 2026-09-01, CORRECTED 2026-09-04: the 2026-09-01 note said the window is read from the oracle's own MA_EXP_TIME()/ma_exp_time getter. **No such getter exists on any of the nine deployed market oracles** — all four spellings revert (P-3.31). The EMA architecture is real but the parameter sits one level down: **price-EMA smoothing lives on the constituent pools** (`ma_time`/`ma_exp_time`), while the oracle's own `TVL_MA_TIME` smooths the pool-weighting series — a different quantity, not substituted. `ema_window_s` per market is the **transitive max** over the constituent chain; constituents come from the oracle's address getters where exposed, from `POOLS(i)`/`POOL_COUNT` for `CryptoFromPool`-class oracles, and from the verified deploy's constructor arguments where the ABI advertises immutables the bytecode does not expose. Values are per deployment — [FIRST-RUN READ: Controller.amm().price_oracle_contract() → constituent windows, transitive max]. Aggregator: AggregateStablePrice v3 0x18672b1b0c623a30089A280Ed9256379fb0E4E62 (TVL_MA_TIME 50000s), legacy 0xe5Afcf332a5457E8FafCD668BcE3dF953762Dfe7. Source: curvefi/curve-stablecoin price_oracles/*.vy; docs.curve.finance static/deployments.json (snapshot 2026-08-21)]. §7 assumption: instant observation primary, knowingly optimistic for LLAMMA; EMA counterfactual line under metric 4 (bounded approximation, labeled).
 **Redemption-rights (memo §12) — holder paths: 1 (none)**
@@ -212,7 +212,7 @@ Note: PegKeeper pools and Curve pools are markets, not redemption (§5); holder 
 | aWBTC → WBTC | WBTC | `recurses`; `disclosure_cadence` = continuous — Chainlink WBTC PoR feed (Ethereum) + BitGo transparency dashboard; `last_disclosure_date` = per-run read of the WBTC PoR feed `updatedAt` [ANALYST-SUPPLIED 2026-09-13: data.chain.link/feeds/ethereum/mainnet/wbtc-por; docs.chain.link/data-feeds/proof-of-reserve; feed 0xa81FE04086865e63E12dD3776978E49DEEa2ea4e, `description()` verified at B-9, heartbeat 86400] |
 | aUSDC → USDC | USDC | `recurses` (Circle); `disclosure_cadence` = monthly third-party attestation (Deloitte), Circle transparency page; `last_disclosure_date` = 2026-07-31 [ANALYST-SUPPLIED 2026-09-13: the July 2026 examination report PDF on Circle's transparency page; report dates 2026-07-08 and 2026-07-31; assertion signed 2026-08-27, published early September] |
 | aUSDT → USDT | USDT | `recurses` (Tether); `disclosure_cadence` = quarterly BDO attestation + daily transparency page; `last_disclosure_date` = 2026-06-30 [ANALYST-SUPPLIED 2026-09-13: tether.io/transparency; Q2 2026 as-of, published 2026-07-31] |
-| aDAI / aUSDS / asDAI → DAI/USDS | DAI/USDS | `recurses_truncated` (Sky) [FIRST-RUN READ: attribution] |
+| aDAI / aUSDS / asDAI → DAI/USDS | DAI/USDS | `recurses_truncated` (Sky) [FIRST-RUN READ: attribution] [ANALYST-SUPPLIED 2026-09-01: Sky reserves ≈ USDC-via-LitePSM + RWA; note only, not analyzed] |
 | aLINK, aAAVE, other governance tokens | governance/volatile | `terminal` |
 | aweETH / other LRTs | LRT | `terminal_other_layer` — memo §4.5 LRT-family row (ruled 2026-09-02; §11 item 2 resolved) [FIRST-RUN READ: attribution] |
 | acbETH | cbETH | `recurses` — memo §4.5 cbETH row (ruled 2026-09-02; §11 item 2 resolved); disclosure cadence re-scoped to this sheet by that row; `disclosure_cadence` = on-chain exchange rate, continuous; "no third-party reserve attestation published"; `last_disclosure_date` = per-run read of the last update of cbETH's exchange-rate oracle at `run_block` (the Builder names the concrete getter or event at B-9 and stops if none exists) [ANALYST-SUPPLIED 2026-09-13: coinbase.com cbETH page] [FIRST-RUN READ: attribution] |
@@ -252,7 +252,7 @@ NAMED DEFAULTS (implementer, not rubric): `pegkeeper_lp_share`, `paired_units_he
 | Stability Pool refills (H3) ★ | LUSD | understates | no SP deposits between liquidation waves |
 | PegKeeper effective headroom (H1) | crvUSD | overstates | full effective headroom treated as deployed within the window; peer co-deployment dynamics omitted — runs conservative |
 | H4 redemption capacity | LUSD | overstates | full schedule capacity treated as immediately available; base-rate decay (regenerative, 12h half-life) omitted — runs conservative |
-| H5 liquidator appetite (composite) | GHO | both | two named opposite-sign terms; DET-47 `binding_side` states per cell which dominates |
+| H5 liquidator appetite (composite) | GHO | both | two named opposite-sign terms; `binding_side` states per cell which dominates |
 | Pool exit depth — no LP inflow | all | understates | no LP inflow modeled |
 | Pool exit depth — LP sticky at flight-0 | all | overstates | static composition; spread disclosed by the LP-flight grid |
 
@@ -451,7 +451,7 @@ NAMED DEFAULTS (implementer, not rubric): `pegkeeper_lp_share`, `paired_units_he
 | Stability Pool refills (H3) ★ | LUSD | understates | no SP deposits between liquidation waves |
 | PegKeeper effective headroom (H1) | crvUSD | overstates | full effective headroom treated as deployed within the window; peer co-deployment dynamics omitted — runs conservative |
 | H4 redemption capacity | LUSD | overstates | full schedule capacity treated as immediately available; base-rate decay (regenerative, 12h half-life) omitted — runs conservative |
-| H5 liquidator appetite (composite) | GHO | both | two named opposite-sign terms; DET-47 `binding_side` states per cell which dominates |
+| H5 liquidator appetite (composite) | GHO | both | two named opposite-sign terms; `binding_side` states per cell which dominates |
 | Pool exit depth — no LP inflow | all | understates | no LP inflow modeled |
 | Pool exit depth — LP sticky at flight-0 | all | overstates | static composition; spread disclosed by the LP-flight grid |
 

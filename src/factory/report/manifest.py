@@ -1,8 +1,10 @@
 """B-10: `template_hash` and the report manifest (P-7.01 R3).
 
-`template_hash` = sha256 over the sorted `(relative path, LF-normalised bytes)`
-pairs of `templates/` (inventory H.6): each pair is `path\\0bytes\\0`. Prompts
-live there from B-13, so a prompt patch is a `template_change` with evidence.
+`template_hash` = sha256 over the sorted `(repo-relative path, LF-normalised
+bytes)` pairs of `templates/**` plus `src/factory/report/{render,svg}.py` (NAMED
+DEFAULT, Amin's ruling at B-11c: the renderer shapes the page as much as the
+templates do): each pair is `path\\0bytes\\0`. Prompts live under `templates/`
+from B-13, so a prompt patch is a `template_change` with evidence.
 
 `report_hash = sha256(bundle_hash ‖ tree_hash ‖ stress_hash ‖ table_hash ‖
 template_hash ‖ pipeline_version ‖ sheet_hash)`. NAMED DEFAULT: `‖` is plain
@@ -20,10 +22,19 @@ ORDER = ("bundle_hash", "tree_hash", "stress_hash", "table_hash", "template_hash
          "pipeline_version", "sheet_hash")
 
 
-def template_hash(templates: pathlib.Path) -> str:
+TEMPLATE_CODE = ("src/factory/report/render.py", "src/factory/report/svg.py")
+
+
+def template_files(repo: pathlib.Path) -> list[pathlib.Path]:
+    files = [x for x in (repo / "templates").rglob("*") if x.is_file()]
+    return sorted([*files, *(repo / c for c in TEMPLATE_CODE)],
+                  key=lambda p: p.relative_to(repo).as_posix())
+
+
+def template_hash(repo: pathlib.Path) -> str:
     h = hashlib.sha256()
-    for p in sorted(x for x in templates.rglob("*") if x.is_file()):
-        rel = p.relative_to(templates).as_posix()
+    for p in template_files(repo):
+        rel = p.relative_to(repo).as_posix()
         h.update(rel.encode("utf-8") + b"\0" + p.read_bytes().replace(b"\r\n", b"\n") + b"\0")
     return h.hexdigest()
 

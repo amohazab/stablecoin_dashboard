@@ -1,10 +1,10 @@
 # DERIVED MIRROR - NOT AUTHORITATIVE (P-3.04 binding).
 # Source of truth: docs/context/intake-sheets-cdp.md, LUSD section.
-# Derived from sheet version sha256_first8 = 5486f264.
+# Derived from sheet version sha256_first8 = 29682310.
 # DET-77's sheet_hash check binds this mirror to that source; drift is caught
 # mechanically, never trusted away. Regenerated, never hand-patched.
 schema_version = 1
-sheet_hash = "5486f264"
+sheet_hash = "29682310"
 
 near_bound_threshold = 0.80
 counterparties = "n/a — archetype #1 holds no off-chain counterparties; no WBTC custodian exposure — no WBTC node in the LUSD tree."
@@ -14,7 +14,7 @@ attribution_method = "direct"
 # m4_fields[] - DET-38's exact per-cell m4 key set, 9 keys, mirrored from the stamped sheet.
 m4_fields = ["sp_effective_cell", "redistributed_debt", "redistributed_positions_below_100", "tcr_post", "recovery_mode_flag", "redemption_capacity", "exit_depth_cell", "lp_flight_share", "counterfactual_ref"]
 # bias_table[] date - the P-6.07 signed edit's; the sheet table has no date column (P-7.01 R8).
-bias_table_date = 2026-09-13
+bias_table_date = 2026-09-14
 
 # disclosure[] - DET-76(e), 0 node-table rows; owner: the sheet (C-8).
 
@@ -40,6 +40,13 @@ audits = [
   { firm = "Trail of Bits", date = "2021-01", scope = "Liquity v1 security assessment" },
   { firm = "Coinspect", date = "2021-03", scope = "Liquity v1" },
 ]
+
+# audit_tag_date - DET-74 class D: each §14 line's ANALYST-SUPPLIED date (B-11c′).
+[audit_tag_date]
+audits = "2026-09-13"
+bug_bounty = "2026-09-13"
+
+# node_note[] - DET-74 class D: node-table analyst notes, rendered on their rows (B-11d).
 
 # first_run_reads[] - 13 rows mirrored from the stamped sheet.
 # status stays "open" until a stamped sheet edit retires the prose tag (P-3.14).
@@ -183,7 +190,7 @@ mandatory = false
 mechanism = "H5 liquidator appetite (composite)"
 tokens = ["GHO"]
 direction = "both"
-reason = "two named opposite-sign terms; DET-47 `binding_side` states per cell which dominates"
+reason = "two named opposite-sign terms; `binding_side` states per cell which dominates"
 mandatory = false
 
 [[bias_table]]

@@ -28,6 +28,9 @@ def built(tmp_path_factory):
         src = REPO / sub
         if src.exists():
             shutil.copytree(src, root / sub)
+    for code in manifest.TEMPLATE_CODE:                     # B-11c: inside template_hash
+        (root / code).parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(REPO / code, root / code)
     return {t: build(root, t) for t in TOKENS}
 
 
@@ -47,7 +50,7 @@ def test_every_row_replays_and_the_committed_table_matches(built):
         assert committed["table_hash"] == doc["table_hash"], t
     gho = {row["field_id"]: row for row in built["GHO"]["doc"]["rows"]}
     assert gho["supply.off_mainnet.share"]["denominator"] == "supply_ruled"
-    assert gho["exit.offvenue.x"]["value"].startswith("0.9283")
+    assert gho["exit.offvenue.x"]["value"].startswith("0.9243")     # B-11d run, live fetch
 
 
 def _det84(token, doc):
@@ -103,12 +106,21 @@ def test_manifest_hashes(tmp_path, built):
     m = built["crvUSD"]["manifest"]
     joined = "".join(m[k] for k in manifest.ORDER)
     assert m["report_hash"] == hashlib.sha256(joined.encode()).hexdigest()
-    (tmp_path / "a.txt").write_bytes(b"x\r\ny\n")
+    (tmp_path / "templates").mkdir()
+    (tmp_path / "src/factory/report").mkdir(parents=True)
+    for code in manifest.TEMPLATE_CODE:                     # B-11c: the renderer is in scope
+        (tmp_path / code).write_bytes(b"pass\n")
+    (tmp_path / "templates/a.txt").write_bytes(b"x\r\ny\n")
     h1 = manifest.template_hash(tmp_path)
-    (tmp_path / "a.txt").write_bytes(b"x\ny\n")
+    (tmp_path / "templates/a.txt").write_bytes(b"x\ny\n")
     assert manifest.template_hash(tmp_path) == h1           # LF-normalised
-    (tmp_path / "b.txt").write_bytes(b"")
-    assert manifest.template_hash(tmp_path) != h1           # a new file moves it
+    (tmp_path / "templates/b.txt").write_bytes(b"")
+    h2 = manifest.template_hash(tmp_path)
+    assert h2 != h1                                         # a new file moves it
+    (tmp_path / "src/factory/report/render.py").write_bytes(b"pass  # changed\n")
+    assert manifest.template_hash(tmp_path) != h2           # so does a renderer edit
+    assert [p.relative_to(REPO).as_posix() for p in manifest.template_files(REPO)
+            if p.suffix == ".py"] == list(manifest.TEMPLATE_CODE)
 
 
 def test_record_is_complete_and_enumerates_the_unregistered(built):

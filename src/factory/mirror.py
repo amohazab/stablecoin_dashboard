@@ -98,7 +98,7 @@ BIAS_MANDATORY = {
 # date is the P-6.07 signed edit's, which landed the table (sheet `ad7c35c2`,
 # intake_trigger 2026-09-13). A later sheet edit that changes the table owes a
 # new date here, by ruling.
-BIAS_TABLE_DATE = "2026-09-13"
+BIAS_TABLE_DATE = "2026-09-14"                # B-11d signed edit C changed a reason
 
 BIAS_HEADING = "stock-only capacity — direction of error per mechanism"
 
@@ -250,6 +250,43 @@ def parse_audit_status(sheet_path: pathlib.Path, token: str) -> dict:
             "staleness_date": sm.group(1)}
 
 
+def parse_node_notes(sheet_path: pathlib.Path, token: str) -> list[dict]:
+    """B-11d (DET-74 class D, M2): a node-table row whose tag is a "note only"
+    analyst note, as `{row_key, applies_to, date, note}`. NAMED DEFAULT:
+    `applies_to` is the row's aTokens before the arrow with the leading "a"
+    dropped (aDAI / aUSDS / asDAI -> DAI, USDS, sDAI) - the tree node symbols
+    the note renders on."""
+    out = []
+    for line in _section(sheet_path, token):
+        if not line.startswith("| "):
+            continue
+        m = re.search(r"\[ANALYST-SUPPLIED (\d{4}-\d{2}-\d{2}): ([^\]]*note only[^\]]*)\]", line)
+        if not m:
+            continue
+        key = line.strip().strip("|").split(" | ")[0].strip()
+        tokens = [t.strip() for t in key.split("→")[0].split("/")]
+        out.append({"row_key": key, "applies_to": [t[1:] if t.startswith("a") else t
+                                                    for t in tokens],
+                    "date": m.group(1), "note": m.group(2).strip()})
+    return out
+
+
+AUDIT_TAG_KEYS = {"bug_bounty": "bug_bounty", "audits[]": "audits",
+                  "last_material_change_audited": "last_material_change_audited"}
+
+
+def parse_audit_tag_dates(sheet_path: pathlib.Path, token: str) -> dict[str, str]:
+    """B-11c′ (DET-74 class D): the `[ANALYST-SUPPLIED <date>` of each §14 audit line
+    that carries one, keyed by field. Kept apart from `[audit_status]`, whose
+    values enter `static_metadata` - the dates are page data, not bundle leaves."""
+    out = {}
+    for ln in _section(sheet_path, token):
+        m = re.match(r"^- `([a-z_\[\]]+)`.*?\[ANALYST-SUPPLIED (\d{4}-\d{2}-\d{2})", ln)
+        if m and m.group(1) in AUDIT_TAG_KEYS:
+            out[AUDIT_TAG_KEYS[m.group(1)]] = m.group(2)
+    return out
+
+
 def parse_oracle_feeds(sheet_path: pathlib.Path, token: str) -> list[dict]:
     """DET-54/55's signed per-feed table (P-7.01 R21, P-7.04). Empty for a
     token whose section has none (crvUSD: EMA oracles, read per run)."""
@@ -354,7 +391,17 @@ def generate(sheet_path: pathlib.Path, token: str) -> str:
         *[f"  {{ firm = {_q(a['firm'])}, date = {_q(a['date'])}, scope = {_q(a['scope'])} }},"
           for a in audit["audits"]],
         "]",
+        "",
+        "# audit_tag_date - DET-74 class D: each §14 line's ANALYST-SUPPLIED date (B-11c′).",
+        "[audit_tag_date]",
+        *[f"{k} = {_q(v)}" for k, v in parse_audit_tag_dates(sheet_path, token).items()],
+        "",
+        "# node_note[] - DET-74 class D: node-table analyst notes, rendered on their rows (B-11d).",
     ]
+    for n in parse_node_notes(sheet_path, token):
+        out += ["[[node_note]]", f"row_key = {_q(n['row_key'])}",
+                "applies_to = [" + ", ".join(_q(a) for a in n["applies_to"]) + "]",
+                f"date = {_q(n['date'])}", f"note = {_q(n['note'])}", ""]
     out += [
         "",
         f"# first_run_reads[] - {len(rows)} rows mirrored from the stamped sheet.",

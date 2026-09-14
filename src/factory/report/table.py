@@ -244,6 +244,11 @@ def build_rows(bundle: dict, tree: dict, stress: dict, mirror: dict) -> list[dic
         t.add("stress.structural_zero.reason", "why bad debt is structurally zero",
               "stress/structural_zero/reason", None, "stress (Member 1)", "DET-40")
     for p in stress["exit_depth"]["depth_curve"]:
+        # B-11c′ (DET-89): the price-impact level itself, so chart B's labels print
+        # through fmt. NAMED DEFAULT: denominator "price_impact".
+        t.add(f"exit.curve.s{p['s']}.s", f"depth curve price impact {p['s']}",
+              f"{ed}/depth_curve/[s={p['s']}]/s", "ratio", "exit liquidity", "DET-31",
+              "price_impact")
         for k, own in (("total", "DET-31"), ("pool_depth", "DET-31"),
                        ("gsm_contribution", "DET-35")):
             t.add(f"exit.curve.s{p['s']}.{k}", f"depth curve s = {p['s']} {k}",
@@ -369,6 +374,34 @@ def build_rows(bundle: dict, tree: dict, stress: dict, mirror: dict) -> list[dic
         if prov.get("function"):
             t.add(f"{rid}.A8.function", f"{r['power']} A8 function", f"{sel}/provenance/function",
                   "literal", "admin surface", "DET-68")
+
+    # ---- DET-22's S3 half (B-11c′): the slice, the ceiling, each operation ------------
+    t.add("stabilizer.slice.debt", "protocol stabilizer debt", "tree/stabilizer_slice/debt",
+          "base_units", "supply", "DET-22")
+    t.add("stabilizer.slice.ceiling_aggregate", "stabilizer ceiling aggregate",
+          "tree/stabilizer_slice/ceiling_aggregate", "base_units", "supply", "DET-22")
+    t.add("stabilizer.slice.ceiling_share", "stabilizer ceiling aggregate / supply_ruled",
+          "tree/stabilizer_slice/ceiling_share_of_supply_ruled", "ratio", "supply", "DET-22",
+          "supply_ruled")
+    for o in bundle["stabilizer"]["operations"]:
+        a = o["operation_address"]
+        sel = f"bundle/stabilizer/operations/[operation_address={a}]"
+        t.add(f"stabilizer.op.{a}.debt_ceiling", "operation ceiling", f"{sel}/debt_ceiling",
+              "base_units", "supply", "DET-22")
+        t.add(f"stabilizer.op.{a}.utilization", "operation utilization", f"{sel}/utilization",
+              None, "supply", "DET-22", "debt_ceiling")
+        # NAMED DEFAULT: the "net position value" is DET-05(c)'s paired leg at par.
+        t.add(f"stabilizer.op.{a}.net_position", "operation net position value",
+              f"{sel}/net_non_self_referential_value", None, "supply", "DET-05")
+
+    # ---- DET-74 class D (B-11c′): the §14 lines' tag dates, from the mirror -----------
+    for i in range(len(mirror.get("node_note", []))):
+        for k, u in (("note", "literal"), ("date", "date"), ("applies_to", "list")):
+            t.add(f"note.{i}.{k}", f"node note {k}", f"mirror/node_note/{i}/{k}", u, "audit",
+                  "DET-74")
+    for k in sorted(mirror.get("audit_tag_date", {})):
+        t.add(f"audit.tag_date.{k}", f"{k} analyst-supplied date",
+              f"mirror/audit_tag_date/{k}", "date", "audit", "DET-74")
 
     # ---- DET-73's audit line -----------------------------------------------------------
     sm = bundle["static_metadata"]

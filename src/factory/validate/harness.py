@@ -948,13 +948,22 @@ def det_19(b: Bundle, t: VerifiabilityTree) -> None:
         if t.denominators.get(key) != "backing_value":
             raise Level3(f"DET-19: {key} declares {t.denominators.get(key)!r}")
     over_supply = {k for k, v in t.denominators.items() if v == "supply_ruled"}
-    # P-5.01 R1 forbids a tree figure over `supply_ruled`; P-7.05's ruling on S1
-    # carves out exactly one - the off-mainnet facilitator line - which replays.
-    if over_supply - {"off_mainnet_line.share_of_supply_ruled"}:
+    # P-5.01 R1 forbids a tree figure over `supply_ruled`; two carve-outs, each of
+    # which replays: the off-mainnet facilitator line (P-5.01-A1, P-7.05) and the
+    # stabilizer ceiling aggregate's share (P-5.01-A2, B-11d, DET-22).
+    om_key, ceil_key = ("off_mainnet_line.share_of_supply_ruled",
+                        "stabilizer_slice.ceiling_share_of_supply_ruled")
+    if over_supply - {om_key, ceil_key}:
         raise Level3(f"DET-19: figure(s) declared over supply_ruled {sorted(over_supply)} "
                      "(R1 forbids it)")
+    sl = t.stabilizer_slice
+    if (sl is None) != (ceil_key not in over_supply):
+        raise Level3("DET-19: the stabilizer ceiling share and its denominator declared apart")
+    if sl is not None and abs(sl.ceiling_share_of_supply_ruled - Decimal(
+            b.stabilizer.ceiling_aggregate) / Decimal(b.supply.supply_ruled)) > TREE_TOL:
+        raise Level3("DET-19: the stabilizer ceiling share does not replay over supply_ruled")
     om = t.off_mainnet_line
-    if (om is None) != (not over_supply):
+    if (om is None) != (om_key not in over_supply):
         raise Level3("DET-19: off-mainnet line and its denominator declared apart")
     if om is not None:
         want = sum(f.bucket_level for f in b.facilitators if f.facilitator_class == "off_mainnet")
@@ -1084,6 +1093,9 @@ def det_22(b: Bundle, t: VerifiabilityTree) -> str:
                      f"!= Σ debt_ceiling {ceil}")
     if b.supply.supply_ruled <= 0:
         raise Level3("DET-22: supply_ruled must be positive for the % of supply")
+    sl = t.stabilizer_slice
+    if sl is None or (sl.debt, sl.ceiling_aggregate, sl.operation_count) != (debt, ceil, len(ops)):
+        raise Level3("DET-22: the tree's stabilizer slice does not replay from the bundle")
     return (f"{len(ops)} operation rows; slice {debt}, ceiling {ceil}" if ops
             else "no stabilizer operations: slice 0, ceiling 0 (R-9)")
 
@@ -2680,9 +2692,10 @@ def det_54(b: Bundle, t: VerifiabilityTree, r: StressReport, page: dict) -> str:
         if m is None or Decimal(m.group(1)) != x / 100:
             raise Level3(f"DET-54: nearly-exact literal with X = {x / 100}% not printed")
     else:
-        if not re.search(r"instant observation — weaker for .+?: deviation "
-                         rf"{re.escape(str(x / 100))}%?; shock cells at ≥ 20% still trigger "
-                         r"immediately; residual error ≤ ", txt):
+        m = re.search(r"instant observation — weaker for .+?: deviation (\d+(?:\.\d+)?)%; "
+                      r"shock cells at ≥ 20% still trigger immediately; residual error ≤ "
+                      r"(\d+(?:\.\d+)?)%", txt)
+        if m is None or not Decimal(m.group(1)) == Decimal(m.group(2)) == x / 100:
             raise Level3(f"DET-54: weaker-for literal with X = {x / 100}% not printed")
     return f"X = {x} bps"
 
@@ -2793,7 +2806,8 @@ def det_73(b: Bundle, t: VerifiabilityTree, r: StressReport, page: dict) -> str:
 DET74_CLASS_S = {"M1": ("memo", None, "frxUSD not in pilot"),
                  "S1": ("sheet", "crvUSD", "USDC ceiling not web-resolvable"),
                  "S2": ("sheet", "crvUSD", "USDT $135M (Curve News July 2026)")}
-DET74_CLASS_D_MEMO = {"M2": ("GHO", "Sky reserves", "Sky")}
+# M2 lives in the sheet since B-11d's signed edit D (the memo keeps its copy).
+DET74_CLASS_D_NOTE = {"M2": ("GHO", "Sky reserves", "Sky")}
 
 
 def _analyst_supplied(obj, path="") -> list[tuple[str, dict]]:
@@ -2845,9 +2859,9 @@ def det_74(b: Bundle, t: VerifiabilityTree, r: StressReport, page: dict) -> str 
         if m and not any(m.group(1) in e and ("audit" in e.lower() or "bounty" in e.lower())
                          for e in els):
             undated.append(f"{key} {m.group(1)}")
-    for tag, (tok, frag, word) in DET74_CLASS_D_MEMO.items():
+    for tag, (tok, frag, word) in DET74_CLASS_D_NOTE.items():
         m = re.search(rf"\[ANALYST-SUPPLIED (\d{{4}}-\d{{2}}-\d{{2}}): {re.escape(frag)}",
-                      page["memo_text"])
+                      section)
         if tok == token and m and not any(word in e and m.group(1) in e for e in els):
             undated.append(f"{tag} {m.group(1)}")
     if undated:
@@ -2868,18 +2882,24 @@ def det_74(b: Bundle, t: VerifiabilityTree, r: StressReport, page: dict) -> str 
 def det_79(b: Bundle, t: VerifiabilityTree, r: StressReport, page: dict) -> str:
     """Template-artifact string leak, S3: zero matches over the pages for the
     rubric's fixed list, the tag shape and the ruled placeholders, and the
-    substitution list emitted with the template (R19's patterns included)."""
+    substitution list emitted with the template (R19's patterns included). Items in
+    the manifest's `index_only` read index.html only (Amin's ruling, B-11b stop)."""
     sub = page["manifest"]["substitution_list"]
     lits = list(dict.fromkeys([*RUBRIC_LEAKS, *sub["literals"]]))
     pats = list(dict.fromkeys([*RUBRIC_LEAK_PATTERNS, *sub["patterns"]]))
+    index_only = set(sub.get("index_only", []))
     hits = []
     for name, html in page["html"].items():
         txt = _s3(page)["text"][name]
         for lit in lits:
+            if lit in index_only and name != "index":
+                continue
             n = (html if lit.startswith("<") else txt).count(lit)
             if n:
                 hits.append(f"{name} {lit!r} x{n}")
         for pat in pats:
+            if pat in index_only and name != "index":
+                continue
             n = len(re.findall(pat, txt))
             if n:
                 hits.append(f"{name} /{pat}/ x{n}")

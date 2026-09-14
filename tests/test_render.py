@@ -17,7 +17,7 @@ REPO = pathlib.Path(__file__).resolve().parents[1]
 MF = tomllib.loads((REPO / "templates/manifest.toml").read_text(encoding="utf-8"))
 W = tomllib.loads((REPO / "templates/wording.toml").read_text(encoding="utf-8"))
 E = 10 ** 18
-BLOCKS = {"crvUSD": 25970226, "GHO": 25970233, "LUSD": 25970249}
+BLOCKS = {"crvUSD": 25974925, "GHO": 25974932, "LUSD": 25974949}
 
 
 def pages(token: str) -> pathlib.Path:

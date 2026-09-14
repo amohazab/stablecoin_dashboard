@@ -1,10 +1,10 @@
 # DERIVED MIRROR - NOT AUTHORITATIVE (P-3.04 binding).
 # Source of truth: docs/context/intake-sheets-cdp.md, crvUSD section.
-# Derived from sheet version sha256_first8 = 5486f264.
+# Derived from sheet version sha256_first8 = 29682310.
 # DET-77's sheet_hash check binds this mirror to that source; drift is caught
 # mechanically, never trusted away. Regenerated, never hand-patched.
 schema_version = 1
-sheet_hash = "5486f264"
+sheet_hash = "29682310"
 
 near_bound_threshold = 0.80
 counterparties = "n/a — archetype #1 holds no off-chain counterparties. WBTC custodian captured in §4 look-through."
@@ -14,7 +14,7 @@ attribution_method = "direct"
 # m4_fields[] - DET-38's exact per-cell m4 key set, 18 keys, mirrored from the stamped sheet.
 m4_fields = ["effective", "naive", "is_killed", "alpha", "beta", "provide_allowed", "withdraw_allowed", "burn_capacity", "stabilizer_debt_post_cell", "ceiling_aggregate", "utilization_post_cell", "pegkeeper_lp_share", "paired_units_held", "pool_tilt_post_cell", "exit_depth_cell", "lp_flight_share", "oracle_spot_gap", "counterfactual_ref"]
 # bias_table[] date - the P-6.07 signed edit's; the sheet table has no date column (P-7.01 R8).
-bias_table_date = 2026-09-13
+bias_table_date = 2026-09-14
 
 # disclosure[] - DET-76(e), 3 node-table rows; owner: the sheet (C-8).
 
@@ -54,6 +54,14 @@ audits = [
   { firm = "ChainSecurity", date = "2024-10-25", scope = "FastBridge (cross-chain crvUSD)" },
   { firm = "MixBytes", date = "2024-09-02", scope = "LlamaLend" },
 ]
+
+# audit_tag_date - DET-74 class D: each §14 line's ANALYST-SUPPLIED date (B-11c′).
+[audit_tag_date]
+audits = "2026-09-13"
+bug_bounty = "2026-09-13"
+last_material_change_audited = "2026-09-13"
+
+# node_note[] - DET-74 class D: node-table analyst notes, rendered on their rows (B-11d).
 
 # first_run_reads[] - 34 rows mirrored from the stamped sheet.
 # status stays "open" until a stamped sheet edit retires the prose tag (P-3.14).
@@ -344,7 +352,7 @@ mandatory = false
 mechanism = "H5 liquidator appetite (composite)"
 tokens = ["GHO"]
 direction = "both"
-reason = "two named opposite-sign terms; DET-47 `binding_side` states per cell which dominates"
+reason = "two named opposite-sign terms; `binding_side` states per cell which dominates"
 mandatory = false
 
 [[bias_table]]

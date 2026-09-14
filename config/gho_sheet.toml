@@ -1,10 +1,10 @@
 # DERIVED MIRROR - NOT AUTHORITATIVE (P-3.04 binding).
 # Source of truth: docs/context/intake-sheets-cdp.md, GHO section.
-# Derived from sheet version sha256_first8 = 5486f264.
+# Derived from sheet version sha256_first8 = 29682310.
 # DET-77's sheet_hash check binds this mirror to that source; drift is caught
 # mechanically, never trusted away. Regenerated, never hand-patched.
 schema_version = 1
-sheet_hash = "5486f264"
+sheet_hash = "29682310"
 
 near_bound_threshold = 0.80
 counterparties = "n/a — archetype #1 holds no off-chain counterparties. WBTC custodian captured in §4 look-through."
@@ -14,7 +14,7 @@ attribution_method = "per_position"
 # m4_fields[] - DET-38's exact per-cell m4 key set, 9 keys, mirrored from the stamped sheet.
 m4_fields = ["gho_sourceable", "collateral_sellable", "gsm_mint_headroom", "binding_side", "facilitator_bucket_levels", "freezer_state", "exit_depth_cell", "lp_flight_share", "counterfactual_ref"]
 # bias_table[] date - the P-6.07 signed edit's; the sheet table has no date column (P-7.01 R8).
-bias_table_date = 2026-09-13
+bias_table_date = 2026-09-14
 
 # disclosure[] - DET-76(e), 6 node-table rows; owner: the sheet (C-8).
 
@@ -316,6 +316,20 @@ audits = [
   { firm = "Certora", date = "2023-02-28", scope = "GHO formal verification" },
   { firm = "SigmaPrime", date = "2023-07-06", scope = "GHO" },
 ]
+
+# audit_tag_date - DET-74 class D: each §14 line's ANALYST-SUPPLIED date (B-11c′).
+[audit_tag_date]
+audits = "2026-09-13"
+bug_bounty = "2026-09-13"
+last_material_change_audited = "2026-09-13"
+
+# node_note[] - DET-74 class D: node-table analyst notes, rendered on their rows (B-11d).
+[[node_note]]
+row_key = "aDAI / aUSDS / asDAI → DAI/USDS"
+applies_to = ["DAI", "USDS", "sDAI"]
+date = "2026-09-01"
+note = "Sky reserves ≈ USDC-via-LitePSM + RWA; note only, not analyzed"
+
 
 # first_run_reads[] - 46 rows mirrored from the stamped sheet.
 # status stays "open" until a stamped sheet edit retires the prose tag (P-3.14).
@@ -690,7 +704,7 @@ mandatory = false
 mechanism = "H5 liquidator appetite (composite)"
 tokens = ["GHO"]
 direction = "both"
-reason = "two named opposite-sign terms; DET-47 `binding_side` states per cell which dominates"
+reason = "two named opposite-sign terms; `binding_side` states per cell which dominates"
 mandatory = false
 
 [[bias_table]]

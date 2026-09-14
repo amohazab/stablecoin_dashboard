@@ -30,6 +30,7 @@ from factory.schema import (
     PairedAssetRow,
     QualifierRow,
     ResidualFamily,
+    StabilizerSlice,
     StalenessNode,
     StalenessWorst,
     TreeBar,
@@ -287,6 +288,9 @@ def fold(bundle: Bundle, cfg: Config, linked: dict | None = None,
                       "root.backing_value": "amount", "root.backed_supply": "amount",
                       "root.supply_ruled": "amount", "root.residual": "amount",
                       "root.stabilizer_debt": "amount",
+                      "stabilizer_slice.debt": "amount",
+                      "stabilizer_slice.ceiling_aggregate": "amount",
+                      "stabilizer_slice.ceiling_share_of_supply_ruled": "supply_ruled",
                       **({"off_mainnet_line.share_of_supply_ruled": "supply_ruled"}
                          if offm else {})},
         paired_assets=paired, concentration=concentration, off_mainnet_line=offm,
@@ -295,6 +299,12 @@ def fold(bundle: Bundle, cfg: Config, linked: dict | None = None,
                      key=lambda x: (-x.share, x.address)),
         residual_cause_families=residual_families(b),
         oracle_max_deviation=oracle_max_deviation(b),
+        stabilizer_slice=StabilizerSlice(
+            debt=sum(o.current_debt for o in b.stabilizer.operations),
+            ceiling_aggregate=b.stabilizer.ceiling_aggregate,
+            operation_count=len(b.stabilizer.operations),
+            ceiling_share_of_supply_ruled=(Decimal(b.stabilizer.ceiling_aggregate)
+                                           / Decimal(b.supply.supply_ruled))),
         flags=flags)
 
 
