@@ -29,8 +29,6 @@ from factory.validate.harness import CHECKS, TRIGGER_TABLE
 # P-7.01 block plan; P-4.01 for items no Step-7 block owns). A registry that
 # grows removes an ID from here; a rubric ID in neither place fails the build.
 QUEUE = {
-    **dict.fromkeys(("DET-80", "DET-85", "LLM-01", "LLM-02", "LLM-03", "LLM-04", "LLM-05",
-                     "LLM-06"), "B-13 (prose, judge, loop; R12)"),
     "DET-09": "P-4.01 (DET-09 set-file inputs: GHO discovery_m absent, LUSD 0.4459 - ruling)",
     "DET-64": "P-4.01 (GHO attribution cross-check: aggregate reads)",
     "DET-75": "P-4.01 #25/#26 (field-existence clause; FR-14 fields)",
@@ -68,14 +66,14 @@ class GateRecord(BaseModel):
     results: list[RecordResult]
     triggers: list[dict[str, Any]]
     unregistered: list[dict[str, str]]
-    judge: list[dict[str, Any]] = []
-    generation: list[dict[str, Any]] = []
+    judge: list[dict[str, Any]] = []            # B-13: envelopes, calls, span events
+    generation: list[dict[str, Any]] = []       # B-13: one entry per slot call per pass
     # B-12 (DET-87's rubric_change evidence): the rubric header stamp this run read.
     rubric_hash: str | None = None
     revision_count: Literal[0, 1] = 0
     revision_cause: list[str] = []
     outcome: Literal["published", "quarantined", "template_defect", "judge_instability",
-                     "harness_error", "blocked_S3"] | None = None
+                     "harness_error", "blocked_S3", "rehearsal"] | None = None
 
 
 def rubric_ids(rubric_text: str) -> list[str]:
@@ -117,7 +115,8 @@ def triggers_of(results) -> list[dict]:
 
 
 def build(parts: dict, manifest: dict, s01, tree_checks, stress_checks, report_checks,
-          rubric_text: str, gate_triggers: tuple = (), outcome: str | None = None) -> GateRecord:
+          rubric_text: str, gate_triggers: tuple = (), outcome: str | None = None,
+          llm: dict | None = None) -> GateRecord:
     stage = {c.entry_id: c.stage for c in CHECKS}
     results, triggers = [], []
     for g in [*s01.results, *tree_checks, *stress_checks, *report_checks]:
@@ -130,7 +129,11 @@ def build(parts: dict, manifest: dict, s01, tree_checks, stress_checks, report_c
     if got != want:
         raise ValueError(f"record incomplete: missing {sorted(want - got)}, extra "
                          f"{sorted(got - want)}")
+    llm = llm or {}
     return GateRecord(token=manifest["token"], run_block=manifest["run_block"],
+                      judge=llm.get("judge", []), generation=llm.get("generation", []),
+                      revision_count=llm.get("revision_count", 0),
+                      revision_cause=llm.get("revision_cause", []),
                       report_hash=manifest["report_hash"],
                       **{k: parts[k] for k in ("bundle_hash", "tree_hash", "stress_hash",
                                                "table_hash", "template_hash",

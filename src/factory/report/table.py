@@ -28,6 +28,7 @@ import json
 import re
 from typing import Any
 
+from factory.gho_cells import HEADLINE_M2
 from factory.report.paths import resolve
 
 ADDR = re.compile(r"^0x[0-9a-f]{40}$")
@@ -100,9 +101,13 @@ class TableBuilder:
             self.add(prefix, label, path, None, section, owner_of(prefix), denominator)
 
 
-def build_rows(bundle: dict, tree: dict, stress: dict, mirror: dict) -> list[dict]:
-    """The row set, token-shaped by what the artifacts carry."""
-    t = TableBuilder({"bundle": bundle, "tree": tree, "stress": stress, "mirror": mirror})
+def build_rows(bundle: dict, tree: dict, stress: dict, mirror: dict,
+               wording: dict | None = None) -> list[dict]:
+    """The row set, token-shaped by what the artifacts carry. `wording` (templates/
+    wording.toml, inside template_hash) is the source of the template-owned description
+    rows (B-13 ruling H); a row's `source_path` there reads `wording/...`."""
+    t = TableBuilder({"bundle": bundle, "tree": tree, "stress": stress, "mirror": mirror,
+                      "wording": wording or {}})
 
     # ---- header (DET-83/87, R3) --------------------------------------------------------
     for k, u, own in (("token", "literal", "DET-83"), ("run_block", "block", "DET-83"),
@@ -153,6 +158,9 @@ def build_rows(bundle: dict, tree: dict, stress: dict, mirror: dict) -> list[dic
               "verifiability", "DET-17")
         t.add(f"tree.node.{n['address']}.label", "node label", f"{base}/label", "literal",
               "verifiability", "DET-17")
+        if n["label"] in (wording or {}).get("tree", {}).get("node_bar", {}):
+            t.add(f"tree.node.{n['address']}.bar", "backing class of the node",
+                  f"wording/tree/node_bar/{n['label']}", "literal", "verifiability", "DET-17")
         t.add(f"tree.node.{n['address']}.share", f"{n['symbol']} share of backing",
               f"{base}/share", "ratio", "verifiability", "DET-17", "backing_value")
     for k in sorted(tree["denominators"]):
@@ -166,6 +174,10 @@ def build_rows(bundle: dict, tree: dict, stress: dict, mirror: dict) -> list[dic
               "DET-15")
     t.add("supply.stabilizer_over_supply", "stabilizer debt / supply_ruled",
           "bundle/supply/stabilizer_over_supply", "ratio", "supply", "DET-16", "supply_ruled")
+    if bundle["header"]["token"] in (wording or {}).get("residual", {}):
+        # ruling on the third live run: the residual in words (source: wording.toml)
+        t.add("supply.residual.description", "what the residual is",
+              f"wording/residual/{bundle['header']['token']}", "literal", "supply", "DET-15")
     for c in bundle["supply"]["residual_causes"]:
         base = f"bundle/supply/residual_causes/[address={c['address']}]"
         t.add(f"supply.cause.{c['address']}.amount", f"named cause: {c['family'][:40]}",
@@ -211,6 +223,14 @@ def build_rows(bundle: dict, tree: dict, stress: dict, mirror: dict) -> list[dic
                          ("m3/ratio", "ratio", "exit_depth", "DET-41")):
         t.add(f"headline.{k.replace('/', '.')}", f"headline {k.replace('/', ' ')}",
               f"{cell}/{k}", u, "stress (Member 1)", own, d)
+    # Amin, previews ruling 2: the Member-2 headline cell's m3 (memo §6.2.6's 0.93 target,
+    # no LP flight) for member2_opening
+    if any(c["id"] == HEADLINE_M2 for c in stress["cells"]):
+        m2c = f"stress/cells/[id={HEADLINE_M2}]"
+        for k, u, d in (("m3/forced_sell_volume", "base_units", None),
+                        ("m3/exit_depth", "base_units", None), ("m3/ratio", "ratio", "exit_depth")):
+            t.add(f"m2.headline.{k.replace('/', '.')}", f"member 2 headline {k.replace('/', ' ')}",
+                  f"{m2c}/{k}", u, "stress (Member 2)", "DET-41", d)
     t.walk("headline.m4", "headline m4", f"{cell}/m4", "mechanism state",
            lambda fid: M4_OWNER.get(fid.split(".")[2], "DET-38"))
     head = next(c for c in stress["cells"] if c["id"] == HEADLINE)
@@ -219,6 +239,27 @@ def build_rows(bundle: dict, tree: dict, stress: dict, mirror: dict) -> list[dic
         for k in ("value_primary", "value_counterfactual", "metric_affected"):
             t.add(f"headline.cf.{line['id']}.{k}", f"counterfactual {line['id']} {k}",
                   f"{base}/{k}", None, "stress (Member 1)", "DET-44")
+        if line["id"] in (wording or {}).get("counterfactual", {}):
+            t.add(f"headline.cf.{line['id']}.description", f"counterfactual {line['id']}",
+                  f"wording/counterfactual/{line['id']}", "literal", "stress (Member 1)",
+                  "DET-44")
+    # Amin, run 8 ruling 5: a counterfactual line of the Member-2 headline cell (memo
+    # §6.2.6's 0.93 target, no LP flight) joins the headline rows. NAMED DEFAULT: only a
+    # line not already read from the Member-1 headline cell and carrying values (GHO's
+    # H2_freezer); crvUSD's value-less H1_v1_contagion stays off pending a ruling.
+    m2_head = next((c for c in stress["cells"] if c["id"] == HEADLINE_M2), None)
+    have = {line["id"] for line in head["counterfactual_lines"]}
+    for line in (m2_head or {}).get("counterfactual_lines", []):
+        if line["id"] in have or line.get("value_primary") is None:
+            continue
+        base = f"stress/cells/[id={HEADLINE_M2}]/counterfactual_lines/[id={line['id']}]"
+        for k in ("value_primary", "value_counterfactual", "metric_affected"):
+            t.add(f"headline.cf.{line['id']}.{k}", f"counterfactual {line['id']} {k}",
+                  f"{base}/{k}", None, "stress (Member 2)", "DET-44")
+        if line["id"] in (wording or {}).get("counterfactual", {}):
+            t.add(f"headline.cf.{line['id']}.description", f"counterfactual {line['id']}",
+                  f"wording/counterfactual/{line['id']}", "literal", "stress (Member 2)",
+                  "DET-44")
     panel = [c for c in stress["cells"] if c["member"] == "M1" and c["id"].split("-")[2] == "d0"]
     for c in panel:
         base = f"stress/cells/[id={c['id']}]"
@@ -279,6 +320,12 @@ def build_rows(bundle: dict, tree: dict, stress: dict, mirror: dict) -> list[dic
               "DET-32", "dex_liquidity_total_discovered" if k == "x" else None)
 
     # ---- Member 2 and mechanism (DET-43 / 45 / 46 / 47 / 51 / 53) ----------------------
+    # B-13 ruling E: the Member-2 depeg targets as rows (printed "0.88"), so prose can
+    # name them; one per target, from its lp0 cell.
+    for target in sorted({c["target"] for c in stress["cells"] if c["member"] == "M2"}):
+        t.add(f"m2.target.t{target}", f"depeg target price {target}",
+              f"stress/cells/[id=M2-t{target}-lp0]/target", "price", "stress (Member 2)",
+              "DET-50")
     curves = stress["assumptions"].get("m2_curves")
     if isinstance(curves, dict):
         for target in sorted(curves):

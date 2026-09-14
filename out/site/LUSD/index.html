@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LUSD — structural risk report</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<main>
+<header class="page">
+  <h1>LUSD</h1>
+  <p class="lede">An automated structural risk report on LUSD: every number below is read from Ethereum at block 25974949 and can be reproduced (see the verify page).</p>
+  <div class="meta">
+    read 2026-09-14 09:58 UTC · block 25974949 ·
+    report <code title="003b4fcd0638ac8ecc7f5b741c212bd3945356560174af11409c36a9c03e7da7">003b4fcd</code> · intake sheet <code>29682310</code>
+  </div>
+  <nav class="links meta">
+    <a href="index.html">report</a><a href="appendix.html">appendix</a><a href="verify.html">verify</a>
+  </nav>
+</header>
+
+
+
+
+
+<div class="pills">
+<span class="pill green">No collateral depends on off-chain disclosures</span><span class="pill green">Rules cannot be changed: immutable contracts</span><span class="pill green">No warnings this run</span>
+</div>
+
+<section class="finding" id="finding">
+<h2>The finding <span class="tip" tabindex="0" role="button" aria-label="The three figures that summarise this report, read at block 25974949; the written summary arrives with the prose stage.">?<span class="tip-text" role="tooltip">The three figures that summarise this report, read at block 25974949; the written summary arrives with the prose stage.</span></span></h2>
+
+<div class="prose-slot" data-slot="structural_summary"><p>Every LUSD in supply, $26.2M, is accounted for as trove debt, so the residual is $0: there is no unexplained gap between what&#39;s issued and what&#39;s backed. The stress grid also shows bad debt is structurally zero here — no trove reaches the minimum collateral ratio on the ruled shock grid, with the first liquidation only appearing at an ETH shock of -81.63%, recovery mode at -78.56%, and total collateral falling below the minimum ratio only at -84.28%; the protocol&#39;s earlier version is wound down to just 72 troves.</p><p>All of the $183.5M in backing collateral is held in assets whose value can be checked directly on-chain (100.0%), with none resting on wrapped-asset lookups or issuer disclosures. Under the headline stress scenario, forced collateral sales are $0 against $8.8M of exit liquidity, giving a forced-sales-to-exit-liquidity ratio of 0, and bad debt as a share of supply is likewise 0.</p></div>
+<div class="cards">
+  <div class="card"><div class="card-label">Supply <span class="tip" tabindex="0" role="button" aria-label="Every LUSD in existence at block 25974949: total supply plus any supply bridged by burning on another chain.">?<span class="tip-text" role="tooltip">Every LUSD in existence at block 25974949: total supply plus any supply bridged by burning on another chain.</span></span></div><div class="card-value" title="supply.supply_ruled">$26.2M</div></div>
+  <div class="card"><div class="card-label">Bad debt, headline scenario <span class="tip" tabindex="0" role="button" aria-label="Shortfall left after liquidations in the headline scenario (−50% collateral crash, no LP flight), across all Liquity troves, at block 25974949.">?<span class="tip-text" role="tooltip">Shortfall left after liquidations in the headline scenario (−50% collateral crash, no LP flight), across all Liquity troves, at block 25974949.</span></span></div>
+    <div class="card-value" title="headline.m2.bad_debt">$0</div><div class="card-note">structurally zero</div>
+    
+  </div>
+  <div class="card"><div class="card-label">Exit liquidity, headline scenario <span class="tip" tabindex="0" role="button" aria-label="LUSD that could be sold into the frozen set of exit pools before its price falls 2%, in the headline scenario, at block 25974949.">?<span class="tip-text" role="tooltip">LUSD that could be sold into the frozen set of exit pools before its price falls 2%, in the headline scenario, at block 25974949.</span></span></div><div class="card-value" title="headline.m3.exit_depth">$8.8M</div></div>
+</div>
+</section>
+
+<section id="backing">
+<h2>Where the backing sits <span class="tip" tabindex="0" role="button" aria-label="The collateral behind LUSD, across all Liquity troves, split by how far its value can be checked on-chain, at block 25974949.">?<span class="tip-text" role="tooltip">The collateral behind LUSD, across all Liquity troves, split by how far its value can be checked on-chain, at block 25974949.</span></span></h2>
+
+<figure class="wide tree"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 438" width="100%" role="img" aria-label="verifiability tree" font-family="system-ui, -apple-system, Segoe UI, Roboto, sans-serif"><title>verifiability tree</title><rect x="290" y="10" width="420" height="60" fill="#ffffff" rx="10" stroke="#1f5fa8" stroke-width="1.5"/><text x="500" y="34" font-size="16" text-anchor="middle" fill="#1b2430" font-weight="600">Supply $26.2M</text><text x="500" y="54" font-size="13" text-anchor="middle" fill="#1b2430" font-weight="normal">originated $26.2M · residual $0</text><line x1="500" y1="70" x2="500" y2="100" stroke="#6b7886"/><rect x="20" y="100" width="960" height="36" fill="#1f5fa8"/><rect x="980" y="100" width="0" height="36" fill="#5f9ad6"/><rect x="980" y="100" width="0" height="36" fill="#c7a35a"/><rect x="20" y="148" width="14" height="14" fill="#1f5fa8" rx="3"/><text x="42" y="160" font-size="14" text-anchor="start" fill="#1b2430" font-weight="600">Checkable on-chain — 100.0%</text><rect x="20" y="176" width="304" height="30" fill="#f5f7fa" rx="6" stroke="#d9dee4"/><text x="30" y="196" font-size="13" text-anchor="start" fill="#1b2430" font-weight="600">ETH</text><text x="314" y="196" font-size="13" text-anchor="end" fill="#1b2430" font-weight="normal">100.0%</text><rect x="340" y="148" width="14" height="14" fill="#5f9ad6" rx="3"/><text x="362" y="160" font-size="14" text-anchor="start" fill="#1b2430" font-weight="600">Checkable one layer down — 0</text><rect x="660" y="148" width="14" height="14" fill="#c7a35a" rx="3"/><text x="682" y="160" font-size="14" text-anchor="start" fill="#1b2430" font-weight="600">Depends on disclosures — 0</text><text x="20" y="432" font-size="13" text-anchor="start" fill="#6b7886" font-weight="normal">Where the backing sits and how far it can be checked on-chain; shares are of the value of all backing collateral.</text></svg></figure>
+<p class="prose">No one can change the rules: the contracts are immutable.</p>
+<div class="prose-slot" data-slot="verifiability_narrative"><p>All of this token&#39;s backing, 100.0% of it, sits in the checkable on-chain class, meaning anyone can verify the collateral&#39;s value directly on the chain without trusting a wrapper or a company&#39;s paperwork. The collateral behind that entire share is ETH, held at the terminal layer. There is nothing in the one-layer-down wrapped class and nothing in the disclosure-dependent class, so there is no reliance on published statements from an issuer or custodian, and no staleness question arises there — the staleness status confirms there are no disclosure-dependent nodes to go stale.</p><p>Because the backing is entirely ETH tracked on-chain, there is no depth-truncated share to worry about and no unclassified portion pending review; both sit at 0. The perimeter covers all troves with an exact identity, and the traced collateral value stands at $183.5M against a backed supply of $26.2M, so the checkable collateral more than covers the supply it backs.</p><p>The admin qualifier banner states that no admin power can alter backing, describing it as immutable. In other words, there is no governance process, delay, or authorized party that can change what backs this token — the backing composition itself is fixed by design rather than by a rule that officials could vote to amend.</p></div>
+</section>
+
+<section id="break">
+<h2>What could break it <span class="tip" tabindex="0" role="button" aria-label="The headline stress scenario and the grid around it: collateral price falls of 20–70% with liquidity-provider flight of 0–60%, across all Liquity troves, at block 25974949.">?<span class="tip-text" role="tooltip">The headline stress scenario and the grid around it: collateral price falls of 20–70% with liquidity-provider flight of 0–60%, across all Liquity troves, at block 25974949.</span></span></h2>
+
+<p class="prose">The headline scenario is a 50% fall in the price of volatile collateral, with no extra discount on liquid-staking tokens and liquidity providers staying put — the one scenario the archetype memo names as the headline (memo §6.2.6).</p>
+<p class="prose">In that scenario liquidations leave $0 of bad debt (0 of supply) and require selling $0 into $8.8M of exit liquidity.</p>
+
+<p class="prose callout">Bad debt is structurally zero on the whole grid: no trove reaches MCR on the ruled grid; first liquidation at an ETH shock of -81.63% (min ICR 5.9890 -&gt; 1.1), recovery mode at -78.56% (TCR 6.9968 -&gt; 1.5), TCR below MCR at -84.28%; Liquity v1 is wound down to 72 troves</p>
+
+<table class="grid wide">
+<tr><th>price fall</th><th>no LP flight</th><th>30% LP flight</th><th>60% LP flight</th></tr>
+<tr><th>-20.0%</th><td class="s0" title="panel.M1-s20-d0-lp0.m3.ratio">0</td><td class="s0" title="panel.M1-s20-d0-lp30.m3.ratio">0</td><td class="s0" title="panel.M1-s20-d0-lp60.m3.ratio">0</td></tr><tr><th>-35.0%</th><td class="s0" title="panel.M1-s35-d0-lp0.m3.ratio">0</td><td class="s0" title="panel.M1-s35-d0-lp30.m3.ratio">0</td><td class="s0" title="panel.M1-s35-d0-lp60.m3.ratio">0</td></tr><tr><th>-50.0%</th><td class="s0" title="panel.M1-s50-d0-lp0.m3.ratio">0</td><td class="s0" title="panel.M1-s50-d0-lp30.m3.ratio">0</td><td class="s0" title="panel.M1-s50-d0-lp60.m3.ratio">0</td></tr><tr><th>-70.0%</th><td class="s0" title="panel.M1-s70-d0-lp0.m3.ratio">0</td><td class="s0" title="panel.M1-s70-d0-lp30.m3.ratio">0</td><td class="s0" title="panel.M1-s70-d0-lp60.m3.ratio">0</td></tr>
+</table>
+<p class="legend">Each cell: collateral that must be sold ÷ liquidity available to absorb it; “exit exhausted” = no liquidity left at that level of liquidity-provider flight. <span class="tip" tabindex="0" role="button" aria-label="Each cell divides the collateral liquidations must sell by the exit liquidity left in that scenario, across all Liquity troves, at block 25974949; above 100% the sales cannot all be absorbed.">?<span class="tip-text" role="tooltip">Each cell divides the collateral liquidations must sell by the exit liquidity left in that scenario, across all Liquity troves, at block 25974949; above 100% the sales cannot all be absorbed.</span></span><br>
+<span class="swatch s0"></span>0&ensp;<span class="swatch s1"></span>under 0.1%&ensp;<span class="swatch s2"></span>under 10%&ensp;<span class="swatch s3"></span>under 100%&ensp;<span class="swatch s4"></span>100% or more&ensp;<span class="swatch exhausted"></span>exit exhausted</p>
+<p class="prose">At a 50% fall, forced sales use 0 of available exit liquidity; at a 70% fall, forced sales use 0 of available exit liquidity; and if 60% of liquidity providers leave at a 70% fall, forced sales use 0 of available exit liquidity.</p>
+
+<p class="prose">Prices may lag the market by up to 0.50%: the largest update threshold among this token&#39;s price feeds (ETH).</p>
+</section>
+
+<section id="rules">
+<h2>Who can change the rules <span class="tip" tabindex="0" role="button" aria-label="Who holds each administrative power over the protocol&#39;s contracts and how long a change takes to take effect, read at block 25974949.">?<span class="tip-text" role="tooltip">Who holds each administrative power over the protocol&#39;s contracts and how long a change takes to take effect, read at block 25974949.</span></span></h2>
+<ul class="plain"><li>No one holds any admin power: every contract is immutable and ownership was renounced.</li></ul>
+</section>
+
+<section id="check">
+<h2>How to check this <span class="tip" tabindex="0" role="button" aria-label="Every figure is pinned to block 25974949; the verify page lists the calls that reproduce them.">?<span class="tip-text" role="tooltip">Every figure is pinned to block 25974949; the verify page lists the calls that reproduce them.</span></span></h2>
+<p class="prose">Every figure on this page comes from one data table built from on-chain reads at a single block. Reproduce any of them from the verify page. <a href="verify.html">Verify page</a> · report fingerprint <code title="003b4fcd0638ac8ecc7f5b741c212bd3945356560174af11409c36a9c03e7da7">003b4fcd0638ac8e</code></p>
+<p class="prose">The behavioral tier — how the token trades: peg deviation, liquidity, holder concentration and flows — will come from an external monitoring service and is pending. This report is the structural tier only: what backs the token, how far that backing can be checked on-chain, and how it holds up under stress.</p>
+</section>
+
+
+<h2 class="specialists">Detail for specialists</h2>
+<p class="meta">behavioral tier: pending</p>
+
+<details id="tree-nodes"><summary>Collateral nodes whose backing depends on disclosures or stops at a truncation</summary>
+
+<p class="meta">no disclosure-dependent nodes</p>
+
+</details>
+
+<details id="supply"><summary>Supply, what was originated, and the residual with its named causes</summary>
+<table class="striped">
+<tr><th>figure</th><th class="num">value</th></tr>
+<tr><td>supply</td><td class="num" title="supply.supply_ruled">26,227,238.67</td></tr>
+<tr><td>originated supply</td><td class="num" title="supply.origination_sum">26,227,238.67</td></tr>
+<tr><td>supply the tree covers</td><td class="num" title="tree.root.backed_supply">26,227,238.67</td></tr>
+<tr><td>residual (supply − originated)</td><td class="num" title="supply.residual">0</td></tr>
+
+<tr><td>unexplained after named causes</td><td class="num" title="supply.residual_unexplained">0</td></tr>
+<tr><td>stabilizer debt ÷ supply</td><td class="num" title="supply.stabilizer_over_supply">0</td></tr>
+<tr><td>protocol stabilizer debt</td><td class="num" title="stabilizer.slice.debt">0 (0 of supply)</td></tr>
+<tr><td>ceiling aggregate — the upper bound of the protocol stabilizer slice</td><td class="num" title="stabilizer.slice.ceiling_aggregate">0 (0 of supply)</td></tr>
+
+</table>
+
+
+
+
+</details>
+
+<details id="headline"><summary>Every figure in the headline scenario</summary>
+
+<table class="striped">
+<tr><th>metric</th><th class="num">value</th></tr>
+
+<tr><td title="headline.m1.pre.ratio">collateral coverage before the shock</td><td class="num">3.4984</td></tr>
+
+<tr><td title="headline.m1.post.ratio">collateral coverage after the shock</td><td class="num">3.4984</td></tr>
+
+<tr><td title="headline.m1.gap">coverage restored by the liquidation mechanism</td><td class="num">0</td></tr>
+
+<tr><td title="headline.m2.bad_debt">bad debt</td><td class="num">0</td></tr>
+
+<tr><td title="headline.m2.pct_supply">bad debt as a share of supply</td><td class="num">0</td></tr>
+
+<tr><td title="headline.m3.forced_sell_volume">collateral that must be sold</td><td class="num">0</td></tr>
+
+<tr><td title="headline.m3.exit_depth">exit liquidity</td><td class="num">8,802,460.31</td></tr>
+
+<tr><td title="headline.m3.ratio">forced sales ÷ exit liquidity</td><td class="num">0</td></tr>
+
+</table>
+<h3>Mechanism state in the headline scenario</h3>
+
+<table class="striped"><tr><th>quantity</th><th class="num">value</th></tr>
+<tr><td title="headline.m4.counterfactual_ref">the counterfactual lines printed with this scenario</td><td class="num">Tellor_fallback</td></tr><tr><td title="headline.m4.exit_depth_cell">exit liquidity in this scenario</td><td class="num">8,802,460.31</td></tr><tr><td title="headline.m4.lp_flight_share">share of liquidity providers leaving in this scenario</td><td class="num">0</td></tr><tr><td title="headline.m4.recovery_mode_flag">whether the system collateral ratio after the shock is below the Recovery Mode threshold</td><td class="num">no</td></tr><tr><td title="headline.m4.redistributed_debt">debt passed to surviving troves when the Stability Pool cannot absorb it; a reallocation, not an absorption</td><td class="num">0</td></tr><tr><td title="headline.m4.redistributed_positions_below_100">redistributed trove debt left below full collateral, which is how bad debt is defined for LUSD</td><td class="num">0</td></tr><tr><td title="headline.m4.sp_effective_cell">Stability Pool balance available to absorb liquidations in this scenario: the balance less the scenario&#39;s liquidity-provider flight share</td><td class="num">7,570,912.35</td></tr><tr><td title="headline.m4.tcr_post">system collateral ratio after the shock</td><td class="num">3.4984</td></tr>
+</table>
+
+
+<h4>Redemption capacity</h4>
+<table class="striped"><tr><th>field</th><th class="num">LUSD that can be redeemed against troves before the redemption fee reaches its ceiling, or the reason none is counted</th></tr>
+<tr><td><code title="reason">reason</code></td><td class="num" title="headline.m4.redemption_capacity.reason">crash path excluded</td></tr><tr><td><code title="value">value</code></td><td class="num" title="headline.m4.redemption_capacity.value">0</td></tr>
+</table>
+
+</details>
+
+
+<details id="counterfactuals"><summary>What changes under the counterfactual assumptions</summary>
+<table class="striped"><tr><th>counterfactual</th><th>affects</th><th class="num">as modelled</th><th class="num">under the counterfactual</th></tr>
+
+<tr><td>Tellor fallback</td><td>none</td><td class="num">—</td><td class="num">—</td></tr>
+</table>
+<div class="prose-slot" data-slot="counterfactual_explanations"><p>There is one counterfactual line for this token: what happens if the price feed falls back from Chainlink to the Tellor oracle. The row for this scenario has no computed value, and the metric affected is recorded as none. This is consistent with the token&#39;s oracle setup: the assumptions state that LUSD is read by instant observation of the price feed at the run block, using the bundle&#39;s own external collateral value over external collateral sum, rather than a re-simulated fetch. Because the fallback line does not feed into any recomputed price basis under this assumption, switching from Chainlink to Tellor leaves no measurable change to record here — the absence of a value is itself the finding, not a gap in the data.</p></div>
+</details>
+
+
+<details id="exit-liquidity"><summary>Exit liquidity at four price-impact levels</summary>
+
+<figure class="wide"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 340" width="100%" role="img" aria-label="Exit liquidity by how much price impact sellers accept" font-family="system-ui, -apple-system, Segoe UI, Roboto, sans-serif"><title>Exit liquidity by how much price impact sellers accept</title><text x="20" y="22" font-size="15" text-anchor="start" fill="#1b2430" font-weight="600">Exit liquidity by how much price impact sellers accept</text><line x1="90" y1="256" x2="960" y2="256" stroke="#6b7886"/><line x1="90" y1="56" x2="90" y2="256" stroke="#6b7886"/><line x1="85" y1="256" x2="960" y2="256" stroke="#d9dee4"/><text x="82" y="260" font-size="12" text-anchor="end" fill="#6b7886" font-weight="normal">$0</text><line x1="85" y1="56" x2="960" y2="56" stroke="#d9dee4"/><text x="82" y="60" font-size="12" text-anchor="end" fill="#6b7886" font-weight="normal">$9.3M</text><text x="90" y="44" font-size="12" text-anchor="start" fill="#6b7886" font-weight="normal">exit liquidity ($)</text><rect x="144.4" y="95.9" width="108.8" height="160.1" fill="#1f5fa8"/><text x="198.8" y="278" font-size="13" text-anchor="middle" fill="#1b2430" font-weight="normal">0.5%</text><text x="198.8" y="87.9" font-size="12" text-anchor="middle" fill="#1b2430" font-weight="normal">$7.5M</text><rect x="361.9" y="79.2" width="108.8" height="176.8" fill="#1f5fa8"/><text x="416.3" y="278" font-size="13" text-anchor="middle" fill="#1b2430" font-weight="normal">1.0%</text><text x="416.3" y="71.2" font-size="12" text-anchor="middle" fill="#1b2430" font-weight="normal">$8.2M</text><rect x="579.4" y="67" width="108.8" height="189" fill="#1f5fa8"/><text x="633.8" y="278" font-size="13" text-anchor="middle" fill="#1b2430" font-weight="normal">2.0%</text><text x="633.8" y="59" font-size="12" text-anchor="middle" fill="#1b2430" font-weight="normal">$8.8M</text><rect x="796.9" y="56" width="108.8" height="200" fill="#1f5fa8"/><text x="851.3" y="278" font-size="13" text-anchor="middle" fill="#1b2430" font-weight="normal">5.0%</text><text x="851.3" y="48" font-size="12" text-anchor="middle" fill="#1b2430" font-weight="normal">$9.3M</text><text x="525" y="300" font-size="12" text-anchor="middle" fill="#6b7886" font-weight="normal">price impact sellers accept</text><rect x="90" y="316" width="12" height="12" fill="#1f5fa8"/><text x="108" y="326" font-size="12" text-anchor="start" fill="#1b2430" font-weight="normal">pool liquidity</text></svg><figcaption>Exit liquidity available if sellers accept up to 0.5%, 1%, 2% or 5% price impact; the report&#39;s headline uses 2%.</figcaption></figure>
+<p class="meta">Depeg scenario target: <code>0xdac17f…1ec7</code> · <a href="appendix.html">every scenario in the appendix</a></p>
+<p class="meta">Headline exit liquidity 8,802,460.31 — LP capital assumed sticky.</p>
+<p class="meta">LP-flight grid 0% / 30% / 60% — assumed scenario modifier, not data-derived.</p>
+
+<p class="meta">Modeling rule: single-sided withdrawal of the paired asset.</p>
+<p class="meta">modeled pools: the largest pools covering 90% of the frozen set, which itself covered 95% of discovered on-Curve liquidity at freeze time (2026-09-10). K-subset share of the frozen set: 100.0%</p>
+<div class="prose-slot" data-slot="member1_opening"><p>For LUSD, the mechanism that matters in a collateral crash is the Stability Pool. When a trove&#39;s collateral ratio falls below the minimum, the Pool absorbs its debt directly, paying out collateral to Pool depositors; any shortfall the Pool cannot cover is redistributed pro rata onto surviving troves rather than sold into the market. Redemptions against troves are a separate channel, but on this scenario that path is excluded, so no redemption capacity is counted.</p><p>Before the shock, collateral coverage stands at 3.4984, and after the shock it is unchanged at 3.4984, meaning the liquidation mechanism restored no coverage gap because none opened. Bad debt is $0, and the collateral that must be sold is $0 against exit liquidity of $8.8M, giving a forced-sales-to-exit-liquidity ratio of 0.</p><p>Bad debt is structurally zero on this grid: no trove reaches the minimum collateral ratio under the shocks modelled here. The first liquidation would only occur at an ETH shock of -81.63% (minimum ICR falling from 5.9890 to 1.1), Recovery Mode would only engage at -78.56% (system collateral ratio falling from 6.9968 to 1.5), and the system collateral ratio would only fall below the minimum collateral ratio at -84.28%. Liquity v1 itself is wound down to 72 troves, which is part of why no positions are engaged on this grid.</p><p>Since no forced sale occurs, the redistributed debt figure and the redistributed-positions-below-100 figure, which is how bad debt is defined for LUSD, are both $0, and the exit liquidity of $8.8M is untouched rather than exhausted in this scenario.</p></div>
+<div class="prose-slot" data-slot="member2_opening"><p>This test asks what happens if the paired stablecoin used in exit venues, referenced here as the Member-2 target, slips away from its own dollar peg. Because this token is structurally insulated, that kind of depeg cannot force a mechanical sale of the token itself: the assumptions describe it as structurally insulated, exposed through exit venues only. So there is no minting or redemption path that dumps supply just because the paired stablecoin wobbles.</p><p>That does not mean the token is unaffected. What changes instead is how much you could actually sell without moving the price much, because that liquidity sits in pools priced against the paired stablecoin. In the headline scenario, with the paired stablecoin at its middle target and no liquidity-provider flight, forced sales in the Member-2 headline depeg scenario come out at $0, exit liquidity in that same scenario is $8.2M, and the resulting ratio is 0. The zero forced-sales figure reflects the mechanism&#39;s design, not an absence of exposure.</p><p>The exit-liquidity curves show how the venue itself degrades as the paired stablecoin&#39;s price target worsens. At the mild target of 0.93, exit liquidity ranges from $6.9M at a 0.5% price impact up to $8.7M at 5.0%. At the deeper target of 0.88, the same curve runs from $6.5M to $8.2M, and at the milder target of 0.97 it runs from $7.2M up to $9.0M. As the paired stablecoin&#39;s target price falls, the depth available at any given price impact shrinks, meaning holders would face thinner exit liquidity and larger price impact for the same size of sale, even though no forced selling of the token itself is triggered by construction.</p></div>
+</details>
+
+<details id="assumptions"><summary>The modelling assumptions and the data behind each</summary>
+<table class="striped"><tr><th>assumption</th><th>what it means</th><th>data</th><th>source</th></tr>
+
+<tr><td><code>stock_only</code></td>
+<td>Capacity is measured as a stock at the run block; how each mechanism&#39;s stock-only reading errs is the bias table below.</td>
+<td><span title="bias.0.direction">bias: Collateral-sell-side bound: see appendix</span><br><span title="bias.0.mechanism">bias mechanism: see appendix</span><br><span title="bias.0.tokens">bias tokens: crvUSD, GHO</span><br><span title="bias.0.reason">bias reason: see appendix</span><br>… 32 more in table.json</td>
+<td>memo §7.1</td></tr>
+
+<tr><td><code>observation</code></td>
+<td>Prices are taken as observed instantly at the run block; the oracle table lists each feed&#39;s update condition.</td>
+<td><span title="oracle.0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee.0xa39739ef8b0231dbfa0dcda07d7e29faabcf4bb2.deviation_bps">deviation: 0.50%</span></td>
+<td>memo §7.2</td></tr>
+
+<tr><td><code>lp_sticky</code></td>
+<td>Liquidity providers are assumed to stay in their pools unless a scenario applies the liquidity-flight modifier.</td>
+<td><span title="exit.lp_flight_literal">LP-flight assumption line: see appendix</span></td>
+<td>memo §6.1.4</td></tr>
+
+<tr><td><code>lp_grid</code></td>
+<td>Liquidity-provider flight is an assumed modifier of 0%, 30% and 60%, not a measured behaviour.</td>
+<td><span title="exit.lp_flight_literal">LP-flight assumption line: see appendix</span></td>
+<td>memo §6.1.4</td></tr>
+
+<tr><td><code>sell_side_bound</code></td>
+<td>Collateral that liquidations must sell is bounded by the analyst&#39;s dated sell-side capacity per volatile collateral.</td>
+<td><span title="node.0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee.sell_side">sell-side bound: ETH: exempt — Stability Pool depositors receive collateral; no forced sale</span><br><span title="assumption.absorption">assumption: absorption: see appendix</span></td>
+<td>memo §6.3</td></tr>
+
+<tr><td><code>par_numeraire</code></td>
+<td>paired assets counted at 1.00 for depth</td>
+<td><span title="exit.base_virtual_price.0xed279fdd11ca84beef15af5d39bb4d4bee23f0ca">base pool virtual price (par numeraire): 1.04</span></td>
+<td>memo §6.1.3</td></tr>
+
+<tr><td><code>shock_grid_fixed</code></td>
+<td>The shock grid is fixed by the archetype memo, not tuned per token.</td>
+<td>—</td>
+<td>memo §6.2.1</td></tr>
+
+<tr><td><code>member2_target</code></td>
+<td>The depeg scenario targets the paired stablecoin named in the frozen pool set.</td>
+<td><span title="exit.member2_target">Member-2 target: 0xdac17f…1ec7</span></td>
+<td>memo §6.2.5</td></tr>
+
+<tr><td><code>freeze_reference</code></td>
+<td>Exit venues are the pool set frozen on the freeze date shown.</td>
+<td><span title="header.freeze_date">freeze date: 2026-09-10</span></td>
+<td>memo §5.7</td></tr>
+
+<tr><td><code>absorption</code></td>
+<td>An additional modelling disclosure carried by the stress model; its full text is in the appendix.</td>
+<td><span title="assumption.absorption">assumption: absorption: see appendix</span></td>
+<td>—</td></tr>
+
+<tr><td><code>bad_debt_definition</code></td>
+<td>An additional modelling disclosure carried by the stress model; its full text is in the appendix.</td>
+<td><span title="assumption.bad_debt_definition">assumption: bad debt definition: see appendix</span></td>
+<td>—</td></tr>
+
+<tr><td><code>engagement_thresholds</code></td>
+<td>An additional modelling disclosure carried by the stress model; its full text is in the appendix.</td>
+<td><span title="assumption.engagement_thresholds">assumption: engagement thresholds: see appendix</span></td>
+<td>—</td></tr>
+
+<tr><td><code>oracle_assumption</code></td>
+<td>An additional modelling disclosure carried by the stress model; its full text is in the appendix.</td>
+<td><span title="assumption.oracle_assumption">assumption: oracle assumption: see appendix</span></td>
+<td>—</td></tr>
+
+<tr><td><code>structural_insulation</code></td>
+<td>An additional modelling disclosure carried by the stress model; its full text is in the appendix.</td>
+<td><span title="assumption.structural_insulation">assumption: structural insulation: see appendix</span></td>
+<td>—</td></tr>
+
+</table>
+</details>
+
+<details id="bias"><summary>How a stock-only reading errs, mechanism by mechanism</summary>
+<h3>stock-only capacity — direction of error per mechanism</h3>
+<table class="striped"><tr><th>mechanism</th><th>tokens</th><th>direction</th><th>reason</th></tr>
+
+<tr><td>Collateral-sell-side bound</td><td>crvUSD, GHO</td><td>overstates</td><td>full bound treated as immediately absorbable</td></tr>
+
+<tr><td>GSM cap headroom (H2.i)</td><td>GHO</td><td>overstates</td><td>full cap headroom treated as instantly mintable</td></tr>
+
+<tr><td>Liquidator recycling (H5)</td><td>GHO</td><td>understates</td><td>no multi-round capital recycling</td></tr>
+
+<tr><td>Stability Pool refills (H3)</td><td>LUSD</td><td>understates</td><td>no SP deposits between liquidation waves</td></tr>
+
+<tr><td>PegKeeper effective headroom (H1)</td><td>crvUSD</td><td>overstates</td><td>full effective headroom treated as deployed within the window; peer co-deployment dynamics omitted — runs conservative</td></tr>
+
+<tr><td>H4 redemption capacity</td><td>LUSD</td><td>overstates</td><td>full schedule capacity treated as immediately available; base-rate decay (regenerative, 12h half-life) omitted — runs conservative</td></tr>
+
+<tr><td>H5 liquidator appetite (composite)</td><td>GHO</td><td>both</td><td>two named opposite-sign terms; `binding_side` states per cell which dominates</td></tr>
+
+<tr><td>Pool exit depth — no LP inflow</td><td>all</td><td>understates</td><td>no LP inflow modeled</td></tr>
+
+<tr><td>Pool exit depth — LP sticky at flight-0</td><td>all</td><td>overstates</td><td>static composition; spread disclosed by the LP-flight grid</td></tr>
+</table>
+</details>
+
+<details id="admin"><summary>The admin-power table, row by row</summary>
+<div class="prose-slot" data-slot="admin_surface_narrative"><p>For every power that could change how this token is backed or minted — minting itself, setting a supply ceiling, upgrading the contract, pausing activity, freezing an asset, blacklisting an address, changing the price oracle, adjusting parameters, or seizing funds — there is no holder listed. Each of these functions shows no holder address and a holder type of none.</p><p>Because no address holds these powers, there is also no delay before a change could take effect and no veto address recorded, since the underlying function does not exist to be delayed or vetoed. Each of these powers is also marked as immutable, meaning the contract logic governing them cannot be swapped out later.</p><p>Together this means the contract offers no lever, held by any party, to alter backing, minting, oracle pricing, or seizure of funds, and no mechanism exists to reverse that position through an upgrade.</p></div>
+<table class="striped"><tr><th>power</th><th>holder</th><th>type</th><th>delay</th><th>veto</th><th>upgradeable</th><th>scope</th><th>evidence</th></tr>
+
+<tr><td>minting</td><td><code>—</code></td><td>none</td>
+<td>none</td><td>—</td><td>immutable</td>
+<td></td>
+<td>absence read<br>owner 0x3d32e8…5521 (contract read)<br>owner 0x4c517d…01de (contract read)<br>owner 0x5f9880…8ba0 (absence read)<br>owner 0x66017d…21bb (contract read)<br>owner 0x896a3f…741c (contract read)<br>owner 0xa39739…4bb2 (contract read)<br>owner 0xdf9eb2…3d7f (contract read)</td></tr>
+
+<tr><td>debt ceilings</td><td><code>—</code></td><td>none</td>
+<td>none</td><td>—</td><td>immutable</td>
+<td></td>
+<td>absence read<br>owner 0x3d32e8…5521 (contract read)<br>owner 0x4c517d…01de (contract read)<br>owner 0x5f9880…8ba0 (absence read)<br>owner 0x66017d…21bb (contract read)<br>owner 0x896a3f…741c (contract read)<br>owner 0xa39739…4bb2 (contract read)<br>owner 0xdf9eb2…3d7f (contract read)</td></tr>
+
+<tr><td>contract upgrades</td><td><code>—</code></td><td>none</td>
+<td>none</td><td>—</td><td>immutable</td>
+<td></td>
+<td>absence read<br>owner 0x3d32e8…5521 (contract read)<br>owner 0x4c517d…01de (contract read)<br>owner 0x5f9880…8ba0 (absence read)<br>owner 0x66017d…21bb (contract read)<br>owner 0x896a3f…741c (contract read)<br>owner 0xa39739…4bb2 (contract read)<br>owner 0xdf9eb2…3d7f (contract read)</td></tr>
+
+<tr><td>pausing</td><td><code>—</code></td><td>none</td>
+<td>none</td><td>—</td><td>immutable</td>
+<td></td>
+<td>absence read<br>owner 0x3d32e8…5521 (contract read)<br>owner 0x4c517d…01de (contract read)<br>owner 0x5f9880…8ba0 (absence read)<br>owner 0x66017d…21bb (contract read)<br>owner 0x896a3f…741c (contract read)<br>owner 0xa39739…4bb2 (contract read)<br>owner 0xdf9eb2…3d7f (contract read)</td></tr>
+
+<tr><td>freezing assets</td><td><code>—</code></td><td>none</td>
+<td>none</td><td>—</td><td>immutable</td>
+<td></td>
+<td>absence read<br>owner 0x3d32e8…5521 (contract read)<br>owner 0x4c517d…01de (contract read)<br>owner 0x5f9880…8ba0 (absence read)<br>owner 0x66017d…21bb (contract read)<br>owner 0x896a3f…741c (contract read)<br>owner 0xa39739…4bb2 (contract read)<br>owner 0xdf9eb2…3d7f (contract read)</td></tr>
+
+<tr><td>blacklisting addresses</td><td><code>—</code></td><td>none</td>
+<td>none</td><td>—</td><td>immutable</td>
+<td></td>
+<td>absence read<br>owner 0x3d32e8…5521 (contract read)<br>owner 0x4c517d…01de (contract read)<br>owner 0x5f9880…8ba0 (absence read)<br>owner 0x66017d…21bb (contract read)<br>owner 0x896a3f…741c (contract read)<br>owner 0xa39739…4bb2 (contract read)<br>owner 0xdf9eb2…3d7f (contract read)</td></tr>
+
+<tr><td>oracle settings</td><td><code>—</code></td><td>none</td>
+<td>none</td><td>—</td><td>immutable</td>
+<td></td>
+<td>absence read<br>owner 0x3d32e8…5521 (contract read)<br>owner 0x4c517d…01de (contract read)<br>owner 0x5f9880…8ba0 (absence read)<br>owner 0x66017d…21bb (contract read)<br>owner 0x896a3f…741c (contract read)<br>owner 0xa39739…4bb2 (contract read)<br>owner 0xdf9eb2…3d7f (contract read)</td></tr>
+
+<tr><td>risk parameters</td><td><code>—</code></td><td>none</td>
+<td>none</td><td>—</td><td>immutable</td>
+<td></td>
+<td>absence read<br>owner 0x3d32e8…5521 (contract read)<br>owner 0x4c517d…01de (contract read)<br>owner 0x5f9880…8ba0 (absence read)<br>owner 0x66017d…21bb (contract read)<br>owner 0x896a3f…741c (contract read)<br>owner 0xa39739…4bb2 (contract read)<br>owner 0xdf9eb2…3d7f (contract read)</td></tr>
+
+<tr><td>seizing assets</td><td><code>—</code></td><td>none</td>
+<td>none</td><td>—</td><td>immutable</td>
+<td></td>
+<td>absence read<br>owner 0x3d32e8…5521 (contract read)<br>owner 0x4c517d…01de (contract read)<br>owner 0x5f9880…8ba0 (absence read)<br>owner 0x66017d…21bb (contract read)<br>owner 0x896a3f…741c (contract read)<br>owner 0xa39739…4bb2 (contract read)<br>owner 0xdf9eb2…3d7f (contract read)</td></tr>
+</table>
+</details>
+
+<details id="oracle"><summary>Price feeds: type, update threshold and heartbeat</summary>
+
+<table class="striped"><tr><th>collateral</th><th>market or reserve</th><th>update rule</th><th class="num">threshold</th><th class="num">window / heartbeat</th><th>staleness</th></tr>
+
+<tr><td>ETH</td><td><code>0xa39739…4bb2</code></td><td>deviation heartbeat</td>
+<td class="num">0.50%</td>
+<td class="num">1 hour</td>
+<td>not assessed in this pilot</td></tr>
+</table>
+<p class="meta">Independent market reference prices are not available from a pinned source in this pilot (1 collaterals).</p>
+<p class="meta">instant observation — nearly exact: Chainlink deviation triggers ≤ 0.50%</p>
+
+<p class="meta">oracle manipulation out of scope — feed control reported under the admin-power surface (the oracle settings rows of the admin-power table). oracle failure/staleness: see the Tellor_fallback counterfactual line. sequencer/infra risk n/a — mainnet only.</p>
+<div class="prose-slot" data-slot="flag_explanations"><p>No notices are open for this token this run.</p></div>
+</details>
+
+<details id="audits"><summary>Audits, bug bounty and counterparties</summary>
+<ul class="plain"><li>Trail of Bits 2021-01 — Liquity v1 security assessment</li><li>Coinspect 2021-03 — Liquity v1</li></ul>
+<p class="meta">Audit list (analyst-supplied 2026-09-13)</p>
+<p class="meta">Bug bounty: none — V1 program discontinued at V2 launch; V2 on Cantina, max n/a (analyst-supplied 2026-09-13). Last material change audited: yes. Audit status as of 2026-09-13. Counterparties: n/a — archetype #1 holds no off-chain counterparties; no WBTC custodian exposure — no WBTC node in the LUSD tree.</p>
+</details>
+
+<nav class="links">
+  <a href="../../../docs/context/archetype-memo-1-cdp.md">archetype memo</a>
+  <a href="../../../docs/context/intake-sheets-cdp.md">intake sheet</a>
+  <a href="verify.html">verify</a>
+  <a href="appendix.html">appendix</a>
+  <a href="data/table.json">table.json</a>
+  <a href="data/grid.json">grid.json</a>
+  <a href="data/evaluation-25974949.json">gate record</a>
+</nav>
+
+
+</main>
+</body>
+</html>

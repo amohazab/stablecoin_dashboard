@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LUSD — verify this report</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<main>
+<header class="page">
+  <h1>LUSD — verify</h1>
+  
+  <div class="meta">
+    read 2026-09-14 09:58 UTC · block 25974949 ·
+    report <code title="003b4fcd0638ac8ecc7f5b741c212bd3945356560174af11409c36a9c03e7da7">003b4fcd</code> · intake sheet <code>29682310</code>
+  </div>
+  <nav class="links meta">
+    <a href="index.html">report</a><a href="appendix.html">appendix</a><a href="verify.html">verify</a>
+  </nav>
+</header>
+
+<p class="prose">Every figure here was read from Ethereum at block 25974949. The sheet below is produced by the same generator as the analyst's hand-verification sheet: repeat any call it lists on your own node at that block and you should get the same number.</p>
+
+<p class="banner">Hand-verified by the analyst on 2026-09-14: one pinned get_dy per token, Amin&#39;s RPC, tools/light_sample_check.py (stress artifact <code>f01967bb</code>).</p>
+
+<p class="meta">The sheet's figures are raw base units and recorded call arguments — the reproduction recipe — shown verbatim and not reformatted. Older Vyper pools return a padded buffer: decode the first 32-byte word.</p>
+<pre class="sheet"># Stress spot-check — LUSD @ 25974949
+
+- bundle `9908ce39` · tree `a88f33f1` · stress `f01967bb`
+- cells 23 · checks 26/26 · headline **M1-s50-d0-lp0** (memo §6.2.6)
+
+## 1. The headline cell, by hand
+
+| quantity | value | where it comes from |
+|---|---|---|
+| m1.pre.ratio | 3.498392 | Σ collateral × (1+shock)(1−d) × price ÷ Σ net debt; collateral and debt per position in `out/raw/&lt;block&gt;.json`, price the bundle&#39;s own `external_collateral_value / external_collateral_sum`, NOT a re-simulated `fetchPrice()` |
+| m1.post.ratio | 3.498392 | the same over the book left after absorption |
+| m1.gap | 0.000000 | post − pre, the mechanism&#39;s measured contribution (DET-39) |
+| m2.bad_debt | 0.00 LUSD | Σ (debt − collateral × price) over REDISTRIBUTED troves with CR &lt; 100% — DET-51&#39;s `redistributed_positions_below_100` identity, not the receiving troves&#39; post-CR; base units `0` |
+| m2.pct_supply | 0.0000000000 | ÷ `supply.supply_ruled` = 26,227,238.67 |
+| m3.forced_sell_volume | 0.00 | = bad_debt, DET-25&#39;s Member-1 identity |
+| m3.exit_depth | 8,802,460.31 | LP-0, so equal to DET-31 depth(0.02) = 8,802,460.31 |
+| m3.ratio | 0 | forced_sell ÷ exit_depth |
+
+## 2. DET-51 — H3 absorption and H4 redemption
+
+| quantity | value | where it comes from |
+|---|---|---|
+| sp_balance | 7,570,912.35 | `StabilityPool.getTotalLUSDDeposits()`, the bundle&#39;s own read (DET-51&#39;s capacity lineage is `{sp_balance_read}`) |
+| sp_effective_cell (headline, LP 0) | 7,570,912.35 | `sp_balance × (1 − 0)` — the LP axis is DEPOSITOR flight |
+| tcr_post (headline) | 3.498392009314342724098632540 | Σ surviving collateral × shocked price ÷ Σ surviving debt |
+| recovery_mode_flag | False | `tcr_post &lt; CCR` (1.50), reported not modeled (P-6.01 R12) |
+| redistributed_debt | 0 | debt the Pool could not offset, pushed pro rata onto survivors |
+| redemption_capacity (compound) | 785,656.79 | redeemable before baseRate + 0.005 &gt; 0.02 at the decayed rate 0.000022121531647455 |
+
+Member-1 cells carry `redemption_capacity = 0, reason = &#34;crash path excluded&#34;`, which is the entry&#39;s own wording.
+
+## 2b. The whole trove book, so `m1.pre` is a hand sum (72 rows)
+
+Price basis `external_collateral_value / external_collateral_sum` = 2,531.65530000 per ETH; the headline cell shocks it by -0.50 to 1,265.82765000. ICR is at the SHOCKED price, MCR = 1.10 — no row reaches it, which is R-B6.1.
+
+| owner | debt (LUSD) | coll (ETH) | coll × shocked price | ICR |
+|---|---|---|---|---|
+| `0xdf5b9374ab6b8ff23499214be5b4f942719895e8` | 7,176,480.47 | 17,254.8917 | 21,841,719.00 | 3.0435 |
+| `0x77ee52b29358386e31765b07396d53229a2079af` | 2,845,525.62 | 6,784.3580 | 8,587,827.90 | 3.0180 |
+| `0x3594141c2aa65409642716c7075785fdc9704a9a` | 2,371,534.83 | 5,708.5858 | 7,226,085.72 | 3.0470 |
+| `0xcb16f82e5949975f9cf229c91c3a6d43e3b32a9e` | 1,728,626.15 | 4,095.5934 | 5,184,315.31 | 2.9991 |
+| `0xe3935519abc87c090dd95ad593aa2aef10a9c409` | 1,485,666.19 | 3,934.0293 | 4,979,803.00 | 3.3519 |
+| `0x6c26a07ccff2783577ee911d4c6907cf59775554` | 1,246,292.76 | 3,000.0000 | 3,797,482.95 | 3.0470 |
+| `0xac5406aebe35a27691d62bfb80eefcd7c0093164` | 976,033.93 | 2,500.0734 | 3,164,662.04 | 3.2424 |
+| `0x954f2a8b86aa586c3cc3a2088b72e2a560d7dc22` | 806,195.02 | 2,420.0000 | 3,063,302.91 | 3.7997 |
+| `0x3170bd1144e67e4f146a22a1307c1d10b9f4ab81` | 667,248.93 | 1,615.3227 | 2,044,720.08 | 3.0644 |
+| `0xc0e12a9b712f91f79e6bb718c86dcc6b7a5a36d4` | 574,586.94 | 1,500.0000 | 1,898,741.47 | 3.3045 |
+| `0xa3cc97cfcb38a8b1cac7dc7692557c305d6ac75f` | 473,949.18 | 1,234.5218 | 1,562,691.81 | 3.2972 |
+| `0xb42884463079951dedf4f8840d5fd610c3ec6d94` | 453,067.29 | 2,000.6503 | 2,532,478.53 | 5.5896 |
+| `0x60e69297e961794d226d01695619b019dcee1ef8` | 445,497.88 | 1,550.3997 | 1,962,538.87 | 4.4053 |
+| `0x1384b4515544e520956e4fa7f5a10c7fb0ac3729` | 408,710.16 | 967.4824 | 1,224,665.98 | 2.9964 |
+| `0x57ef012861c4937a76b5d6061be800199a2b9100` | 380,473.22 | 998.0893 | 1,263,408.98 | 3.3206 |
+| `0x308c5a2713154412da157d69095f3db09336d627` | 342,052.27 | 950.0000 | 1,202,536.27 | 3.5157 |
+| `0x54bc1c2c0fcaedcc2e68c97774f4f873c1d24d08` | 298,584.30 | 741.0163 | 937,998.91 | 3.1415 |
+| `0x0fd0489d5ccf0acc0ccbe8a1f1e638e74cab5bd7` | 283,660.35 | 745.3584 | 943,495.22 | 3.3261 |
+| `0x35f8a4f1e964cc339420700c6548339db0f59609` | 277,445.00 | 895.2700 | 1,133,257.52 | 4.0846 |
+| `0x2291f52bddc937b5b840d15e551e1da8c80c2b3c` | 259,906.27 | 4,177.9390 | 5,288,550.74 | 20.3479 |
+| `0xfc7a4653c19b529772c033d92a525db05fdf9723` | 230,302.13 | 581.4978 | 736,075.99 | 3.1961 |
+| `0xb62f4f38bca544dedea1d1e1b00e802fe13fbfc7` | 217,487.63 | 649.7231 | 822,437.43 | 3.7815 |
+| `0x423eda6652d0636930d350cb60a01eb1f45afc3f` | 206,121.63 | 557.0000 | 705,066.00 | 3.4206 |
+| `0x28dbf056f8d3f2c62a9158ee959e1648f1a99afb` | 173,434.51 | 651.2666 | 824,391.21 | 4.7533 |
+| `0xc167c7f8a36403c45d7f248c059ab0bb05169262` | 156,824.92 | 388.4721 | 491,738.66 | 3.1356 |
+| `0x3f9a843c93ff9ce638287249ef93dc5c91944455` | 155,831.15 | 395.6016 | 500,763.41 | 3.2135 |
+| `0x8eb2e0cebcd191625037a042c9edf67b7f7fd74c` | 146,177.27 | 482.6618 | 610,966.66 | 4.1796 |
+| `0x0653a6ca0c0cf8fd243eb423e0d4c105218ac334` | 132,113.48 | 349.4910 | 442,395.37 | 3.3486 |
+| `0x5fbdb238a05ed167c1a61f7a34189cad837f2af6` | 123,335.01 | 348.9227 | 441,675.96 | 3.5811 |
+| `0x13f073bb6338036649e16e256f31784666a8fbbb` | 119,200.00 | 300.0000 | 379,748.29 | 3.1858 |
+| `0x6d3709ba7d09428b76f4ec604f60a3ca336c78b2` | 94,331.09 | 534.0918 | 676,068.12 | 7.1670 |
+| `0xfb68e6b3562a6a569e4731e055b62bbbb81d9d1e` | 94,170.62 | 300.0000 | 379,748.29 | 4.0326 |
+| `0xc1c589dc0922399b966f515d4b6436707d679974` | 94,150.00 | 238.9000 | 302,406.23 | 3.2120 |
+| `0x654239b299759a7d0b364c27943de9087067bd71` | 86,464.76 | 208.5806 | 264,027.12 | 3.0536 |
+| `0xed42e2b0269b59ed86ca32dcf46b41a5ce0ec869` | 80,392.21 | 700.0000 | 886,079.35 | 11.0220 |
+| `0x0f2b381c99b48914cab5efbeef38fccc3ccd894a` | 72,636.18 | 220.0000 | 278,482.08 | 3.8339 |
+| `0x903628bf8e703766277279ca8eb7bfb5e32107a5` | 68,878.14 | 268.0059 | 339,249.22 | 4.9254 |
+| `0xa1cba1fcef2cd7379f74feec9a7d8b17d430cc6f` | 50,245.37 | 135.1680 | 171,099.40 | 3.4053 |
+| `0x8dfd545a2d6ba57d0ccfb060a0eefe01f41f2902` | 42,410.00 | 500.0000 | 632,913.82 | 14.9237 |
+| `0x8b4b889cd88ae68205d620678373b1dee08e775a` | 38,432.60 | 91.9420 | 116,382.68 | 3.0282 |
+| `0xc7718cfa793ddc5d012740a4f7b2c7dd8f793a4e` | 35,389.00 | 86.7870 | 109,857.36 | 3.1043 |
+| `0x29b2c24f61c77e33190d1e7b7533b490a35776b5` | 32,019.14 | 85.0000 | 107,595.35 | 3.3603 |
+| `0xbaf230e1792b548aec3f69ed19fccdfc9f7807be` | 26,812.95 | 98.8327 | 125,105.10 | 4.6658 |
+| `0x9b60a3b60cc6a8190f085a729b374af9170a9f16` | 22,805.77 | 54.9900 | 69,607.86 | 3.0522 |
+| `0x2489ac126934d4d6a94df08743da7b7691e9798e` | 20,199.90 | 96.5299 | 122,190.24 | 6.0491 |
+| `0x452cc5141707ed1986158f6c89d2ffe11edc8a0c` | 18,733.00 | 54.5000 | 68,987.61 | 3.6827 |
+| `0x441497e2fc4e697d1d604204dc8e1d1d992c9684` | 17,174.67 | 46.0206 | 58,254.18 | 3.3919 |
+| `0x8b32b71f2a7096019c2e0cd289ae0bda493ff792` | 16,362.00 | 39.5000 | 50,000.19 | 3.0559 |
+| `0x04ca2a945ccba92ca2443024c07c99f81e71547f` | 15,000.00 | 200.0000 | 253,165.53 | 16.8777 |
+| `0xddf3679cf581bc66f491b01ab6742310aedb1a1c` | 13,298.90 | 206.2900 | 261,127.54 | 19.6353 |
+| `0xe1137ee95345037529ea444985f7634bd05a3c8c` | 13,123.05 | 33.5300 | 42,443.20 | 3.2342 |
+| `0x1ce04a0a1eb0bae1d48159608dd11dcfdbac2310` | 11,465.07 | 39.0000 | 49,367.28 | 4.3059 |
+| `0xca5b42f5058cf62edd84c9d2449dd82d5b0a71e9` | 10,486.35 | 57.5733 | 72,877.84 | 6.9498 |
+| `0x1b277ae7faf0e08f53d1a90285d8d0236e0b59bf` | 10,126.38 | 25.2037 | 31,903.57 | 3.1505 |
+| `0xbfe7a0c2ebf129b62e4e60a0cee8574cda1ac3c5` | 10,000.00 | 50.0000 | 63,291.38 | 6.3291 |
+| `0x77e0441e260361e0792c1c0fb7dcef9b8b900df0` | 7,235.00 | 19.0000 | 24,050.73 | 3.3242 |
+| `0x192fdca9492bc6ba7c21b3bc74686268eb1ac026` | 6,717.78 | 18.6900 | 23,658.32 | 3.5217 |
+| `0xcabc0e1eebd9fc9ec64d47a06cb2d43792e1977b` | 6,219.95 | 21.5310 | 27,254.58 | 4.3818 |
+| `0x9c141191af1ecee536eaafed87ee483a69986a47` | 6,012.00 | 14.7000 | 18,607.67 | 3.0951 |
+| `0xaa6aa84452b7325c55df93690233c7fb8df7cf65` | 5,705.45 | 63.9386 | 80,935.25 | 14.1856 |
+| `0xd2f92747e7aeb37ffb1d504012901a2aef34b39c` | 5,478.09 | 13.9027 | 17,598.44 | 3.2125 |
+| `0x0afa8cd32e5ddfffbc99931ea6721f42da227251` | 5,225.00 | 20.0000 | 25,316.55 | 4.8453 |
+| `0x262d4ff9641d13713c0732f9649f9d88d71f7acb` | 4,778.86 | 11.8270 | 14,970.93 | 3.1327 |
+| `0x7d3894d3e8a8e504b1fa66ae506e8b15b3e900b4` | 3,735.00 | 9.2691 | 11,733.08 | 3.1414 |
+| `0xbb8c4751f50cfef766e7f158a68c348f3441a62b` | 3,608.52 | 12.2316 | 15,483.06 | 4.2907 |
+| `0x1b1d03bbc0fe2cf701fe12195eba9d99001e605d` | 3,014.02 | 7.3000 | 9,240.54 | 3.0659 |
+| `0xeb613bf4f4f4b49063350c7fd57f7a99e41c6538` | 2,016.79 | 7.4369 | 9,413.82 | 4.6677 |
+| `0x2dcd95925df5e9ed3f9080fb0d5f63a2fa55dc6c` | 2,009.10 | 5.0000 | 6,329.14 | 3.1502 |
+| `0xc0635f6318b8b19b8ed3902b6f4987f9419e7c9d` | 2,009.01 | 4.7526 | 6,015.97 | 2.9945 |
+| `0x8f44e2ccbf1c358cc9604e15ed61a7752ed31c2b` | 2,001.51 | 10.2837 | 13,017.34 | 6.5038 |
+| `0x7fe6e94fc0d5019a954d71d8dc350bcedc9a48aa` | 2,000.99 | 89.6932 | 113,536.13 | 56.7399 |
+| `0xdfbca62b0d9d7c90a9192674d715e33683551ac7` | 2,000.00 | 6.5000 | 8,227.88 | 4.1139 |
+| **total** | **26,227,238.67** | **72,484.7195** | **91,753,162.20** | **3.4983920093** |
+
+That last cell IS `m1.pre.ratio` = 3.498392009314342724098632540.
+
+## 3. The Member-2 headline cell — M2-t0.93-lp0
+
+| quantity | value | where it comes from |
+|---|---|---|
+| m3.forced_sell_volume | 0.00 | zero by construction — no stable node and no GSM (DET-43); base units `0` |
+| m3.exit_depth | 8,173,452.75 | the cell&#39;s own venue set, DET-35 |
+| m3.ratio | 0 | forced_sell ÷ exit_depth |
+
+**Counterfactual `Tellor_fallback`** — carried unsized on this cell: PriceFeed contract constants at block 25974949: TIMEOUT 14400 s; MAX_PRICE_DEVIATION_FROM_PREVIOUS_ROUND 50%; MAX_PRICE_DIFFERENCE_BETWEEN_ORACLES 5%; status() = 0 (0 = chainlinkWorking). modeled outcome unchanged under primary; fallback engaged does not alter stock-only capacity
+
+## 4. The pinned reads to reproduce
+
+**Every call below is a pinned read at `run_block` 25974949** — the same block the bundle was assembled at (R-13). Pin the block inside the JSON-RPC body; a `tag` query parameter is silently ignored by some proxies (P-3.39).
+
+**Decoding note.** Pools compiled with old Vyper (0.2.8 and earlier) return a padded buffer rather than a single word — LUSD&#39;s `0xed279fdd` answers `get_dy` with ~4 KB. **Decode the first 32-byte word**; the rest is padding. Verified by the analyst on 2026-09-13, whose first word matched this sheet to the wei.
+
+The depth m3 divides by is the sum over K-subset(0.90) = 1 pools. On each, call `get_dy` with the recorded `dx` — **`i` and `j` are the recorded argument values, not placeholders** — and check the implied marginal price sits at 1 − s = 0.98 ± ε:
+
+- `0xed279fdd11ca84beef15af5d39bb4d4bee23f0ca` → `get_dy(i=0, j=1, dx=8802460314933502733128198)` = 8455298657136364505255218; implied 0.9800000218301406165939454624 (within ε: True)
+
+## 5. Assumptions carried on this artifact
+
+- **absorption** — absorption is the Stability Pool, not a sale: a trove below MCR is offset against the Pool (debt burned, collateral paid to depositors) and the remainder is REDISTRIBUTED pro rata by collateral onto surviving troves. LUSD is therefore exempt from the sell-side bound (DET-52) - no forced sale exists on the absorption path - and the LP axis haircuts the Pool (`sp_effective_cell = sp_balance x (1 - LP_cell)`, DET-51).
+- **bad_debt_definition** — `bad_debt` = the REDISTRIBUTED troves&#39; own shortfall: sum over liquidated troves with CR &lt; 100% of (debt - collateral x price), per DET-51&#39;s `redistributed_positions_below_100 -&gt; bad_debt` identity. The receiving troves&#39; post-redistribution CR is NOT the definition; reading it that way would count one shortfall once per trove it landed on.
+- **engagement_thresholds** — no trove reaches MCR on the ruled grid; first liquidation at an ETH shock of -81.63% (min ICR 5.9890 -&gt; 1.1), recovery mode at -78.56% (TCR 6.9968 -&gt; 1.5), TCR below MCR at -84.28%; Liquity v1 is wound down to 72 troves
+- **m2_curves** — {&#39;0.88&#39;: {&#39;0.005&#39;: 6517706555014973278149288, &#39;0.01&#39;: 7217294712738680985746965, &#39;0.02&#39;: 7724085309435026006690741, &#39;0.05&#39;: 8186337094029941835350657}, &#39;0.93&#39;: {&#39;0.005&#39;: 6910092030346912578820098, &#39;0.01&#39;: 7642724810365489922631213, &#39;0.02&#39;: 8173452746439219719562462, &#39;0.05&#39;: 8657538286041992571168528}, &#39;0.97&#39;: {&#39;0.005&#39;: 7223961325758863868813422, &#39;0.01&#39;: 7983025878060355247086570, &#39;0.02&#39;: 8532901125492743946649938, &#39;0.05&#39;: 9034451108958553498455066}}
+- **oracle_assumption** — LUSD carries no EMA_lag line: Liquity v1 has no LLAMMA and no per-market price EMA. Section 7&#39;s assumption for LUSD is instant observation of the PriceFeed at `run_block`, and the price basis is the bundle&#39;s own `external_collateral_value / external_collateral_sum` - NOT a re-simulated `fetchPrice()`. `lastGoodPrice()` is read and disclosed beside it and lags by design, because only `fetchPrice()` rewrites it (P-6.01 R13).
+- **structural_insulation** — structurally insulated; exposed through exit venues only
+</pre>
+
+</main>
+</body>
+</html>

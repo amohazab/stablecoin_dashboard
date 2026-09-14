@@ -11,10 +11,11 @@ import pytest
 
 from factory import eventlog
 from factory.eventlog import QuarantineEvent
-from factory.report.__main__ import gate_triggers, run_hashes, s3_page
+from factory.report.__main__ import gate_triggers, s3_page
 from factory.rubric import read_trigger_table
 from factory.schema import GateResult
 from factory.validate.harness import (
+    CHECKS,
     TRIGGER_SECTION,
     TRIGGER_TABLE,
     Level3,
@@ -38,7 +39,9 @@ def test_section3_parses_every_row_with_split_levels_and_sections():
     t = read_trigger_table(REPO)
     assert len(t) == 28 and set(t) == set(TRIGGER_TABLE)
     assert t["T-18"]["levels"] == [2, 1] and t["T-28"] == {"name": "gate failure", "levels": [2],
-                                                          "section": "—"}
+                                                          "section": "—", "owners": []}
+    assert t["T-20"]["owners"] == ["DET-29"] and t["T-23"]["owners"] == ["DET-13", "DET-59",
+                                                                          "DET-87"]
     assert {k: v["section"] for k, v in t.items()} == TRIGGER_SECTION
     det_12(None, {"printed_trigger_table": t})
     moved = copy.deepcopy(t)
@@ -116,11 +119,13 @@ def runs():
                     log_raw=[e.model_dump() for e in entries], log_date="2026-09-14",
                     record_triggers=rec["triggers"], report_manifest=man,
                     prior_results=[r for r in rec["results"] if r["stage"] != "S3"],
-                    run_hashes=run_hashes(REPO, tok, {**man, "rubric_hash": rec["rubric_hash"]},
-                                          "2026-09-14"),
-                    site_report_hash=None)
+                    resolution_evidence=[], site_report_hash=None)
         page["_s3_results"] = [r for r in rec["results"]
                                if r["stage"] == "S3" and r["entry_id"] != "DET-13"]
+        have = {r["entry_id"] for r in rec["results"]}          # B-13's rows postdate the record
+        page["_s3_results"] += [{"entry_id": c.entry_id, "stage": "S3", "result": "pass",
+                                 "scope_condition": None} for c in CHECKS
+                                if c.entry_id not in have and c.entry_id != "DET-13"]
         out[tok] = (inp["bundle"], inp["tree"], s, page)
     return out
 
@@ -188,8 +193,17 @@ def test_det87(runs):
     same_day = QuarantineEvent(date=fire.date, token="crvUSD", trigger=fire.trigger,
                                level=fire.level, resolution_type="template_change",
                                resolution_date=fire.date)
-    with pytest.raises(Level3, match="did not change"):
+    with pytest.raises(Level3, match="no evidence"):
         call(det_87, runs, "crvUSD", fresh(page, log_entries=[*page["log_entries"], same_day]))
+    flat = {"date": fire.date, "trigger": fire.trigger, "level": fire.level,
+            "resolution_type": "template_change", "resolution_date": fire.date,
+            "field": "template_hash", "fire_value": "f89ddcc5", "resolution_value": "f89ddcc5"}
+    with pytest.raises(Level3, match="did not change"):
+        call(det_87, runs, "crvUSD", fresh(page, log_entries=[*page["log_entries"], same_day],
+                                           resolution_evidence=[flat]))
+    moved = {**flat, "resolution_value": "4a23fe50"}                 # B-13: evidence by run
+    assert "1 resolution(s) evidenced" in call(det_87, runs, "crvUSD", fresh(
+        page, log_entries=[*page["log_entries"], same_day], resolution_evidence=[moved]))
     with pytest.raises(Level3, match="pipeline_version"):
         call(det_87, runs, "crvUSD", fresh(page, report_manifest={
             **page["report_manifest"], "pipeline_version": ""}))

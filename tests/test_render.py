@@ -41,8 +41,10 @@ def test_full_form_follows_the_display_rule(fmt):
 
 
 def test_exact_zero_prints_zero_in_both_forms(fmt):
+    # the fifth live run's ruling 2 (R-B11.6 refined): an amount's compact zero is "$0"
     for unit in ("base_units", "ratio", "bps", "usd_whole"):
-        assert fmt(0, unit) == "0" and fmt("0", unit, "supply_ruled", compact=True) == "0"
+        want = "$0" if unit in ("base_units", "usd_whole") else "0"
+        assert fmt(0, unit) == "0" and fmt("0", unit, "supply_ruled", compact=True) == want
 
 
 def test_compact_form(fmt):
@@ -59,7 +61,7 @@ def test_ratios_percent_only_with_a_denominator(fmt):
     assert fmt("0.00000031", "ratio", "exit_depth") == "< 0.1%"
     assert fmt("1.201792884", "ratio") == "1.2018"
     assert fmt(50, "bps") == "0.50%"
-    assert fmt("19.583405", "days") == "19.6 d"
+    assert fmt("19.583405", "days") == "19.6 days"
     assert fmt(1789323179, "unix_s") == "2026-09-13 18:12 UTC"
     assert fmt("0x2260fac5e5542a773aa44fbcfedf7c193bc2c599", "address") == "0x2260fa…c599"
 
@@ -123,7 +125,8 @@ def test_reader_layer_is_plain_and_the_page_escapes(token):
     reader = page.split('class="specialists"')[0]
     text = re.sub(r"<[^>]+>", " ", re.sub(r"<svg.*?</svg>", "", reader, flags=re.S))
     assert not re.search(r"DET-\d|\bP-\d+\.\d+|\bA-\d+\b|\bT-\d\d\b", text)
-    assert "[slot: structural_summary — pending B-13]" in page and "<script" not in page
+    assert ("[slot: structural_summary — pending B-13]" in page         # B-13: or the filled slot
+            or 'data-slot="structural_summary"' in page) and "<script" not in page
     assert "< 0." not in re.sub(r"<[^>]+>", "", page.replace("&lt;", "&lt;"))  # escaped
     assert "DET-19" not in page and "Rubric map" in (pages(token) / "appendix.html"
                                                      ).read_text(encoding="utf-8")

@@ -1,0 +1,73 @@
+# B-13 (plan §3; inventory J.1): the rows each prose slot receives, by flat-table
+# field_id prefix (and, for flag explanations, by the owner entry of each open flag's
+# trigger), plus the assumptions block. Never the bundle, the tree or the stress JSON.
+# `page_section` is the index section the slot renders in (the judge's section_id).
+# `paragraphs` (previews ruling 4): the count the guard enforces - [min, max], or one per
+# open flag / counterfactual line - matching the obligations' last line.
+
+[slot.structural_summary]
+paragraphs = [1, 2]
+page_section = "finding"
+prefixes = ["supply.", "stabilizer.slice.", "tree.root.", "verif.bar.", "headline.m2.", "headline.m3.", "stress.structural_zero.", "exit.offvenue."]
+obligations = """- The first paragraph states the single structural fact a reader must know; when the structural-zero flag is set, that finding appears in the summary with its reason.
+- The backing classes describe how backing can be checked, not whether it exists — never describe a class as unbacked.
+- Never write "not backed", "unbacked" or "untraced" for the residual — say what it is.
+- The exit-liquidity ratio is forced sales ÷ exit liquidity — never described as bad debt ÷ exit liquidity.
+- Summarise what backs the token, how much of that backing can be checked on-chain, and what the headline stress scenario shows, in that order.
+- State no conclusion the rows do not support; no grades, scores or verdicts.
+- One to two paragraphs."""
+
+[slot.verifiability_narrative]
+paragraphs = [2, 3]
+page_section = "backing"
+prefixes = ["verif.bar.", "verif.truncated", "verif.unlisted_share", "verif.staleness.", "verif.banner", "exit.concentration.", "tree.root.", "tree.node."]
+obligations = """- Explain the three classes of backing (checkable on-chain, checkable one layer down, depends on disclosures) with this token's shares, and name the largest collateral in each class.
+- Where disclosures are stale or collateral is depth-truncated, say which and what that means for checking the backing.
+- Explain the governance banner row: which rules can change, by whom, with what delay.
+- Two to three paragraphs."""
+
+[slot.member1_opening]
+paragraphs = [2, 4]
+page_section = "exit-liquidity"
+prefixes = ["headline.m1.", "headline.m2.", "headline.m3.", "headline.m4.", "panel.", "mech.", "stress.structural_zero.", "bias.", "assumption."]
+obligations = """- Open with why a collateral price crash fits this token's liquidation mechanism, naming the mechanism this token actually has (for crvUSD: LLAMMA soft liquidation and PegKeepers; for GHO: Aave liquidations and the GSMs; for LUSD: the Stability Pool and redemptions), before stating any result.
+- Only then give the headline results: collateral coverage before and after, bad debt, and forced sales against exit liquidity.
+- Explain each mechanism-state figure given, using only what its label says it measures; if no effective/naive pair is given, do not invent one; when the structural-zero flag is unset, state the bad-debt amount and never mention a flag.
+- When the structural-zero flag is set, state the zero finding in the reason row's own terms (structurally zero, and why); no paraphrase such as 'near zero' or 'reprices the book'.
+- Where the rows show exit-exhausted cells, explain what they mean for this token.
+- The exit-liquidity ratio is forced sales ÷ exit liquidity — never described as bad debt ÷ exit liquidity.
+- Two to four paragraphs."""
+
+[slot.member2_opening]
+paragraphs = [2, 3]
+page_section = "exit-liquidity"
+prefixes = ["exit.member2_target", "m2.headline.", "m2.target.", "m2.curve.", "exit.gsm.", "mech.h2_routing.", "exit.curve.", "assumption.structural_insulation", "headline.m4.paired_units_held", "headline.m4.effective", "headline.m4.burn_capacity", "headline.m4.withdraw_allowed", "headline.m4.pool_tilt_post_cell"]
+obligations = """- Open with why a depeg of the paired stablecoin fits this token's mechanism, naming that mechanism, before stating any result.
+- Where the rows show the token is structurally insulated (a zero forced-sale ratio by construction), frame the zero as exposure through exit venues: point to the recomputed exit-liquidity curves and the mechanism-state quantities, and never say or imply that nothing happens, there is no impact, or the token is unaffected.
+- When not structurally insulated, state the Member-2 headline result: forced sales, exit liquidity, ratio.
+- Two to three paragraphs."""
+
+[slot.flag_explanations]
+paragraphs = "per_flag"
+page_section = "oracle"
+prefixes = []
+owners_from_flags = true
+obligations = """- For every entry in `open_level1_flags`, explain what fired (using its literal), what the underlying rows show, and what a reader should take from it. Mention each entry id once.
+- If there are no open flags, write one short paragraph saying no notices are open for this token this run.
+- One short paragraph per open flag."""
+
+[slot.counterfactual_explanations]
+paragraphs = "per_counterfactual_line"
+page_section = "counterfactuals"
+prefixes = ["headline.cf.", "assumption.ema_lag_readings", "assumption.oracle_assumption"]
+obligations = """- For every counterfactual line in the rows, explain what the line changes, what it does to the affected metric, and what the reader should take from the difference. Do not misstate the mechanism.
+- If a counterfactual leaves the metric unchanged, say why from the rows.
+- One paragraph per counterfactual line."""
+
+[slot.admin_surface_narrative]
+paragraphs = [2, 3]
+page_section = "admin"
+prefixes = ["admin.", "verif.banner"]
+obligations = """- Explain who holds each power that can change backing or minting, how quickly a change takes effect, and whether anyone can veto it, from the rows.
+- Never claim that no one can alter backing if any row shows a holder of minting, upgrade, oracle or seizure powers.
+- Two to three paragraphs."""

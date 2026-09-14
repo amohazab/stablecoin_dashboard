@@ -114,6 +114,14 @@ truncated_pill = "truncated"
 days_pill = "{days} old"
 days_pill_zero = "same day"
 
+# Ruling 3 on the fourth live run: the page's node-to-bar map (render.py draws each node
+# under this bar; the table's `tree.node.<addr>.bar` rows read it).
+[tree.node_bar]
+terminal = "terminal"
+terminal_other_layer = "terminal_other_layer"
+recurses = "disclosure_dependent"
+recurses_truncated = "disclosure_dependent"
+
 [tree.bars]
 terminal = "Checkable on-chain"
 terminal_other_layer = "Checkable one layer down"
@@ -143,6 +151,12 @@ reading_exhausted = "no exit liquidity is left"
 swatches = [["s0", "0"], ["s1", "under 0.1%"], ["s2", "under 10%"], ["s3", "under 100%"], ["s4", "100% or more"], ["exhausted", "exit exhausted"]]
 
 [labels]
+# B-13 ruling I: the three backing classes describe how backing can be checked; all three are backing.
+bar_terminal = "backing held in assets whose value can be checked directly on-chain"
+bar_terminal_other_layer = "backing held in wrapped assets whose value can be checked on-chain one layer down, through the wrapper"
+node_bar = "the backing class this collateral is counted in (terminal: checkable on-chain; terminal_other_layer: checkable one layer down, through the wrapper; disclosure_dependent: checked through published disclosures)"
+bar_disclosure_dependent = "backing whose value is checked through an issuer's or custodian's published disclosures"
+ema_lag_readings = "collateral coverage after the shock under instant vs lagged prices, per shock level"
 supply = "Supply"
 originated = "originated"
 residual = "residual"
@@ -158,15 +172,29 @@ m2_pct_supply = "bad debt as a share of supply"
 m3_forced_sell_volume = "collateral that must be sold"
 m3_exit_depth = "exit liquidity"
 m3_ratio = "forced sales ÷ exit liquidity"
-binding_side = "which side limits liquidation capacity"
-gho_sourceable = "GHO liquidators can source"
-collateral_sellable = "collateral that can be sold"
-gsm_mint_headroom = "room left to mint GHO through the GSMs"
+# Previews ruling 5 (and, for the Member-2 headline rows, a named default of the Builder).
+root_backing_value = "value of all backing collateral"
+root_backed_supply = "supply backed by the traced collateral"
+m2_headline_m3_forced_sell_volume = "forced sales in the Member-2 headline depeg scenario (paired stablecoin at its middle target, no liquidity-provider flight)"
+m2_headline_m3_exit_depth = "exit liquidity in the Member-2 headline depeg scenario"
+m2_headline_m3_ratio = "forced sales ÷ exit liquidity in the Member-2 headline depeg scenario"
+# Run 8 ruling 4: metric-4 labels drafted from the stress module's definitions
+# (gho_cells.py, lusd_cells.py; memo §6.3) - what each figure measures, nothing more.
+binding_side = "which side binds liquidation capacity first: the GHO liquidators can source, or the collateral they can sell"
+gho_sourceable = "GHO liquidators can source within the liquidation bonus: pool buy-side depth plus the GSMs' remaining mint headroom"
+collateral_sellable = "collateral liquidators can sell within the liquidation bonus, bounded by the analyst's dated sell-side capacity"
+gsm_mint_headroom = "GHO the GSMs can still mint before their exposure caps bind; one part of the GHO liquidators can source"
+facilitator_bucket_levels = "GHO minted by each facilitator, which its bucket cap bounds; the cap limits recovery minting, not liquidation"
+freezer_state = "the GSM's freezer routing: freezer_effective means the freezer can act, which removes that GSM from exit liquidity in a depeg scenario; in a collateral crash the GSM stays an exit venue"
+counterfactual_ref = "the counterfactual lines printed with this scenario"
 exit_depth_cell = "exit liquidity in this scenario"
-lp_flight_share = "share of liquidity providers leaving"
-sp_effective_cell = "Stability Pool available in this scenario"
+lp_flight_share = "share of liquidity providers leaving in this scenario"
+sp_effective_cell = "Stability Pool balance available to absorb liquidations in this scenario: the balance less the scenario's liquidity-provider flight share"
+redistributed_debt = "debt passed to surviving troves when the Stability Pool cannot absorb it; a reallocation, not an absorption"
+redistributed_positions_below_100 = "redistributed trove debt left below full collateral, which is how bad debt is defined for LUSD"
 tcr_post = "system collateral ratio after the shock"
-recovery_mode_flag = "recovery mode triggered"
+recovery_mode_flag = "whether the system collateral ratio after the shock is below the Recovery Mode threshold"
+redemption_capacity = "LUSD that can be redeemed against troves before the redemption fee reaches its ceiling, or the reason none is counted"
 effective = "PegKeeper headroom that can actually be used"
 naive = "PegKeeper headroom by debt ceilings alone"
 
@@ -214,6 +242,47 @@ break = "The headline stress scenario and the grid around it: collateral price f
 rules = "Who holds each administrative power over the protocol's contracts and how long a change takes to take effect, read at block {block}."
 check = "Every figure is pinned to block {block}; the verify page lists the calls that reproduce them."
 grid = "Each cell divides the collateral liquidations must sell by the exit liquidity left in that scenario, {scope}, at block {block}; above 100% the sales cannot all be absorbed."
+
+# B-13 ruling H: one plain line per counterfactual id (the table's description rows).
+[counterfactual]
+H1_kill = "the PegKeepers are switched off and can no longer mint or burn to defend the peg"
+EMA_lag = "the oracle lags the market by its moving-average window"
+H2_freezer = "the GSM freezer does not act in the depeg scenario, so the GSMs stay open as exit venues"
+Tellor_fallback = "the price feed falls back from Chainlink to the Tellor oracle"
+
+# Ruling on the third live run, defect 3: what both `headline.cf.<id>.value_*` rows of a
+# line measure, and in what unit - passed to the generator as those rows' label.
+[counterfactual_value]
+EMA_lag = "upper bound on collateral value eroded by the oracle lag (USD)"
+H1_kill = "bad debt with the PegKeepers alive vs switched off (USD)"
+H2_freezer = "exit liquidity with the GSM freezer acting vs not acting (USD)"
+Tellor_fallback = "no computed value — the line records the price feed's fallback constants and scope"
+
+# Ruling on the third live run: the residual in words, per token (the table's
+# `supply.residual.description` row). NAMED DEFAULT: keyed by token; a token without
+# a line gets no row.
+[residual]
+crvUSD = "crvUSD minted but not borrowed, held by the protocol's own contracts, not in circulation; the named causes account for it"
+GHO = "residual is supply minus originated debt; 0 here because GHO's originated debt is the sum of its facilitators' bucket levels and every GHO is minted by a facilitator"
+LUSD = "residual is supply minus originated debt; 0 here because every LUSD is minted as trove debt, the gas compensation each trove holds included"
+
+# B-13 ruling I: each residual-cause family in words, matched on the family literal's
+# opening words; passed to the generator as the rows' labels.
+# Ruling 1 on the fourth live run: the label of each `m2.curve.t<t>.s<p>` row.
+[m2_curve]
+label = "exit liquidity when the paired stablecoin trades at {target}, at a price impact of {impact}"
+
+[residual_families]
+"mint-controller pre-mint inventory" = "crvUSD minted into controllers but not yet borrowed — held by the protocol's own contracts, not in circulation"
+"PegKeeper undrawn inventory" = "crvUSD a PegKeeper may mint into its pool but has not deployed — held by the protocol, not in circulation"
+"mint-market AMM float" = "crvUSD held inside the mint markets' soft-liquidation AMMs — part of borrower positions being converted"
+"non-mint-market minting facilitators" = "crvUSD minted by protocol contracts outside the mint markets this report traces — lending factories, the flash lender and the bridge vaults"
+
+# Run 8 ruling 5: what each Level-1 flag means, passed with the open flag to
+# flag_explanations (keyed by trigger; rubric §3 owns the trigger's name).
+[flag_meaning]
+T-02 = "a larger share of the discovered on-chain exchange liquidity sits in venues this report does not model than the rubric allows without a notice; the exit-liquidity figures cover the modelled venues only"
+T-20 = "the frozen set of exit pools, chosen at the freeze date, covers less of the discovered pool liquidity than the archetype's coverage target, under a dated waiver; exit liquidity is measured on that set only"
 
 [m4_maps]
 is_killed = "PegKeepers"

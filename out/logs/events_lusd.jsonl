@@ -5,3 +5,7 @@
 {"date":"2026-09-13","set_file_hash":"8bebc8a0","sheet_hash":"5486f264","source":"P-7.05 — B-9 S9 signed edit: LUSD counterparties line gains the WBTC note (DET-73)","token":"LUSD","type":"intake_trigger"}
 {"date":"2026-09-14","set_file_hash":"8bebc8a0","sheet_hash":"29682310","source":"P-7.08 — B-11d signed edit: S1/S2 class-S tags retired (DET-74); DET-47 reference removed from the H5 bias reason; the DAI/USDS row gains the memo's Sky note tag (M2); rubric header re-stamp","token":"LUSD","type":"intake_trigger"}
 {"date":"2026-09-14","level":2,"resolution_date":null,"resolution_type":null,"token":"LUSD","trigger":"T-28","type":"quarantine"}
+{"date":"2026-09-14","level":2,"resolution_date":null,"resolution_type":null,"token":"LUSD","trigger":"T-24","type":"quarantine"}
+{"date":"2026-09-14","level":2,"resolution_date":"2026-09-14","resolution_type":"template_change","token":"LUSD","trigger":"T-28","type":"quarantine"}
+{"date":"2026-09-14","level":2,"resolution_date":"2026-09-14","resolution_type":"template_change","token":"LUSD","trigger":"T-24","type":"quarantine"}
+{"bundle_hash":"9908ce392be43e92cc1d6e895609919b31b3b11f497bebbdb13cf15f50508dc2","date":"2026-09-14","token":"LUSD","type":"published"}

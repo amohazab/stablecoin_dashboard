@@ -2286,7 +2286,7 @@ def det_84(b: Bundle, t: VerifiabilityTree, r: StressReport, page: dict) -> str:
                           "header": {**_json.loads(serialise(b))["header"],
                                      "bundle_hash": b.header.bundle_hash}},
                "tree": _json.loads(serialise_tree(t)), "stress": _json.loads(serialise_stress(r)),
-               "mirror": page["mirror"]}
+               "mirror": page["mirror"], "wording": page.get("wording", {})}
     ids = [row["field_id"] for row in doc["rows"]]
     if len(set(ids)) != len(ids):
         raise Level3("DET-84: duplicate field_id")
@@ -2333,7 +2333,8 @@ def run_report_checks(bundle: Bundle, tree: VerifiabilityTree, report: StressRep
     trigger text, when it passes with one, is its scope."""
     results = []
     page["_s3_results"] = []            # DET-13 reads the record as it stands (B-12)
-    for chk in (c for c in CHECKS if c.consumer == "report" and c.stage == stage):
+    consumers = ("report", "judge") if stage == "S3" else ("report",)
+    for chk in (c for c in CHECKS if c.consumer in consumers and c.stage == stage):
         try:
             scope = chk.fn(bundle, tree, report, page)
             results.append(GateResult(entry_id=chk.entry_id, result="pass",
@@ -2972,7 +2973,7 @@ def det_88(b: Bundle, t: VerifiabilityTree, r: StressReport, page: dict) -> str:
 
 _DATE = re.compile(r"\d{4}-\d{2}(?:-\d{2})?(?: \d{2}:\d{2} UTC)?")
 _HEX = re.compile(r"0x[0-9a-fA-F]+(?:…[0-9a-fA-F]+)?|…[0-9a-fA-F]{4}\b")
-_NUM = re.compile(r"(?<![\w§.\-/#$])\$?\d[\d,]*(?:\.\d+)?(?:%|[kMB](?!\w)| d(?!\w))?(?!\w)")
+_NUM = re.compile(r"(?<![\w§.\-/#$])\$?\d[\d,]*(?:\.\d+)?(?:%|[kMB](?!\w)| days?(?!\w))?(?!\w)")
 
 
 def _num_tokens(s: str) -> list[str]:
@@ -2986,7 +2987,7 @@ def _num_tokens(s: str) -> list[str]:
         x = x.rstrip(",")
         if re.fullmatch(r"\d{1,3}", x):
             continue
-        out.append(x)
+        out.append(re.sub(r" day$", " days", x))   # Amin, 2026-09-14: "N day" is "N days"
     return out
 
 
@@ -3061,6 +3062,9 @@ def det_89(b: Bundle, t: VerifiabilityTree, r: StressReport, page: dict) -> str:
         html = page["html"][name]
         if name == "verify":
             html = re.sub(r'<pre class="sheet">.*?</pre>', " ", html, flags=re.S)
+        # Amin, run 8 ruling 2: figures inside <code> elements (hashes, fingerprints) are
+        # not figures
+        html = re.sub(r"<code\b[^>]*>.*?</code>", " ", html, flags=re.S)
         for tok in _num_tokens(_page_text(html)):
             if tok not in allowed:
                 stray[f"{name}:{tok}"] = stray.get(f"{name}:{tok}", 0) + 1
@@ -3223,26 +3227,33 @@ def det_60(b: Bundle, t: VerifiabilityTree, r: StressReport, page: dict) -> str:
 
 def det_87(b: Bundle, t: VerifiabilityTree, r: StressReport, page: dict) -> str:
     """Resolution evidence (R-51): `template_hash` and `pipeline_version` present on
-    the manifest; every resolved entry's evidence hash differs between its fire run
-    and its resolution run, by type. NAMED DEFAULTS: runs are found by date in the
-    gate records; `config_change` reads `frozen_set_hash`; `data_correction` reads
-    `bundle_hash` (the re-read differs); `rubric_change` reads the record's
-    `rubric_hash`, the rubric header's stamp chain."""
+    the manifest; every resolved log entry has an evidence record whose type's hash
+    differs between the fire run and the resolution run. NAMED DEFAULTS (B-13, runs
+    keyed by run block, Amin 2026-09-14): the evidence is captured when the resolution
+    is planned - the fire run found through the gate records by the log's date, before
+    this run rewrites its own - and kept in `out/evaluation/<T>/resolutions.jsonl`;
+    `config_change` reads `frozen_set_hash`, `data_correction` `bundle_hash` (the re-read
+    differs), `rubric_change` the record's `rubric_hash`."""
     from factory.eventlog import quarantine_lines
     man = page["report_manifest"]
     if not (man.get("template_hash") and man.get("pipeline_version")):
         raise Level3("DET-87: template_hash or pipeline_version absent from the manifest")
-    hashes = page["run_hashes"]
+    evidence = page.get("resolution_evidence", [])
     resolved = [e for _, e in quarantine_lines(page["log_entries"], page["table"]["token"])
                 if e.resolution_date is not None]
     for e in resolved:
-        field = EVIDENCE.get(e.resolution_type)
-        fire, fix = hashes.get(e.date, {}), hashes.get(e.resolution_date, {})
-        if field is None or not fire.get(field) or not fix.get(field):
-            raise Level3(f"DET-87: {e.trigger} resolved by {e.resolution_type} with no "
-                         f"{field} evidence on {e.date} / {e.resolution_date}")
-        if fire[field] == fix[field]:
-            raise Level3(f"DET-87: {e.trigger} resolved by {e.resolution_type} but {field} "
+        key = (e.date, e.trigger, e.level, e.resolution_type, e.resolution_date)
+        match = [x for x in evidence if (x["date"], x["trigger"], x["level"],
+                                         x["resolution_type"], x["resolution_date"]) == key]
+        if not match:
+            raise Level3(f"DET-87: {e.trigger} resolved by {e.resolution_type} with no evidence")
+        x = match[-1]
+        if x["field"] != EVIDENCE.get(e.resolution_type) or not x["fire_value"] \
+                or not x["resolution_value"]:
+            raise Level3(f"DET-87: {e.trigger} evidence reads {x['field']} for "
+                         f"{e.resolution_type}")
+        if x["fire_value"] == x["resolution_value"]:
+            raise Level3(f"DET-87: {e.trigger} resolved by {e.resolution_type} but {x['field']} "
                          "did not change")
     return f"manifest hashes present; {len(resolved)} resolution(s) evidenced"
 
@@ -3289,6 +3300,77 @@ def det_13(b: Bundle, t: VerifiabilityTree, r: StressReport, page: dict) -> str:
     f_scope = ("(f) vacuous: DET-09 unregistered (A-16)"
                if not any(c.entry_id == "DET-09" for c in CHECKS) else "(f) checked")
     return f"(a)-(e), (g) hold over {len(results)} results; {f_scope}"
+
+
+# ------------------------------------ S3, consumers "report" and "judge" (B-13) ----------
+#
+# `page` additionally carries, from the report stage: `prose` {slot: text} (absent when no
+# generation ran), `judge_envelope` (the post-checked envelope as JSON, or None) with
+# `judge_error`, and `remediation_unaddressed` (pass-2 defects answered "no").
+
+PROSE_BLOCK = re.compile(r'<div class="prose-slot" data-slot="([^"]+)">(.*?)</div>', re.S)
+
+
+def det_80(b: Bundle, t: VerifiabilityTree, r: StressReport, page: dict) -> str:
+    """Required prose slots present, non-empty, bounded: every `prose_slots[]` id renders a
+    non-empty `prose-slot` block on the index, and no slot paragraph appears outside its
+    block (no LLM text inside a template-rendered element). NAMED DEFAULT: a paragraph
+    of 40+ characters counts; its first 60 characters are searched."""
+    html = page["html"]["index"]
+    blocks = dict(PROSE_BLOCK.findall(html))
+    want = [x["id"] for x in page["manifest"]["prose_slots"]]
+    empty = [x for x in want if not _page_text(blocks.get(x, "")).strip()]
+    if empty:
+        raise Level3(f"DET-80: slot(s) absent or empty {empty}")
+    outside = _page_text(PROSE_BLOCK.sub(" ", html))
+    leaks = [slot for slot, body in blocks.items()
+             for para in re.findall(r"<p>(.*?)</p>", body, re.S)
+             if len(_page_text(para)) >= 40 and _page_text(para)[:60] in outside]
+    if leaks:
+        raise Level3(f"DET-80: slot text outside its block {sorted(set(leaks))}")
+    return f"{len(want)} slots present and bounded"
+
+
+def _llm_row(cid: str):
+    def fn(b: Bundle, t: VerifiabilityTree, r: StressReport, page: dict) -> str:
+        env = page.get("judge_envelope")
+        if env is None:
+            raise RuntimeError(page.get("judge_error") or "no judge envelope")   # -> error
+        crit = [c for c in env["criteria"] if c["id"] == cid]
+        if len(crit) != 1:
+            raise RuntimeError(f"{cid}: {len(crit)} criteria in the envelope")
+        if cid in page.get("judge_item_errors", {}):             # ruling (A) a1
+            raise RuntimeError(f"{cid}: invalid item - {page['judge_item_errors'][cid]}")
+        defects = crit[0]["defects"]
+        open_ = [x for x in page.get("remediation_unaddressed", []) if x["criterion"] == cid]
+        if defects or open_:
+            kinds = sorted({(d["kind"], d["location"]["section_id"]) for d in defects})
+            raise Level3(f"{cid}: {len(defects)} surviving defect(s) {kinds[:4]}; "
+                         f"{len(open_)} pass-1 defect(s) not addressed")
+        return f"{cid}: no surviving defect ({len(crit[0]['items'])} item(s))"
+    fn.__name__ = f"llm_{cid[-2:]}"
+    fn.__doc__ = (f"{cid}, a pure reader of the stored, post-checked judge envelope (rubric "
+                  "2.1): fail on a surviving defect or an unaddressed pass-1 defect (R-48a); "
+                  "error when no envelope exists.")
+    return fn
+
+
+llm_01, llm_02, llm_03, llm_04, llm_05, llm_06 = (_llm_row(f"LLM-0{i}") for i in range(1, 7))
+
+
+def det_85(b: Bundle, t: VerifiabilityTree, r: StressReport, page: dict) -> str:
+    """Fail-closed harness: the record holds a result for every registered DET and LLM
+    entry (A-16's scope; DET-13 follows), and no result is `error` - an error blocks
+    publication (T-25)."""
+    results = [*page["prior_results"], *page.get("_s3_results", [])]
+    want = sorted(c.entry_id for c in CHECKS if c.entry_id not in ("DET-85", "DET-13"))
+    ids = sorted(x["entry_id"] for x in results)
+    if ids != want:
+        raise Level3(f"DET-85: record entries differ {sorted(set(ids) ^ set(want))[:4]}")
+    errors = [x["entry_id"] for x in results if x["result"] == "error"]
+    if errors:
+        raise Level3(f"DET-85: error on {errors[:8]}")
+    return f"{len(results)} results, no error"
 
 
 CHECKS: list[Check] = [
@@ -3370,6 +3452,12 @@ CHECKS: list[Check] = [
     Check("DET-59", "S3", 2, det_59, "report"),
     Check("DET-60", "S3", 2, det_60, "report"),
     Check("DET-87", "S3", 2, det_87, "report"),
+    # B-13 (R12; rubric 2.1/2.2): the prose slots, the judge's six criteria, fail-closed.
+    Check("DET-80", "S3", 2, det_80, "report"),
+    Check("LLM-01", "S3", 2, llm_01, "judge"), Check("LLM-02", "S3", 2, llm_02, "judge"),
+    Check("LLM-03", "S3", 2, llm_03, "judge"), Check("LLM-04", "S3", 2, llm_04, "judge"),
+    Check("LLM-05", "S3", 2, llm_05, "judge"), Check("LLM-06", "S3", 2, llm_06, "judge"),
+    Check("DET-85", "S3", 2, det_85, "report"),
     Check("DET-13", "S3", 2, det_13, "report"),
 ]
 

@@ -15,7 +15,7 @@ from __future__ import annotations
 import pathlib
 import re
 
-ROW = re.compile(r"^\| (T-\d\d) \| ([^|]+?) \| ([^|]+?) \| ([^|]+?) \| [^|]* \| [^|]* \|$", re.M)
+ROW = re.compile(r"^\| (T-\d\d) \| ([^|]+?) \| ([^|]+?) \| ([^|]+?) \| [^|]* \| ([^|]*) \|$", re.M)
 
 
 def trigger_table(rubric_text: str) -> dict[str, dict]:
@@ -31,7 +31,9 @@ def trigger_table(rubric_text: str) -> dict[str, dict]:
         if m.group(1) in out:
             raise ValueError(f"rubric §3: duplicate row {m.group(1)}")
         out[m.group(1)] = {"name": m.group(2).strip(), "levels": levels,
-                           "section": m.group(4).strip()}
+                           "section": m.group(4).strip(),
+                           # B-13: the computing owners' entry ids, "DET-29(a)" -> "DET-29"
+                           "owners": sorted(set(re.findall(r"DET-\d\d", m.group(5))))}
     if not out:
         raise ValueError("rubric §3: no trigger rows parsed")
     return out

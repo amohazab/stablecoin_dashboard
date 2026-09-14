@@ -1,0 +1,11 @@
+{
+ "structural_summary": {
+  "references_field_ids": [],
+  "replacements": [
+   {
+    "quoted_span": "Every LUSD in circulation is backed by ether locked in borrower troves.",
+    "replacement": "Every LUSD is borrowed against ether locked in Liquity troves, each opened by one borrower."
+   }
+  ]
+ }
+}

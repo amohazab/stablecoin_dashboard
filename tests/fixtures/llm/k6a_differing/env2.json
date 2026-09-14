@@ -1,0 +1,58 @@
+{
+ "rubric_version": "v1",
+ "report_id": "LUSD@25974949",
+ "bundle_hash": "(as printed)",
+ "judge_model": "claude-opus-5",
+ "prompt_schema_version": "1",
+ "criteria": [
+  {
+   "id": "LLM-01",
+   "pass": false,
+   "items": [],
+   "defects": [
+    {
+     "kind": "mismatch",
+     "location": {
+      "section_id": "backing",
+      "paragraph_index": -1,
+      "quoted_span": "100.0% of it is ether held by the protocol's own contracts"
+     },
+     "table_ref": null,
+     "figure_ref": null,
+     "reason": "share cited against the wrong row"
+    }
+   ]
+  },
+  {
+   "id": "LLM-02",
+   "pass": true,
+   "items": [],
+   "defects": []
+  },
+  {
+   "id": "LLM-03",
+   "pass": true,
+   "items": [],
+   "defects": []
+  },
+  {
+   "id": "LLM-04",
+   "pass": true,
+   "items": [],
+   "defects": []
+  },
+  {
+   "id": "LLM-05",
+   "pass": true,
+   "items": [],
+   "defects": []
+  },
+  {
+   "id": "LLM-06",
+   "pass": true,
+   "items": [],
+   "defects": []
+  }
+ ],
+ "overall_pass": false
+}

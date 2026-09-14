@@ -41,7 +41,8 @@ REPO = pathlib.Path(__file__).resolve().parents[1]
 BLOCKS = {"crvUSD": 25974925, "GHO": 25974932, "LUSD": 25974949}
 S3_IDS = {"DET-14cd", "DET-22-S3", "DET-29c", "DET-17", "DET-18", "DET-36", "DET-53", "DET-54",
           "DET-56", "DET-57", "DET-73", "DET-74", "DET-79", "DET-88", "DET-89",
-          "DET-12-S3", "DET-58", "DET-59", "DET-60", "DET-87", "DET-13"}          # + B-12
+          "DET-12-S3", "DET-58", "DET-59", "DET-60", "DET-87", "DET-13",          # + B-12
+          "DET-80", "DET-85", "LLM-01", "LLM-02", "LLM-03", "LLM-04", "LLM-05", "LLM-06"}
 
 
 @pytest.fixture(scope="module")
@@ -86,8 +87,9 @@ def run(fn, tok, inputs, page):
 
 def test_registry_carries_the_fifteen_s3_rows():
     s3 = [c for c in CHECKS if c.stage == "S3"]
-    assert {c.entry_id for c in s3} == S3_IDS and len(CHECKS) == 88
-    assert all(c.consumer == "report" and c.level_on_fail >= 2 for c in s3)
+    assert {c.entry_id for c in s3} == S3_IDS and len(CHECKS) == 96
+    assert all(c.consumer in ("report", "judge") and c.level_on_fail >= 2 for c in s3)
+    assert {c.entry_id for c in s3 if c.consumer == "judge"} == {f"LLM-0{i}" for i in range(1, 7)}
 
 
 def test_det14cd(inputs):
@@ -113,15 +115,15 @@ def test_det18(inputs):
     page = inputs["GHO"][3]
     assert "D = 8" in run(det_18, "GHO", inputs, fresh(page))            # B-11c's pill
     with pytest.raises(Level3, match="worst weight"):
-        run(det_18, "GHO", inputs, edit(page, "index", "76.0 d old, 3.5% of backing",
-                                        "76.0 d old"))
+        run(det_18, "GHO", inputs, edit(page, "index", "76.0 days old, 3.5% of backing",
+                                        "76.0 days old"))
 
 
 def test_det22_s3(inputs):
     page = inputs["crvUSD"][3]                   # B-11c′: slice, ceiling share, 5 operations
     assert run(det_22_s3, "crvUSD", inputs, fresh(page)) == (
         "slice row, ceiling bound, 5 operation row(s)")
-    with pytest.raises(Level3, match="protocol stabilizer debt"):
+    with pytest.raises(Level3, match="DET-22"):         # prose may mention the slice too
         run(det_22_s3, "crvUSD", inputs, edit(page, "index", "<td>protocol stabilizer debt</td>",
                                               "<td>stabilizer debt</td>"))
 
@@ -218,7 +220,7 @@ def test_det79_and_its_placeholder_case(inputs):
     assert "0 matches" in run(det_79, "LUSD", inputs, clean)
     with pytest.raises(Level3, match=r"\[freeze date\]"):
         run(det_79, "LUSD", inputs, fresh(clean, index="<p>frozen on [freeze date]</p>"))
-    with pytest.raises(Level3, match=r"index '\[slot:' x6"):         # the expected fail
+    with pytest.raises(Level3, match=r"index '\[slot:' x7"):         # the expected fail, 7 slots
         run(det_79, "LUSD", inputs, fresh(page))
 
 
@@ -283,11 +285,12 @@ def test_routing_blocks_the_site_and_records_the_outcome(tmp_path):
         shutil.copyfile(REPO / code, tmp_path / code)
     (tmp_path / "out/site/LUSD").mkdir(parents=True)
     (tmp_path / "out/site/LUSD/index.html").write_text("stale", encoding="utf-8")
-    r = build(tmp_path, "LUSD")
+    from tests.llm_fake import FakeClient  # B-13: a run without --llm is a rehearsal
+    r = build(tmp_path, "LUSD", client=FakeClient("k4_malformed"))
     rec = r["record"]
     assert rec.outcome == "blocked_S3" and r["site"] is None
-    assert len(rec.results) == 88 and [x.result for x in rec.results
-                                       if x.entry_id == "DET-79"] == ["fail"]
+    assert len(rec.results) == 96 and [x.result for x in rec.results
+                                       if x.entry_id == "DET-85"] == ["fail"]
     assert not (tmp_path / "out/site").exists()                  # withdrawn, then emptied
     stage = tmp_path / "out/rehearsal/LUSD/25974949"
     assert {p.name for p in stage.iterdir()} >= {"index.html", "appendix.html", "verify.html"}

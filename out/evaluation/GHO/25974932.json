@@ -1,10 +1,475 @@
 {
  "bundle_hash": "6b7d77e377dbb04402e9efd9d0ed0d35017093da9ae005726a3d6a5cc4a62ff1",
- "generation": [],
- "judge": [],
+ "generation": [
+  {
+   "calls": [
+    {
+     "cache_creation_input_tokens": 0,
+     "cache_read_input_tokens": 0,
+     "input_tokens": 22544,
+     "output_tokens": 1705
+    }
+   ],
+   "effort": "low",
+   "input_hash": "9e5fb49f8c6a34b5ff28048f9e5dfbd092dd944dd4a3e4c3a7acfb0c0c94b2d0",
+   "model": "claude-sonnet-5",
+   "pass": 1,
+   "prompt_hash": "155ed3530cb521f3da490600ccb1b7fe77464070344acabe0e0dac280b9fb009",
+   "reasks": 0,
+   "references_added": [],
+   "references_field_ids": [
+    "verif.bar.terminal",
+    "verif.bar.terminal_other_layer",
+    "verif.bar.disclosure_dependent",
+    "verif.truncated_share",
+    "verif.truncated.0x14d60e7fdc0d71d8611742720e4c50e7a974020c.share",
+    "verif.truncated.0x14d60e7fdc0d71d8611742720e4c50e7a974020c.reason",
+    "verif.truncated.0x43415eb6ff9db7e26a15b704e7a3edce97d31c4e.share",
+    "verif.truncated.0x43415eb6ff9db7e26a15b704e7a3edce97d31c4e.reason",
+    "verif.truncated.0x5a0f93d040de44e78f251b03c43be9cf317dcf64.share",
+    "verif.truncated.0x5a0f93d040de44e78f251b03c43be9cf317dcf64.reason",
+    "verif.truncated.0x6b175474e89094c44da98b954eedeac495271d0f.share",
+    "verif.truncated.0x6b175474e89094c44da98b954eedeac495271d0f.reason",
+    "verif.truncated.0x83f20f44975d03b1b09e64809b757c47f942beea.share",
+    "verif.truncated.0x83f20f44975d03b1b09e64809b757c47f942beea.reason",
+    "verif.truncated.0xdc035d45d973e3ec169d2276ddab16f1e407384f.share",
+    "verif.truncated.0xdc035d45d973e3ec169d2276ddab16f1e407384f.reason",
+    "verif.staleness.weighted_days",
+    "verif.staleness.companion",
+    "verif.staleness.0x2260fac5e5542a773aa44fbcfedf7c193bc2c599.last_disclosure_date",
+    "verif.staleness.0x2260fac5e5542a773aa44fbcfedf7c193bc2c599.share",
+    "verif.staleness.0x7bc3485026ac48b6cf9baf0a377477fff5703af8.staleness_days",
+    "verif.staleness.0x7bc3485026ac48b6cf9baf0a377477fff5703af8.share",
+    "verif.staleness.0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.staleness_days",
+    "verif.staleness.0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.share",
+    "verif.staleness.0xbe9895146f7af43049ca1c1ae358b0541ea49704.staleness_days",
+    "verif.staleness.0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf.staleness_days",
+    "verif.staleness.0xdac17f958d2ee523a2206206994597c13d831ec7.staleness_days",
+    "verif.staleness.0xdac17f958d2ee523a2206206994597c13d831ec7.share",
+    "verif.staleness.0xd4fa2d31b7968e448877f69a96de69f5de8cd23e.staleness_days",
+    "verif.banner",
+    "tree.node.0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2.share",
+    "tree.node.0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0.share",
+    "tree.node.0x2260fac5e5542a773aa44fbcfedf7c193bc2c599.share"
+   ],
+   "rejected": [],
+   "sampling": null,
+   "slot": "verifiability_narrative",
+   "stop_reason": "end_turn",
+   "text": "GHO's backing splits into three checkability classes. About 28.7% sits in assets you can verify directly on-chain, the largest being WETH at 21.1% of backing. A further 39.5% is checkable one layer down, through a wrapper, led by wstETH at 34.1% of backing. The remaining 31.9% depends on an issuer's or custodian's published disclosures, and here WBTC is the largest single holding at 13.0% of backing.\n\nOf the disclosure-dependent slice, 8.4% of total backing is depth-truncated, meaning the pipeline stopped tracing before reaching that collateral's own backing. This applies to USCC (2.2%), USTB (2.6%), JAAA (3.7%), DAI (under 0.1%), sDAI (under 0.1%) and USDS (under 0.1%) — for these, the underlying backing itself was not analyzed, so their true collateral quality can't be confirmed from this data. Separately, disclosure staleness varies widely: WBTC, cbETH and cbBTC were last disclosed 1.0 days ago, while waEthUSDT (3.5% of backing) and USDT (0.7% of backing) are 76.0 days old, and USDC (2.7% of backing) and waEthUSDC are 45.0 days old. The average staleness across weighted backing is 20.3 days, and the depth-truncated 8.4% has no staleness assessment at all.\n\nA governance banner notes that verifiability here is conditional: minting and oracle-setting are both listed as contract-automated actions with no admin delay attached. This means the rules governing how GHO is minted and how its price reference is set can operate without a waiting period before taking effect, so the picture described above reflects current settings that could shift immediately rather than after a notice period.",
+   "thinking": "adaptive",
+   "usage": {
+    "input_tokens": 22544,
+    "output_tokens": 1705
+   }
+  },
+  {
+   "calls": [
+    {
+     "cache_creation_input_tokens": 0,
+     "cache_read_input_tokens": 0,
+     "input_tokens": 24591,
+     "output_tokens": 615
+    }
+   ],
+   "effort": "low",
+   "input_hash": "a0f31ee720d7ceafc9f5a9b1e1d7e2b47f436a465afd7b8d45fe8b71f31bcfd9",
+   "model": "claude-sonnet-5",
+   "pass": 1,
+   "prompt_hash": "155ed3530cb521f3da490600ccb1b7fe77464070344acabe0e0dac280b9fb009",
+   "reasks": 0,
+   "references_added": [],
+   "references_field_ids": [
+    "headline.m1.pre.ratio",
+    "headline.m1.post.ratio",
+    "headline.m1.pre.share_below_100",
+    "headline.m1.gap",
+    "headline.m2.bad_debt",
+    "headline.m2.pct_supply",
+    "stress.structural_zero.flag",
+    "headline.m3.forced_sell_volume",
+    "headline.m3.exit_depth",
+    "headline.m3.ratio",
+    "assumption.health_factor"
+   ],
+   "rejected": [],
+   "sampling": null,
+   "slot": "member1_opening",
+   "stop_reason": "end_turn",
+   "text": "GHO borrowers post collateral into Aave markets, and when a collateral price crash pushes a position's health factor below one, the whole position is liquidated across all its collateral and debt, not just the GHO slice; any shortfall is then attributed to GHO in proportion to its share of that borrower's debt. The GSMs, which mint and redeem GHO against approved stable assets, sit alongside this as a separate exit venue for holders rather than as part of the liquidation process itself.\n\nBefore the shock, collateral coverage across the book stands at 1.22, with 0.43 of positions already below full collateral backing. After the shock this coverage measure moves to 1.69, and the liquidation mechanism is credited with restoring 0.47 of coverage. Bad debt from the event comes to $8.6M, equal to 1.2% of supply.\n\nThat bad debt is not structurally zero: the relevant check found bad debt did occur under this grid, so the $8.6M figure stands as a real shortfall rather than a reprised or eliminated one.\n\nThe collateral that must be sold to cover the shortfall is $8.6M, measured against exit liquidity of $18.8M, giving a forced sales to exit liquidity ratio of 45.9%. This means the forced selling would take up nearly half of the available exit liquidity in this scenario, leaving a meaningful buffer unconsumed rather than exhausting it outright.",
+   "thinking": "adaptive",
+   "usage": {
+    "input_tokens": 24591,
+    "output_tokens": 615
+   }
+  },
+  {
+   "calls": [
+    {
+     "effort": "low",
+     "input_hash": "03e19c5635050f98f3ece7371095c189c824a2b3167964886c5ca4f703917c05",
+     "model": "claude-sonnet-5",
+     "prompt_hash": "155ed3530cb521f3da490600ccb1b7fe77464070344acabe0e0dac280b9fb009",
+     "rejected": {
+      "guard_violations": {
+       "numbers_not_printed": [
+        "5%"
+       ]
+      },
+      "printed_by": {
+       "$0.03": [
+        "exit.gsm.0x3a3868898305f04bec7fea77becff04c13444112.balance"
+       ],
+       "$141.6k": [
+        "exit.curve.s0.005.pool_depth"
+       ],
+       "$18.6M": [
+        "exit.curve.s0.005.gsm_contribution",
+        "exit.curve.s0.01.gsm_contribution",
+        "exit.curve.s0.02.gsm_contribution",
+        "exit.curve.s0.05.gsm_contribution",
+        "exit.gsm.0x882285e62656b9623af136ce3078c6bdcc33f5e3.balance"
+       ],
+       "$18.7M": [
+        "exit.curve.s0.005.total"
+       ],
+       "$18.9M": [
+        "exit.curve.s0.05.total"
+       ],
+       "$22.3M": [
+        "m2.headline.m3.forced_sell_volume"
+       ],
+       "$220.4k": [
+        "exit.curve.s0.02.pool_depth",
+        "m2.headline.m3.exit_depth"
+       ],
+       "$250.4k": [
+        "exit.curve.s0.05.pool_depth"
+       ],
+       "0.00": [
+        "exit.gsm.0x3a3868898305f04bec7fea77becff04c13444112.fee_exit",
+        "exit.gsm.0x882285e62656b9623af136ce3078c6bdcc33f5e3.fee_exit"
+       ],
+       "0.0015": [
+        "exit.gsm.0x882285e62656b9623af136ce3078c6bdcc33f5e3.fee_exit"
+       ],
+       "0.5%": [
+        "exit.curve.s0.005.s"
+       ],
+       "10123.0%": [
+        "m2.headline.m3.ratio"
+       ]
+      },
+      "references_field_ids": [
+       "m2.headline.m3.forced_sell_volume",
+       "m2.headline.m3.exit_depth",
+       "m2.headline.m3.ratio",
+       "exit.curve.s0.005.total",
+       "exit.curve.s0.005.pool_depth",
+       "exit.curve.s0.005.gsm_contribution",
+       "exit.curve.s0.005.s",
+       "exit.curve.s0.05.total",
+       "exit.curve.s0.05.pool_depth",
+       "exit.curve.s0.05.s",
+       "exit.member2_target",
+       "exit.gsm.0x3a3868898305f04bec7fea77becff04c13444112.balance",
+       "exit.gsm.0x3a3868898305f04bec7fea77becff04c13444112.enters",
+       "exit.gsm.0x882285e62656b9623af136ce3078c6bdcc33f5e3.balance",
+       "exit.gsm.0x882285e62656b9623af136ce3078c6bdcc33f5e3.fee_exit",
+       "exit.gsm.0x882285e62656b9623af136ce3078c6bdcc33f5e3.enters",
+       "mech.h2_routing.0x3a3868898305f04bec7fea77becff04c13444112",
+       "mech.h2_routing.0x882285e62656b9623af136ce3078c6bdcc33f5e3"
+      ],
+      "text": "GHO is minted against collateral deposited in the protocol, and its peg is defended largely through GSM venues that let holders swap it directly for a paired stablecoin at fixed exchange terms. Because that arrangement ties GHO's redemption path to the paired stablecoin at target 0xdac17f…1ec7, a depeg of that paired stablecoin flows straight into GHO's own exit mechanics rather than staying a separate, external event.\n\nIn the Member-2 headline scenario, with the paired stablecoin at its middle target and no liquidity-provider flight, forced sales come to $22.3M against exit liquidity of only $220.4k, a ratio of 10123.0%. That gap means the volume that mechanically needs to sell is many times larger than what the venues can absorb at that point.\n\nLooking at the recomputed exit-liquidity curve, total depth barely moves as price impact is allowed to widen: it runs from $18.7M at 0.5% impact up to $18.9M at 5% impact, with the GSM contribution flat at $18.6M throughout and pool depth rising only from $141.6k to $250.4k. Both GSM venues are marked as entering the exit path, and their routing is recorded as freezer_effective, but one GSM's own balance is negligible ($0.03) while the other holds $18.6M with a 0.00 (0.0015) exit fee. So most of the usable exit liquidity sits in a single venue, and the forced-sale figure above dwarfs even that combined depth."
+     },
+     "sampling": null,
+     "stop_reason": "end_turn",
+     "thinking": "adaptive",
+     "usage": {
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "input_tokens": 10077,
+      "output_tokens": 930
+     }
+    },
+    {
+     "effort": "low",
+     "input_hash": "278c91f0e35459b40e88a5a4c25b6ba411fb7da4aea4ba405bc08523ba6fd1d5",
+     "model": "claude-sonnet-5",
+     "prompt_hash": "155ed3530cb521f3da490600ccb1b7fe77464070344acabe0e0dac280b9fb009",
+     "rejected": {
+      "guard_violations": {
+       "numbers_not_printed": [
+        "5%"
+       ]
+      },
+      "printed_by": {
+       "$0.03": [
+        "exit.gsm.0x3a3868898305f04bec7fea77becff04c13444112.balance"
+       ],
+       "$141.6k": [
+        "exit.curve.s0.005.pool_depth"
+       ],
+       "$18.6M": [
+        "exit.curve.s0.005.gsm_contribution",
+        "exit.curve.s0.01.gsm_contribution",
+        "exit.curve.s0.02.gsm_contribution",
+        "exit.curve.s0.05.gsm_contribution",
+        "exit.gsm.0x882285e62656b9623af136ce3078c6bdcc33f5e3.balance"
+       ],
+       "$18.7M": [
+        "exit.curve.s0.005.total"
+       ],
+       "$18.9M": [
+        "exit.curve.s0.05.total"
+       ],
+       "$22.3M": [
+        "m2.headline.m3.forced_sell_volume"
+       ],
+       "$220.4k": [
+        "exit.curve.s0.02.pool_depth",
+        "m2.headline.m3.exit_depth"
+       ],
+       "$250.4k": [
+        "exit.curve.s0.05.pool_depth"
+       ],
+       "0.5%": [
+        "exit.curve.s0.005.s"
+       ],
+       "0.88": [
+        "m2.target.t0.88"
+       ],
+       "0.93": [
+        "m2.target.t0.93"
+       ],
+       "0.97": [
+        "m2.target.t0.97"
+       ],
+       "10123.0%": [
+        "m2.headline.m3.ratio"
+       ]
+      },
+      "references_field_ids": [
+       "exit.member2_target",
+       "m2.target.t0.88",
+       "m2.target.t0.93",
+       "m2.target.t0.97",
+       "m2.headline.m3.forced_sell_volume",
+       "m2.headline.m3.exit_depth",
+       "m2.headline.m3.ratio",
+       "exit.curve.s0.005.s",
+       "exit.curve.s0.005.total",
+       "exit.curve.s0.005.pool_depth",
+       "exit.curve.s0.005.gsm_contribution",
+       "exit.curve.s0.05.s",
+       "exit.curve.s0.05.total",
+       "exit.curve.s0.05.pool_depth",
+       "exit.gsm.0x3a3868898305f04bec7fea77becff04c13444112.balance",
+       "exit.gsm.0x882285e62656b9623af136ce3078c6bdcc33f5e3.balance",
+       "mech.h2_routing.0x3a3868898305f04bec7fea77becff04c13444112",
+       "mech.h2_routing.0x882285e62656b9623af136ce3078c6bdcc33f5e3"
+      ],
+      "text": "GHO is a stablecoin backed by crypto collateral locked in vaults, and its stability depends on arbitrage and liquidation mechanisms that assume its paired stablecoin, held at target 0xdac17f…1ec7, trades near its own peg. If that paired stablecoin's target price falls, as modelled at depeg targets of 0.88, 0.93 and 0.97, the value flowing back through GHO's stability module and exit routes drops too, which is why a depeg of the paired asset feeds directly into GHO's own mechanism.\n\nIn the headline scenario, where the paired stablecoin sits at its middle target and there is no liquidity-provider flight, forced sales reach $22.3M while exit liquidity across the measured venues totals only $220.4k. That produces a forced-sales-to-exit-liquidity ratio of 10123.0%, meaning the amount forced onto the market vastly exceeds what the available exit paths can absorb at that moment.\n\nLooking at the recomputed exit-liquidity curve, depth grows only slowly as price impact tolerance widens: from $18.7M in total capacity at 0.5% impact to $18.9M at 5% impact, with most of that capacity ($18.6M) coming from the GSM venue contribution rather than pool depth, which itself moves from $141.6k up to just $250.4k over the same range. Both GSM venues are marked as routing through an effective freezer, and one of the two GSM venues carries a balance of only $0.03, far below the other's $18.6M, so the exit path is concentrated and thin relative to the forced-sale volume implied by the depeg."
+     },
+     "sampling": null,
+     "stop_reason": "end_turn",
+     "thinking": "adaptive",
+     "usage": {
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "input_tokens": 10635,
+      "output_tokens": 886
+     }
+    }
+   ],
+   "error": "member2_opening: guard failed after one re-ask {'numbers_not_printed': ['5%']}",
+   "model": "claude-sonnet-5",
+   "pass": 1,
+   "reasks": 1,
+   "slot": "member2_opening",
+   "usage": {
+    "input_tokens": 20712,
+    "output_tokens": 1816
+   }
+  },
+  {
+   "calls": [
+    {
+     "cache_creation_input_tokens": 0,
+     "cache_read_input_tokens": 0,
+     "input_tokens": 8028,
+     "output_tokens": 451
+    }
+   ],
+   "effort": "low",
+   "input_hash": "3a92a9289bb56d7d9f38a86b135682a05fb5f084fc1dcfa6b9c149a1e5b82bad",
+   "model": "claude-sonnet-5",
+   "pass": 1,
+   "prompt_hash": "155ed3530cb521f3da490600ccb1b7fe77464070344acabe0e0dac280b9fb009",
+   "reasks": 0,
+   "references_added": [],
+   "references_field_ids": [
+    "exit.offvenue.dex_liquidity_total_discovered",
+    "exit.offvenue.curve_mainnet_liquidity",
+    "exit.offvenue.x",
+    "exit.offvenue.literal",
+    "header.freeze_date"
+   ],
+   "rejected": [],
+   "sampling": null,
+   "slot": "flag_explanations",
+   "stop_reason": "end_turn",
+   "text": "A notice fired because most of the exchange liquidity found for GHO sits in venues this report does not model. Off-venue liquidity discovered across pools comes to $29.0M, of which the off-venue curve mainnet liquidity, at $2.2M, is only a slice. In total, 92.4% of discovered DEX liquidity lies outside modeled venues. This means the exit-liquidity figures elsewhere in this report describe only a small modeled corner of where GHO actually trades, so real-world sale capacity could differ substantially from what those figures suggest.\n\nA second notice fired because the frozen set of exit pools, locked in as of the freeze date of 2026-09-08, covers less of the discovered pool liquidity than the archetype's coverage target calls for. This is a dated waiver: the coverage shortfall was accepted rather than corrected, and it compounds the first point, since both stem from most liquidity for GHO sitting outside the venues this report tracks. Readers should treat any exit-liquidity metric for GHO as a lower bound drawn from a partial, frozen picture rather than a full market view.",
+   "thinking": "adaptive",
+   "usage": {
+    "input_tokens": 8028,
+    "output_tokens": 451
+   }
+  },
+  {
+   "calls": [
+    {
+     "cache_creation_input_tokens": 0,
+     "cache_read_input_tokens": 0,
+     "input_tokens": 7848,
+     "output_tokens": 337
+    }
+   ],
+   "effort": "low",
+   "input_hash": "c2e011a3648334ed415e20e3cf582fb3bed82f34b66eadc05e659fe8c71de9e5",
+   "model": "claude-sonnet-5",
+   "pass": 1,
+   "prompt_hash": "155ed3530cb521f3da490600ccb1b7fe77464070344acabe0e0dac280b9fb009",
+   "reasks": 0,
+   "references_added": [],
+   "references_field_ids": [
+    "headline.cf.H2_freezer.value_primary",
+    "headline.cf.H2_freezer.value_counterfactual",
+    "headline.cf.H2_freezer.metric_affected",
+    "headline.cf.H2_freezer.description"
+   ],
+   "rejected": [],
+   "sampling": null,
+   "slot": "counterfactual_explanations",
+   "stop_reason": "end_turn",
+   "text": "One counterfactual line asks what would happen to the money available to exit GHO if the GSM freezer had not stepped in during the modelled depeg. In the actual run, with the freezer acting, exit liquidity falls to just $220.4k. If the freezer instead does nothing and the GSMs stay open as exit routes, that figure jumps to $18.8M. The gap between these two numbers shows how much of GHO's exit capacity depends on those GSM venues staying open: freezing them removes almost all of the liquidity a holder could reach, while leaving them open restores it. The takeaway is that GHO's exit liquidity in stress is not a fixed pool sitting somewhere; it is largely conditional on whether the GSM freezer mechanism has been triggered.",
+   "thinking": "adaptive",
+   "usage": {
+    "input_tokens": 7848,
+    "output_tokens": 337
+   }
+  },
+  {
+   "calls": [
+    {
+     "cache_creation_input_tokens": 0,
+     "cache_read_input_tokens": 0,
+     "input_tokens": 17204,
+     "output_tokens": 1494
+    }
+   ],
+   "effort": "low",
+   "input_hash": "efb79924909a4b2b722fadbfe58d6a012223f34b96462a3790f29ca28f2db41d",
+   "model": "claude-sonnet-5",
+   "pass": 1,
+   "prompt_hash": "155ed3530cb521f3da490600ccb1b7fe77464070344acabe0e0dac280b9fb009",
+   "reasks": 0,
+   "references_added": [],
+   "references_field_ids": [
+    "admin.mint.0x5300a1a15135ea4dc7ad5a167152c01efc9b192a.holder_address",
+    "admin.mint.0x5300a1a15135ea4dc7ad5a167152c01efc9b192a.holder_type",
+    "admin.mint.0x5300a1a15135ea4dc7ad5a167152c01efc9b192a.delay_bucket",
+    "admin.mint.0x5300a1a15135ea4dc7ad5a167152c01efc9b192a.veto_address",
+    "admin.set_ceiling.0x46aa1063e5265b43663e81329333b47c517a5409.holder_address",
+    "admin.set_ceiling.0x46aa1063e5265b43663e81329333b47c517a5409.holder_type",
+    "admin.set_ceiling.0x46aa1063e5265b43663e81329333b47c517a5409.delay_bucket",
+    "admin.set_ceiling.0x46aa1063e5265b43663e81329333b47c517a5409.veto_address",
+    "admin.set_oracle.0x09e8e1408a68778ceddc1938729ea126710e7dda.holder_address",
+    "admin.set_oracle.0x09e8e1408a68778ceddc1938729ea126710e7dda.holder_type",
+    "admin.set_oracle.0x09e8e1408a68778ceddc1938729ea126710e7dda.delay_bucket",
+    "admin.set_oracle.0x09e8e1408a68778ceddc1938729ea126710e7dda.veto_address",
+    "admin.set_parameters.0x2ce01c87fec1b71a9041c52caed46fc5f4807285.holder_address",
+    "admin.set_parameters.0x2ce01c87fec1b71a9041c52caed46fc5f4807285.holder_type",
+    "admin.freeze_asset.0x2ce01c87fec1b71a9041c52caed46fc5f4807285.holder_address",
+    "admin.freeze_asset.0x2ce01c87fec1b71a9041c52caed46fc5f4807285.holder_type",
+    "admin.pause.0x2cfe3ec4d5a6811f4b8067f0de7e47dfa938aa30.holder_address",
+    "admin.pause.0x2cfe3ec4d5a6811f4b8067f0de7e47dfa938aa30.holder_type",
+    "admin.pause.0x6e51936e0ed4256f9da4794b536b619c88ff0047.holder_address",
+    "admin.pause.0x6e51936e0ed4256f9da4794b536b619c88ff0047.holder_type",
+    "admin.pause.0x733ab16005c39d07fd3d9d1a350aa6768d10125b.holder_address",
+    "admin.pause.0x733ab16005c39d07fd3d9d1a350aa6768d10125b.holder_type",
+    "admin.upgrade.None.upgradeability",
+    "admin.upgrade.None.holder_type",
+    "admin.blacklist_address.None.holder_type",
+    "admin.seize.None.holder_type"
+   ],
+   "rejected": [],
+   "sampling": null,
+   "slot": "admin_surface_narrative",
+   "stop_reason": "end_turn",
+   "text": "Minting authority sits with a contract-automated holder (0x5300a1…192a), and the debt ceiling that limits how much can be minted is also controlled by a contract-automated holder (0x46aa10…5409). Both act on-chain without a waiting period before taking effect, and no address is recorded as able to veto either action. The oracle used for pricing collateral can be changed by a contract-automated holder (0x09e8e1…7dda) as well, again with no delay and no veto path shown.\n\nOther levers that affect the system's safety are held in similar fashion. Parameters can be adjusted by a contract-automated holder (0x2ce01c…7285), which also controls freezing of a specific asset. Pausing exists in several forms: one pause function is controlled by a multisig (0x2cfe3e…aa30), while two other pause functions sit with contract-automated holders (0x6e5193…0047 and 0x733ab1…125b) covering separate scopes. None of these show a recorded delay or veto address.\n\nThere is no upgrade authority recorded for the core contract — its upgradeability is marked immutable — and no holder is recorded for blacklisting addresses or for seizing funds; both of those powers show no holder at all. So while backing itself cannot be upgraded away, the combination of automated, veto-free control over minting, the debt ceiling, and the oracle means the parameters that determine how much GHO can exist and how its collateral is priced can be changed immediately by the addresses named above, without any built-in delay for holders to react.",
+   "thinking": "adaptive",
+   "usage": {
+    "input_tokens": 17204,
+    "output_tokens": 1494
+   }
+  },
+  {
+   "calls": [
+    {
+     "cache_creation_input_tokens": 0,
+     "cache_read_input_tokens": 0,
+     "input_tokens": 10324,
+     "output_tokens": 450
+    }
+   ],
+   "effort": "low",
+   "input_hash": "30d2c6753e933b80a524bcb5b06ae85f38af14ba33e5b7602243bbcf8c07e4b1",
+   "model": "claude-sonnet-5",
+   "pass": 1,
+   "prompt_hash": "155ed3530cb521f3da490600ccb1b7fe77464070344acabe0e0dac280b9fb009",
+   "reasks": 0,
+   "references_added": [],
+   "references_field_ids": [
+    "supply.total_supply",
+    "supply.off_mainnet.amount",
+    "supply.off_mainnet.share",
+    "supply.off_mainnet.literal",
+    "tree.root.backing_value",
+    "verif.bar.terminal",
+    "verif.bar.terminal_other_layer",
+    "verif.bar.disclosure_dependent",
+    "headline.m3.forced_sell_volume",
+    "headline.m2.bad_debt",
+    "headline.m2.pct_supply",
+    "headline.m3.exit_depth",
+    "headline.m3.ratio"
+   ],
+   "rejected": [],
+   "sampling": null,
+   "slot": "structural_summary",
+   "stop_reason": "end_turn",
+   "text": "GHO's supply of $699.0M is minted entirely through Aave facilitators, and 21.5% of that supply ($150.0M) is issued against off-mainnet facilitators on Arbitrum, Monad and Plasma, whose backing is not traced by this tree. Of the traced backing value of $538.9M, 28.7% sits in assets that can be checked directly on-chain, another 39.5% sits in wrapped assets that can be checked one layer down through their wrapper, and the remaining 31.9% is checked only through issuer or custodian disclosures rather than on-chain data.\n\nIn the headline stress scenario, $8.6M of collateral must be sold, which is also the bad debt figure at 1.2% of supply, against exit liquidity of $18.8M, putting forced sales at 45.9% of that exit liquidity.",
+   "thinking": "adaptive",
+   "usage": {
+    "input_tokens": 10324,
+    "output_tokens": 450
+   }
+  }
+ ],
+ "judge": [
+  {
+   "error": "not judged: deterministic S3 failure",
+   "failing": [
+    "DET-79",
+    "DET-80"
+   ],
+   "pass": 1
+  }
+ ],
  "outcome": "blocked_S3",
  "pipeline_version": "0.1.0",
- "report_hash": "6cad41e3c1366f6666c7fad51084e5e383d048688b95ea06e97f3487ee714a1f",
+ "report_hash": "447281cb4b87dcd40bd17e9fd0a8b9db741d4fd2c825262d5e1a0a15dd6183d1",
  "results": [
   {
    "entry_id": "DET-02",
@@ -405,7 +870,7 @@
   {
    "entry_id": "DET-84",
    "result": "pass",
-   "scope_condition": "610 rows replay from their owners; table_hash 4e3a73d6",
+   "scope_condition": "642 rows replay from their owners; table_hash f1c18233",
    "stage": "S2"
   },
   {
@@ -483,7 +948,7 @@
   {
    "entry_id": "DET-79",
    "result": "fail",
-   "scope_condition": "DET-79: 1 leak(s): index '[slot:' x5",
+   "scope_condition": "DET-79: 1 leak(s): index '[slot:' x1",
    "stage": "S3"
   },
   {
@@ -501,7 +966,7 @@
   {
    "entry_id": "DET-12-S3",
    "result": "pass",
-   "scope_condition": "3 trigger(s) on the flags line; log entries on the printed table",
+   "scope_condition": "4 trigger(s) on the flags line; log entries on the printed table",
    "stage": "S3"
   },
   {
@@ -513,13 +978,13 @@
   {
    "entry_id": "DET-59",
    "result": "pass",
-   "scope_condition": "banner: Current run: quarantined — gate failure; consecutive quarantined runs 1",
+   "scope_condition": "banner: Current run: quarantined — gate failure, harness error; consecutive quarantined runs 1",
    "stage": "S3"
   },
   {
    "entry_id": "DET-60",
    "result": "pass",
-   "scope_condition": "3 quarantine line(s); every fired trigger has one entry",
+   "scope_condition": "4 quarantine line(s); every fired trigger has one entry",
    "stage": "S3"
   },
   {
@@ -529,9 +994,57 @@
    "stage": "S3"
   },
   {
+   "entry_id": "DET-80",
+   "result": "fail",
+   "scope_condition": "DET-80: slot(s) absent or empty ['member2_opening']",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "LLM-01",
+   "result": "error",
+   "scope_condition": "RuntimeError: not judged: deterministic S3 failure",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "LLM-02",
+   "result": "error",
+   "scope_condition": "RuntimeError: not judged: deterministic S3 failure",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "LLM-03",
+   "result": "error",
+   "scope_condition": "RuntimeError: not judged: deterministic S3 failure",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "LLM-04",
+   "result": "error",
+   "scope_condition": "RuntimeError: not judged: deterministic S3 failure",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "LLM-05",
+   "result": "error",
+   "scope_condition": "RuntimeError: not judged: deterministic S3 failure",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "LLM-06",
+   "result": "error",
+   "scope_condition": "RuntimeError: not judged: deterministic S3 failure",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "DET-85",
+   "result": "fail",
+   "scope_condition": "DET-85: error on ['LLM-01', 'LLM-02', 'LLM-03', 'LLM-04', 'LLM-05', 'LLM-06']",
+   "stage": "S3"
+  },
+  {
    "entry_id": "DET-13",
    "result": "pass",
-   "scope_condition": "(a)-(e), (g) hold over 87 results; (f) vacuous: DET-09 unregistered (A-16)",
+   "scope_condition": "(a)-(e), (g) hold over 95 results; (f) vacuous: DET-09 unregistered (A-16)",
    "stage": "S3"
   }
  ],
@@ -541,8 +1054,8 @@
  "run_block": 25974932,
  "sheet_hash": "29682310",
  "stress_hash": "986887b70747212201cbce98734555c944ea84eb9bc8b4124730304f347d9b5e",
- "table_hash": "4e3a73d6b926bbee824d1c950793544458a593d115718f210f14b49ba794e6c2",
- "template_hash": "f89ddcc585637aad72e330575d06057a8c06072421abe7456d5a0fd211183b73",
+ "table_hash": "f1c182334467db442011eb0bacbd6bfa7dbb98b43baefd06ede91cb30dbf6855",
+ "template_hash": "aa81c05165a9346ff5f7a09080ef4f400ebf2fe432a65c8f06a5cea133e1c27b",
  "token": "GHO",
  "tree_hash": "46740d0782f66b051de78278a81b6a8a289a24c259e081e4deb22c6d9331c5ea",
  "triggers": [
@@ -560,6 +1073,46 @@
    "level": 2,
    "source_entry": "DET-79",
    "trigger": "T-28"
+  },
+  {
+   "level": 2,
+   "source_entry": "DET-80",
+   "trigger": "T-28"
+  },
+  {
+   "level": 2,
+   "source_entry": "LLM-01",
+   "trigger": "T-28"
+  },
+  {
+   "level": 2,
+   "source_entry": "LLM-02",
+   "trigger": "T-28"
+  },
+  {
+   "level": 2,
+   "source_entry": "LLM-03",
+   "trigger": "T-28"
+  },
+  {
+   "level": 2,
+   "source_entry": "LLM-04",
+   "trigger": "T-28"
+  },
+  {
+   "level": 2,
+   "source_entry": "LLM-05",
+   "trigger": "T-28"
+  },
+  {
+   "level": 2,
+   "source_entry": "LLM-06",
+   "trigger": "T-28"
+  },
+  {
+   "level": 2,
+   "source_entry": "DET-85",
+   "trigger": "T-25"
   }
  ],
  "unregistered": [
@@ -586,38 +1139,6 @@
   {
    "entry_id": "DET-64",
    "queue_item": "P-4.01 (GHO attribution cross-check: aggregate reads)"
-  },
-  {
-   "entry_id": "DET-80",
-   "queue_item": "B-13 (prose, judge, loop; R12)"
-  },
-  {
-   "entry_id": "DET-85",
-   "queue_item": "B-13 (prose, judge, loop; R12)"
-  },
-  {
-   "entry_id": "LLM-01",
-   "queue_item": "B-13 (prose, judge, loop; R12)"
-  },
-  {
-   "entry_id": "LLM-02",
-   "queue_item": "B-13 (prose, judge, loop; R12)"
-  },
-  {
-   "entry_id": "LLM-03",
-   "queue_item": "B-13 (prose, judge, loop; R12)"
-  },
-  {
-   "entry_id": "LLM-04",
-   "queue_item": "B-13 (prose, judge, loop; R12)"
-  },
-  {
-   "entry_id": "LLM-05",
-   "queue_item": "B-13 (prose, judge, loop; R12)"
-  },
-  {
-   "entry_id": "LLM-06",
-   "queue_item": "B-13 (prose, judge, loop; R12)"
   }
  ]
 }

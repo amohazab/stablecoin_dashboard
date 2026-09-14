@@ -8,3 +8,5 @@
 {"date":"2026-09-13","set_file_hash":"9ebdd282","sheet_hash":"5486f264","source":"P-7.05 — B-9 S9 signed edit: LUSD counterparties line gains the WBTC note (DET-73)","token":"crvUSD","type":"intake_trigger"}
 {"date":"2026-09-14","set_file_hash":"9ebdd282","sheet_hash":"29682310","source":"P-7.08 — B-11d signed edit: S1/S2 class-S tags retired (DET-74); DET-47 reference removed from the H5 bias reason; the DAI/USDS row gains the memo's Sky note tag (M2); rubric header re-stamp","token":"crvUSD","type":"intake_trigger"}
 {"date":"2026-09-14","level":2,"resolution_date":null,"resolution_type":null,"token":"crvUSD","trigger":"T-28","type":"quarantine"}
+{"date":"2026-09-14","level":2,"resolution_date":null,"resolution_type":null,"token":"crvUSD","trigger":"T-25","type":"quarantine"}
+{"date":"2026-09-14","level":2,"resolution_date":null,"resolution_type":null,"token":"crvUSD","trigger":"T-24","type":"quarantine"}

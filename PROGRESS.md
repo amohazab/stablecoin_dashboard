@@ -8159,3 +8159,109 @@ Status: IN PROGRESS (opened 2026-09-13, P-7.01).
   `out/report/<T>/<blk>/manifest.json` ×3; `PROGRESS.md`.
 - **Follow-ups spawned:** B-13 Part 1 (read-only): the call surface; the open T-28 lines owe
   their `template_change` resolution once the slots are filled.
+## P-7.10 — B-13: prose, the judge and the loop; fourteen live runs; LUSD published, crvUSD and GHO in the banner state; `len(CHECKS)` 96
+
+- **Date:** 2026-09-14
+- **Type:** implementation
+- **Confirmed by:** Amin
+- **Content:**
+  **P-7.09 COMMITTED** at `f0c6464`, proven against the committed blob.
+  **PART 1** (read-only): the call surface, the slot inputs and the loop, planned in
+  `out/reports/step7-b13-plan.md`.
+  **PART 2a** (built, no API call). Rulings:
+  - models: judge `claude-fable-5-1`, generator `claude-sonnet-5`;
+  - every call records thinking `adaptive` and sampling `null`;
+  - `run_hashes` are keyed by run block; section ids go on the index;
+  - `uv add anthropic` is committed with B-13;
+  - prompts approved with three edits: paragraph counts in `slots.toml`, structural_summary's
+    first sentence, rule 8.
+  Named defaults, accepted:
+  - the envelope's `bundle_hash` carries the page's printed `report_hash`;
+  - a run without `--llm` is a rehearsal: pages stay in rehearsal, no log line, no T-25.
+  Built: `report/llm.py` (the call surface, guard and post-check); `templates/prompts/`
+  (`generate`, `judge`, `remediate`, `revise`, `slots.toml`); a fake client with 11 recorded
+  cases. **Registered:** LLM-01–06 (consumer "judge"), DET-80, DET-85.
+  **`len(CHECKS)` 88 → 96; A-16 unregistered 14 → 6.**
+  **PART 2b: FOURTEEN LIVE RUNS** — crvUSD runs 1–8, then "final" ×3, then "final spend" ×3.
+  Costs are recorded API usage at list price.
+
+  | run | outcome | cost | ruled after it |
+  |---|---|---|---|
+  | 1 crvUSD | judge HTTP 400 (grammar too large) | $0.39 | A items as JSON strings; B number guard, one re-ask; C labels; effort low |
+  | 2 crvUSD | judge truncated at 20k, usage lost | $0.23 + judge unrecorded | D streaming, 64k; E–G target rows, short addresses, usage on failure; H–I descriptions, class and residual labels |
+  | 3 crvUSD | blocked_S3 88/96 | $2.69 | item models follow the rubric's shapes; counterfactual value labels; residual row |
+  | 4 crvUSD | blocked_S3 89/96 | $2.52 | curve labels; rejected texts recorded; node→bar rows; counterpart reading |
+  | 5 crvUSD | blocked_S3 91/96 | $2.31 | references filled from single-row forms (amends B's second clause); "$0" |
+  | 6 crvUSD | template_defect 92/96 | $5.31 | judge only on a green deterministic S3; judge `claude-opus-5`; carry defect-free slots |
+  | 7 crvUSD | template_defect 95/96 | $2.98 | pass 2 carries the slot's own text and defects |
+  | 8 crvUSD | judge_instability 95/96 | $2.97 | discard defects outside prose (not LLM-03); DET-89 skips `<code>`; "1.0 days" |
+  | final crvUSD / GHO / LUSD | blocked_S3 87 · template_defect 94 · judge_instability 95 | $5.68 | span replacement; freezer label; durations; caching; effort medium; budget guard |
+  | final spend LUSD / crvUSD / GHO | **published 96** · judge_instability 94 · blocked_S3 87 | $3.63 | — |
+
+  Previews (generation only): $0.50 unrecorded (as-counted), $0.50, then $0.83. Also ruled
+  after the previews:
+  - the guard uses DET-89's tokenizer;
+  - the guard enforces each slot's paragraph count;
+  - Member-2 headline m3 rows join member2_opening;
+  - generate.md rules 12–14.
+  **Recorded total ≈ $30.05**, plus run 2's judgment and the first preview pair.
+  **THE LOOP AS IT STANDS.**
+  - **Pass 1:** generate seven slots under the guard, then render and settle S3. The judge
+    is called only if every deterministic S3 row passes; DET-85 and DET-13 are outside
+    that gate (accepted).
+  - **Pass 2** enters on LLM `fail` only. **Revision is span replacement:**
+    - a defective slot returns `{quoted_span → replacement}` for its own defects;
+    - the harness applies them and runs the same guard;
+    - a slot with no replaceable span carries verbatim.
+  - **Outcome rule (stands):** a (kind, section) pair repeated across passes is
+    template_defect; otherwise judge_instability (T-24).
+  **COST PARAMETERS**, recorded per call:
+  - judge and remediation run on `claude-opus-5`; Fable 5.1's envelopes from runs 3–6
+    stay on the record;
+  - judge effort is "medium";
+  - the judge's table block is cached. Named default: TTL 1 h, since pass 2 starts more
+    than five minutes after pass 1. Pass 2 on crvUSD read 100,266 tokens: $0.43 against
+    $1.51;
+  - the budget guard ($6.00, a judgment taken as $1.50) did not fire; the turn spent $3.63.
+  **STATE.**
+  - **LUSD published** @25974949 (report `003b4fcd`, 96/96). T-28 and T-24 are resolved as
+    `template_change` (`resolutions.jsonl`); `out/site/LUSD/` written.
+  - **crvUSD** is in the banner state: `crvUSD:10` T-28, `:11` T-25, `:12` T-24.
+  - **GHO** is in the banner state: `GHO:11` T-28, `:12` T-25, plus Level 1 `GHO:9` T-02
+    and `:10` T-20.
+  **OPEN FINDINGS** (not ruled):
+  - crvUSD's page prints "$6 of bad debt" beside "structurally zero" (template against
+    template, which no slot can revise);
+  - GHO member2 wrote "5%" where "5.0%" is printed;
+  - crvUSD's pass-2 judgment flagged carried text that pass 1 passed.
+  **TESTS 274 → 299** (`tests/test_b13.py` new); ruff clean.
+  **AS-COUNTED.** Builder:
+  - run 3: the `m2.target.` prefix unwired, item models against the printed shapes, and
+    unlabelled counterfactual value rows;
+  - run 4: rejected texts unrecorded, no node→bar row;
+  - run 8: GHO's counterfactual and Member-2 rows absent from its slots; DET-89 read an
+    all-digit fingerprint;
+  - previews: the guard's tokenizer read "Member-1"; a summary-only preview lost the
+    first pair's texts and ≈ $0.50; the preview layout read as repetition;
+  - final: the `freezer_state` label I drafted invited GHO's pass-2 error;
+  - one message arrived without its END marker (Amin's count: the fourth).
+  Design layer:
+  - the pass-2 rewrite design: fresh rewrites lost correct facts in runs 6–7 and final
+    GHO/LUSD, until span replacement;
+  - pass 2 was never previewed;
+  - obligations were crvUSD-shaped twice;
+  - "first sentence" wording;
+  - cost estimates: ≈ $0.25 per preview token, and the run count behind "eleven runs";
+  - content defects counted per ruling I.
+- **Artifacts:** `src/factory/report/llm.py` (new) · `src/factory/report/{__main__,record,render,table}.py` ·
+  `src/factory/{rubric.py,validate/harness.py}`; `templates/prompts/` (new) ·
+  `templates/{index.html.j2,manifest.toml,style.css,wording.toml}`; `tests/test_b13.py`,
+  `tests/llm_fake.py`, `tests/fixtures/llm/` (new) · `tests/{test_b10,test_b12,test_render,test_s3}.py`;
+  `pyproject.toml` · `uv.lock` · `.env.example`; `out/evaluation/<T>/<blk>.json` ×3 ·
+  `out/evaluation/LUSD/resolutions.jsonl` · `out/logs/events_{crvusd,gho,lusd}.jsonl` ·
+  `out/report/<T>/<blk>/{table,manifest}.json` ×3; `out/site/` (untracked; its commit is
+  Amin's call); `PROGRESS.md`.
+- **Follow-ups spawned:**
+  - the three open findings;
+  - crvUSD and GHO leave the banner state on their next green run;
+  - Step 9 takes `out/site/`.

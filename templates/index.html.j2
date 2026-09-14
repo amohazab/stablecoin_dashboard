@@ -26,10 +26,10 @@
 {% for colour, text in pills %}<span class="pill {{ colour }}">{{ text }}</span>{% endfor %}
 </div>
 
-<section class="finding">
+<section class="finding" id="finding">
 <h2>The finding {{ tip('finding') }}</h2>
 {{ flags('finding') }}
-<div class="slot">{{ slot('structural_summary') }}</div>
+{{ slot('structural_summary') }}
 <div class="cards">
   <div class="card"><div class="card-label">{{ label('supply_card') }} {{ tip('supply') }}</div><div class="card-value" title="supply.supply_ruled">{{ c('supply.supply_ruled') }}</div></div>
   <div class="card"><div class="card-label">{{ label('bad_debt_card') }} {{ tip('bad_debt') }}</div>
@@ -40,14 +40,15 @@
 </div>
 </section>
 
-<section>
+<section id="backing">
 <h2>Where the backing sits {{ tip('backing') }}</h2>
 {{ flags('backing') }}
 <figure class="wide tree">{{ tree_svg | safe }}</figure>
 <p class="prose">{{ governance }}</p>
+{{ slot('verifiability_narrative') }}
 </section>
 
-<section>
+<section id="break">
 <h2>What could break it {{ tip('break') }}</h2>
 {{ flags('break') }}
 <p class="prose">{{ w.why_scenario }}</p>
@@ -68,12 +69,12 @@
 <p class="prose">{% if 'oracle.max_deviation.value_bps' in rows %}{% set node = raw('oracle.max_deviation.node_address') %}{{ w.oracle_lag.format(x=v('oracle.max_deviation.value_bps'), feed=(raw('tree.node.' ~ node ~ '.symbol') if ('tree.node.' ~ node ~ '.symbol') in rows else (node | fmt('address')))) }}{% else %}{{ w.oracle_lag_ema }}{% endif %}</p>
 </section>
 
-<section>
+<section id="rules">
 <h2>Who can change the rules {{ tip('rules') }}</h2>
 <ul class="plain">{% for s in power_sentences %}<li>{{ s }}</li>{% endfor %}</ul>
 </section>
 
-<section>
+<section id="check">
 <h2>How to check this {{ tip('check') }}</h2>
 <p class="prose">{{ w.check_this }} <a href="verify.html">Verify page</a> · report fingerprint <code title="{{ man.report_hash }}">{{ man.report_hash[:16] }}</code></p>
 <p class="prose">{{ w.behavioral_tier }} {{ w.structural_only }}</p>
@@ -83,7 +84,7 @@
 <h2 class="specialists">{{ w.specialists }}</h2>
 <p class="meta">{{ w.behavioral_pending }}</p>
 
-<details><summary>{{ w.summaries.tree_nodes }}</summary>
+<details id="tree-nodes"><summary>{{ w.summaries.tree_nodes }}</summary>
 {% if ids('verif.truncated.') %}
 <table class="striped"><tr><th>depth-truncated node</th><th>reason</th><th class="num">share of backing</th></tr>
 {% for f in ids('verif.truncated.') if f.endswith('.share') %}
@@ -100,7 +101,7 @@
 {% if raw('verif.staleness.companion') %}<p class="meta">{{ v('verif.staleness.companion') }}</p>{% endif %}
 </details>
 
-<details><summary>{{ w.summaries.supply }}</summary>
+<details id="supply"><summary>{{ w.summaries.supply }}</summary>
 <table class="striped">
 <tr><th>figure</th><th class="num">value</th></tr>
 <tr><td>supply</td><td class="num" title="supply.supply_ruled">{{ v('supply.supply_ruled') }}</td></tr>
@@ -136,7 +137,7 @@
 {% endfor %}
 </details>
 
-<details><summary>{{ w.summaries.headline }}</summary>
+<details id="headline"><summary>{{ w.summaries.headline }}</summary>
 {{ flags('headline') }}
 <table class="striped">
 <tr><th>metric</th><th class="num">value</th></tr>
@@ -149,16 +150,16 @@
 </details>
 
 {% if ids('headline.cf.') %}
-<details><summary>{{ w.summaries.counterfactuals }}</summary>
+<details id="counterfactuals"><summary>{{ w.summaries.counterfactuals }}</summary>
 <table class="striped"><tr><th>counterfactual</th><th>affects</th><th class="num">as modelled</th><th class="num">under the counterfactual</th></tr>
 {% for f in ids('headline.cf.') if f.endswith('.metric_affected') %}{% set p = f[:-16] %}
 <tr><td>{{ p[12:] | replace('_', ' ') }}</td><td>{{ v(f) }}</td><td class="num">{{ raw(p ~ '.value_primary') | fmt(infer_unit(raw(p ~ '.value_primary'))) }}</td><td class="num">{{ raw(p ~ '.value_counterfactual') | fmt(infer_unit(raw(p ~ '.value_counterfactual'))) }}</td></tr>
 {% endfor %}</table>
-<div class="slot">{{ slot('counterfactual_explanations') }}</div>
+{{ slot('counterfactual_explanations') }}
 </details>
 {% endif %}
 
-<details><summary>{{ w.summaries.chart_b }}</summary>
+<details id="exit-liquidity"><summary>{{ w.summaries.chart_b }}</summary>
 {{ flags('chart_b') }}
 <figure class="wide">{{ chart_b | safe }}<figcaption>{{ w.charts.b_caption }}</figcaption></figure>
 <p class="meta">Depeg scenario target: <code>{{ v('exit.member2_target') }}</code> · <a href="appendix.html">every scenario in the appendix</a></p>
@@ -167,11 +168,11 @@
 {# DET-36's "once": the appendix prints the lp_flight literal verbatim where the stress model carries it #}
 {% if 'assumption.lp_flight' not in rows %}<p class="meta">{{ w.rubric.lp_rule_line }}</p>{% endif %}
 <p class="meta">{{ w.rubric.freeze_line.format(date=v('header.freeze_date')) }} {{ w.rubric.k_share.format(share=v('exit.sensitivity.K90.share_of_F')) }}</p>
-<div class="slot">{{ slot('member1_opening') }}</div>
-<div class="slot">{{ slot('member2_opening') }}</div>
+{{ slot('member1_opening') }}
+{{ slot('member2_opening') }}
 </details>
 
-<details><summary>{{ w.summaries.assumptions }}</summary>
+<details id="assumptions"><summary>{{ w.summaries.assumptions }}</summary>
 <table class="striped"><tr><th>assumption</th><th>what it means</th><th>data</th><th>source</th></tr>
 {% for a in doc.assumptions %}
 <tr><td><code>{{ a.id }}</code></td>
@@ -182,7 +183,7 @@
 </table>
 </details>
 
-<details><summary>{{ w.summaries.bias }}</summary>
+<details id="bias"><summary>{{ w.summaries.bias }}</summary>
 <h3>stock-only capacity — direction of error per mechanism</h3>
 <table class="striped"><tr><th>mechanism</th><th>tokens</th><th>direction</th><th>reason</th></tr>
 {% for f in ids('bias.') if f.endswith('.direction') %}{% set p = f[:-10] %}
@@ -190,8 +191,8 @@
 {% endfor %}</table>
 </details>
 
-<details><summary>{{ w.summaries.admin }}</summary>
-<div class="slot">{{ slot('admin_surface_narrative') }}</div>
+<details id="admin"><summary>{{ w.summaries.admin }}</summary>
+{{ slot('admin_surface_narrative') }}
 <table class="striped"><tr><th>power</th><th>holder</th><th>type</th><th>delay</th><th>veto</th><th>upgradeable</th><th>scope</th><th>evidence</th></tr>
 {% for f in ids('admin.') if f.endswith('.holder_type') %}{% set p = f[:-12] %}
 <tr><td>{{ w.powers[f.split('.')[1]] }}</td><td><code>{{ v(p ~ '.holder_address') }}</code></td><td>{{ w.holders[raw(f)] if raw(f) != 'none' else 'none' }}</td>
@@ -201,7 +202,7 @@
 {% endfor %}</table>
 </details>
 
-<details><summary>{{ w.summaries.oracle }}</summary>
+<details id="oracle"><summary>{{ w.summaries.oracle }}</summary>
 {{ flags('oracle') }}
 <table class="striped"><tr><th>collateral</th><th>market or reserve</th><th>update rule</th><th class="num">threshold</th><th class="num">window / heartbeat</th><th>staleness</th></tr>
 {% for f in ids('oracle.0x') if f.endswith('.type') %}{% set p = f[:-5] %}{% set parts = p.split('.') %}
@@ -216,10 +217,10 @@
 {% else %}{% set weak = namespace(names=[]) %}{% for f in ids('oracle.0x') if f.endswith('.deviation_bps') and raw(f) > 100 %}{% set n = 'tree.node.' ~ f.split('.')[1] ~ '.symbol' %}{% set weak.names = weak.names + [raw(n) if n in rows else (f.split('.')[1] | fmt('address'))] %}{% endfor %}<p class="meta">{{ w.rubric.observation_weaker.format(nodes=(weak.names | unique | join(', ')), x=v('oracle.max_deviation.value_bps')) }}</p>
 {% endif %}
 <p class="meta">{{ w.rubric.scope_manipulation }} {% if ids('headline.cf.Tellor_fallback.') %}{{ w.rubric.scope_failure_tellor }}{% else %}{{ w.rubric.scope_failure }}{% endif %} {{ w.rubric.scope_sequencer }}</p>
-<div class="slot">{{ slot('flag_explanations') }}</div>
+{{ slot('flag_explanations') }}
 </details>
 
-<details><summary>{{ w.summaries.audits }}</summary>
+<details id="audits"><summary>{{ w.summaries.audits }}</summary>
 <ul class="plain">{% for f in ids('audit.') if f.endswith('.firm') %}<li>{{ v(f) }} {{ v(f[:-5] ~ '.date') }} — {{ v(f[:-5] ~ '.scope') }}</li>{% endfor %}</ul>
 {% if 'audit.tag_date.audits' in rows %}<p class="meta">Audit list {{ w.rubric.tag_date.format(date=v('audit.tag_date.audits')) }}</p>{% endif %}
 <p class="meta">Bug bounty: {{ v('audit.bug_bounty.platform') }}, max {{ v('audit.bug_bounty.max') }}{% if 'audit.tag_date.bug_bounty' in rows %} {{ w.rubric.tag_date.format(date=v('audit.tag_date.bug_bounty')) }}{% endif %}. Last material change audited: {{ v('audit.last_material_change_audited') }}{% if 'audit.tag_date.last_material_change_audited' in rows %} {{ w.rubric.tag_date.format(date=v('audit.tag_date.last_material_change_audited')) }}{% endif %}. {{ w.rubric.audit_status.format(date=v('audit.staleness_date')) }} Counterparties: {{ v('audit.counterparties') }}</p>

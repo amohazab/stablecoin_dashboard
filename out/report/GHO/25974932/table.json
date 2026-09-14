@@ -832,6 +832,16 @@
    "value": "terminal_other_layer"
   },
   {
+   "denominator": null,
+   "field_id": "tree.node.0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0.bar",
+   "label": "backing class of the node",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "wording/tree/node_bar/terminal_other_layer",
+   "unit": "literal",
+   "value": "terminal_other_layer"
+  },
+  {
    "denominator": "backing_value",
    "field_id": "tree.node.0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0.share",
    "label": "wstETH share of backing",
@@ -858,6 +868,16 @@
    "owner_entry": "DET-17",
    "section": "verifiability",
    "source_path": "tree/nodes/[address=0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2]/label",
+   "unit": "literal",
+   "value": "terminal"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.node.0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2.bar",
+   "label": "backing class of the node",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "wording/tree/node_bar/terminal",
    "unit": "literal",
    "value": "terminal"
   },
@@ -892,6 +912,16 @@
    "value": "recurses"
   },
   {
+   "denominator": null,
+   "field_id": "tree.node.0x2260fac5e5542a773aa44fbcfedf7c193bc2c599.bar",
+   "label": "backing class of the node",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "wording/tree/node_bar/recurses",
+   "unit": "literal",
+   "value": "disclosure_dependent"
+  },
+  {
    "denominator": "backing_value",
    "field_id": "tree.node.0x2260fac5e5542a773aa44fbcfedf7c193bc2c599.share",
    "label": "WBTC share of backing",
@@ -918,6 +948,16 @@
    "owner_entry": "DET-17",
    "section": "verifiability",
    "source_path": "tree/nodes/[address=0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9]/label",
+   "unit": "literal",
+   "value": "terminal"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.node.0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9.bar",
+   "label": "backing class of the node",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "wording/tree/node_bar/terminal",
    "unit": "literal",
    "value": "terminal"
   },
@@ -952,6 +992,16 @@
    "value": "recurses_truncated"
   },
   {
+   "denominator": null,
+   "field_id": "tree.node.0x5a0f93d040de44e78f251b03c43be9cf317dcf64.bar",
+   "label": "backing class of the node",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "wording/tree/node_bar/recurses_truncated",
+   "unit": "literal",
+   "value": "disclosure_dependent"
+  },
+  {
    "denominator": "backing_value",
    "field_id": "tree.node.0x5a0f93d040de44e78f251b03c43be9cf317dcf64.share",
    "label": "JAAA share of backing",
@@ -980,6 +1030,16 @@
    "source_path": "tree/nodes/[address=0x7bc3485026ac48b6cf9baf0a377477fff5703af8]/label",
    "unit": "literal",
    "value": "recurses"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.node.0x7bc3485026ac48b6cf9baf0a377477fff5703af8.bar",
+   "label": "backing class of the node",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "wording/tree/node_bar/recurses",
+   "unit": "literal",
+   "value": "disclosure_dependent"
   },
   {
    "denominator": "backing_value",
@@ -1012,6 +1072,16 @@
    "value": "recurses"
   },
   {
+   "denominator": null,
+   "field_id": "tree.node.0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.bar",
+   "label": "backing class of the node",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "wording/tree/node_bar/recurses",
+   "unit": "literal",
+   "value": "disclosure_dependent"
+  },
+  {
    "denominator": "backing_value",
    "field_id": "tree.node.0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.share",
    "label": "USDC share of backing",
@@ -1042,6 +1112,16 @@
    "value": "recurses_truncated"
   },
   {
+   "denominator": null,
+   "field_id": "tree.node.0x43415eb6ff9db7e26a15b704e7a3edce97d31c4e.bar",
+   "label": "backing class of the node",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "wording/tree/node_bar/recurses_truncated",
+   "unit": "literal",
+   "value": "disclosure_dependent"
+  },
+  {
    "denominator": "backing_value",
    "field_id": "tree.node.0x43415eb6ff9db7e26a15b704e7a3edce97d31c4e.share",
    "label": "USTB share of backing",
@@ -1068,6 +1148,16 @@
    "owner_entry": "DET-17",
    "section": "verifiability",
    "source_path": "tree/nodes/[address=0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee]/label",
+   "unit": "literal",
+   "value": "terminal_other_layer"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.node.0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee.bar",
+   "label": "backing class of the node",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "wording/tree/node_bar/terminal_other_layer",
    "unit": "literal",
    "value": "terminal_other_layer"
   },
@@ -1102,6 +1192,16 @@
    "value": "recurses"
   },
   {
+   "denominator": null,
+   "field_id": "tree.node.0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf.bar",
+   "label": "backing class of the node",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "wording/tree/node_bar/recurses",
+   "unit": "literal",
+   "value": "disclosure_dependent"
+  },
+  {
    "denominator": "backing_value",
    "field_id": "tree.node.0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf.share",
    "label": "cbBTC share of backing",
@@ -1132,6 +1232,16 @@
    "value": "recurses_truncated"
   },
   {
+   "denominator": null,
+   "field_id": "tree.node.0x14d60e7fdc0d71d8611742720e4c50e7a974020c.bar",
+   "label": "backing class of the node",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "wording/tree/node_bar/recurses_truncated",
+   "unit": "literal",
+   "value": "disclosure_dependent"
+  },
+  {
    "denominator": "backing_value",
    "field_id": "tree.node.0x14d60e7fdc0d71d8611742720e4c50e7a974020c.share",
    "label": "USCC share of backing",
@@ -1158,6 +1268,16 @@
    "owner_entry": "DET-17",
    "section": "verifiability",
    "source_path": "tree/nodes/[address=0x18084fba666a33d37592fa2633fd49a74dd93a88]/label",
+   "unit": "literal",
+   "value": "terminal_other_layer"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.node.0x18084fba666a33d37592fa2633fd49a74dd93a88.bar",
+   "label": "backing class of the node",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "wording/tree/node_bar/terminal_other_layer",
    "unit": "literal",
    "value": "terminal_other_layer"
   },
@@ -1192,6 +1312,16 @@
    "value": "recurses"
   },
   {
+   "denominator": null,
+   "field_id": "tree.node.0x9d39a5de30e57443bff2a8307a4256c8797a3497.bar",
+   "label": "backing class of the node",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "wording/tree/node_bar/recurses",
+   "unit": "literal",
+   "value": "disclosure_dependent"
+  },
+  {
    "denominator": "backing_value",
    "field_id": "tree.node.0x9d39a5de30e57443bff2a8307a4256c8797a3497.share",
    "label": "sUSDe share of backing",
@@ -1218,6 +1348,16 @@
    "owner_entry": "DET-17",
    "section": "verifiability",
    "source_path": "tree/nodes/[address=0xae78736cd615f374d3085123a210448e74fc6393]/label",
+   "unit": "literal",
+   "value": "terminal_other_layer"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.node.0xae78736cd615f374d3085123a210448e74fc6393.bar",
+   "label": "backing class of the node",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "wording/tree/node_bar/terminal_other_layer",
    "unit": "literal",
    "value": "terminal_other_layer"
   },
@@ -1252,6 +1392,16 @@
    "value": "recurses"
   },
   {
+   "denominator": null,
+   "field_id": "tree.node.0xdac17f958d2ee523a2206206994597c13d831ec7.bar",
+   "label": "backing class of the node",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "wording/tree/node_bar/recurses",
+   "unit": "literal",
+   "value": "disclosure_dependent"
+  },
+  {
    "denominator": "backing_value",
    "field_id": "tree.node.0xdac17f958d2ee523a2206206994597c13d831ec7.share",
    "label": "USDT share of backing",
@@ -1278,6 +1428,16 @@
    "owner_entry": "DET-17",
    "section": "verifiability",
    "source_path": "tree/nodes/[address=0x514910771af9ca656af840dff83e8264ecf986ca]/label",
+   "unit": "literal",
+   "value": "terminal"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.node.0x514910771af9ca656af840dff83e8264ecf986ca.bar",
+   "label": "backing class of the node",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "wording/tree/node_bar/terminal",
    "unit": "literal",
    "value": "terminal"
   },
@@ -1312,6 +1472,16 @@
    "value": "recurses"
   },
   {
+   "denominator": null,
+   "field_id": "tree.node.0xbe9895146f7af43049ca1c1ae358b0541ea49704.bar",
+   "label": "backing class of the node",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "wording/tree/node_bar/recurses",
+   "unit": "literal",
+   "value": "disclosure_dependent"
+  },
+  {
    "denominator": "backing_value",
    "field_id": "tree.node.0xbe9895146f7af43049ca1c1ae358b0541ea49704.share",
    "label": "cbETH share of backing",
@@ -1340,6 +1510,16 @@
    "source_path": "tree/nodes/[address=0xdc035d45d973e3ec169d2276ddab16f1e407384f]/label",
    "unit": "literal",
    "value": "recurses_truncated"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.node.0xdc035d45d973e3ec169d2276ddab16f1e407384f.bar",
+   "label": "backing class of the node",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "wording/tree/node_bar/recurses_truncated",
+   "unit": "literal",
+   "value": "disclosure_dependent"
   },
   {
    "denominator": "backing_value",
@@ -1372,6 +1552,16 @@
    "value": "recurses_truncated"
   },
   {
+   "denominator": null,
+   "field_id": "tree.node.0x6b175474e89094c44da98b954eedeac495271d0f.bar",
+   "label": "backing class of the node",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "wording/tree/node_bar/recurses_truncated",
+   "unit": "literal",
+   "value": "disclosure_dependent"
+  },
+  {
    "denominator": "backing_value",
    "field_id": "tree.node.0x6b175474e89094c44da98b954eedeac495271d0f.share",
    "label": "DAI share of backing",
@@ -1402,6 +1592,16 @@
    "value": "recurses_truncated"
   },
   {
+   "denominator": null,
+   "field_id": "tree.node.0x83f20f44975d03b1b09e64809b757c47f942beea.bar",
+   "label": "backing class of the node",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "wording/tree/node_bar/recurses_truncated",
+   "unit": "literal",
+   "value": "disclosure_dependent"
+  },
+  {
    "denominator": "backing_value",
    "field_id": "tree.node.0x83f20f44975d03b1b09e64809b757c47f942beea.share",
    "label": "sDAI share of backing",
@@ -1430,6 +1630,16 @@
    "source_path": "tree/nodes/[address=0xd4fa2d31b7968e448877f69a96de69f5de8cd23e]/label",
    "unit": "literal",
    "value": "recurses"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.node.0xd4fa2d31b7968e448877f69a96de69f5de8cd23e.bar",
+   "label": "backing class of the node",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "wording/tree/node_bar/recurses",
+   "unit": "literal",
+   "value": "disclosure_dependent"
   },
   {
    "denominator": "backing_value",
@@ -1653,6 +1863,16 @@
   },
   {
    "denominator": null,
+   "field_id": "supply.residual.description",
+   "label": "what the residual is",
+   "owner_entry": "DET-15",
+   "section": "supply",
+   "source_path": "wording/residual/GHO",
+   "unit": "literal",
+   "value": "residual is supply minus originated debt; 0 here because GHO's originated debt is the sum of its facilitators' bucket levels and every GHO is minted by a facilitator"
+  },
+  {
+   "denominator": null,
    "field_id": "oracle.max_deviation.value_bps",
    "label": "largest feed deviation value bps",
    "owner_entry": "DET-54",
@@ -1853,6 +2073,36 @@
   },
   {
    "denominator": null,
+   "field_id": "m2.headline.m3.forced_sell_volume",
+   "label": "member 2 headline m3 forced_sell_volume",
+   "owner_entry": "DET-41",
+   "section": "stress (Member 2)",
+   "source_path": "stress/cells/[id=M2-t0.93-lp0]/m3/forced_sell_volume",
+   "unit": "base_units",
+   "value": 22309249385005360000000000
+  },
+  {
+   "denominator": null,
+   "field_id": "m2.headline.m3.exit_depth",
+   "label": "member 2 headline m3 exit_depth",
+   "owner_entry": "DET-41",
+   "section": "stress (Member 2)",
+   "source_path": "stress/cells/[id=M2-t0.93-lp0]/m3/exit_depth",
+   "unit": "base_units",
+   "value": 220381636987421748137663
+  },
+  {
+   "denominator": "exit_depth",
+   "field_id": "m2.headline.m3.ratio",
+   "label": "member 2 headline m3 ratio",
+   "owner_entry": "DET-41",
+   "section": "stress (Member 2)",
+   "source_path": "stress/cells/[id=M2-t0.93-lp0]/m3/ratio",
+   "unit": "ratio",
+   "value": "101.2300738390406700027844213"
+  },
+  {
+   "denominator": null,
    "field_id": "headline.m4.binding_side",
    "label": "headline m4 · binding_side",
    "owner_entry": "DET-47",
@@ -2020,6 +2270,46 @@
    "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m4/lp_flight_share",
    "unit": "ratio",
    "value": "0"
+  },
+  {
+   "denominator": null,
+   "field_id": "headline.cf.H2_freezer.value_primary",
+   "label": "counterfactual H2_freezer value_primary",
+   "owner_entry": "DET-44",
+   "section": "stress (Member 2)",
+   "source_path": "stress/cells/[id=M2-t0.93-lp0]/counterfactual_lines/[id=H2_freezer]/value_primary",
+   "unit": "base_units",
+   "value": 220381636987421748137663
+  },
+  {
+   "denominator": null,
+   "field_id": "headline.cf.H2_freezer.value_counterfactual",
+   "label": "counterfactual H2_freezer value_counterfactual",
+   "owner_entry": "DET-44",
+   "section": "stress (Member 2)",
+   "source_path": "stress/cells/[id=M2-t0.93-lp0]/counterfactual_lines/[id=H2_freezer]/value_counterfactual",
+   "unit": "base_units",
+   "value": 18826336569460421748137663
+  },
+  {
+   "denominator": null,
+   "field_id": "headline.cf.H2_freezer.metric_affected",
+   "label": "counterfactual H2_freezer metric_affected",
+   "owner_entry": "DET-44",
+   "section": "stress (Member 2)",
+   "source_path": "stress/cells/[id=M2-t0.93-lp0]/counterfactual_lines/[id=H2_freezer]/metric_affected",
+   "unit": "literal",
+   "value": "m3"
+  },
+  {
+   "denominator": null,
+   "field_id": "headline.cf.H2_freezer.description",
+   "label": "counterfactual H2_freezer",
+   "owner_entry": "DET-44",
+   "section": "stress (Member 2)",
+   "source_path": "wording/counterfactual/H2_freezer",
+   "unit": "literal",
+   "value": "the GSM freezer does not act in the depeg scenario, so the GSMs stay open as exit venues"
   },
   {
    "denominator": null,
@@ -2910,6 +3200,36 @@
    "source_path": "bundle/offvenue_share/date",
    "unit": "date",
    "value": "2026-09-14"
+  },
+  {
+   "denominator": null,
+   "field_id": "m2.target.t0.88",
+   "label": "depeg target price 0.88",
+   "owner_entry": "DET-50",
+   "section": "stress (Member 2)",
+   "source_path": "stress/cells/[id=M2-t0.88-lp0]/target",
+   "unit": "price",
+   "value": "0.88"
+  },
+  {
+   "denominator": null,
+   "field_id": "m2.target.t0.93",
+   "label": "depeg target price 0.93",
+   "owner_entry": "DET-50",
+   "section": "stress (Member 2)",
+   "source_path": "stress/cells/[id=M2-t0.93-lp0]/target",
+   "unit": "price",
+   "value": "0.93"
+  },
+  {
+   "denominator": null,
+   "field_id": "m2.target.t0.97",
+   "label": "depeg target price 0.97",
+   "owner_entry": "DET-50",
+   "section": "stress (Member 2)",
+   "source_path": "stress/cells/[id=M2-t0.97-lp0]/target",
+   "unit": "price",
+   "value": "0.97"
   },
   {
    "denominator": null,
@@ -6385,6 +6705,6 @@
   }
  ],
  "run_block": 25974932,
- "table_hash": "4e3a73d6b926bbee824d1c950793544458a593d115718f210f14b49ba794e6c2",
+ "table_hash": "f1c182334467db442011eb0bacbd6bfa7dbb98b43baefd06ede91cb30dbf6855",
  "token": "GHO"
 }

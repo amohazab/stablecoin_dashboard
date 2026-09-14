@@ -1,0 +1,40 @@
+{
+ "structural_summary": {
+  "text": "Every LUSD in circulation is backed by ether locked in borrower troves. The token's supply stands at $26.2M, and all of that backing can be checked directly on-chain.\n\nIn the headline crash scenario the troves stay above their liquidation threshold, so no collateral has to be sold into the $8.8M of exit liquidity.",
+  "references_field_ids": [
+   "supply.supply_ruled",
+   "verif.bar.terminal",
+   "headline.m3.exit_depth"
+  ]
+ },
+ "verifiability_narrative": {
+  "text": "All of LUSD's backing sits in the first class, collateral that can be checked on-chain: 100.0% of it is ether held by the protocol's own contracts.\n\nNothing in this token's backing depends on an issuer's disclosure or stops at a truncated layer, so no staleness applies to it.",
+  "references_field_ids": [
+   "verif.bar.terminal"
+  ]
+ },
+ "member1_opening": {
+  "text": "A collateral crash is the scenario that tests LUSD's own mechanism: when ether falls, troves below the minimum ratio are closed against the Stability Pool, which absorbs their debt instead of selling collateral on the market.\n\nIn the headline scenario no trove reaches that threshold, so the pool is never drawn and nothing is sold.",
+  "references_field_ids": [
+   "headline.m3.exit_depth"
+  ]
+ },
+ "member2_opening": {
+  "text": "A depeg of the paired stablecoin matters to LUSD only through the pools where holders would exit, because redemptions and the Stability Pool do not hold that stablecoin.\n\nThe exposure therefore shows up in the recomputed exit-liquidity curves and the pool balances, which are the quantities to watch here.",
+  "references_field_ids": [
+   "exit.member2_target"
+  ]
+ },
+ "flag_explanations": {
+  "text": "One notice is open for LUSD this run: the share of exchange liquidity outside the modelled venues could not be computed, so the exit-liquidity figures cover the modelled pools only. Readers should treat the exit figures as a floor until that share is computed again.",
+  "references_field_ids": []
+ },
+ "counterfactual_explanations": {
+  "text": "The fallback-oracle line asks what would change if LUSD's price feed fell back to its secondary oracle during the crash. It leaves the headline figures unchanged here because no trove comes close to liquidation in that scenario.",
+  "references_field_ids": []
+ },
+ "admin_surface_narrative": {
+  "text": "No one holds a power that can change LUSD's backing, minting or oracle: the contracts are immutable and every administrative role was renounced at deployment.\n\nThat is why no change delay or veto applies to this token.",
+  "references_field_ids": []
+ }
+}

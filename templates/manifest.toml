@@ -10,7 +10,10 @@ usd_ge_1k_decimals = 2
 token_amount_lt_1_decimals = 4
 ratio_as_percent_decimals = 1          # R-7: p = 1, half-up (tree._pct1)
 rounding = "half_up"
-zero = "0"                             # R-B11.6: an exact zero prints "0", both forms
+zero = "0"                             # R-B11.6: an exact zero prints "0", both forms;
+                                       # an amount's compact zero prints "$0" (fifth live run)
+# B-13 ruling H: delay buckets print in words.
+buckets = { "<24h" = "under 24 hours", "1–7d" = "1–7 days", ">7d" = "more than 7 days" }
 
 # R-B11.6: the compact form - stat cards and reader-layer sentences only; the
 # specialist tables print the full form. Both forms format the same table value.

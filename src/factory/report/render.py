@@ -90,7 +90,10 @@ class Formatter:
         if unit in NUMERIC:
             try:
                 if Decimal(str(value)) == 0:
-                    return self.rule["zero"]
+                    # ruling 2 on the fifth live run (R-B11.6 refined): an amount's compact
+                    # zero carries the currency prefix; other units keep "0"
+                    return (self.c["currency_prefix"] + self.rule["zero"]
+                            if compact and unit in AMOUNTS else self.rule["zero"])
             except ArithmeticError:
                 return str(value)
         if unit in AMOUNTS:
@@ -113,10 +116,19 @@ class Formatter:
             return f"{self._q(v, 2 if compact else 4)}"
         if unit == "bps":
             return f"{self._q(Decimal(value) / 100, 2)}%"
-        if unit == "seconds":
-            return f"{int(value):,} s"
+        if unit == "seconds":                      # B-13 ruling H: durations in words
+            n = int(value)
+            if n and n % 86400 == 0:
+                d = n // 86400
+                return f"{d} day" if d == 1 else f"{d} days"
+            if n and n % 3600 == 0:
+                h = n // 3600
+                return f"{h} hour" if h == 1 else f"{h} hours"
+            return f"{n:,} s"
+        if unit == "price":                        # B-13 ruling E: a target price, 2 dp
+            return f"{self._q(Decimal(str(value)), 2)}"
         if unit == "days":
-            return f"{self._q(Decimal(str(value)), 1)} d"
+            return f"{self._q(Decimal(str(value)), 1)} days"   # run 8 ruling 3 (R-B11.6)
         if unit == "count":
             return f"{int(value):,}"
         if unit == "unix_s":
@@ -128,8 +140,14 @@ class Formatter:
         if unit == "address":
             s = str(value)
             return f"{s[:8]}…{s[-4:]}" if re.fullmatch(r"0x[0-9a-f]{40}", s) else s
-        if unit == "list":
-            return ", ".join(str(x) for x in value) if isinstance(value, list) else str(value)
+        if unit == "list":                         # B-13 ruling F: short addresses
+            if isinstance(value, list):
+                return ", ".join(self._format(x, "address", None, compact)
+                                 if isinstance(x, str) and re.fullmatch(r"0x[0-9a-f]{40}", x)
+                                 else str(x) for x in value)
+            return str(value)
+        if unit == "literal" and str(value) in self.rule.get("buckets", {}):
+            return self.rule["buckets"][str(value)]    # B-13 ruling H: "1–7 days"
         if unit == "boolean":
             return "yes" if value else "no"
         return str(value)
@@ -350,8 +368,8 @@ def render_token(repo: pathlib.Path, token: str, doc: dict, grid: dict, man: dic
     side = None
     if "supply.off_mainnet.share" in rows:
         side = w["tree"]["off_mainnet"].format(share=v("supply.off_mainnet.share"))
-    bar_ids = [("terminal", ("terminal",)), ("terminal_other_layer", ("terminal_other_layer",)),
-               ("disclosure_dependent", ("recurses", "recurses_truncated"))]
+    node_bar = w["tree"]["node_bar"]                  # ruling 3: one map, page and table
+    bar_ids = [(b, tuple(k for k, v in node_bar.items() if v == b)) for b in w["tree"]["bars"]]
     bars, columns = [], []
     for name, labels in bar_ids:
         bars.append((w["tree"]["bars"][name], Decimal(str(raw(f"verif.bar.{name}"))),
@@ -445,6 +463,17 @@ def render_token(repo: pathlib.Path, token: str, doc: dict, grid: dict, man: dic
         return m4_tables(cell["m4"], lambda x: (fmt(x, infer_unit(x)), ""), w)
 
     n_refs = len([f for f in ids("refpoint.") if f.endswith(".literal")])
+    prose = rec.get("prose") or {}
+
+    def slot(name: str) -> Markup:
+        """B-13: a generated slot renders as its own `prose-slot` block, paragraph per
+        blank-line break (DET-80's boundary); an unfilled slot keeps its placeholder."""
+        text = (prose.get(name) or "").strip()
+        if not text:
+            return Markup('<div class="slot">{}</div>').format(f"[slot: {name} — pending B-13]")
+        paras = [x.strip() for x in re.split(r"\n\s*\n", text) if x.strip()]
+        return Markup('<div class="prose-slot" data-slot="{}">{}</div>').format(
+            name, Markup("").join(Markup("<p>{}</p>").format(x) for x in paras))
     env = Environment(loader=FileSystemLoader(str(tpl)),
                       autoescape=select_autoescape(["html", "j2"], default_for_string=True),
                       undefined=StrictUndefined, keep_trailing_newline=True)
@@ -457,7 +486,7 @@ def render_token(repo: pathlib.Path, token: str, doc: dict, grid: dict, man: dic
                pills=pills(rows, rec, tnames, w, v), governance=governance_sentence(rows, w),
                power_sentences=power_sentences(rows, w), tip=tip,
                headline_m4=headline_m4, cell_m4=cell_m4, n_refs=n_refs,
-               slot=lambda name: f"[slot: {name} — pending B-13]")
+               slot=slot)
     (out / "data").mkdir(parents=True, exist_ok=True)
     shutil.copyfile(tpl / "style.css", out.parent / "style.css")
     files = {}

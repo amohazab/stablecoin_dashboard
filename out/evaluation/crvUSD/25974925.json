@@ -1,10 +1,791 @@
 {
  "bundle_hash": "aa826538251f62761ca003038185c22aeb8ee4ea3fcd4eb0f36fecb51573c28a",
- "generation": [],
- "judge": [],
- "outcome": "blocked_S3",
+ "generation": [
+  {
+   "calls": [
+    {
+     "cache_creation_input_tokens": 0,
+     "cache_read_input_tokens": 0,
+     "input_tokens": 9669,
+     "output_tokens": 786
+    },
+    {
+     "cache_creation_input_tokens": 0,
+     "cache_read_input_tokens": 0,
+     "input_tokens": 10124,
+     "output_tokens": 977
+    }
+   ],
+   "effort": "low",
+   "input_hash": "d15446b34fa1d862c93282ebcfec0fbe93dc3ee6a30ef1fb1f06f36d357f7ab0",
+   "model": "claude-sonnet-5",
+   "pass": 1,
+   "prompt_hash": "155ed3530cb521f3da490600ccb1b7fe77464070344acabe0e0dac280b9fb009",
+   "reasks": 1,
+   "references_added": [],
+   "references_field_ids": [
+    "verif.bar.terminal",
+    "verif.bar.terminal_other_layer",
+    "verif.bar.disclosure_dependent",
+    "verif.truncated_share",
+    "tree.node.0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2.share",
+    "tree.node.0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0.share",
+    "tree.node.0x2260fac5e5542a773aa44fbcfedf7c193bc2c599.share",
+    "verif.staleness.0x2260fac5e5542a773aa44fbcfedf7c193bc2c599.last_disclosure_date",
+    "verif.staleness.0x2260fac5e5542a773aa44fbcfedf7c193bc2c599.staleness_days",
+    "verif.staleness.0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf.last_disclosure_date",
+    "verif.staleness.0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf.staleness_days",
+    "verif.staleness.0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf.share",
+    "verif.staleness.0x8236a87084f8b84306f72007f36f2618a5634494.last_disclosure_date",
+    "verif.staleness.0x8236a87084f8b84306f72007f36f2618a5634494.staleness_days",
+    "verif.staleness.0x8236a87084f8b84306f72007f36f2618a5634494.share",
+    "verif.staleness.worst.share",
+    "verif.banner"
+   ],
+   "rejected": [
+    {
+     "guard_violations": {
+      "numbers_not_printed": [
+       "7 days"
+      ]
+     },
+     "printed_by": {
+      "1.0 days": [
+       "verif.staleness.0x2260fac5e5542a773aa44fbcfedf7c193bc2c599.staleness_days",
+       "verif.staleness.0x8236a87084f8b84306f72007f36f2618a5634494.staleness_days",
+       "verif.staleness.0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf.staleness_days",
+       "verif.staleness.weighted_days",
+       "verif.staleness.worst.days"
+      ],
+      "3.6%": [
+       "tree.node.0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2.share",
+       "verif.bar.terminal"
+      ],
+      "34.5%": [
+       "tree.node.0x2260fac5e5542a773aa44fbcfedf7c193bc2c599.share",
+       "verif.staleness.0x2260fac5e5542a773aa44fbcfedf7c193bc2c599.share",
+       "verif.staleness.worst.share"
+      ],
+      "40.6%": [
+       "verif.bar.disclosure_dependent"
+      ],
+      "45.7%": [
+       "tree.node.0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0.share"
+      ],
+      "55.8%": [
+       "verif.bar.terminal_other_layer"
+      ]
+     },
+     "references_field_ids": [
+      "verif.bar.terminal",
+      "verif.bar.terminal_other_layer",
+      "verif.bar.disclosure_dependent",
+      "tree.node.0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2.share",
+      "tree.node.0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0.share",
+      "tree.node.0x2260fac5e5542a773aa44fbcfedf7c193bc2c599.share",
+      "verif.truncated_share",
+      "verif.staleness.worst.symbol",
+      "verif.staleness.worst.days",
+      "verif.staleness.0x2260fac5e5542a773aa44fbcfedf7c193bc2c599.staleness_days",
+      "verif.staleness.0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf.staleness_days",
+      "verif.staleness.0x8236a87084f8b84306f72007f36f2618a5634494.staleness_days",
+      "verif.staleness.0x2260fac5e5542a773aa44fbcfedf7c193bc2c599.last_disclosure_date",
+      "verif.banner"
+     ],
+     "text": "About 3.6% of backing sits in WETH, an asset whose value can be checked directly on-chain. A much larger slice, 55.8%, is held in wrapped collateral that can only be checked one layer down, through the wrapper; the biggest piece here is wstETH at 45.7%. The remaining 40.6% depends on issuer or custodian disclosures rather than something checkable on-chain, and the largest holding in that class is WBTC at 34.5%.\n\nThe disclosure-dependent collateral is not stale by much: the worst node, WBTC, has a staleness of 1.0 days, and cbBTC and LBTC show the same 1.0 days figure, with disclosure dates all recorded as 2026-09-13. None of this backing is depth-truncated, so there is no portion where checking has been cut short for lack of data.\n\nThe verifiability of this whole picture is conditional on a governance banner: both minting new supply and setting the oracle used to value collateral can be changed by the dao's governance process, and any such change carries a delay of 1–7 days before it takes effect. That means the classes and shares described above hold only as long as governance does not alter minting or oracle settings, and any change would only be felt after that delay window."
+    }
+   ],
+   "sampling": null,
+   "slot": "verifiability_narrative",
+   "stop_reason": "end_turn",
+   "text": "Only 3.6% of crvUSD's backing sits in assets you can check directly on-chain, and within that class WETH is the largest holding. A much bigger slice, 55.8%, is checkable one layer down, through a wrapper — here wstETH is the largest such collateral. The remaining 40.6% of backing depends on issuer or custodian disclosures rather than on-chain verification, and WBTC is the largest holding in that class.\n\nNone of the disclosure-dependent collateral is depth-truncated, so there is no missing slice hidden by data limits. But this class relies on published disclosures rather than on-chain proofs: WBTC, cbBTC and LBTC all show a last disclosure date of 2026-09-13, with staleness of 1.0 days each. WBTC alone makes up 34.5% of total backing, so its disclosure freshness matters most for how well the backing can currently be checked; cbBTC contributes 6.1% and LBTC less than 0.1%.\n\nA governance banner shows that minting and oracle settings can both be changed by DAO governance, each subject to a delay of 1–7d. Because these controls sit behind the same governance path and delay, changes to how crvUSD is minted or how its price is read are not instant, but they are not independently checkable on-chain either — they depend on the same disclosed process as the collateral itself.",
+   "thinking": "adaptive",
+   "usage": {
+    "input_tokens": 19793,
+    "output_tokens": 1763
+   }
+  },
+  {
+   "calls": [
+    {
+     "cache_creation_input_tokens": 0,
+     "cache_read_input_tokens": 0,
+     "input_tokens": 25245,
+     "output_tokens": 647
+    }
+   ],
+   "effort": "low",
+   "input_hash": "2efb089ceb453d91f25dac8b3b804a35da7d4f302897eae42c3f81cdd4f4cffb",
+   "model": "claude-sonnet-5",
+   "pass": 1,
+   "prompt_hash": "155ed3530cb521f3da490600ccb1b7fe77464070344acabe0e0dac280b9fb009",
+   "reasks": 0,
+   "references_added": [],
+   "references_field_ids": [
+    "headline.m1.pre.ratio",
+    "headline.m1.post.ratio",
+    "headline.m1.gap",
+    "headline.m2.bad_debt",
+    "headline.m3.forced_sell_volume",
+    "headline.m3.exit_depth",
+    "headline.m3.ratio",
+    "stress.structural_zero.flag",
+    "stress.structural_zero.reason",
+    "panel.M1-s20-d0-lp60.m3.exit_depth",
+    "panel.M1-s20-d0-lp60.m3.ratio"
+   ],
+   "rejected": [],
+   "sampling": null,
+   "slot": "member1_opening",
+   "stop_reason": "end_turn",
+   "text": "When the collateral behind this stablecoin drops sharply in price, crvUSD's LLAMMA system moves positions through soft liquidation: it converts collateral inside the crossed price bands as the price falls, rather than waiting for a single default event. PegKeepers, which can mint or burn crvUSD against paired stable pools, sit alongside this as a separate stabilizing mechanism.\n\nBefore the shock, collateral coverage across the book stood at 0.99. After the shock modeled here, coverage rose to 1.20, a gap of 0.2118 restored by the liquidation mechanism converting collateral through the bands. Bad debt in this scenario came to $6, a small figure against the book. Forced sales — the collateral that must be sold — also came to $6, measured against exit liquidity of $20.4M, giving a forced-sales-to-exit-liquidity ratio of under 0.1%.\n\nBad debt on this grid is structurally zero: soft liquidation converts collateral at band prices before positions become insolvent, so the mechanism itself prevents the kind of shortfall that would otherwise register as bad debt.\n\nAt higher levels of liquidity-provider flight in the exit-liquidity grid, some cells show exit liquidity falling to $0, which leaves the forced-sales-to-exit-liquidity ratio undefined at that point — there is no exit venue left to absorb any forced selling, whatever its size.",
+   "thinking": "adaptive",
+   "usage": {
+    "input_tokens": 25245,
+    "output_tokens": 647
+   }
+  },
+  {
+   "calls": [
+    {
+     "cache_creation_input_tokens": 0,
+     "cache_read_input_tokens": 0,
+     "input_tokens": 9045,
+     "output_tokens": 795
+    }
+   ],
+   "effort": "low",
+   "input_hash": "a753cc58de3eab6f229e5169c2cc600b4a0ac47ee26d455087cfccac28e2f02a",
+   "model": "claude-sonnet-5",
+   "pass": 1,
+   "prompt_hash": "155ed3530cb521f3da490600ccb1b7fe77464070344acabe0e0dac280b9fb009",
+   "reasks": 0,
+   "references_added": [
+    "exit.curve.s0.005.s",
+    "exit.curve.s0.02.s"
+   ],
+   "references_field_ids": [
+    "m2.headline.m3.forced_sell_volume",
+    "m2.headline.m3.ratio",
+    "exit.member2_target",
+    "m2.target.t0.88",
+    "m2.target.t0.93",
+    "m2.target.t0.97",
+    "m2.curve.t0.88.s0.005",
+    "m2.curve.t0.93.s0.005",
+    "m2.curve.t0.97.s0.005",
+    "m2.curve.t0.88.s0.02",
+    "m2.curve.t0.93.s0.02",
+    "m2.curve.t0.97.s0.02",
+    "headline.m4.effective",
+    "headline.m4.burn_capacity",
+    "headline.m4.paired_units_held.0xfb726f57d251ab5c731e5c64ed4f5f94351ef9f3",
+    "headline.m4.paired_units_held.0x338cb2d827112d989a861cde87cd9ffd913a1f9d",
+    "assumption.structural_insulation",
+    "exit.curve.s0.005.s",
+    "exit.curve.s0.02.s"
+   ],
+   "rejected": [],
+   "sampling": null,
+   "slot": "member2_opening",
+   "stop_reason": "end_turn",
+   "text": "crvUSD is not directly minted or redeemed against the paired stablecoin at 0xdac17f…1ec7, so a depeg of that paired asset does not force crvUSD's mechanism itself to sell collateral. This is why forced sales in the Member-2 headline depeg scenario (paired stablecoin at its middle target, no liquidity-provider flight) come out at $0, with a ratio of forced sales to exit liquidity of 0.\n\nThat zero is a statement about the mechanism, not about market exposure. Holders who want to exit crvUSD still have to sell into pools, and those pools thin out as the paired stablecoin's price target moves further from parity: exit liquidity at a price impact of 0.5% falls from $17.1M when the target sits at 0.97, to $16.2M at 0.93, to $15.2M at 0.88. The same pattern holds at wider price impacts, for example at 2.0% impact exit liquidity runs $19.8M at 0.97, $18.9M at 0.93, and $17.8M at 0.88.\n\nSeparately, the PegKeeper's usable headroom stands at $85.4M, with $6.6M of burn capacity, and its paired-unit holdings are concentrated almost entirely in one address at $6.4M, with the other listed addresses holding $0. None of this changes the forced-sale figure, but it shapes how much cushion exists around the exit venues that actually absorb selling pressure during a depeg of the paired stablecoin.",
+   "thinking": "adaptive",
+   "usage": {
+    "input_tokens": 9045,
+    "output_tokens": 795
+   }
+  },
+  {
+   "calls": [
+    {
+     "cache_creation_input_tokens": 0,
+     "cache_read_input_tokens": 0,
+     "input_tokens": 3338,
+     "output_tokens": 32
+    }
+   ],
+   "effort": "low",
+   "input_hash": "4d3b2efff9a1bcb89c66e4d60f0cd992b97a53449a11417155913fc137ef36c6",
+   "model": "claude-sonnet-5",
+   "pass": 1,
+   "prompt_hash": "155ed3530cb521f3da490600ccb1b7fe77464070344acabe0e0dac280b9fb009",
+   "reasks": 0,
+   "references_added": [],
+   "references_field_ids": [],
+   "rejected": [],
+   "sampling": null,
+   "slot": "flag_explanations",
+   "stop_reason": "end_turn",
+   "text": "No notices are open for crvUSD this run.",
+   "thinking": "adaptive",
+   "usage": {
+    "input_tokens": 3338,
+    "output_tokens": 32
+   }
+  },
+  {
+   "calls": [
+    {
+     "cache_creation_input_tokens": 0,
+     "cache_read_input_tokens": 0,
+     "input_tokens": 4349,
+     "output_tokens": 932
+    }
+   ],
+   "effort": "low",
+   "input_hash": "6128d973e1341d5d4d2c295efbc552540c6a61b43a94fb73a787681f798baa04",
+   "model": "claude-sonnet-5",
+   "pass": 1,
+   "prompt_hash": "155ed3530cb521f3da490600ccb1b7fe77464070344acabe0e0dac280b9fb009",
+   "reasks": 0,
+   "references_added": [],
+   "references_field_ids": [
+    "headline.cf.H1_kill.value_primary",
+    "headline.cf.H1_kill.value_counterfactual",
+    "headline.cf.H1_kill.metric_affected",
+    "headline.cf.H1_kill.description",
+    "headline.cf.EMA_lag.value_primary",
+    "headline.cf.EMA_lag.value_counterfactual",
+    "headline.cf.EMA_lag.metric_affected",
+    "headline.cf.EMA_lag.description",
+    "assumption.ema_lag_readings"
+   ],
+   "rejected": [],
+   "sampling": null,
+   "slot": "counterfactual_explanations",
+   "stop_reason": "end_turn",
+   "text": "One test asks what happens to the gap between assets and liabilities, measured here as bad debt, if the PegKeepers were switched off so they could no longer mint or burn crvUSD to defend the peg. The result shows no change at all: bad debt comes out at $6 (5.96) whether the PegKeepers are left running or switched off. That tells you this particular shortfall does not come from the PegKeepers' buying and selling activity — something else is driving it, so removing their defence mechanism here neither helps nor hurts the number.\n\nA second test asks what happens if the price oracle is allowed to lag the market by its full moving-average window, rather than tracking price instantly. Under instant pricing the upper bound on collateral value at risk is $0, but once the lag is applied it jumps to $31.7M. The underlying coverage figures show why: at a 50 percent shock the collateral-to-debt ratio falls from 1.203998 with instant pricing to 0.790398 once the oracle lags the market, and at a 70 percent shock it falls from 1.125962 to 0.372248. In both cases the lagged figure is markedly worse, and at the higher shock level it drops well below the point where collateral would fully cover debt. This shows that the delay built into the oracle's averaging window, not the size of the shock alone, is what turns a fully covered position into a shortfall — the slower the price catches up, the more collateral value can already have been lost by the time it is recognised.",
+   "thinking": "adaptive",
+   "usage": {
+    "input_tokens": 4349,
+    "output_tokens": 932
+   }
+  },
+  {
+   "calls": [
+    {
+     "cache_creation_input_tokens": 0,
+     "cache_read_input_tokens": 0,
+     "input_tokens": 10740,
+     "output_tokens": 1125
+    }
+   ],
+   "effort": "low",
+   "input_hash": "c2f48852c51a8287d337a739d28b4fee1db6129db4f518725347e3c770763f13",
+   "model": "claude-sonnet-5",
+   "pass": 1,
+   "prompt_hash": "155ed3530cb521f3da490600ccb1b7fe77464070344acabe0e0dac280b9fb009",
+   "reasks": 0,
+   "references_added": [],
+   "references_field_ids": [
+    "admin.mint.0xb7400d2ea0f6dc1d7b153aa430b9e572f28afb79.holder_address",
+    "admin.mint.0xb7400d2ea0f6dc1d7b153aa430b9e572f28afb79.holder_type",
+    "admin.mint.0xb7400d2ea0f6dc1d7b153aa430b9e572f28afb79.delay_seconds",
+    "admin.mint.0xb7400d2ea0f6dc1d7b153aa430b9e572f28afb79.veto_address",
+    "admin.set_ceiling.0xb7400d2ea0f6dc1d7b153aa430b9e572f28afb79.delay_seconds",
+    "admin.set_ceiling.0xb7400d2ea0f6dc1d7b153aa430b9e572f28afb79.veto_address",
+    "admin.set_oracle.0xb7400d2ea0f6dc1d7b153aa430b9e572f28afb79.holder_address",
+    "admin.set_oracle.0xb7400d2ea0f6dc1d7b153aa430b9e572f28afb79.delay_seconds",
+    "admin.set_oracle.0xb7400d2ea0f6dc1d7b153aa430b9e572f28afb79.veto_address",
+    "admin.set_parameters.0xb7400d2ea0f6dc1d7b153aa430b9e572f28afb79.holder_address",
+    "admin.set_parameters.0xb7400d2ea0f6dc1d7b153aa430b9e572f28afb79.delay_seconds",
+    "admin.set_parameters.0xb7400d2ea0f6dc1d7b153aa430b9e572f28afb79.veto_address",
+    "admin.pause.0x467947ee34af926cf1dcac093870f613c96b1e0c.holder_address",
+    "admin.pause.0x467947ee34af926cf1dcac093870f613c96b1e0c.delay_seconds",
+    "admin.upgrade.None.upgradeability",
+    "admin.freeze_asset.None.holder_type",
+    "admin.blacklist_address.None.holder_type",
+    "admin.seize.None.holder_type"
+   ],
+   "rejected": [],
+   "sampling": null,
+   "slot": "admin_surface_narrative",
+   "stop_reason": "end_turn",
+   "text": "Minting power sits with a dao governance holder at 0xb7400d…fb79. Any change takes effect only after a delay of 7 days, and no veto address is recorded for this action, so once the delay passes the change goes through unopposed. The same holder also controls the ceiling that limits new supply, again with a delay of 7 days, but here a veto address at 0x467947…1e0c is recorded, meaning that action can be blocked before it takes effect.\n\nThe oracle that feeds the price used for the system can also be changed by 0xb7400d…fb79, with the same delay of 7 days, and this action too carries a veto address at 0x467947…1e0c. Other core settings, grouped as parameters, follow the identical pattern: same holder, a delay of 7 days, and the same veto holder able to intervene. Pausing the system, by contrast, rests with 0x467947…1e0c directly and can happen with no delay at all.\n\nContract code itself cannot be upgraded, since the upgrade path is recorded as immutable, and there is no holder listed for freezing assets, blacklisting addresses, or seizing funds. So the only ways backing or minting can change run through the dao governance holder and its associated veto holder, and the fastest of these, pausing, carries no delay at all.",
+   "thinking": "adaptive",
+   "usage": {
+    "input_tokens": 10740,
+    "output_tokens": 1125
+   }
+  },
+  {
+   "calls": [
+    {
+     "cache_creation_input_tokens": 0,
+     "cache_read_input_tokens": 0,
+     "input_tokens": 20039,
+     "output_tokens": 574
+    }
+   ],
+   "effort": "low",
+   "input_hash": "85876a5db1739f06324d7a942f25333eacb7b5a387f270f8a46748b5b84688d7",
+   "model": "claude-sonnet-5",
+   "pass": 1,
+   "prompt_hash": "155ed3530cb521f3da490600ccb1b7fe77464070344acabe0e0dac280b9fb009",
+   "reasks": 0,
+   "references_added": [],
+   "references_field_ids": [
+    "supply.total_supply",
+    "tree.root.backed_supply",
+    "supply.residual",
+    "supply.residual.description",
+    "supply.family.1.total",
+    "supply.family.2.total",
+    "supply.family.0.total",
+    "supply.residual_unexplained",
+    "tree.root.backing_value",
+    "verif.bar.terminal",
+    "verif.bar.terminal_other_layer",
+    "verif.bar.disclosure_dependent",
+    "stress.structural_zero.flag",
+    "stress.structural_zero.reason",
+    "headline.m3.forced_sell_volume",
+    "headline.m3.exit_depth",
+    "headline.m3.ratio"
+   ],
+   "rejected": [],
+   "sampling": null,
+   "slot": "structural_summary",
+   "stop_reason": "end_turn",
+   "text": "Of the total supply of $2.1B, only $82.9M is backed by the traced mint-market collateral this report follows; the residual of $2.0B is described as crvUSD minted but not borrowed, held by the protocol's own contracts, not in circulation, with the named causes accounting for it. That residual breaks down into mint-controller pre-mint inventory of $643.5M, PegKeeper undrawn inventory of $317.4M, and other non-mint-market minting facilitators totaling $1.1B, leaving only $284.1k unexplained.\n\nOf the traced backing value of $152.1M, 3.6% sits in assets whose value can be checked directly on-chain, 55.8% sits in wrapped assets checkable one layer down through their wrapper, and 40.6% relies on an issuer's or custodian's published disclosures. Bad debt against this backing is structurally zero, because soft liquidation converts collateral at band prices before positions become insolvent. In the headline stress scenario, forced sales of $6 against exit liquidity of $20.4M give a forced-sales-to-exit-liquidity ratio of < 0.1%.",
+   "thinking": "adaptive",
+   "usage": {
+    "input_tokens": 20039,
+    "output_tokens": 574
+   }
+  },
+  {
+   "carried": true,
+   "pass": 2,
+   "references_field_ids": [
+    "verif.bar.terminal",
+    "verif.bar.terminal_other_layer",
+    "verif.bar.disclosure_dependent",
+    "verif.truncated_share",
+    "tree.node.0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2.share",
+    "tree.node.0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0.share",
+    "tree.node.0x2260fac5e5542a773aa44fbcfedf7c193bc2c599.share",
+    "verif.staleness.0x2260fac5e5542a773aa44fbcfedf7c193bc2c599.last_disclosure_date",
+    "verif.staleness.0x2260fac5e5542a773aa44fbcfedf7c193bc2c599.staleness_days",
+    "verif.staleness.0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf.last_disclosure_date",
+    "verif.staleness.0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf.staleness_days",
+    "verif.staleness.0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf.share",
+    "verif.staleness.0x8236a87084f8b84306f72007f36f2618a5634494.last_disclosure_date",
+    "verif.staleness.0x8236a87084f8b84306f72007f36f2618a5634494.staleness_days",
+    "verif.staleness.0x8236a87084f8b84306f72007f36f2618a5634494.share",
+    "verif.staleness.worst.share",
+    "verif.banner"
+   ],
+   "slot": "verifiability_narrative",
+   "text": "Only 3.6% of crvUSD's backing sits in assets you can check directly on-chain, and within that class WETH is the largest holding. A much bigger slice, 55.8%, is checkable one layer down, through a wrapper — here wstETH is the largest such collateral. The remaining 40.6% of backing depends on issuer or custodian disclosures rather than on-chain verification, and WBTC is the largest holding in that class.\n\nNone of the disclosure-dependent collateral is depth-truncated, so there is no missing slice hidden by data limits. But this class relies on published disclosures rather than on-chain proofs: WBTC, cbBTC and LBTC all show a last disclosure date of 2026-09-13, with staleness of 1.0 days each. WBTC alone makes up 34.5% of total backing, so its disclosure freshness matters most for how well the backing can currently be checked; cbBTC contributes 6.1% and LBTC less than 0.1%.\n\nA governance banner shows that minting and oracle settings can both be changed by DAO governance, each subject to a delay of 1–7d. Because these controls sit behind the same governance path and delay, changes to how crvUSD is minted or how its price is read are not instant, but they are not independently checkable on-chain either — they depend on the same disclosed process as the collateral itself."
+  },
+  {
+   "carried": true,
+   "pass": 2,
+   "references_field_ids": [
+    "headline.m1.pre.ratio",
+    "headline.m1.post.ratio",
+    "headline.m1.gap",
+    "headline.m2.bad_debt",
+    "headline.m3.forced_sell_volume",
+    "headline.m3.exit_depth",
+    "headline.m3.ratio",
+    "stress.structural_zero.flag",
+    "stress.structural_zero.reason",
+    "panel.M1-s20-d0-lp60.m3.exit_depth",
+    "panel.M1-s20-d0-lp60.m3.ratio"
+   ],
+   "slot": "member1_opening",
+   "text": "When the collateral behind this stablecoin drops sharply in price, crvUSD's LLAMMA system moves positions through soft liquidation: it converts collateral inside the crossed price bands as the price falls, rather than waiting for a single default event. PegKeepers, which can mint or burn crvUSD against paired stable pools, sit alongside this as a separate stabilizing mechanism.\n\nBefore the shock, collateral coverage across the book stood at 0.99. After the shock modeled here, coverage rose to 1.20, a gap of 0.2118 restored by the liquidation mechanism converting collateral through the bands. Bad debt in this scenario came to $6, a small figure against the book. Forced sales — the collateral that must be sold — also came to $6, measured against exit liquidity of $20.4M, giving a forced-sales-to-exit-liquidity ratio of under 0.1%.\n\nBad debt on this grid is structurally zero: soft liquidation converts collateral at band prices before positions become insolvent, so the mechanism itself prevents the kind of shortfall that would otherwise register as bad debt.\n\nAt higher levels of liquidity-provider flight in the exit-liquidity grid, some cells show exit liquidity falling to $0, which leaves the forced-sales-to-exit-liquidity ratio undefined at that point — there is no exit venue left to absorb any forced selling, whatever its size."
+  },
+  {
+   "carried": true,
+   "pass": 2,
+   "references_field_ids": [
+    "m2.headline.m3.forced_sell_volume",
+    "m2.headline.m3.ratio",
+    "exit.member2_target",
+    "m2.target.t0.88",
+    "m2.target.t0.93",
+    "m2.target.t0.97",
+    "m2.curve.t0.88.s0.005",
+    "m2.curve.t0.93.s0.005",
+    "m2.curve.t0.97.s0.005",
+    "m2.curve.t0.88.s0.02",
+    "m2.curve.t0.93.s0.02",
+    "m2.curve.t0.97.s0.02",
+    "headline.m4.effective",
+    "headline.m4.burn_capacity",
+    "headline.m4.paired_units_held.0xfb726f57d251ab5c731e5c64ed4f5f94351ef9f3",
+    "headline.m4.paired_units_held.0x338cb2d827112d989a861cde87cd9ffd913a1f9d",
+    "assumption.structural_insulation",
+    "exit.curve.s0.005.s",
+    "exit.curve.s0.02.s"
+   ],
+   "slot": "member2_opening",
+   "text": "crvUSD is not directly minted or redeemed against the paired stablecoin at 0xdac17f…1ec7, so a depeg of that paired asset does not force crvUSD's mechanism itself to sell collateral. This is why forced sales in the Member-2 headline depeg scenario (paired stablecoin at its middle target, no liquidity-provider flight) come out at $0, with a ratio of forced sales to exit liquidity of 0.\n\nThat zero is a statement about the mechanism, not about market exposure. Holders who want to exit crvUSD still have to sell into pools, and those pools thin out as the paired stablecoin's price target moves further from parity: exit liquidity at a price impact of 0.5% falls from $17.1M when the target sits at 0.97, to $16.2M at 0.93, to $15.2M at 0.88. The same pattern holds at wider price impacts, for example at 2.0% impact exit liquidity runs $19.8M at 0.97, $18.9M at 0.93, and $17.8M at 0.88.\n\nSeparately, the PegKeeper's usable headroom stands at $85.4M, with $6.6M of burn capacity, and its paired-unit holdings are concentrated almost entirely in one address at $6.4M, with the other listed addresses holding $0. None of this changes the forced-sale figure, but it shapes how much cushion exists around the exit venues that actually absorb selling pressure during a depeg of the paired stablecoin."
+  },
+  {
+   "carried": true,
+   "pass": 2,
+   "references_field_ids": [],
+   "slot": "flag_explanations",
+   "text": "No notices are open for crvUSD this run."
+  },
+  {
+   "carried": true,
+   "pass": 2,
+   "references_field_ids": [
+    "headline.cf.H1_kill.value_primary",
+    "headline.cf.H1_kill.value_counterfactual",
+    "headline.cf.H1_kill.metric_affected",
+    "headline.cf.H1_kill.description",
+    "headline.cf.EMA_lag.value_primary",
+    "headline.cf.EMA_lag.value_counterfactual",
+    "headline.cf.EMA_lag.metric_affected",
+    "headline.cf.EMA_lag.description",
+    "assumption.ema_lag_readings"
+   ],
+   "slot": "counterfactual_explanations",
+   "text": "One test asks what happens to the gap between assets and liabilities, measured here as bad debt, if the PegKeepers were switched off so they could no longer mint or burn crvUSD to defend the peg. The result shows no change at all: bad debt comes out at $6 (5.96) whether the PegKeepers are left running or switched off. That tells you this particular shortfall does not come from the PegKeepers' buying and selling activity — something else is driving it, so removing their defence mechanism here neither helps nor hurts the number.\n\nA second test asks what happens if the price oracle is allowed to lag the market by its full moving-average window, rather than tracking price instantly. Under instant pricing the upper bound on collateral value at risk is $0, but once the lag is applied it jumps to $31.7M. The underlying coverage figures show why: at a 50 percent shock the collateral-to-debt ratio falls from 1.203998 with instant pricing to 0.790398 once the oracle lags the market, and at a 70 percent shock it falls from 1.125962 to 0.372248. In both cases the lagged figure is markedly worse, and at the higher shock level it drops well below the point where collateral would fully cover debt. This shows that the delay built into the oracle's averaging window, not the size of the shock alone, is what turns a fully covered position into a shortfall — the slower the price catches up, the more collateral value can already have been lost by the time it is recognised."
+  },
+  {
+   "carried": true,
+   "pass": 2,
+   "references_field_ids": [
+    "admin.mint.0xb7400d2ea0f6dc1d7b153aa430b9e572f28afb79.holder_address",
+    "admin.mint.0xb7400d2ea0f6dc1d7b153aa430b9e572f28afb79.holder_type",
+    "admin.mint.0xb7400d2ea0f6dc1d7b153aa430b9e572f28afb79.delay_seconds",
+    "admin.mint.0xb7400d2ea0f6dc1d7b153aa430b9e572f28afb79.veto_address",
+    "admin.set_ceiling.0xb7400d2ea0f6dc1d7b153aa430b9e572f28afb79.delay_seconds",
+    "admin.set_ceiling.0xb7400d2ea0f6dc1d7b153aa430b9e572f28afb79.veto_address",
+    "admin.set_oracle.0xb7400d2ea0f6dc1d7b153aa430b9e572f28afb79.holder_address",
+    "admin.set_oracle.0xb7400d2ea0f6dc1d7b153aa430b9e572f28afb79.delay_seconds",
+    "admin.set_oracle.0xb7400d2ea0f6dc1d7b153aa430b9e572f28afb79.veto_address",
+    "admin.set_parameters.0xb7400d2ea0f6dc1d7b153aa430b9e572f28afb79.holder_address",
+    "admin.set_parameters.0xb7400d2ea0f6dc1d7b153aa430b9e572f28afb79.delay_seconds",
+    "admin.set_parameters.0xb7400d2ea0f6dc1d7b153aa430b9e572f28afb79.veto_address",
+    "admin.pause.0x467947ee34af926cf1dcac093870f613c96b1e0c.holder_address",
+    "admin.pause.0x467947ee34af926cf1dcac093870f613c96b1e0c.delay_seconds",
+    "admin.upgrade.None.upgradeability",
+    "admin.freeze_asset.None.holder_type",
+    "admin.blacklist_address.None.holder_type",
+    "admin.seize.None.holder_type"
+   ],
+   "slot": "admin_surface_narrative",
+   "text": "Minting power sits with a dao governance holder at 0xb7400d…fb79. Any change takes effect only after a delay of 7 days, and no veto address is recorded for this action, so once the delay passes the change goes through unopposed. The same holder also controls the ceiling that limits new supply, again with a delay of 7 days, but here a veto address at 0x467947…1e0c is recorded, meaning that action can be blocked before it takes effect.\n\nThe oracle that feeds the price used for the system can also be changed by 0xb7400d…fb79, with the same delay of 7 days, and this action too carries a veto address at 0x467947…1e0c. Other core settings, grouped as parameters, follow the identical pattern: same holder, a delay of 7 days, and the same veto holder able to intervene. Pausing the system, by contrast, rests with 0x467947…1e0c directly and can happen with no delay at all.\n\nContract code itself cannot be upgraded, since the upgrade path is recorded as immutable, and there is no holder listed for freezing assets, blacklisting addresses, or seizing funds. So the only ways backing or minting can change run through the dao governance holder and its associated veto holder, and the fastest of these, pausing, carries no delay at all."
+  },
+  {
+   "carried": true,
+   "pass": 2,
+   "references_field_ids": [
+    "supply.total_supply",
+    "tree.root.backed_supply",
+    "supply.residual",
+    "supply.residual.description",
+    "supply.family.1.total",
+    "supply.family.2.total",
+    "supply.family.0.total",
+    "supply.residual_unexplained",
+    "tree.root.backing_value",
+    "verif.bar.terminal",
+    "verif.bar.terminal_other_layer",
+    "verif.bar.disclosure_dependent",
+    "stress.structural_zero.flag",
+    "stress.structural_zero.reason",
+    "headline.m3.forced_sell_volume",
+    "headline.m3.exit_depth",
+    "headline.m3.ratio"
+   ],
+   "slot": "structural_summary",
+   "text": "Of the total supply of $2.1B, only $82.9M is backed by the traced mint-market collateral this report follows; the residual of $2.0B is described as crvUSD minted but not borrowed, held by the protocol's own contracts, not in circulation, with the named causes accounting for it. That residual breaks down into mint-controller pre-mint inventory of $643.5M, PegKeeper undrawn inventory of $317.4M, and other non-mint-market minting facilitators totaling $1.1B, leaving only $284.1k unexplained.\n\nOf the traced backing value of $152.1M, 3.6% sits in assets whose value can be checked directly on-chain, 55.8% sits in wrapped assets checkable one layer down through their wrapper, and 40.6% relies on an issuer's or custodian's published disclosures. Bad debt against this backing is structurally zero, because soft liquidation converts collateral at band prices before positions become insolvent. In the headline stress scenario, forced sales of $6 against exit liquidity of $20.4M give a forced-sales-to-exit-liquidity ratio of < 0.1%."
+  }
+ ],
+ "judge": [
+  {
+   "cache": [
+    {
+     "ttl": "1h",
+     "type": "ephemeral"
+    }
+   ],
+   "effort": "medium",
+   "envelope": {
+    "bundle_hash": "8ac6132bc407aad7549f4d9f7ab127e229b521c03c58f5a8a66f03576c4f2912",
+    "criteria": [
+     {
+      "defects": [],
+      "id": "LLM-01",
+      "items": [
+       "{\"quoted_span\":\"Of the total supply of $2.1B, only $82.9M is backed by the traced mint-market collateral this report follows\",\"section_id\":\"finding\",\"claimed_value\":\"$2.1B total supply; $82.9M backed\",\"claimed_object\":\"total supply and backed (originated) supply\",\"matched_field_id\":\"supply.total_supply\",\"table_value\":\"2104809204981834354272443571 base units = 2,104,809,204.98; backed_supply 82,930,939.49\",\"match\":\"rounded_ok\"}",
+       "{\"quoted_span\":\"mint-controller pre-mint inventory of $643.5M, PegKeeper undrawn inventory of $317.4M, and other non-mint-market minting facilitators totaling $1.1B, leaving only $284.1k unexplained\",\"section_id\":\"finding\",\"claimed_value\":\"643.5M / 317.4M / 1.1B / 284.1k\",\"claimed_object\":\"named-cause family totals and residual_unexplained\",\"matched_field_id\":\"supply.family.1.total\",\"table_value\":\"643,521,890.68 / 317,413,016.69 / 1,060,650,000.75 / 284,060.19\",\"match\":\"rounded_ok\"}",
+       "{\"quoted_span\":\"Of the traced backing value of $152.1M, 3.6% sits in assets whose value can be checked directly on-chain, 55.8% sits in wrapped assets checkable one layer down through their wrapper, and 40.6% relies on an issuer's or custodian's published disclosures.\",\"section_id\":\"finding\",\"claimed_value\":\"$152.1M; 3.6%; 55.8%; 40.6%\",\"claimed_object\":\"backing value and the three verifiability bars (denominator backing_value)\",\"matched_field_id\":\"verif.bar.terminal\",\"table_value\":\"152,060,360; 0.036132; 0.558019; 0.405850\",\"match\":\"rounded_ok\"}",
+       "{\"quoted_span\":\"forced sales of $6 against exit liquidity of $20.4M give a forced-sales-to-exit-liquidity ratio of < 0.1%\",\"section_id\":\"finding\",\"claimed_value\":\"$6; $20.4M; < 0.1%\",\"claimed_object\":\"headline m3 forced_sell_volume, exit_depth, ratio (denominator exit_depth)\",\"matched_field_id\":\"headline.m3.ratio\",\"table_value\":\"5.96; 20,440,870.89; 2.9147e-7\",\"match\":\"rounded_ok\"}",
+       "{\"quoted_span\":\"within that class WETH is the largest holding\",\"section_id\":\"backing\",\"claimed_value\":\"WETH largest in terminal class\",\"claimed_object\":\"ranking within bar 1 (terminal)\",\"matched_field_id\":\"tree.node.0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2.share\",\"table_value\":\"0.036132 — sole terminal node, equal to bar 1\",\"match\":\"exact\"}",
+       "{\"quoted_span\":\"here wstETH is the largest such collateral\",\"section_id\":\"backing\",\"claimed_value\":\"wstETH largest in terminal_other_layer class\",\"claimed_object\":\"ranking within bar 2\",\"matched_field_id\":\"tree.node.0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0.share\",\"table_value\":\"0.456971 vs tBTC 0.066026, sfrxETH 0.031041, weETH 0.003980\",\"match\":\"exact\"}",
+       "{\"quoted_span\":\"WBTC alone makes up 34.5% of total backing\",\"section_id\":\"backing\",\"claimed_value\":\"34.5%\",\"claimed_object\":\"WBTC share of backing_value\",\"matched_field_id\":\"tree.node.0x2260fac5e5542a773aa44fbcfedf7c193bc2c599.share\",\"table_value\":\"0.3451253041884157054474946659\",\"match\":\"rounded_ok\"}",
+       "{\"quoted_span\":\"cbBTC contributes 6.1% and LBTC less than 0.1%\",\"section_id\":\"backing\",\"claimed_value\":\"6.1%; < 0.1%\",\"claimed_object\":\"cbBTC and LBTC shares of backing_value\",\"matched_field_id\":\"tree.node.0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf.share\",\"table_value\":\"0.060724; 1.9729e-8\",\"match\":\"rounded_ok\"}",
+       "{\"quoted_span\":\"WBTC, cbBTC and LBTC all show a last disclosure date of 2026-09-13, with staleness of 1.0 days each\",\"section_id\":\"backing\",\"claimed_value\":\"2026-09-13; 1.0 days\",\"claimed_object\":\"per-node last disclosure date and staleness days\",\"matched_field_id\":\"verif.staleness.0x2260fac5e5542a773aa44fbcfedf7c193bc2c599.last_disclosure_date\",\"table_value\":\"2026-09-13; 1\",\"match\":\"exact\"}",
+       "{\"quoted_span\":\"In that scenario liquidations leave $6 of bad debt (< 0.01% of supply) and require selling $6 into $20.4M of exit liquidity.\",\"section_id\":\"break\",\"claimed_value\":\"$6; < 0.01% of supply; $20.4M\",\"claimed_object\":\"headline m2 bad_debt, m2 pct_supply (denominator supply_ruled), m3 exit_depth\",\"matched_field_id\":\"headline.m2.pct_supply\",\"table_value\":\"5.96; 2.8307e-9; 20,440,870.89\",\"match\":\"rounded_ok\"}",
+       "{\"quoted_span\":\"if 60% of liquidity providers leave at a 70% fall, no exit liquidity is left\",\"section_id\":\"break\",\"claimed_value\":\"zero exit liquidity at lp60/s70\",\"claimed_object\":\"M1-s70-d0-lp60 exit_depth\",\"matched_field_id\":\"panel.M1-s70-d0-lp60.m3.exit_depth\",\"table_value\":\"0\",\"match\":\"exact\"}",
+       "{\"quoted_span\":\"bad debt comes out at $6 (5.96) whether the PegKeepers are left running or switched off\",\"section_id\":\"counterfactuals\",\"claimed_value\":\"5.96 primary and counterfactual\",\"claimed_object\":\"H1_kill counterfactual line on m2\",\"matched_field_id\":\"headline.cf.H1_kill.value_counterfactual\",\"table_value\":\"5957996383823311527 base units = 5.96 both sides\",\"match\":\"exact\"}",
+       "{\"quoted_span\":\"Under instant pricing the upper bound on collateral value at risk is $0, but once the lag is applied it jumps to $31.7M.\",\"section_id\":\"counterfactuals\",\"claimed_value\":\"$0; $31.7M\",\"claimed_object\":\"EMA_lag counterfactual line values\",\"matched_field_id\":\"headline.cf.EMA_lag.value_counterfactual\",\"table_value\":\"0; 31,692,837.14\",\"match\":\"rounded_ok\"}",
+       "{\"quoted_span\":\"the collateral-to-debt ratio falls from 1.203998 with instant pricing to 0.790398 once the oracle lags the market, and at a 70 percent shock it falls from 1.125962 to 0.372248\",\"section_id\":\"counterfactuals\",\"claimed_value\":\"1.203998/0.790398 and 1.125962/0.372248\",\"claimed_object\":\"m1.post primary vs EMA_lag readings at s50 and s70\",\"matched_field_id\":\"assumption.ema_lag_readings\",\"table_value\":\"M1-s50: 1.203998 vs 0.790398; M1-s70: 1.125962 vs 0.372248\",\"match\":\"exact\"}",
+       "{\"quoted_span\":\"Before the shock, collateral coverage across the book stood at 0.99. After the shock modeled here, coverage rose to 1.20, a gap of 0.2118\",\"section_id\":\"exit-liquidity\",\"claimed_value\":\"0.99; 1.20; 0.2118\",\"claimed_object\":\"headline m1 pre ratio, post ratio, gap\",\"matched_field_id\":\"headline.m1.gap\",\"table_value\":\"0.992165; 1.203998; 0.211834\",\"match\":\"rounded_ok\"}",
+       "{\"quoted_span\":\"exit liquidity at a price impact of 0.5% falls from $17.1M when the target sits at 0.97, to $16.2M at 0.93, to $15.2M at 0.88\",\"section_id\":\"exit-liquidity\",\"claimed_value\":\"17.1M / 16.2M / 15.2M\",\"claimed_object\":\"Member-2 recomputed depth curves at s = 0.005\",\"matched_field_id\":\"m2.curve.t0.97.s0.005\",\"table_value\":\"17,064,244.69; 16,246,960.02; 15,236,339.64\",\"match\":\"rounded_ok\"}",
+       "{\"quoted_span\":\"at 2.0% impact exit liquidity runs $19.8M at 0.97, $18.9M at 0.93, and $17.8M at 0.88\",\"section_id\":\"exit-liquidity\",\"claimed_value\":\"19.8M / 18.9M / 17.8M\",\"claimed_object\":\"Member-2 recomputed depth curves at s = 0.02\",\"matched_field_id\":\"m2.curve.t0.93.s0.02\",\"table_value\":\"19,784,576.78; 18,913,044.47; 17,823,511.85\",\"match\":\"rounded_ok\"}",
+       "{\"quoted_span\":\"the PegKeeper's usable headroom stands at $85.4M, with $6.6M of burn capacity, and its paired-unit holdings are concentrated almost entirely in one address at $6.4M\",\"section_id\":\"exit-liquidity\",\"claimed_value\":\"$85.4M; $6.6M; $6.4M\",\"claimed_object\":\"metric 4 effective headroom, burn capacity, paired_units_held\",\"matched_field_id\":\"mech.effective_headroom\",\"table_value\":\"85,426,438.45; 6,586,983.31; 6,412,263.75\",\"match\":\"rounded_ok\"}",
+       "{\"quoted_span\":\"Any change takes effect only after a delay of 7 days\",\"section_id\":\"admin\",\"claimed_value\":\"7 days\",\"claimed_object\":\"mint power delay_seconds\",\"matched_field_id\":\"admin.mint.0xb7400d2ea0f6dc1d7b153aa430b9e572f28afb79.delay_seconds\",\"table_value\":\"604800 s = 7 d (bucket 1–7d)\",\"match\":\"exact\"}"
+      ],
+      "pass": true
+     },
+     {
+      "defects": [],
+      "id": "LLM-02",
+      "items": [
+       "{\"member\":1,\"rationale_present_at_open\":true,\"links_shock_to_mechanism\":true,\"names_token_mechanism\":true,\"first_result_sentence_span\":\"Before the shock, collateral coverage across the book stood at 0.99.\"}",
+       "{\"member\":2,\"rationale_present_at_open\":true,\"links_shock_to_mechanism\":true,\"names_token_mechanism\":true,\"first_result_sentence_span\":\"This is why forced sales in the Member-2 headline depeg scenario (paired stablecoin at its middle target, no liquidity-provider flight) come out at $0, with a ratio of forced sales to exit liquidity of 0.\"}"
+      ],
+      "pass": true
+     },
+     {
+      "defects": [
+       {
+        "figure_ref": "headline panel row 'bad debt 5.96'",
+        "kind": "magnitude_conflict",
+        "location": {
+         "paragraph_index": 2,
+         "quoted_span": "In that scenario liquidations leave $6 of bad debt (< 0.01% of supply) and require selling $6 into $20.4M of exit liquidity.",
+         "section_id": "break"
+        },
+        "reason": "The prose asserts a non-zero bad-debt figure of $6 in the headline scenario while the adjacent structural-zero line and the repeated prose claim in exit-liquidity [16] ('Bad debt on this grid is structurally zero ... so the mechanism itself prevents the kind of shortfall that would otherwise register as bad debt') assert that bad debt is zero across the same grid. Neither statement reconciles the $6 with the zero claim, leaving a direct magnitude conflict between prose and the rendered headline figure.",
+        "table_ref": "stress.structural_zero.flag"
+       }
+      ],
+      "id": "LLM-03",
+      "items": [
+       "{\"span_a\":\"In that scenario liquidations leave $6 of bad debt (< 0.01% of supply) and require selling $6 into $20.4M of exit liquidity.\",\"section_a\":\"break\",\"counterpart\":{\"span_b\":\"Bad debt is structurally zero on the whole grid: soft liquidation converts collateral at band prices before positions become insolvent\",\"section_b\":\"break\",\"figure_ref\":\"headline panel row 'bad debt 5.96'\"},\"nature\":\"magnitude_conflict\"}"
+      ],
+      "pass": false
+     },
+     {
+      "defects": [],
+      "id": "LLM-04",
+      "items": [
+       "{\"slot_id\":\"finding[1]\",\"token_specific\":true,\"references_field_ids\":[\"supply.total_supply\",\"tree.root.backed_supply\",\"supply.residual\",\"supply.family.1.total\",\"supply.family.2.total\",\"supply.family.0.total\",\"supply.residual_unexplained\"],\"generic_spans\":[]}",
+       "{\"slot_id\":\"finding[2]\",\"token_specific\":true,\"references_field_ids\":[\"tree.root.backing_value\",\"verif.bar.terminal\",\"verif.bar.terminal_other_layer\",\"verif.bar.disclosure_dependent\",\"stress.structural_zero.reason\",\"headline.m3.ratio\"],\"generic_spans\":[]}",
+       "{\"slot_id\":\"backing[18]\",\"token_specific\":true,\"references_field_ids\":[\"tree.node.0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2.share\",\"tree.node.0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0.share\",\"tree.node.0x2260fac5e5542a773aa44fbcfedf7c193bc2c599.share\"],\"generic_spans\":[]}",
+       "{\"slot_id\":\"backing[19]\",\"token_specific\":true,\"references_field_ids\":[\"verif.truncated_share\",\"verif.staleness.0x2260fac5e5542a773aa44fbcfedf7c193bc2c599.staleness_days\",\"verif.staleness.0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf.share\",\"tree.node.0x8236a87084f8b84306f72007f36f2618a5634494.share\"],\"generic_spans\":[]}",
+       "{\"slot_id\":\"backing[20]\",\"token_specific\":true,\"references_field_ids\":[\"verif.banner\",\"admin.mint.0xb7400d2ea0f6dc1d7b153aa430b9e572f28afb79.delay_bucket\",\"admin.set_oracle.0xb7400d2ea0f6dc1d7b153aa430b9e572f28afb79.delay_bucket\"],\"generic_spans\":[]}",
+       "{\"slot_id\":\"break[1-2,10-11]\",\"token_specific\":true,\"references_field_ids\":[\"headline.m2.bad_debt\",\"headline.m3.exit_depth\",\"panel.M1-s70-d0-lp60.m3.exit_depth\",\"oracle.0x2260fac5e5542a773aa44fbcfedf7c193bc2c599.0x4e59541306910ad6dc1dac0ac9dfb29bd9f15c67.type\"],\"generic_spans\":[]}",
+       "{\"slot_id\":\"counterfactuals[4-5]\",\"token_specific\":true,\"references_field_ids\":[\"headline.cf.H1_kill.value_counterfactual\",\"headline.cf.EMA_lag.value_counterfactual\",\"assumption.ema_lag_readings\"],\"generic_spans\":[]}",
+       "{\"slot_id\":\"exit-liquidity[14-17] (Member 1)\",\"token_specific\":true,\"references_field_ids\":[\"headline.m1.pre.ratio\",\"headline.m1.post.ratio\",\"headline.m1.gap\",\"headline.m3.ratio\",\"assumption.undefined_ratio\"],\"generic_spans\":[]}",
+       "{\"slot_id\":\"exit-liquidity[18-20] (Member 2)\",\"token_specific\":true,\"references_field_ids\":[\"exit.member2_target\",\"m2.headline.m3.ratio\",\"m2.curve.t0.93.s0.02\",\"mech.effective_headroom\",\"mech.burn_capacity\",\"headline.m4.paired_units_held.0xfb726f57d251ab5c731e5c64ed4f5f94351ef9f3\"],\"generic_spans\":[]}",
+       "{\"slot_id\":\"admin[1-3]\",\"token_specific\":true,\"references_field_ids\":[\"admin.mint.0xb7400d2ea0f6dc1d7b153aa430b9e572f28afb79.holder_address\",\"admin.set_ceiling.0xb7400d2ea0f6dc1d7b153aa430b9e572f28afb79.veto_address\",\"admin.upgrade.None.upgradeability\",\"admin.pause.0x467947ee34af926cf1dcac093870f613c96b1e0c.delay_bucket\"],\"generic_spans\":[]}"
+      ],
+      "pass": true
+     },
+     {
+      "defects": [],
+      "id": "LLM-05",
+      "items": [
+       "{\"item_id\":\"stress.structural_zero.flag\",\"section_id\":\"exit-liquidity\",\"explained\":\"adequate\",\"explanation_span\":\"Bad debt on this grid is structurally zero: soft liquidation converts collateral at band prices before positions become insolvent, so the mechanism itself prevents the kind of shortfall that would otherwise register as bad debt.\",\"reason\":\"States what the flag means mechanistically (LLAMMA band conversion pre-empts insolvency) and what the reader should take from it; consistent with the reason literal.\"}",
+       "{\"item_id\":\"headline.cf.H1_kill\",\"section_id\":\"counterfactuals\",\"explained\":\"adequate\",\"explanation_span\":\"That tells you this particular shortfall does not come from the PegKeepers' buying and selling activity — something else is driving it, so removing their defence mechanism here neither helps nor hurts the number.\",\"reason\":\"Names the affected metric (bad debt), states the identical primary/counterfactual values and draws the correct inference about PegKeeper dependence.\"}",
+       "{\"item_id\":\"headline.cf.EMA_lag\",\"section_id\":\"counterfactuals\",\"explained\":\"adequate\",\"explanation_span\":\"This shows that the delay built into the oracle's averaging window, not the size of the shock alone, is what turns a fully covered position into a shortfall — the slower the price catches up, the more collateral value can already have been lost by the time it is recognised.\",\"reason\":\"Explains the lag mechanism against the m1.post readings at s50 and s70; consistent with the EMA_lag description and the oracle table's ema_window rows.\"}",
+       "{\"item_id\":\"assumption.undefined_ratio / 'exit exhausted' cells\",\"section_id\":\"exit-liquidity\",\"explained\":\"adequate\",\"explanation_span\":\"At higher levels of liquidity-provider flight in the exit-liquidity grid, some cells show exit liquidity falling to $0, which leaves the forced-sales-to-exit-liquidity ratio undefined at that point — there is no exit venue left to absorb any forced selling, whatever its size.\",\"reason\":\"Tells the reader why the cell is blank/undefined rather than merely repeating the label.\"}",
+       "{\"item_id\":\"headline.m4.lp_flight_share = 0\",\"section_id\":\"break\",\"explained\":\"adequate\",\"explanation_span\":\"The headline scenario is a 50% fall in the price of volatile collateral, with no extra discount on liquid-staking tokens and liquidity providers staying put — the one scenario the archetype memo names as the headline (memo §6.2.6).\",\"reason\":\"The zero LP-flight setting is named and tied to the headline cell definition.\"}",
+       "{\"item_id\":\"metric 4 quantities (effective headroom, burn capacity, paired units)\",\"section_id\":\"exit-liquidity\",\"explained\":\"adequate\",\"explanation_span\":\"None of this changes the forced-sale figure, but it shapes how much cushion exists around the exit venues that actually absorb selling pressure during a depeg of the paired stablecoin.\",\"reason\":\"Correctly disclaims PegKeeper headroom as absorption in the forced-sale lineage (consistent with the capacity assumption) while giving the reader the mechanism-trajectory reading.\"}",
+       "{\"item_id\":\"is_killed provide/withdraw flags (all false)\",\"section_id\":\"exit-liquidity\",\"explained\":\"adequate\",\"explanation_span\":\"PegKeepers, which can mint or burn crvUSD against paired stable pools, sit alongside this as a separate stabilizing mechanism.\",\"reason\":\"No keeper is killed in this run; the prose establishes the keepers are operative and the H1_kill line covers the switched-off case, so the unfired flags are accounted for without misstatement.\"}"
+      ],
+      "pass": true
+     },
+     {
+      "defects": [],
+      "id": "LLM-06",
+      "items": [
+       "{\"applicable\":true,\"negation_spans\":[],\"positive_framing\":true,\"curve_referenced\":true,\"m4_referenced\":true}"
+      ],
+      "pass": true
+     }
+    ],
+    "judge_model": "claude-opus-5",
+    "overall_pass": false,
+    "prompt_schema_version": "1",
+    "report_id": "crvUSD@25974925",
+    "rubric_version": "v1"
+   },
+   "input_hash": "f30e65b8a8661c49a107c9bddeafbef611824357e9fa8af6464874da4c82f742",
+   "item_errors": {},
+   "judge_span_not_found": [],
+   "model": "claude-opus-5",
+   "outside_prose": [],
+   "pass": 1,
+   "prompt_hash": "155ed3530cb521f3da490600ccb1b7fe77464070344acabe0e0dac280b9fb009",
+   "sampling": null,
+   "stop_reason": "end_turn",
+   "thinking": "adaptive",
+   "usage": {
+    "cache_creation_input_tokens": 100266,
+    "cache_read_input_tokens": 0,
+    "input_tokens": 11104,
+    "output_tokens": 17909
+   }
+  },
+  {
+   "cache": [
+    {
+     "ttl": "1h",
+     "type": "ephemeral"
+    }
+   ],
+   "effort": "medium",
+   "envelope": {
+    "bundle_hash": "8ac6132bc407aad7549f4d9f7ab127e229b521c03c58f5a8a66f03576c4f2912",
+    "criteria": [
+     {
+      "defects": [],
+      "id": "LLM-01",
+      "items": [
+       "{\"quoted_span\":\"Of the total supply of $2.1B, only $82.9M is backed by the traced mint-market collateral this report follows\",\"section_id\":\"finding\",\"claimed_value\":\"$2.1B / $82.9M\",\"claimed_object\":\"total supply; backed (originated) supply\",\"matched_field_id\":\"supply.total_supply\",\"table_value\":\"2104809204981834354272443571 base units / 82930939494634476560602867 base units\",\"match\":\"rounded_ok\"}",
+       "{\"quoted_span\":\"mint-controller pre-mint inventory of $643.5M\",\"section_id\":\"finding\",\"claimed_value\":\"$643.5M\",\"claimed_object\":\"named-cause family total, mint-controller pre-mint inventory\",\"matched_field_id\":\"supply.family.1.total\",\"table_value\":\"643521890676176071476325768\",\"match\":\"rounded_ok\"}",
+       "{\"quoted_span\":\"PegKeeper undrawn inventory of $317.4M\",\"section_id\":\"finding\",\"claimed_value\":\"$317.4M\",\"claimed_object\":\"named-cause family total, PegKeeper undrawn inventory\",\"matched_field_id\":\"supply.family.2.total\",\"table_value\":\"317413016691210760630109148\",\"match\":\"rounded_ok\"}",
+       "{\"quoted_span\":\"leaving only $284.1k unexplained\",\"section_id\":\"finding\",\"claimed_value\":\"$284.1k\",\"claimed_object\":\"residual unexplained\",\"matched_field_id\":\"supply.residual_unexplained\",\"table_value\":\"284060187309882013503490\",\"match\":\"rounded_ok\"}",
+       "{\"quoted_span\":\"Of the traced backing value of $152.1M, 3.6% sits in assets whose value can be checked directly on-chain, 55.8% sits in wrapped assets checkable one layer down through their wrapper, and 40.6% relies on an issuer's or custodian's published disclosures.\",\"section_id\":\"finding\",\"claimed_value\":\"$152.1M; 3.6%; 55.8%; 40.6%\",\"claimed_object\":\"backing value and the three verifiability bars (denominator backing_value)\",\"matched_field_id\":\"verif.bar.disclosure_dependent\",\"table_value\":\"152060360; 0.03613178; 0.55801861; 0.40584961\",\"match\":\"rounded_ok\"}",
+       "{\"quoted_span\":\"forced sales of $6 against exit liquidity of $20.4M give a forced-sales-to-exit-liquidity ratio of < 0.1%\",\"section_id\":\"finding\",\"claimed_value\":\"$6; $20.4M; < 0.1%\",\"claimed_object\":\"headline m3 forced_sell_volume, exit_depth, ratio\",\"matched_field_id\":\"headline.m3.ratio\",\"table_value\":\"5957996383823311527; 20440870886984342924555082; 2.9147468E-7\",\"match\":\"rounded_ok\"}",
+       "{\"quoted_span\":\"WBTC alone makes up 34.5% of total backing, so its disclosure freshness matters most for how well the backing can currently be checked; cbBTC contributes 6.1% and LBTC less than 0.1%.\",\"section_id\":\"backing\",\"claimed_value\":\"34.5%; 6.1%; < 0.1%\",\"claimed_object\":\"node shares of backing_value\",\"matched_field_id\":\"tree.node.0x2260fac5e5542a773aa44fbcfedf7c193bc2c599.share\",\"table_value\":\"0.34512530; 0.06072429; 1.97e-8\",\"match\":\"rounded_ok\"}",
+       "{\"quoted_span\":\"WBTC, cbBTC and LBTC all show a last disclosure date of 2026-09-13, with staleness of 1.0 days each\",\"section_id\":\"backing\",\"claimed_value\":\"2026-09-13; 1.0 days\",\"claimed_object\":\"last disclosure dates and staleness days of the three disclosure-dependent nodes\",\"matched_field_id\":\"verif.staleness.0x2260fac5e5542a773aa44fbcfedf7c193bc2c599.last_disclosure_date\",\"table_value\":\"2026-09-13; 1\",\"match\":\"exact\"}",
+       "{\"quoted_span\":\"In that scenario liquidations leave $6 of bad debt (< 0.01% of supply) and require selling $6 into $20.4M of exit liquidity.\",\"section_id\":\"break\",\"claimed_value\":\"$6; < 0.01% of supply; $20.4M\",\"claimed_object\":\"headline m2 bad_debt, m2 pct_supply (denominator supply_ruled), m3 exit_depth\",\"matched_field_id\":\"headline.m2.pct_supply\",\"table_value\":\"5957996383823311527; 2.83e-9; 20440870886984342924555082\",\"match\":\"rounded_ok\"}",
+       "{\"quoted_span\":\"if 60% of liquidity providers leave at a 70% fall, no exit liquidity is left\",\"section_id\":\"break\",\"claimed_value\":\"exit depth 0\",\"claimed_object\":\"M1-s70-d0-lp60 exit_depth\",\"matched_field_id\":\"panel.M1-s70-d0-lp60.m3.exit_depth\",\"table_value\":\"0\",\"match\":\"exact\"}",
+       "{\"quoted_span\":\"Before the shock, collateral coverage across the book stood at 0.99. After the shock modeled here, coverage rose to 1.20, a gap of 0.2118 restored by the liquidation mechanism\",\"section_id\":\"exit-liquidity\",\"claimed_value\":\"0.99; 1.20; 0.2118\",\"claimed_object\":\"headline m1 pre/post ratio and gap\",\"matched_field_id\":\"headline.m1.gap\",\"table_value\":\"0.99216491; 1.20399842; 0.21183351\",\"match\":\"rounded_ok\"}",
+       "{\"quoted_span\":\"exit liquidity at a price impact of 0.5% falls from $17.1M when the target sits at 0.97, to $16.2M at 0.93, to $15.2M at 0.88\",\"section_id\":\"exit-liquidity\",\"claimed_value\":\"$17.1M; $16.2M; $15.2M\",\"claimed_object\":\"Member-2 recomputed depth curves at s = 0.005\",\"matched_field_id\":\"m2.curve.t0.97.s0.005\",\"table_value\":\"17064244690680019388733855; 16246960019968105123597315; 15236339642157363444702555\",\"match\":\"rounded_ok\"}",
+       "{\"quoted_span\":\"at 2.0% impact exit liquidity runs $19.8M at 0.97, $18.9M at 0.93, and $17.8M at 0.88\",\"section_id\":\"exit-liquidity\",\"claimed_value\":\"$19.8M; $18.9M; $17.8M\",\"claimed_object\":\"Member-2 recomputed depth curves at s = 0.02\",\"matched_field_id\":\"m2.curve.t0.93.s0.02\",\"table_value\":\"19784576778962947794479339; 18913044471834514593147373; 17823511846934562918517552\",\"match\":\"rounded_ok\"}",
+       "{\"quoted_span\":\"the PegKeeper's usable headroom stands at $85.4M, with $6.6M of burn capacity, and its paired-unit holdings are concentrated almost entirely in one address at $6.4M, with the other listed addresses holding $0\",\"section_id\":\"exit-liquidity\",\"claimed_value\":\"$85.4M; $6.6M; $6.4M; $0\",\"claimed_object\":\"metric 4 effective headroom, burn capacity, paired_units_held\",\"matched_field_id\":\"mech.effective_headroom\",\"table_value\":\"85426438450544667319109148; 6586983308789239369890852; 6412263751432552871988155; 0\",\"match\":\"rounded_ok\"}",
+       "{\"quoted_span\":\"bad debt comes out at $6 (5.96) whether the PegKeepers are left running or switched off\",\"section_id\":\"counterfactuals\",\"claimed_value\":\"5.96 both sides\",\"claimed_object\":\"H1_kill value_primary and value_counterfactual\",\"matched_field_id\":\"headline.cf.H1_kill.value_counterfactual\",\"table_value\":\"5957996383823311527\",\"match\":\"rounded_ok\"}",
+       "{\"quoted_span\":\"Under instant pricing the upper bound on collateral value at risk is $0, but once the lag is applied it jumps to $31.7M.\",\"section_id\":\"counterfactuals\",\"claimed_value\":\"$0; $31.7M\",\"claimed_object\":\"EMA_lag value_primary and value_counterfactual\",\"matched_field_id\":\"headline.cf.EMA_lag.value_counterfactual\",\"table_value\":\"0; 31692837141908748113841815\",\"match\":\"rounded_ok\"}",
+       "{\"quoted_span\":\"at a 50 percent shock the collateral-to-debt ratio falls from 1.203998 with instant pricing to 0.790398 once the oracle lags the market, and at a 70 percent shock it falls from 1.125962 to 0.372248\",\"section_id\":\"counterfactuals\",\"claimed_value\":\"1.203998/0.790398; 1.125962/0.372248\",\"claimed_object\":\"m1.post primary vs EMA_lag readings\",\"matched_field_id\":\"assumption.ema_lag_readings\",\"table_value\":\"M1-s50-d0-lp0: 1.203998 vs 0.790398; M1-s70-d0-lp0: 1.125962 vs 0.372248\",\"match\":\"exact\"}",
+       "{\"quoted_span\":\"Any change takes effect only after a delay of 7 days\",\"section_id\":\"admin\",\"claimed_value\":\"7 days\",\"claimed_object\":\"mint admin delay_seconds\",\"matched_field_id\":\"admin.mint.0xb7400d2ea0f6dc1d7b153aa430b9e572f28afb79.delay_seconds\",\"table_value\":\"604800\",\"match\":\"exact\"}"
+      ],
+      "pass": true
+     },
+     {
+      "defects": [],
+      "id": "LLM-02",
+      "items": [
+       "{\"member\":1,\"rationale_present_at_open\":true,\"links_shock_to_mechanism\":true,\"names_token_mechanism\":true,\"first_result_sentence_span\":\"Before the shock, collateral coverage across the book stood at 0.99.\"}",
+       "{\"member\":2,\"rationale_present_at_open\":true,\"links_shock_to_mechanism\":true,\"names_token_mechanism\":true,\"first_result_sentence_span\":\"This is why forced sales in the Member-2 headline depeg scenario (paired stablecoin at its middle target, no liquidity-provider flight) come out at $0, with a ratio of forced sales to exit liquidity of 0.\"}"
+      ],
+      "pass": true
+     },
+     {
+      "defects": [],
+      "id": "LLM-03",
+      "items": [],
+      "pass": true
+     },
+     {
+      "defects": [],
+      "id": "LLM-04",
+      "items": [
+       "{\"slot_id\":\"finding.1\",\"token_specific\":true,\"references_field_ids\":[\"supply.total_supply\",\"tree.root.backed_supply\",\"supply.residual\",\"supply.family.1.total\",\"supply.family.2.total\",\"supply.residual_unexplained\"],\"generic_spans\":[]}",
+       "{\"slot_id\":\"finding.2\",\"token_specific\":true,\"references_field_ids\":[\"tree.root.backing_value\",\"verif.bar.terminal\",\"verif.bar.terminal_other_layer\",\"verif.bar.disclosure_dependent\",\"stress.structural_zero.reason\",\"headline.m3.ratio\"],\"generic_spans\":[]}",
+       "{\"slot_id\":\"backing.18\",\"token_specific\":true,\"references_field_ids\":[\"tree.node.0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2.share\",\"tree.node.0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0.share\",\"tree.node.0x2260fac5e5542a773aa44fbcfedf7c193bc2c599.share\"],\"generic_spans\":[]}",
+       "{\"slot_id\":\"backing.19\",\"token_specific\":true,\"references_field_ids\":[\"verif.truncated_share\",\"verif.staleness.0x2260fac5e5542a773aa44fbcfedf7c193bc2c599.share\",\"verif.staleness.0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf.share\"],\"generic_spans\":[]}",
+       "{\"slot_id\":\"backing.20\",\"token_specific\":true,\"references_field_ids\":[\"verif.banner\",\"admin.mint.0xb7400d2ea0f6dc1d7b153aa430b9e572f28afb79.delay_bucket\"],\"generic_spans\":[]}",
+       "{\"slot_id\":\"break.1-2-10-11\",\"token_specific\":true,\"references_field_ids\":[\"panel.M1-s50-d0-lp0.m1.post.ratio\",\"headline.m2.bad_debt\",\"panel.M1-s70-d0-lp60.m3.exit_depth\",\"oracle.0x2260fac5e5542a773aa44fbcfedf7c193bc2c599.0x4e59541306910ad6dc1dac0ac9dfb29bd9f15c67.type\"],\"generic_spans\":[]}",
+       "{\"slot_id\":\"exit-liquidity.14-17\",\"token_specific\":true,\"references_field_ids\":[\"stress.structural_zero.reason\",\"headline.m1.gap\",\"headline.m3.exit_depth\",\"assumption.undefined_ratio\"],\"generic_spans\":[]}",
+       "{\"slot_id\":\"exit-liquidity.18-20\",\"token_specific\":true,\"references_field_ids\":[\"exit.member2_target\",\"m2.headline.m3.ratio\",\"m2.curve.t0.93.s0.02\",\"mech.effective_headroom\",\"mech.burn_capacity\"],\"generic_spans\":[]}",
+       "{\"slot_id\":\"counterfactuals.4-5\",\"token_specific\":true,\"references_field_ids\":[\"headline.cf.H1_kill.value_counterfactual\",\"headline.cf.EMA_lag.value_counterfactual\",\"assumption.ema_lag_readings\"],\"generic_spans\":[]}",
+       "{\"slot_id\":\"admin.1-3\",\"token_specific\":true,\"references_field_ids\":[\"admin.mint.0xb7400d2ea0f6dc1d7b153aa430b9e572f28afb79.delay_seconds\",\"admin.set_ceiling.0xb7400d2ea0f6dc1d7b153aa430b9e572f28afb79.veto_address\",\"admin.upgrade.None.upgradeability\",\"admin.pause.0x467947ee34af926cf1dcac093870f613c96b1e0c.delay_bucket\"],\"generic_spans\":[]}"
+      ],
+      "pass": true
+     },
+     {
+      "defects": [
+       {
+        "figure_ref": null,
+        "kind": "wrong",
+        "location": {
+         "paragraph_index": 20,
+         "quoted_span": "they are not independently checkable on-chain either",
+         "section_id": "backing"
+        },
+        "reason": "Mechanistically incorrect explanation of the admin qualifier banner: the mint and set_oracle powers are recorded with provenance contract_read (admin()), i.e. independently readable on-chain, and their governance path is unrelated to the issuer/custodian disclosure process that makes 40.6% of backing disclosure-dependent.",
+        "table_ref": "verif.banner"
+       }
+      ],
+      "id": "LLM-05",
+      "items": [
+       "{\"item_id\":\"stress.structural_zero.flag\",\"section_id\":\"exit-liquidity\",\"explained\":\"adequate\",\"explanation_span\":\"Bad debt on this grid is structurally zero: soft liquidation converts collateral at band prices before positions become insolvent, so the mechanism itself prevents the kind of shortfall that would otherwise register as bad debt.\",\"reason\":\"States what fired and why it fired, correctly attributing it to LLAMMA band conversion rather than to absence of stress.\"}",
+       "{\"item_id\":\"headline.cf.H1_kill\",\"section_id\":\"counterfactuals\",\"explained\":\"adequate\",\"explanation_span\":\"That tells you this particular shortfall does not come from the PegKeepers' buying and selling activity — something else is driving it, so removing their defence mechanism here neither helps nor hurts the number.\",\"reason\":\"Explains the equality of primary and counterfactual values and the reader takeaway; mechanism description of PegKeeper mint/burn matches metric 4.\"}",
+       "{\"item_id\":\"headline.cf.EMA_lag\",\"section_id\":\"counterfactuals\",\"explained\":\"adequate\",\"explanation_span\":\"This shows that the delay built into the oracle's averaging window, not the size of the shock alone, is what turns a fully covered position into a shortfall\",\"reason\":\"Gives both readings, the recomputed m1.post ratios, and a correct mechanistic interpretation of the EMA window.\"}",
+       "{\"item_id\":\"assumption.undefined_ratio\",\"section_id\":\"exit-liquidity\",\"explained\":\"adequate\",\"explanation_span\":\"which leaves the forced-sales-to-exit-liquidity ratio undefined at that point — there is no exit venue left to absorb any forced selling, whatever its size\",\"reason\":\"Explains why the grid prints 'exit exhausted' rather than a number.\"}",
+       "{\"item_id\":\"m2.headline.m3.ratio\",\"section_id\":\"exit-liquidity\",\"explained\":\"adequate\",\"explanation_span\":\"That zero is a statement about the mechanism, not about market exposure.\",\"reason\":\"The printed zero ratio is explained as a mechanism property and followed by the recomputed depth curves.\"}",
+       "{\"item_id\":\"verif.banner\",\"section_id\":\"backing\",\"explained\":\"wrong\",\"explanation_span\":\"they are not independently checkable on-chain either\",\"reason\":\"The admin-power rows behind the banner carry provenance contract_read (admin() on named scope contracts), so the mint and set_oracle powers are on-chain readable; equating them with the collateral's issuer/custodian disclosure process misstates the mechanism the banner describes.\"}"
+      ],
+      "pass": false
+     },
+     {
+      "defects": [],
+      "id": "LLM-06",
+      "items": [
+       "{\"applicable\":true,\"negation_spans\":[],\"positive_framing\":true,\"curve_referenced\":true,\"m4_referenced\":true}"
+      ],
+      "pass": true
+     }
+    ],
+    "judge_model": "claude-opus-5",
+    "overall_pass": false,
+    "prompt_schema_version": "1",
+    "report_id": "crvUSD@25974925",
+    "rubric_version": "v1"
+   },
+   "input_hash": "f30e65b8a8661c49a107c9bddeafbef611824357e9fa8af6464874da4c82f742",
+   "item_errors": {},
+   "judge_span_not_found": [],
+   "model": "claude-opus-5",
+   "outside_prose": [],
+   "pass": 2,
+   "prompt_hash": "155ed3530cb521f3da490600ccb1b7fe77464070344acabe0e0dac280b9fb009",
+   "sampling": null,
+   "stop_reason": "end_turn",
+   "thinking": "adaptive",
+   "usage": {
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 100266,
+    "input_tokens": 11104,
+    "output_tokens": 12942
+   }
+  },
+  {
+   "effort": "default",
+   "input_hash": "2463b0c36e87ac2afd8ba304bc7a3901fd0488fbb6d8665a6395f34265051194",
+   "model": "claude-opus-5",
+   "pass": 2,
+   "prompt_hash": "155ed3530cb521f3da490600ccb1b7fe77464070344acabe0e0dac280b9fb009",
+   "remediation": {
+    "items": [
+     {
+      "addressed": "no",
+      "defect_index": 0,
+      "reason": "The conflict persists verbatim: break[2] still states \"liquidations leave $6 of bad debt\" while break[3] (\"Bad debt is structurally zero on the whole grid\"), finding[2] (\"Bad debt against this backing is structurally zero\") and exit-liquidity[16] still assert zero, with the headline table showing \"bad debt 5.96\" and no reconciliation."
+     }
+    ]
+   },
+   "sampling": null,
+   "stop_reason": "end_turn",
+   "thinking": "adaptive",
+   "usage": {
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "input_tokens": 12136,
+    "output_tokens": 346
+   }
+  }
+ ],
+ "outcome": "judge_instability",
  "pipeline_version": "0.1.0",
- "report_hash": "d641bb095f7aed25a219a6d0d9f9377866dfa86c8d2a1e80c51da8fb07043618",
+ "report_hash": "8ac6132bc407aad7549f4d9f7ab127e229b521c03c58f5a8a66f03576c4f2912",
  "results": [
   {
    "entry_id": "DET-02",
@@ -405,7 +1186,7 @@
   {
    "entry_id": "DET-84",
    "result": "pass",
-   "scope_condition": "576 rows replay from their owners; table_hash 048b1b98",
+   "scope_condition": "593 rows replay from their owners; table_hash 1be31bf7",
    "stage": "S2"
   },
   {
@@ -482,8 +1263,8 @@
   },
   {
    "entry_id": "DET-79",
-   "result": "fail",
-   "scope_condition": "DET-79: 1 leak(s): index '[slot:' x6",
+   "result": "pass",
+   "scope_condition": "17 literals, 4 patterns, 0 matches",
    "stage": "S3"
   },
   {
@@ -513,13 +1294,13 @@
   {
    "entry_id": "DET-59",
    "result": "pass",
-   "scope_condition": "banner: Current run: quarantined — gate failure; consecutive quarantined runs 1",
+   "scope_condition": "banner: Current run: quarantined — gate failure, harness error, judge instability; consecutive quarantined runs 1",
    "stage": "S3"
   },
   {
    "entry_id": "DET-60",
    "result": "pass",
-   "scope_condition": "1 quarantine line(s); every fired trigger has one entry",
+   "scope_condition": "3 quarantine line(s); every fired trigger has one entry",
    "stage": "S3"
   },
   {
@@ -529,27 +1310,82 @@
    "stage": "S3"
   },
   {
+   "entry_id": "DET-80",
+   "result": "pass",
+   "scope_condition": "7 slots present and bounded",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "LLM-01",
+   "result": "pass",
+   "scope_condition": "LLM-01: no surviving defect (18 item(s))",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "LLM-02",
+   "result": "pass",
+   "scope_condition": "LLM-02: no surviving defect (2 item(s))",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "LLM-03",
+   "result": "fail",
+   "scope_condition": "LLM-03: 0 surviving defect(s) []; 1 pass-1 defect(s) not addressed",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "LLM-04",
+   "result": "pass",
+   "scope_condition": "LLM-04: no surviving defect (10 item(s))",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "LLM-05",
+   "result": "fail",
+   "scope_condition": "LLM-05: 1 surviving defect(s) [('wrong', 'backing')]; 0 pass-1 defect(s) not addressed",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "LLM-06",
+   "result": "pass",
+   "scope_condition": "LLM-06: no surviving defect (1 item(s))",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "DET-85",
+   "result": "pass",
+   "scope_condition": "94 results, no error",
+   "stage": "S3"
+  },
+  {
    "entry_id": "DET-13",
    "result": "pass",
-   "scope_condition": "(a)-(e), (g) hold over 87 results; (f) vacuous: DET-09 unregistered (A-16)",
+   "scope_condition": "(a)-(e), (g) hold over 95 results; (f) vacuous: DET-09 unregistered (A-16)",
    "stage": "S3"
   }
  ],
- "revision_cause": [],
- "revision_count": 0,
+ "revision_cause": [
+  "LLM-03"
+ ],
+ "revision_count": 1,
  "rubric_hash": "f1e16ea8",
  "run_block": 25974925,
  "sheet_hash": "29682310",
  "stress_hash": "d1fae157a75fd098f3b6c8a8fb371943dbb13807413b300ad1c2602e68b3bed4",
- "table_hash": "048b1b98bb887cba9d29e0db01e8e6381c562c55b83f6ddb768254fbb731868b",
- "template_hash": "f89ddcc585637aad72e330575d06057a8c06072421abe7456d5a0fd211183b73",
+ "table_hash": "1be31bf700afd3d8deb04970812adb30cd1a653e665f18beba8dd820f18df1e1",
+ "template_hash": "aa81c05165a9346ff5f7a09080ef4f400ebf2fe432a65c8f06a5cea133e1c27b",
  "token": "crvUSD",
  "tree_hash": "aceafe61552751b8c851a4d47ea1cd90dc94df381ca071e15c70b03ce2940de8",
  "triggers": [
   {
    "level": 2,
-   "source_entry": "DET-79",
-   "trigger": "T-28"
+   "source_entry": "LLM-03",
+   "trigger": "T-24"
+  },
+  {
+   "level": 2,
+   "source_entry": "LLM-05",
+   "trigger": "T-24"
   }
  ],
  "unregistered": [
@@ -576,38 +1412,6 @@
   {
    "entry_id": "DET-64",
    "queue_item": "P-4.01 (GHO attribution cross-check: aggregate reads)"
-  },
-  {
-   "entry_id": "DET-80",
-   "queue_item": "B-13 (prose, judge, loop; R12)"
-  },
-  {
-   "entry_id": "DET-85",
-   "queue_item": "B-13 (prose, judge, loop; R12)"
-  },
-  {
-   "entry_id": "LLM-01",
-   "queue_item": "B-13 (prose, judge, loop; R12)"
-  },
-  {
-   "entry_id": "LLM-02",
-   "queue_item": "B-13 (prose, judge, loop; R12)"
-  },
-  {
-   "entry_id": "LLM-03",
-   "queue_item": "B-13 (prose, judge, loop; R12)"
-  },
-  {
-   "entry_id": "LLM-04",
-   "queue_item": "B-13 (prose, judge, loop; R12)"
-  },
-  {
-   "entry_id": "LLM-05",
-   "queue_item": "B-13 (prose, judge, loop; R12)"
-  },
-  {
-   "entry_id": "LLM-06",
-   "queue_item": "B-13 (prose, judge, loop; R12)"
   }
  ]
 }
