@@ -24,21 +24,21 @@ date = 2026-09-13
 
 [[verification]]
 artifact = "out/stress/crvUSD/25970226.json"
-artifact_hash = "9bafc6955e567efe433861f03aa480be2cc5e7e32ddf9bc6272b6cc6e5fd1f87"
+artifact_hash = "384fa39411f5220f9c1f3ddf024493b03307a982bbef25e03707a695a9e31ed9"
 sheet = "out/spotcheck/crvUSD/stress-25970226.md"
-method = "one pinned get_dy per token, Amin's RPC, tools/light_sample_check.py"
+method = "one pinned get_dy per token, Amin's RPC, tools/light_sample_check.py; cells byte-identical to the verified fold"
 date = 2026-09-13
 
 [[verification]]
 artifact = "out/stress/GHO/25970233.json"
-artifact_hash = "779c4142f329166bd96305ecbc1f460a023b2b7620680e79625fa76e65a7efb6"
+artifact_hash = "68cdf7e0ae9b6767363757f44379bc0ece00701cdbf2de853f6ffa7c9c49dcd5"
 sheet = "out/spotcheck/GHO/stress-25970233.md"
 method = "one pinned get_dy per token, Amin's RPC, tools/light_sample_check.py; cells byte-identical to the verified fold 223b53a6"
 date = 2026-09-13
 
 [[verification]]
 artifact = "out/stress/LUSD/25970249.json"
-artifact_hash = "49b545879f23e9286c541453df09e43fb6856bb6344d33193505f8960b08e61b"
+artifact_hash = "3726fc12d94891f0703798b968bd8687f1f6e950792c68c397d48eac06bea6a0"
 sheet = "out/spotcheck/LUSD/stress-25970249.md"
-method = "one pinned get_dy per token, Amin's RPC, tools/light_sample_check.py"
+method = "one pinned get_dy per token, Amin's RPC, tools/light_sample_check.py; cells byte-identical to the verified fold"
 date = 2026-09-13

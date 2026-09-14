@@ -1,0 +1,52 @@
+{% extends "base.html.j2" %}
+{% block title %}{{ token }} — appendix{% endblock %}
+{% block heading %}{{ token }} — appendix{% endblock %}
+{% block body %}
+<p class="prose">Every stress scenario ({{ grid.cells | length }} cells) from <a href="data/grid.json">grid.json</a>, the artifact literals the report body paraphrases, and the map from every table field to the rubric entry that owns it. The judge never receives this page's grid.</p>
+
+<h2>Every scenario</h2>
+<div class="scroll">
+<table class="striped">
+<tr><th>cell</th><th>member</th><th class="num">shock</th><th class="num">LST</th><th class="num">LP</th><th class="num">target</th><th class="num">m1 pre</th><th class="num">m1 post</th><th class="num">m1 gap</th><th class="num">m2 bad debt</th><th class="num">m2 % supply</th><th class="num">m3 forced sale</th><th class="num">m3 exit depth</th><th class="num">m3 ratio</th></tr>
+{% for c in grid.cells %}
+<tr><td><code>{{ c.id }}</code></td><td>{{ c.member }}</td>
+<td class="num">{{ c.shock | fmt('ratio', 'shock') }}</td><td class="num">{{ c.lst | fmt('ratio', 'lst') }}</td><td class="num">{{ c.lp | fmt('ratio', 'lp') }}</td><td class="num">{{ c.target | fmt('ratio') }}</td>
+<td class="num">{{ c.m1.pre.ratio | fmt('ratio') }}</td><td class="num">{{ c.m1.post.ratio | fmt('ratio') }}</td><td class="num">{{ c.m1.gap | fmt('ratio') }}</td>
+<td class="num">{{ c.m2.bad_debt | fmt('base_units') }}</td><td class="num">{{ c.m2.pct_supply | fmt('ratio', 'supply_ruled') }}</td>
+<td class="num">{{ c.m3.forced_sell_volume | fmt('base_units') }}</td><td class="num">{{ c.m3.exit_depth | fmt('base_units') }}</td>
+<td class="num">{% if c.m3.ratio is none %}exit exhausted{% else %}{{ c.m3.ratio | fmt('ratio', 'exit_depth') }}{% endif %}</td></tr>
+{% endfor %}
+</table>
+</div>
+
+<h2>Metric 4 per scenario</h2>
+{% for c in grid.cells %}{% set t = cell_m4(c) %}
+<details><summary><code>{{ c.id }}</code> — {{ c.m4 | length }} keys</summary>
+{% if t.scalars %}<table class="striped">{% for lab, text, title in t.scalars %}<tr><td>{{ lab }}</td><td class="num">{{ text }}</td></tr>{% endfor %}</table>{% endif %}
+{% for m in t.maps %}<h4>{{ m.title }}</h4>
+<table class="striped"><tr><th>{{ m.key_label }}</th>{% for col in m.columns %}<th class="num">{{ col }}</th>{% endfor %}</tr>
+{% for name, key, cells in m.rows %}<tr><td><code title="{{ key }}">{{ name }}</code></td>{% for text, title in cells %}<td class="num">{{ text }}</td>{% endfor %}</tr>{% endfor %}
+</table>{% endfor %}
+</details>
+{% endfor %}
+
+<h2>Reference prices, per collateral</h2>
+<table class="striped">{% for f in ids('refpoint.') if f.endswith('.literal') %}<tr><td>{{ v(f[:-8] ~ '.symbol') }}</td><td>{{ v(f) }}</td></tr>{% endfor %}</table>
+
+<h2>Artifact literals</h2>
+<table class="striped">
+<tr><td><code>perimeter</code></td><td>{{ v('tree.root.perimeter') }}</td></tr>
+<tr><td><code>admin banner</code></td><td>{{ v('verif.banner') }}</td></tr>
+{% for f in ids('assumption.') %}<tr><td><code>{{ f[11:] }}</code></td><td>{{ v(f) }}</td></tr>{% endfor %}
+</table>
+
+<h2>Denominators</h2>
+<table class="striped">{% for f in ids('denominator.') %}<tr><td><code>{{ f[12:] }}</code></td><td>{{ v(f) }}</td></tr>{% endfor %}</table>
+
+<h2>Rubric map — every table field and its owner</h2>
+<div class="scroll">
+<table class="striped"><tr><th>field</th><th>owner</th><th>denominator</th><th>section</th></tr>
+{% for r in doc.rows %}<tr><td><code>{{ r.field_id }}</code></td><td>{{ r.owner_entry }}</td><td>{{ r.denominator or '' }}</td><td>{{ r.section }}</td></tr>{% endfor %}
+</table>
+</div>
+{% endblock %}

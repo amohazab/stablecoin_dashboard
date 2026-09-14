@@ -26,11 +26,14 @@ from factory.schema import (
     Bundle,
     ConcentrationLine,
     OffMainnetLine,
+    OracleMaxDeviation,
     PairedAssetRow,
     QualifierRow,
+    ResidualFamily,
     StalenessNode,
     StalenessWorst,
     TreeBar,
+    TreeNode,
     TreeRoot,
     TreeShares,
     TreeStaleness,
@@ -106,6 +109,28 @@ def off_mainnet_line(b: Bundle) -> OffMainnetLine | None:
         literal=OFF_MAINNET_LITERAL,
         facilitators=[{"address": f.address, "label": f.label, "bucket_level": f.bucket_level}
                       for f in rows])
+
+
+def residual_families(b: Bundle) -> list[ResidualFamily]:
+    """DET-15's named causes totalled per family, in first-seen order."""
+    fam: dict[str, list[int]] = {}
+    for c in b.supply.residual_causes:
+        fam.setdefault(c.family, [0, 0])
+        fam[c.family][0] += c.amount
+        fam[c.family][1] += 1
+    return [ResidualFamily(family=k, total=v[0], count=v[1]) for k, v in fam.items()]
+
+
+def oracle_max_deviation(b: Bundle) -> OracleMaxDeviation | None:
+    """DET-54's X over the `deviation_heartbeat` rows; None where none carry a
+    deviation (crvUSD's EMA oracles)."""
+    rows = [r for r in b.oracle_rows
+            if r.update_condition.type == "deviation_heartbeat" and r.update_condition.deviation]
+    if not rows:
+        return None
+    top = sorted(rows, key=lambda r: (-r.update_condition.deviation.value_bps, r.node_address))[0]
+    return OracleMaxDeviation(value_bps=top.update_condition.deviation.value_bps,
+                              node_address=top.node_address, feed_or_source=top.feed_or_source)
 
 
 def _pct1(share: Decimal) -> str:
@@ -265,6 +290,11 @@ def fold(bundle: Bundle, cfg: Config, linked: dict | None = None,
                       **({"off_mainnet_line.share_of_supply_ruled": "supply_ruled"}
                          if offm else {})},
         paired_assets=paired, concentration=concentration, off_mainnet_line=offm,
+        nodes=sorted((TreeNode(address=n.address, symbol=n.symbol, label=n.label,
+                               share=per_node[n.address]) for n in b.nodes),
+                     key=lambda x: (-x.share, x.address)),
+        residual_cause_families=residual_families(b),
+        oracle_max_deviation=oracle_max_deviation(b),
         flags=flags)
 
 

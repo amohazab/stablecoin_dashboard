@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}{{ token }} — structural risk report{% endblock %}</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<main>
+<header class="page">
+  <h1>{% block heading %}{{ token }}{% endblock %}</h1>
+  {% block subtitle %}{% endblock %}
+  <div class="meta">
+    read {{ v('header.block_timestamp') }} · block {{ v('header.run_block') }} ·
+    report <code title="{{ man.report_hash }}">{{ man.report_hash[:8] }}</code> · intake sheet <code>{{ v('header.sheet_hash') }}</code>
+  </div>
+  <nav class="links meta">
+    <a href="index.html">report</a><a href="appendix.html">appendix</a><a href="verify.html">verify</a>
+  </nav>
+</header>
+{% block body %}{% endblock %}
+</main>
+</body>
+</html>

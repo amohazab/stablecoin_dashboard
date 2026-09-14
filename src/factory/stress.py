@@ -1165,6 +1165,34 @@ def _withdraw_ground_truth(rpc, states, numeraire, k90, reads) -> list[dict]:
     return out
 
 
+# R-B11.8: 0.001% of `supply_ruled`, and the code-owned reason per token. LUSD's
+# reason is its own `engagement_thresholds` assumption literal, copied.
+STRUCTURAL_ZERO_BOUND = Decimal("0.00001")
+STRUCTURAL_ZERO_REASON = {
+    "crvUSD": ("soft liquidation converts collateral at band prices before positions "
+               "become insolvent"),
+    "LUSD": "assumption:engagement_thresholds",
+}
+
+
+def structural_zero(token: str, cells: list, supply_ruled: int,
+                    assumptions: dict):
+    """The Member-1 grid's largest bad debt against 0.001% of supply_ruled."""
+    from factory.schema import StructuralZero
+    m1 = [c.m2.bad_debt for c in cells if c.member == "M1"]
+    if not m1:
+        return None
+    flag = Decimal(max(m1)) < STRUCTURAL_ZERO_BOUND * Decimal(supply_ruled)
+    if not flag:
+        return StructuralZero(flag=False, reason=None)
+    reason = STRUCTURAL_ZERO_REASON.get(token)
+    if reason is None:
+        raise ValueError(f"{token}: structural-zero flag set with no ruled reason literal")
+    if reason.startswith("assumption:"):
+        reason = assumptions[reason.split(":", 1)[1]]
+    return StructuralZero(flag=True, reason=reason)
+
+
 def fold(inputs: dict, rpc=None) -> StressReport:
     """B-2: the header, and the exit-depth block. The mechanism block and the
     cells still land at B-4/5/6; `member2_target` is B-3's."""
@@ -1236,6 +1264,8 @@ def fold(inputs: dict, rpc=None) -> StressReport:
         cells=cells,
         reference_points=refs,
         assumptions=assumptions,
+        structural_zero=structural_zero(b.header.token, cells, b.supply.supply_ruled,
+                                        assumptions),
         flags=flags)
 
 

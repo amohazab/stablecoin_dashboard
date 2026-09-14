@@ -6,13 +6,14 @@ One record per report attempt: every REGISTERED check's result with its stage
 stress artifacts recorded them; the report stage run now), the triggers they
 fired, A-16's enumeration of UNREGISTERED rubric IDs with their queue item, the
 report manifest's seven components and `report_hash`, and `revision_count` /
-`revision_cause`, which left `Header` at B-9 (DET-13(g)). The S3, judge and
-generation fields are present and empty until B-11 / B-13 fill them.
+`revision_cause`, which left `Header` at B-9 (DET-13(g)). S3 results enter at
+B-11b; the judge and generation fields stay empty until B-13.
 
 NAMED DEFAULTS (B-10): S2 triggers are parsed from the scope text the S2 rows
 already carry (`T-xx (Ln)` / `T-21 …`), level from `TRIGGER_TABLE` when the text
 names none - B-12 structures trigger collection; `outcome` is null until the
-loop exists (B-13).
+loop exists (B-13), except "blocked_S3" (B-11b): any S3 row not passing routes the
+pages to `out/rehearsal/` and the record says so.
 """
 
 from __future__ import annotations
@@ -28,9 +29,6 @@ from factory.validate.harness import CHECKS, TRIGGER_TABLE
 # P-7.01 block plan; P-4.01 for items no Step-7 block owns). A registry that
 # grows removes an ID from here; a rubric ID in neither place fails the build.
 QUEUE = {
-    **dict.fromkeys(("DET-17", "DET-18", "DET-36", "DET-53", "DET-54", "DET-56", "DET-57",
-                     "DET-73", "DET-74", "DET-79", "DET-88", "DET-89", "DET-14cd", "DET-22-S3",
-                     "DET-29c"), "B-11 (templates, page; P-7.01 R5)"),
     **dict.fromkeys(("DET-12-S3", "DET-13", "DET-58", "DET-59", "DET-60", "DET-87"),
                     "B-12 (log, flags, banner, integrity; R14/R15)"),
     **dict.fromkeys(("DET-80", "DET-85", "LLM-01", "LLM-02", "LLM-03", "LLM-04", "LLM-05",
@@ -77,7 +75,7 @@ class GateRecord(BaseModel):
     revision_count: Literal[0, 1] = 0
     revision_cause: list[str] = []
     outcome: Literal["published", "quarantined", "template_defect", "judge_instability",
-                     "harness_error"] | None = None
+                     "harness_error", "blocked_S3"] | None = None
 
 
 def rubric_ids(rubric_text: str) -> list[str]:
@@ -92,7 +90,8 @@ def unregistered(rubric_text: str) -> list[dict[str, str]]:
         mapped = LIMBS.get(rid, [rid])
         if not any(m in registered for m in mapped):
             out.append(rid)
-        if rid in UNREGISTERED_LIMBS and any(m in registered for m in mapped):
+        if (rid in UNREGISTERED_LIMBS and any(m in registered for m in mapped)
+                and UNREGISTERED_LIMBS[rid] not in registered):
             out.append(UNREGISTERED_LIMBS[rid])
     missing = [x for x in out if x not in QUEUE]
     if missing:
@@ -110,6 +109,11 @@ def _triggers_from_scope(entry_id: str, scope: str | None) -> list[dict]:
     if isinstance(level, tuple):
         level = level[0]
     return [{"trigger": m.group(1), "level": level, "source_entry": entry_id}]
+
+
+def triggers_of(results) -> list[dict]:
+    """The triggers S0-S3 results fired, from their scope text (B-10's default)."""
+    return [x for g in results for x in _triggers_from_scope(g.entry_id, g.scope_condition)]
 
 
 def build(parts: dict, manifest: dict, s01, tree_checks, stress_checks, report_checks,
@@ -131,4 +135,6 @@ def build(parts: dict, manifest: dict, s01, tree_checks, stress_checks, report_c
                                                "table_hash", "template_hash",
                                                "pipeline_version", "sheet_hash")},
                       results=results, triggers=triggers,
-                      unregistered=unregistered(rubric_text))
+                      unregistered=unregistered(rubric_text),
+                      outcome=("blocked_S3" if any(r.stage == "S3" and r.result != "pass"
+                                                   for r in results) else None))

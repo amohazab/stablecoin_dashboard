@@ -7884,3 +7884,94 @@ Status: IN PROGRESS (opened 2026-09-13, P-7.01).
   `out/evaluation/{crvUSD/25970226,GHO/25970233,LUSD/25970249}.json`; `PROGRESS.md`.
 - **Follow-ups spawned:** B-11 — templates, CSS, SVG, pages, the verify page, print
   CSS; the S3 rows and limbs; Amin's browser review before B-12.
+
+## P-7.07 — B-11: the pages, three looks, R-B11.1–R-B11.14; fifteen S3 rows registered, the report-stage gate, print rules
+
+- **Date:** 2026-09-14
+- **Type:** implementation
+- **Confirmed by:** Amin
+- **Content:**
+  **P-7.06 COMMITTED** at `926af47`.
+  **B-11a (2026-09-13).** `src/factory/report/{render,svg}.py` and `templates/{base,index,
+  appendix,verify}.html.j2`, `style.css`, `wording.toml`, `jinja2` in `pyproject.toml`.
+  Jinja2 runs with `StrictUndefined` and autoescape. `Formatter` is DET-89's one `fmt`.
+  `svg.py` is deterministic at 0.1 px, half-up. The verify page renders the stress
+  spot-check sheet verbatim (R11), with the analyst sentence from `verifications.toml`.
+  **AMIN'S RULINGS, as stated.** Review 2026-09-13: "the data machinery is right; the page
+  fails the two-minute read." **R-B11.1** Two layers on one page. The reader layer is plain
+  English: what the page is, pills, the finding with three stat cards, the tree, "What could
+  break it", "Who can change the rules", "How to check this". Every table goes under "Detail
+  for specialists" in `<details>`; rubric IDs and denominators go to the appendix only.
+  **R-B11.2** Plain labels are template data in `wording.toml`; `field_id` stays a title.
+  **R-B11.3** The tree is an SVG diagram: root → proportional bars → nodes with staleness
+  pills; GHO's off-mainnet line sits outside the bars. **R-B11.4** Chart A only where the
+  structural-zero flag is unset, else the sentence with its reason; the grid gets a legend
+  and a reading; chart B keeps its caption; GHO's Member-2 comparison stays. **R-B11.5**
+  `residual_cause_families[]` and `oracle_max_deviation` move to the tree fold. **R-B11.6**
+  Exact zero prints "0"; a compact form for cards and sentences, both in the manifest; the
+  governance banner is rendered in words. **R-B11.7** 16px, one accent, stat cards, pills,
+  striped tables, no JavaScript. Second look 2026-09-14: **R-B11.8** `stress.structural_zero
+  {flag, reason}`: the flag is set when the Member-1 grid's max `bad_debt` < 0.001% of
+  `supply_ruled`; reasons are code-owned. **R-B11.9** Verification rows cite the final
+  stress hashes plus "cells byte-identical to the verified fold" — "This message is the
+  signature". **R-B11.10** "?" tooltips, CSS-only, text in `wording.toml`. **R-B11.11** A
+  1000px column; the tree ~1000×440 as a stacked band with a legend; $-labelled axes;
+  swatches; 15px tables. **R-B11.12** m4 maps render as tables, never as
+  "key · address · subkey" rows. **R-B11.13** One reference-price sentence; literals in the
+  appendix. **R-B11.14** The behavioral tier in two sentences. Third look 2026-09-14:
+  "confirmed — the R5 stop is met; B-11a″'s pages stand as the template"; the "DET-47" inside
+  a signed bias reason stays until a later sheet edit.
+  **B-11a′ / B-11a″ BUILT.** Tree-side (R-B11.3/.5): `VerifiabilityTree.nodes[]`,
+  `residual_cause_families[]` (crvUSD's four), `oracle_max_deviation` (GHO 100 bps AAVE,
+  LUSD 50 bps ETH); `off_mainnet_line` is excluded when None. `StructuralZero` sits on
+  `StressReport` via `stress.structural_zero()`: crvUSD max 5.93 < bound 21,048.09 → set;
+  GHO 54.1M ≥ 6,990 → unset; LUSD 0 < 262.27 → set, reason = its `engagement_thresholds`
+  literal. Every tree change re-folded the stress artifacts header-only (2-leaf diffs), and
+  R-B11.8's fold added the flag. The three `verifications.toml` rows now cite `384fa394` /
+  `68cdf7e0` / `3726fc12` (R-B11.9). Table rows gained `tree.node.*`, `supply.family.*`,
+  `oracle.max_deviation.*` and `stress.structural_zero.*`.
+  **B-11b: S3 REGISTERED.** DET-14cd, DET-22-S3, DET-29c, DET-17, DET-18, DET-36, DET-53,
+  DET-54, DET-56, DET-57, DET-73, DET-74 (Level 3), DET-79, DET-88, DET-89 — each at S3,
+  `consumer = "report"`, over the rendered pages read as text and `table.json`.
+  **`len(CHECKS)` 67 → 82**; A-16's unregistered 35 → 20.
+  **NAMED DEFAULTS.** "The report" = index + appendix; verify enters DET-79/88 only, its
+  sheet block outside DET-89. A "line/row" clause is read over one element. DET-89's figures
+  carry a decimal point, separator, %, $, suffix or unit, or have ≥ 4 digits; dates and
+  addresses are not figures. DET-74's tags are identified by their own text fragment.
+  **THE GATE.** DET-84 green → pages render into `out/rehearsal/<T>/<run_block>/` → S3.
+  Green: copy to `out/site/<T>/`. Any S3 row not passing: the record's outcome is
+  "blocked_S3", `out/site/<T>/` is withdrawn, and an empty `out/site/` is removed.
+  **PRINT (R6).** `@media print`: tooltips hidden; details print as summary plus "full
+  tables: appendix"; pills carry the words ok / caution / warning; page breaks before the
+  tree and the stress section. Headless Chrome pages: crvUSD 4, GHO 5, LUSD 4.
+  **RUNS, no RPC.** Template `fb82eba6`. Tree `a45e4890` / `7bd7be3b` / `3ecced93`; stress
+  `384fa394` / `68cdf7e0` / `3726fc12`; table `5507461b` / `92c8c84a` / `f394719f`
+  (rows 548 / 594 / 355). **report_hash `22baa037` / `d3ca15c7` / `211747b3`.** Records:
+  82 results each; S0–S2 67 pass. **S3 pass 4 / 4 / 5, outcome blocked_S3 ×3;
+  `out/site/` holds nothing.** Pages at `out/rehearsal/<T>/<run_block>/index.html`.
+  DET-79 fails ×3 as ruled (`[slot:`). **Also failing, not widened** (reasons in
+  `out/reports/step7-b11b-report.md`):
+  - DET-22-S3, DET-29c, DET-36, DET-54, DET-56 — literals absent from the pages.
+  - DET-57 — the `par_numeraire` literal absent.
+  - DET-73 — staleness_date absent from the audit line.
+  - DET-18 — worst weight absent (crvUSD, GHO).
+  - DET-74 — class-D dates absent; S1/S2 still in the sheet (crvUSD).
+  - DET-89 — no token `decimals()` read; chart-B, grid and day-pill figures outside `fmt`.
+  - DET-79 — also `#1` in DET-73's own literal and P-refs in the appendix and verify.
+  **TESTS 218 → 237 → 256** (`test_render.py` 19, `test_s3.py` 19); ruff clean.
+  **AS-COUNTED.** Design layer: the B-11a section list was the rubric's order and
+  vocabulary, not a reader's; the behavioral-tier wording had to come from brief §1, not
+  memo §9; B-11b expected only DET-79 to fail. Builder: B-11a keyed autoescape on "html"
+  while the templates end ".j2", so escaping was off until B-11a′; P-7.06's commit omitted
+  the three `grid.json` its own named default created; the first DET-89 tokenizer read
+  address fragments and label numerals as figures, and DET-29c's share limb matched a
+  coincident "100.0%" — both corrected before the recorded run.
+- **Artifacts:** `src/factory/report/{render,svg}.py` (new) · `src/factory/report/{__main__,record,table}.py` ·
+  `src/factory/{schema,stress,tree,spotcheck}.py` · `src/factory/validate/harness.py`;
+  `templates/{base,index,appendix,verify}.html.j2` · `templates/{style.css,wording.toml}` (new) ·
+  `templates/manifest.toml`; `config/verifications.toml`; `pyproject.toml` · `uv.lock` · `.gitattributes`;
+  `tests/{test_render,test_s3}.py` (new) · `tests/test_b10.py`;
+  `out/trees/`, `out/stress/`, `out/evaluation/` ×3; `out/report/<T>/<blk>/{table,manifest,grid}.json` ×3; `PROGRESS.md`.
+- **Follow-ups spawned:** the stop on the S3 failures (report §5): B-11c template literals
+  and `fmt` routing; rulings on DET-79's `#\d+` vs DET-73, R19's patterns over the appendix and
+  verify, the token `decimals()` read, and the retirement of S1/S2; then B-12.

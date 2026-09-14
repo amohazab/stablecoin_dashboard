@@ -3,14 +3,41 @@
   {
    "data_ref": [
     "bias.0.direction",
+    "bias.0.mechanism",
+    "bias.0.tokens",
+    "bias.0.reason",
     "bias.1.direction",
+    "bias.1.mechanism",
+    "bias.1.tokens",
+    "bias.1.reason",
     "bias.2.direction",
+    "bias.2.mechanism",
+    "bias.2.tokens",
+    "bias.2.reason",
     "bias.3.direction",
+    "bias.3.mechanism",
+    "bias.3.tokens",
+    "bias.3.reason",
     "bias.4.direction",
+    "bias.4.mechanism",
+    "bias.4.tokens",
+    "bias.4.reason",
     "bias.5.direction",
+    "bias.5.mechanism",
+    "bias.5.tokens",
+    "bias.5.reason",
     "bias.6.direction",
+    "bias.6.mechanism",
+    "bias.6.tokens",
+    "bias.6.reason",
     "bias.7.direction",
-    "bias.8.direction"
+    "bias.7.mechanism",
+    "bias.7.tokens",
+    "bias.7.reason",
+    "bias.8.direction",
+    "bias.8.mechanism",
+    "bias.8.tokens",
+    "bias.8.reason"
    ],
    "id": "stock_only",
    "required": true,
@@ -225,7 +252,7 @@
    "section": "header",
    "source_path": "tree/tree_hash",
    "unit": "hash",
-   "value": "8136ce194b4dffca31077a4c0ebffa44e1b713f971849986bb91b1f8b6fbb5c5"
+   "value": "a45e48905deea1b0e2057ab4ca6fd9fd220fef2fa15dd599a9f1997f1ce4f8ca"
   },
   {
    "denominator": null,
@@ -235,7 +262,7 @@
    "section": "header",
    "source_path": "stress/header/stress_hash",
    "unit": "hash",
-   "value": "9bafc6955e567efe433861f03aa480be2cc5e7e32ddf9bc6272b6cc6e5fd1f87"
+   "value": "384fa39411f5220f9c1f3ddf024493b03307a982bbef25e03707a695a9e31ed9"
   },
   {
    "denominator": "backing_value",
@@ -456,6 +483,246 @@
    "source_path": "tree/banner",
    "unit": "literal",
    "value": "Verifiability conditional on: mint — dao_governance + 1–7d; set_oracle — dao_governance + 1–7d"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.node.0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0.symbol",
+   "label": "node",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/nodes/[address=0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0]/symbol",
+   "unit": "literal",
+   "value": "wstETH"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.node.0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0.label",
+   "label": "node label",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/nodes/[address=0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0]/label",
+   "unit": "literal",
+   "value": "terminal_other_layer"
+  },
+  {
+   "denominator": "backing_value",
+   "field_id": "tree.node.0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0.share",
+   "label": "wstETH share of backing",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/nodes/[address=0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0]/share",
+   "unit": "ratio",
+   "value": "0.4583802857774768523556535660"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.node.0x2260fac5e5542a773aa44fbcfedf7c193bc2c599.symbol",
+   "label": "node",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/nodes/[address=0x2260fac5e5542a773aa44fbcfedf7c193bc2c599]/symbol",
+   "unit": "literal",
+   "value": "WBTC"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.node.0x2260fac5e5542a773aa44fbcfedf7c193bc2c599.label",
+   "label": "node label",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/nodes/[address=0x2260fac5e5542a773aa44fbcfedf7c193bc2c599]/label",
+   "unit": "literal",
+   "value": "recurses"
+  },
+  {
+   "denominator": "backing_value",
+   "field_id": "tree.node.0x2260fac5e5542a773aa44fbcfedf7c193bc2c599.share",
+   "label": "WBTC share of backing",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/nodes/[address=0x2260fac5e5542a773aa44fbcfedf7c193bc2c599]/share",
+   "unit": "ratio",
+   "value": "0.3433364839115454506311890214"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.node.0x18084fba666a33d37592fa2633fd49a74dd93a88.symbol",
+   "label": "node",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/nodes/[address=0x18084fba666a33d37592fa2633fd49a74dd93a88]/symbol",
+   "unit": "literal",
+   "value": "tBTC"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.node.0x18084fba666a33d37592fa2633fd49a74dd93a88.label",
+   "label": "node label",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/nodes/[address=0x18084fba666a33d37592fa2633fd49a74dd93a88]/label",
+   "unit": "literal",
+   "value": "terminal_other_layer"
+  },
+  {
+   "denominator": "backing_value",
+   "field_id": "tree.node.0x18084fba666a33d37592fa2633fd49a74dd93a88.share",
+   "label": "tBTC share of backing",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/nodes/[address=0x18084fba666a33d37592fa2633fd49a74dd93a88]/share",
+   "unit": "ratio",
+   "value": "0.06608922529680899468439300325"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.node.0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf.symbol",
+   "label": "node",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/nodes/[address=0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf]/symbol",
+   "unit": "literal",
+   "value": "cbBTC"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.node.0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf.label",
+   "label": "node label",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/nodes/[address=0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf]/label",
+   "unit": "literal",
+   "value": "recurses"
+  },
+  {
+   "denominator": "backing_value",
+   "field_id": "tree.node.0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf.share",
+   "label": "cbBTC share of backing",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/nodes/[address=0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf]/share",
+   "unit": "ratio",
+   "value": "0.06082030812775790021273359915"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.node.0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2.symbol",
+   "label": "node",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/nodes/[address=0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2]/symbol",
+   "unit": "literal",
+   "value": "WETH"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.node.0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2.label",
+   "label": "node label",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/nodes/[address=0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2]/label",
+   "unit": "literal",
+   "value": "terminal"
+  },
+  {
+   "denominator": "backing_value",
+   "field_id": "tree.node.0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2.share",
+   "label": "WETH share of backing",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/nodes/[address=0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2]/share",
+   "unit": "ratio",
+   "value": "0.03624276290236694114728622284"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.node.0xac3e018457b222d93114458476f3e3416abbe38f.symbol",
+   "label": "node",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/nodes/[address=0xac3e018457b222d93114458476f3e3416abbe38f]/symbol",
+   "unit": "literal",
+   "value": "sfrxETH"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.node.0xac3e018457b222d93114458476f3e3416abbe38f.label",
+   "label": "node label",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/nodes/[address=0xac3e018457b222d93114458476f3e3416abbe38f]/label",
+   "unit": "literal",
+   "value": "terminal_other_layer"
+  },
+  {
+   "denominator": "backing_value",
+   "field_id": "tree.node.0xac3e018457b222d93114458476f3e3416abbe38f.share",
+   "label": "sfrxETH share of backing",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/nodes/[address=0xac3e018457b222d93114458476f3e3416abbe38f]/share",
+   "unit": "ratio",
+   "value": "0.03113890722518043642555988725"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.node.0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee.symbol",
+   "label": "node",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/nodes/[address=0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee]/symbol",
+   "unit": "literal",
+   "value": "weETH"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.node.0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee.label",
+   "label": "node label",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/nodes/[address=0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee]/label",
+   "unit": "literal",
+   "value": "terminal_other_layer"
+  },
+  {
+   "denominator": "backing_value",
+   "field_id": "tree.node.0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee.share",
+   "label": "weETH share of backing",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/nodes/[address=0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee]/share",
+   "unit": "ratio",
+   "value": "0.003992006834328133279785923354"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.node.0x8236a87084f8b84306f72007f36f2618a5634494.symbol",
+   "label": "node",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/nodes/[address=0x8236a87084f8b84306f72007f36f2618a5634494]/symbol",
+   "unit": "literal",
+   "value": "LBTC"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.node.0x8236a87084f8b84306f72007f36f2618a5634494.label",
+   "label": "node label",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/nodes/[address=0x8236a87084f8b84306f72007f36f2618a5634494]/label",
+   "unit": "literal",
+   "value": "recurses"
+  },
+  {
+   "denominator": "backing_value",
+   "field_id": "tree.node.0x8236a87084f8b84306f72007f36f2618a5634494.share",
+   "label": "LBTC share of backing",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/nodes/[address=0x8236a87084f8b84306f72007f36f2618a5634494]/share",
+   "unit": "ratio",
+   "value": "1.992453529126339877677566147E-8"
   },
   {
    "denominator": null,
@@ -1426,6 +1693,126 @@
    "source_path": "bundle/supply/residual_causes/[address=0x9a2e6bb3114b1eeb5492d97188a3ecb09e39fac8]/family",
    "unit": "literal",
    "value": "mint-market AMM float"
+  },
+  {
+   "denominator": null,
+   "field_id": "supply.family.0.family",
+   "label": "named-cause family",
+   "owner_entry": "DET-15",
+   "section": "supply",
+   "source_path": "tree/residual_cause_families/0/family",
+   "unit": "literal",
+   "value": "non-mint-market minting facilitators enumerated from `SetDebtCeiling` history — the lend factories (zero ceilings, confirmed non-originating), the FlashLender, the FastBridgeVaults, and an unclassified minting factory (`0x370a449f…`, verified name Factory) pending perimeter re-ruling; amount = held + deployed (ceiling − held, floor 0)"
+  },
+  {
+   "denominator": null,
+   "field_id": "supply.family.0.total",
+   "label": "named-cause family total",
+   "owner_entry": "DET-15",
+   "section": "supply",
+   "source_path": "tree/residual_cause_families/0/total",
+   "unit": "base_units",
+   "value": 1060650000539289097267467270
+  },
+  {
+   "denominator": null,
+   "field_id": "supply.family.0.count",
+   "label": "named causes in the family",
+   "owner_entry": "DET-15",
+   "section": "supply",
+   "source_path": "tree/residual_cause_families/0/count",
+   "unit": "count",
+   "value": 17
+  },
+  {
+   "denominator": null,
+   "field_id": "supply.family.1.family",
+   "label": "named-cause family",
+   "owner_entry": "DET-15",
+   "section": "supply",
+   "source_path": "tree/residual_cause_families/1/family",
+   "unit": "literal",
+   "value": "mint-controller pre-mint inventory"
+  },
+  {
+   "denominator": null,
+   "field_id": "supply.family.1.total",
+   "label": "named-cause family total",
+   "owner_entry": "DET-15",
+   "section": "supply",
+   "source_path": "tree/residual_cause_families/1/total",
+   "unit": "base_units",
+   "value": 643887241352298444679690267
+  },
+  {
+   "denominator": null,
+   "field_id": "supply.family.1.count",
+   "label": "named causes in the family",
+   "owner_entry": "DET-15",
+   "section": "supply",
+   "source_path": "tree/residual_cause_families/1/count",
+   "unit": "count",
+   "value": 9
+  },
+  {
+   "denominator": null,
+   "field_id": "supply.family.2.family",
+   "label": "named-cause family",
+   "owner_entry": "DET-15",
+   "section": "supply",
+   "source_path": "tree/residual_cause_families/2/family",
+   "unit": "literal",
+   "value": "PegKeeper undrawn inventory"
+  },
+  {
+   "denominator": null,
+   "field_id": "supply.family.2.total",
+   "label": "named-cause family total",
+   "owner_entry": "DET-15",
+   "section": "supply",
+   "source_path": "tree/residual_cause_families/2/total",
+   "unit": "base_units",
+   "value": 317413016691210760630109148
+  },
+  {
+   "denominator": null,
+   "field_id": "supply.family.2.count",
+   "label": "named causes in the family",
+   "owner_entry": "DET-15",
+   "section": "supply",
+   "source_path": "tree/residual_cause_families/2/count",
+   "unit": "count",
+   "value": 5
+  },
+  {
+   "denominator": null,
+   "field_id": "supply.family.3.family",
+   "label": "named-cause family",
+   "owner_entry": "DET-15",
+   "section": "supply",
+   "source_path": "tree/residual_cause_families/3/family",
+   "unit": "literal",
+   "value": "mint-market AMM float"
+  },
+  {
+   "denominator": null,
+   "field_id": "supply.family.3.total",
+   "label": "named-cause family total",
+   "owner_entry": "DET-15",
+   "section": "supply",
+   "source_path": "tree/residual_cause_families/3/total",
+   "unit": "base_units",
+   "value": 9297306999163550955527
+  },
+  {
+   "denominator": null,
+   "field_id": "supply.family.3.count",
+   "label": "named causes in the family",
+   "owner_entry": "DET-15",
+   "section": "supply",
+   "source_path": "tree/residual_cause_families/3/count",
+   "unit": "count",
+   "value": 9
   },
   {
    "denominator": null,
@@ -2992,6 +3379,26 @@
   },
   {
    "denominator": null,
+   "field_id": "stress.structural_zero.flag",
+   "label": "bad debt structurally zero on the Member-1 grid",
+   "owner_entry": "DET-40",
+   "section": "stress (Member 1)",
+   "source_path": "stress/structural_zero/flag",
+   "unit": "boolean",
+   "value": true
+  },
+  {
+   "denominator": null,
+   "field_id": "stress.structural_zero.reason",
+   "label": "why bad debt is structurally zero",
+   "owner_entry": "DET-40",
+   "section": "stress (Member 1)",
+   "source_path": "stress/structural_zero/reason",
+   "unit": "literal",
+   "value": "soft liquidation converts collateral at band prices before positions become insolvent"
+  },
+  {
+   "denominator": null,
    "field_id": "exit.curve.s0.005.total",
    "label": "depth curve s = 0.005 total",
    "owner_entry": "DET-31",
@@ -3402,6 +3809,39 @@
   },
   {
    "denominator": null,
+   "field_id": "bias.0.mechanism",
+   "label": "bias mechanism",
+   "owner_entry": "DET-53",
+   "section": "stress (Member 1)",
+   "source_path": "mirror/bias_table/0/mechanism",
+   "unit": "literal",
+   "value": "Collateral-sell-side bound"
+  },
+  {
+   "denominator": null,
+   "field_id": "bias.0.tokens",
+   "label": "bias tokens",
+   "owner_entry": "DET-53",
+   "section": "stress (Member 1)",
+   "source_path": "mirror/bias_table/0/tokens",
+   "unit": "list",
+   "value": [
+    "crvUSD",
+    "GHO"
+   ]
+  },
+  {
+   "denominator": null,
+   "field_id": "bias.0.reason",
+   "label": "bias reason",
+   "owner_entry": "DET-53",
+   "section": "stress (Member 1)",
+   "source_path": "mirror/bias_table/0/reason",
+   "unit": "literal",
+   "value": "full bound treated as immediately absorbable"
+  },
+  {
+   "denominator": null,
    "field_id": "bias.1.direction",
    "label": "bias: GSM cap headroom (H2.i)",
    "owner_entry": "DET-53",
@@ -3409,6 +3849,38 @@
    "source_path": "mirror/bias_table/1/direction",
    "unit": "literal",
    "value": "overstates"
+  },
+  {
+   "denominator": null,
+   "field_id": "bias.1.mechanism",
+   "label": "bias mechanism",
+   "owner_entry": "DET-53",
+   "section": "stress (Member 1)",
+   "source_path": "mirror/bias_table/1/mechanism",
+   "unit": "literal",
+   "value": "GSM cap headroom (H2.i)"
+  },
+  {
+   "denominator": null,
+   "field_id": "bias.1.tokens",
+   "label": "bias tokens",
+   "owner_entry": "DET-53",
+   "section": "stress (Member 1)",
+   "source_path": "mirror/bias_table/1/tokens",
+   "unit": "list",
+   "value": [
+    "GHO"
+   ]
+  },
+  {
+   "denominator": null,
+   "field_id": "bias.1.reason",
+   "label": "bias reason",
+   "owner_entry": "DET-53",
+   "section": "stress (Member 1)",
+   "source_path": "mirror/bias_table/1/reason",
+   "unit": "literal",
+   "value": "full cap headroom treated as instantly mintable"
   },
   {
    "denominator": null,
@@ -3422,6 +3894,38 @@
   },
   {
    "denominator": null,
+   "field_id": "bias.2.mechanism",
+   "label": "bias mechanism",
+   "owner_entry": "DET-53",
+   "section": "stress (Member 1)",
+   "source_path": "mirror/bias_table/2/mechanism",
+   "unit": "literal",
+   "value": "Liquidator recycling (H5)"
+  },
+  {
+   "denominator": null,
+   "field_id": "bias.2.tokens",
+   "label": "bias tokens",
+   "owner_entry": "DET-53",
+   "section": "stress (Member 1)",
+   "source_path": "mirror/bias_table/2/tokens",
+   "unit": "list",
+   "value": [
+    "GHO"
+   ]
+  },
+  {
+   "denominator": null,
+   "field_id": "bias.2.reason",
+   "label": "bias reason",
+   "owner_entry": "DET-53",
+   "section": "stress (Member 1)",
+   "source_path": "mirror/bias_table/2/reason",
+   "unit": "literal",
+   "value": "no multi-round capital recycling"
+  },
+  {
+   "denominator": null,
    "field_id": "bias.3.direction",
    "label": "bias: Stability Pool refills (H3)",
    "owner_entry": "DET-53",
@@ -3429,6 +3933,38 @@
    "source_path": "mirror/bias_table/3/direction",
    "unit": "literal",
    "value": "understates"
+  },
+  {
+   "denominator": null,
+   "field_id": "bias.3.mechanism",
+   "label": "bias mechanism",
+   "owner_entry": "DET-53",
+   "section": "stress (Member 1)",
+   "source_path": "mirror/bias_table/3/mechanism",
+   "unit": "literal",
+   "value": "Stability Pool refills (H3)"
+  },
+  {
+   "denominator": null,
+   "field_id": "bias.3.tokens",
+   "label": "bias tokens",
+   "owner_entry": "DET-53",
+   "section": "stress (Member 1)",
+   "source_path": "mirror/bias_table/3/tokens",
+   "unit": "list",
+   "value": [
+    "LUSD"
+   ]
+  },
+  {
+   "denominator": null,
+   "field_id": "bias.3.reason",
+   "label": "bias reason",
+   "owner_entry": "DET-53",
+   "section": "stress (Member 1)",
+   "source_path": "mirror/bias_table/3/reason",
+   "unit": "literal",
+   "value": "no SP deposits between liquidation waves"
   },
   {
    "denominator": null,
@@ -3442,6 +3978,38 @@
   },
   {
    "denominator": null,
+   "field_id": "bias.4.mechanism",
+   "label": "bias mechanism",
+   "owner_entry": "DET-53",
+   "section": "stress (Member 1)",
+   "source_path": "mirror/bias_table/4/mechanism",
+   "unit": "literal",
+   "value": "PegKeeper effective headroom (H1)"
+  },
+  {
+   "denominator": null,
+   "field_id": "bias.4.tokens",
+   "label": "bias tokens",
+   "owner_entry": "DET-53",
+   "section": "stress (Member 1)",
+   "source_path": "mirror/bias_table/4/tokens",
+   "unit": "list",
+   "value": [
+    "crvUSD"
+   ]
+  },
+  {
+   "denominator": null,
+   "field_id": "bias.4.reason",
+   "label": "bias reason",
+   "owner_entry": "DET-53",
+   "section": "stress (Member 1)",
+   "source_path": "mirror/bias_table/4/reason",
+   "unit": "literal",
+   "value": "full effective headroom treated as deployed within the window; peer co-deployment dynamics omitted — runs conservative"
+  },
+  {
+   "denominator": null,
    "field_id": "bias.5.direction",
    "label": "bias: H4 redemption capacity",
    "owner_entry": "DET-53",
@@ -3449,6 +4017,38 @@
    "source_path": "mirror/bias_table/5/direction",
    "unit": "literal",
    "value": "overstates"
+  },
+  {
+   "denominator": null,
+   "field_id": "bias.5.mechanism",
+   "label": "bias mechanism",
+   "owner_entry": "DET-53",
+   "section": "stress (Member 1)",
+   "source_path": "mirror/bias_table/5/mechanism",
+   "unit": "literal",
+   "value": "H4 redemption capacity"
+  },
+  {
+   "denominator": null,
+   "field_id": "bias.5.tokens",
+   "label": "bias tokens",
+   "owner_entry": "DET-53",
+   "section": "stress (Member 1)",
+   "source_path": "mirror/bias_table/5/tokens",
+   "unit": "list",
+   "value": [
+    "LUSD"
+   ]
+  },
+  {
+   "denominator": null,
+   "field_id": "bias.5.reason",
+   "label": "bias reason",
+   "owner_entry": "DET-53",
+   "section": "stress (Member 1)",
+   "source_path": "mirror/bias_table/5/reason",
+   "unit": "literal",
+   "value": "full schedule capacity treated as immediately available; base-rate decay (regenerative, 12h half-life) omitted — runs conservative"
   },
   {
    "denominator": null,
@@ -3462,6 +4062,38 @@
   },
   {
    "denominator": null,
+   "field_id": "bias.6.mechanism",
+   "label": "bias mechanism",
+   "owner_entry": "DET-53",
+   "section": "stress (Member 1)",
+   "source_path": "mirror/bias_table/6/mechanism",
+   "unit": "literal",
+   "value": "H5 liquidator appetite (composite)"
+  },
+  {
+   "denominator": null,
+   "field_id": "bias.6.tokens",
+   "label": "bias tokens",
+   "owner_entry": "DET-53",
+   "section": "stress (Member 1)",
+   "source_path": "mirror/bias_table/6/tokens",
+   "unit": "list",
+   "value": [
+    "GHO"
+   ]
+  },
+  {
+   "denominator": null,
+   "field_id": "bias.6.reason",
+   "label": "bias reason",
+   "owner_entry": "DET-53",
+   "section": "stress (Member 1)",
+   "source_path": "mirror/bias_table/6/reason",
+   "unit": "literal",
+   "value": "two named opposite-sign terms; DET-47 `binding_side` states per cell which dominates"
+  },
+  {
+   "denominator": null,
    "field_id": "bias.7.direction",
    "label": "bias: Pool exit depth — no LP inflow",
    "owner_entry": "DET-53",
@@ -3472,6 +4104,38 @@
   },
   {
    "denominator": null,
+   "field_id": "bias.7.mechanism",
+   "label": "bias mechanism",
+   "owner_entry": "DET-53",
+   "section": "stress (Member 1)",
+   "source_path": "mirror/bias_table/7/mechanism",
+   "unit": "literal",
+   "value": "Pool exit depth — no LP inflow"
+  },
+  {
+   "denominator": null,
+   "field_id": "bias.7.tokens",
+   "label": "bias tokens",
+   "owner_entry": "DET-53",
+   "section": "stress (Member 1)",
+   "source_path": "mirror/bias_table/7/tokens",
+   "unit": "list",
+   "value": [
+    "all"
+   ]
+  },
+  {
+   "denominator": null,
+   "field_id": "bias.7.reason",
+   "label": "bias reason",
+   "owner_entry": "DET-53",
+   "section": "stress (Member 1)",
+   "source_path": "mirror/bias_table/7/reason",
+   "unit": "literal",
+   "value": "no LP inflow modeled"
+  },
+  {
+   "denominator": null,
    "field_id": "bias.8.direction",
    "label": "bias: Pool exit depth — LP sticky at flight-0",
    "owner_entry": "DET-53",
@@ -3479,6 +4143,218 @@
    "source_path": "mirror/bias_table/8/direction",
    "unit": "literal",
    "value": "overstates"
+  },
+  {
+   "denominator": null,
+   "field_id": "bias.8.mechanism",
+   "label": "bias mechanism",
+   "owner_entry": "DET-53",
+   "section": "stress (Member 1)",
+   "source_path": "mirror/bias_table/8/mechanism",
+   "unit": "literal",
+   "value": "Pool exit depth — LP sticky at flight-0"
+  },
+  {
+   "denominator": null,
+   "field_id": "bias.8.tokens",
+   "label": "bias tokens",
+   "owner_entry": "DET-53",
+   "section": "stress (Member 1)",
+   "source_path": "mirror/bias_table/8/tokens",
+   "unit": "list",
+   "value": [
+    "all"
+   ]
+  },
+  {
+   "denominator": null,
+   "field_id": "bias.8.reason",
+   "label": "bias reason",
+   "owner_entry": "DET-53",
+   "section": "stress (Member 1)",
+   "source_path": "mirror/bias_table/8/reason",
+   "unit": "literal",
+   "value": "static composition; spread disclosed by the LP-flight grid"
+  },
+  {
+   "denominator": null,
+   "field_id": "refpoint.0.symbol",
+   "label": "reference point node",
+   "owner_entry": "DET-48",
+   "section": "stress (Member 1)",
+   "source_path": "stress/reference_points/0/symbol",
+   "unit": "literal",
+   "value": "sfrxETH"
+  },
+  {
+   "denominator": null,
+   "field_id": "refpoint.0.literal",
+   "label": "reference point",
+   "owner_entry": "DET-48",
+   "section": "stress (Member 1)",
+   "source_path": "stress/reference_points/0/literal",
+   "unit": "literal",
+   "value": "reference point unavailable"
+  },
+  {
+   "denominator": null,
+   "field_id": "refpoint.1.symbol",
+   "label": "reference point node",
+   "owner_entry": "DET-48",
+   "section": "stress (Member 1)",
+   "source_path": "stress/reference_points/1/symbol",
+   "unit": "literal",
+   "value": "wstETH"
+  },
+  {
+   "denominator": null,
+   "field_id": "refpoint.1.literal",
+   "label": "reference point",
+   "owner_entry": "DET-48",
+   "section": "stress (Member 1)",
+   "source_path": "stress/reference_points/1/literal",
+   "unit": "literal",
+   "value": "reference point unavailable"
+  },
+  {
+   "denominator": null,
+   "field_id": "refpoint.2.symbol",
+   "label": "reference point node",
+   "owner_entry": "DET-48",
+   "section": "stress (Member 1)",
+   "source_path": "stress/reference_points/2/symbol",
+   "unit": "literal",
+   "value": "WBTC"
+  },
+  {
+   "denominator": null,
+   "field_id": "refpoint.2.literal",
+   "label": "reference point",
+   "owner_entry": "DET-48",
+   "section": "stress (Member 1)",
+   "source_path": "stress/reference_points/2/literal",
+   "unit": "literal",
+   "value": "reference point unavailable"
+  },
+  {
+   "denominator": null,
+   "field_id": "refpoint.3.symbol",
+   "label": "reference point node",
+   "owner_entry": "DET-48",
+   "section": "stress (Member 1)",
+   "source_path": "stress/reference_points/3/symbol",
+   "unit": "literal",
+   "value": "WETH"
+  },
+  {
+   "denominator": null,
+   "field_id": "refpoint.3.literal",
+   "label": "reference point",
+   "owner_entry": "DET-48",
+   "section": "stress (Member 1)",
+   "source_path": "stress/reference_points/3/literal",
+   "unit": "literal",
+   "value": "reference point unavailable"
+  },
+  {
+   "denominator": null,
+   "field_id": "refpoint.4.symbol",
+   "label": "reference point node",
+   "owner_entry": "DET-48",
+   "section": "stress (Member 1)",
+   "source_path": "stress/reference_points/4/symbol",
+   "unit": "literal",
+   "value": "sfrxETH"
+  },
+  {
+   "denominator": null,
+   "field_id": "refpoint.4.literal",
+   "label": "reference point",
+   "owner_entry": "DET-48",
+   "section": "stress (Member 1)",
+   "source_path": "stress/reference_points/4/literal",
+   "unit": "literal",
+   "value": "reference point unavailable"
+  },
+  {
+   "denominator": null,
+   "field_id": "refpoint.5.symbol",
+   "label": "reference point node",
+   "owner_entry": "DET-48",
+   "section": "stress (Member 1)",
+   "source_path": "stress/reference_points/5/symbol",
+   "unit": "literal",
+   "value": "tBTC"
+  },
+  {
+   "denominator": null,
+   "field_id": "refpoint.5.literal",
+   "label": "reference point",
+   "owner_entry": "DET-48",
+   "section": "stress (Member 1)",
+   "source_path": "stress/reference_points/5/literal",
+   "unit": "literal",
+   "value": "reference point unavailable"
+  },
+  {
+   "denominator": null,
+   "field_id": "refpoint.6.symbol",
+   "label": "reference point node",
+   "owner_entry": "DET-48",
+   "section": "stress (Member 1)",
+   "source_path": "stress/reference_points/6/symbol",
+   "unit": "literal",
+   "value": "weETH"
+  },
+  {
+   "denominator": null,
+   "field_id": "refpoint.6.literal",
+   "label": "reference point",
+   "owner_entry": "DET-48",
+   "section": "stress (Member 1)",
+   "source_path": "stress/reference_points/6/literal",
+   "unit": "literal",
+   "value": "reference point unavailable"
+  },
+  {
+   "denominator": null,
+   "field_id": "refpoint.7.symbol",
+   "label": "reference point node",
+   "owner_entry": "DET-48",
+   "section": "stress (Member 1)",
+   "source_path": "stress/reference_points/7/symbol",
+   "unit": "literal",
+   "value": "cbBTC"
+  },
+  {
+   "denominator": null,
+   "field_id": "refpoint.7.literal",
+   "label": "reference point",
+   "owner_entry": "DET-48",
+   "section": "stress (Member 1)",
+   "source_path": "stress/reference_points/7/literal",
+   "unit": "literal",
+   "value": "reference point unavailable"
+  },
+  {
+   "denominator": null,
+   "field_id": "refpoint.8.symbol",
+   "label": "reference point node",
+   "owner_entry": "DET-48",
+   "section": "stress (Member 1)",
+   "source_path": "stress/reference_points/8/symbol",
+   "unit": "literal",
+   "value": "LBTC"
+  },
+  {
+   "denominator": null,
+   "field_id": "refpoint.8.literal",
+   "label": "reference point",
+   "owner_entry": "DET-48",
+   "section": "stress (Member 1)",
+   "source_path": "stress/reference_points/8/literal",
+   "unit": "literal",
+   "value": "reference point unavailable"
   },
   {
    "denominator": null,
@@ -4816,6 +5692,6 @@
   }
  ],
  "run_block": 25970226,
- "table_hash": "12743effab47549b34b101f943996614d03fb2a580252f2f738d0a23f4b1a7fa",
+ "table_hash": "5507461bf3bd8d9075aad9c28972594ccd420ddbf6ddca93847ae0f159e1ba4f",
  "token": "crvUSD"
 }

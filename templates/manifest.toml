@@ -10,13 +10,24 @@ usd_ge_1k_decimals = 2
 token_amount_lt_1_decimals = 4
 ratio_as_percent_decimals = 1          # R-7: p = 1, half-up (tree._pct1)
 rounding = "half_up"
+zero = "0"                             # R-B11.6: an exact zero prints "0", both forms
+
+# R-B11.6: the compact form - stat cards and reader-layer sentences only; the
+# specialist tables print the full form. Both forms format the same table value.
+[compact]
+currency_prefix = "$"
+suffixes = [[1000000000, "B"], [1000000, "M"], [1000, "k"]]
+suffixed_decimals = 1
+below_1k_decimals = 0
+below_1_decimals = 2
+percent_decimals = 2
 
 # DET-79: zero matches over report and page. The fixed list, the tag shape, the
 # ruled placeholders, and the internal-citation patterns P-7.01 R19 adds.
 [substitution_list]
 literals = ["{{", "}}", "{%", "[TODO", "TBD", "lorem", "XXX", "<placeholder",
             "[FIRST-RUN READ", "[ANALYST-SUPPLIED", "[VERIFIED", "[RE-SCOPED", "[VERIFY]",
-            "[addr]", "[date]", "[freeze date]"]
+            "[addr]", "[date]", "[freeze date]", "[slot:"]
 patterns = ['\[[A-Z][A-Z -]+:', 'block N\b', '\bN%', 'P-\d+\.\d+', '#\d+']
 
 # DET-80's seven prose slots.

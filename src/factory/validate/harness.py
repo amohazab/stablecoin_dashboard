@@ -11,10 +11,11 @@ lesson, P-3.27).
 from __future__ import annotations
 
 import datetime as _dt
+import re
 from collections.abc import Callable
 from contextvars import ContextVar
 from dataclasses import dataclass
-from decimal import Decimal
+from decimal import ROUND_HALF_UP, Decimal
 
 from factory.provenance import AbsenceRead, AnalystSupplied, ContractRead
 from factory.schema import Bundle, GateResult, StressReport, VerifiabilityTree
@@ -2273,7 +2274,21 @@ def det_84(b: Bundle, t: VerifiabilityTree, r: StressReport, page: dict) -> str:
             bad.append(f"{row['field_id']}: {row['value']!r} != owner {got!r}")
     if bad:
         raise Level3(f"DET-84: {len(bad)} row(s) do not replay: {bad[:3]}")
-    if table_hash(doc) != doc["table_hash"]:
+    grid = page["grid"]
+    for c in grid["cells"]:
+        try:
+            owner = resolve(sources, c["source_path"])
+        except PathError as exc:
+            bad.append(f"grid {c['id']}: {exc}")
+            continue
+        if any(owner[k] != c[k] for k in ("member", "shock", "lst", "lp", "target", "m1", "m2",
+                                          "m3", "m4")):
+            bad.append(f"grid {c['id']}: differs from its owner cell")
+    if len(grid["cells"]) != len(sources["stress"]["cells"]):
+        bad.append("grid: cell count differs from the stress report")
+    if bad:
+        raise Level3(f"DET-84: grid does not replay: {bad[:3]}")
+    if table_hash(doc, grid) != doc["table_hash"]:
         raise Level3("DET-84: table_hash does not recompute")
     refs = {f for a in doc["assumptions"] for f in (a["data_ref"] or [])}
     if refs - set(ids):
@@ -2282,10 +2297,12 @@ def det_84(b: Bundle, t: VerifiabilityTree, r: StressReport, page: dict) -> str:
 
 
 def run_report_checks(bundle: Bundle, tree: VerifiabilityTree, report: StressReport,
-                      page: dict) -> list[GateResult]:
-    """The report-stage rows, fail-closed (DET-85's shape)."""
+                      page: dict, stage: str = "S2") -> list[GateResult]:
+    """The report-stage rows of one stage, fail-closed (DET-85's shape): S2 over
+    the table (DET-84), S3 over the rendered pages (B-11b). A Level 3 row's
+    trigger text, when it passes with one, is its scope."""
     results = []
-    for chk in (c for c in CHECKS if c.consumer == "report"):
+    for chk in (c for c in CHECKS if c.consumer == "report" and c.stage == stage):
         try:
             scope = chk.fn(bundle, tree, report, page)
             results.append(GateResult(entry_id=chk.entry_id, result="pass",
@@ -2297,6 +2314,716 @@ def run_report_checks(bundle: Bundle, tree: VerifiabilityTree, report: StressRep
             results.append(GateResult(entry_id=chk.entry_id, result="error",
                                       scope_condition=f"{type(exc).__name__}: {exc}"[:500]))
     return results
+
+
+# ---------------------------------------------- S3, consumer "report" (B-11b) ----
+#
+# The fifteen B-11 rows (A-16's enumeration), `fn(bundle, tree, report, page)`.
+# `page` carries the table and grid, the rendered pages (`html`: index, appendix,
+# verify), and the template-side inputs the caller read for the harness, which
+# does no file I/O of its own (P-3.43 R1): `wording`, `manifest`,
+# `template_strings`, `sheet_text` / `sheet_hash` and `memo_text`.
+#
+# NAMED DEFAULTS (B-11b). A page is read as TEXT: tags removed, entities
+# unescaped, whitespace collapsed; SVG `<text>` is text. "The report" is the
+# token's index and appendix pages (both render the one table); verify.html is
+# the reproduction recipe and enters DET-79 and DET-88 only, its sheet block
+# (`<pre class="sheet">`, B-11a's stated verbatim default) outside DET-89. A
+# clause that locates a literal "in a line" or "in a row" is read over one
+# rendered element (p, li, tr, td, span, figcaption, caption, summary, h1-h4,
+# svg text) - never over the page as one string.
+
+S3_REPORT = ("index", "appendix")
+_ELEMENT_TAGS = {"p", "li", "tr", "td", "th", "span", "figcaption", "caption", "summary",
+                 "h1", "h2", "h3", "h4", "text", "title"}
+_VOID = {"br", "img", "meta", "link", "input", "hr", "wbr", "col", "source"}
+RUBRIC_LEAKS = ("{{", "}}", "{%", "[TODO", "TBD", "lorem", "XXX", "<placeholder",
+                "[FIRST-RUN READ", "[ANALYST-SUPPLIED", "[VERIFIED", "[RE-SCOPED", "[VERIFY]",
+                "[addr]", "[date]", "[freeze date]")
+RUBRIC_LEAK_PATTERNS = (r"\[[A-Z][A-Z -]+:", r"block N\b", r"\bN%")
+
+
+def _page_text(html: str) -> str:
+    import html as _html
+    h = re.sub(r"<(script|style)\b.*?</\1>", " ", html, flags=re.S | re.I)
+    h = re.sub(r"<[^>]+>", " ", h)
+    return re.sub(r"\s+", " ", _html.unescape(h)).strip()
+
+
+def _elements(html: str) -> list[str]:
+    """The text of every rendered element in `_ELEMENT_TAGS`, nested text included."""
+    from html.parser import HTMLParser
+
+    class _P(HTMLParser):
+        def __init__(self):
+            super().__init__(convert_charrefs=True)
+            self.stack: list[list] = []
+            self.done: list[str] = []
+
+        def handle_starttag(self, tag, attrs):
+            if tag not in _VOID:
+                self.stack.append([tag, []])
+
+        def handle_endtag(self, tag):
+            for i in range(len(self.stack) - 1, -1, -1):
+                if self.stack[i][0] == tag:
+                    for t_, buf in self.stack[i:][::-1]:
+                        if t_ in _ELEMENT_TAGS:
+                            self.done.append(re.sub(r"\s+", " ", " ".join(buf)).strip())
+                    del self.stack[i:]
+                    return
+
+        def handle_data(self, data):
+            for _, buf in self.stack:
+                buf.append(data)
+
+    p = _P()
+    p.feed(html)
+    return p.done
+
+
+def _s3(page: dict) -> dict:
+    """Parsed once per page dict: texts, elements, rows, the formatter."""
+    if "_s3" not in page:
+        from factory.report.render import Formatter
+        rows = {r["field_id"]: r for r in page["table"]["rows"]}
+        mf = page["manifest"]
+        page["_s3"] = {
+            "rows": rows,
+            "text": {k: _page_text(v) for k, v in page["html"].items()},
+            "el": {k: _elements(v) for k, v in page["html"].items()},
+            "fmt": Formatter(mf["display_rule"], mf["compact"],
+                             int(rows["tree.root.value_scale"]["value"])),
+        }
+    return page["_s3"]
+
+
+def _report_text(page: dict) -> str:
+    return " ".join(_s3(page)["text"][k] for k in S3_REPORT)
+
+
+def _report_elements(page: dict) -> list[str]:
+    return [e for k in S3_REPORT for e in _s3(page)["el"][k]]
+
+
+def _figures(page: dict, fid: str) -> set[str]:
+    """Both forms of a table value (R-B11.6), as `fmt` prints them."""
+    s = _s3(page)
+    r = s["rows"][fid]
+    return {s["fmt"](r["value"], r["unit"], r["denominator"]),
+            s["fmt"](r["value"], r["unit"], r["denominator"], compact=True)}
+
+
+def _pct1(share) -> Decimal:
+    return (Decimal(str(share)) * 100).quantize(Decimal("0.1"), rounding=ROUND_HALF_UP)
+
+
+def _printed_equals(printed: str, value: Decimal) -> bool:
+    """A printed number equals `value` rounded half-up to the printed decimals."""
+    p = Decimal(printed.replace(",", ""))
+    exp = p.as_tuple().exponent
+    return p == Decimal(value).quantize(Decimal(1).scaleb(exp), rounding=ROUND_HALF_UP)
+
+
+def det_14cd(b: Bundle, t: VerifiabilityTree, r: StressReport, page: dict) -> str:
+    """DET-14 (c)(d), S3: printed segment sum within n x 0.05 of 100, n = the
+    rendered segments (three bars + U iff U > 0); each printed value =
+    round_half_up(share, 1)."""
+    s = _s3(page)
+    labels = page["wording"]["tree"]["bars"]
+    idx = s["text"]["index"]
+    printed, bad = [], []
+    segs = [(k, labels[k], s["rows"][f"verif.bar.{k}"]["value"])
+            for k in ("terminal", "terminal_other_layer", "disclosure_dependent")]
+    if Decimal(str(s["rows"]["verif.unlisted_share"]["value"])) > 0:
+        segs.append(("unlisted", "unclassified — pending intake",
+                     s["rows"]["verif.unlisted_share"]["value"]))
+    for _key, label, share in segs:
+        m = re.search(re.escape(label) + r" — (< )?(\d+(?:\.\d+)?)", idx)
+        if m is None:
+            raise Level3(f"DET-14(c): segment '{label}' not printed")
+        if m.group(1) or Decimal(m.group(2)) != _pct1(share):
+            bad.append(f"{label} printed {m.group(0)[len(label) + 3:]!r}, "
+                       f"round_half_up = {_pct1(share)}")
+        printed.append(Decimal(m.group(2)))
+    if bad:
+        raise Level3(f"DET-14(d): {bad}")
+    n = len(segs)
+    if abs(sum(printed) - 100) > n * Decimal("0.05"):
+        raise Level3(f"DET-14(c): printed sum {sum(printed)} outside {n} x 0.05 of 100")
+    return f"{n} segments printed, sum {sum(printed)}"
+
+
+def det_17(b: Bundle, t: VerifiabilityTree, r: StressReport, page: dict) -> str:
+    """Three-bar headline, S3: bars in order terminal, terminal_other_layer,
+    recurses + recurses_truncated; values replay from DET-14's shares (1e-6);
+    bar 3's truncated share with a reason string per truncated node; a 0% bar
+    present; the U segment iff U > 0."""
+    s = _s3(page)
+    labels = page["wording"]["tree"]["bars"]
+    idx = s["text"]["index"]
+    want = {"terminal": t.shares.terminal, "terminal_other_layer": t.shares.terminal_other_layer,
+            "disclosure_dependent": t.shares.recurses + t.shares.recurses_truncated}
+    pos = []
+    for key in ("terminal", "terminal_other_layer", "disclosure_dependent"):
+        if abs(Decimal(str(s["rows"][f"verif.bar.{key}"]["value"])) - want[key]) > Decimal("1e-6"):
+            raise Level3(f"DET-17: bar {key} does not replay from DET-14's shares")
+        i = idx.find(labels[key] + " — ")
+        if i < 0:
+            raise Level3(f"DET-17: bar '{labels[key]}' absent")
+        pos.append(i)
+    if pos != sorted(pos):
+        raise Level3("DET-17: bars out of order")
+    u_seg = "unclassified — pending intake" in idx
+    if u_seg != (t.shares.unlisted > 0):
+        raise Level3(f"DET-17: U segment present={u_seg}, U={t.shares.unlisted}")
+    if t.truncated_share > 0:
+        txt = _report_text(page)
+        if not _figures(page, "verif.truncated_share") & set(re.findall(r"\S+%", txt)):
+            raise Level3("DET-17: truncated share not printed as bar 3's sub-annotation")
+        missing = [n.symbol for n in t.truncated_nodes if n.reason not in txt]
+        if missing:
+            raise Level3(f"DET-17: reason string absent for truncated {missing}")
+    return f"three bars in order; {len(t.truncated_nodes)} truncated reason(s)"
+
+
+def det_18(b: Bundle, t: VerifiabilityTree, r: StressReport, page: dict) -> str:
+    """Staleness pair, S3: printed format carries weighted days, worst node
+    name, worst days and worst weight; a per-node column for every node in D;
+    D empty => "no disclosure-dependent nodes"; the companion line iff the
+    truncated share > 0. Read in one element."""
+    s = _s3(page)
+    st = t.staleness
+    D = {n.address for n in t.nodes if n.label == "recurses"}
+    rows_d = {f.split(".")[2] for f in s["rows"] if re.match(r"verif\.staleness\.0x", f)}
+    if rows_d != D:
+        raise Level3(f"DET-18: staleness rows {sorted(rows_d ^ D)} differ from D")
+    idx_txt = s["text"]["index"]
+    if not D:
+        if "no disclosure-dependent nodes" not in idx_txt:
+            raise Level3('DET-18: D empty and "no disclosure-dependent nodes" not printed')
+    else:
+        missing = [n.symbol for n in st.D
+                   if not any(n.symbol in e and str(n.last_disclosure_date) in e
+                              for e in s["el"]["index"])]
+        if missing:
+            raise Level3(f"DET-18: per-node staleness column lacks {missing}")
+        w = st.worst
+
+        def carries(e: str) -> bool:
+            days = re.findall(r"(\d+(?:\.\d+)?) ?(?:d|days?)\b", e)
+            pcts = re.findall(r"(\d+(?:\.\d+)?)%", e)
+            return (w.symbol in e
+                    and any(_printed_equals(x, st.weighted_days) for x in days)
+                    and any(_printed_equals(x, Decimal(w.days)) for x in days)
+                    and any(_printed_equals(x, w.share * 100) for x in pcts))
+        if not any(carries(e) for e in s["el"]["index"]):
+            raise Level3(f"DET-18: no printed element carries weighted days, worst node "
+                         f"{w.symbol}, worst days {w.days} and worst weight together")
+    comp = "of backing depth-truncated — staleness not assessed"
+    if t.truncated_share > 0:
+        lit = f"{_pct1(t.truncated_share)}% {comp}"
+        if lit not in idx_txt:
+            raise Level3(f"DET-18: companion line {lit!r} not printed")
+    elif comp in idx_txt:
+        raise Level3("DET-18: companion line printed with truncated share 0")
+    return f"D = {len(D)} node(s)"
+
+
+def det_22_s3(b: Bundle, t: VerifiabilityTree, r: StressReport, page: dict) -> str:
+    """Stabilizer slice, S3 half (R-12): the row labeled exactly "protocol
+    stabilizer debt" with Σ current_debt and its % of supply; ceiling_aggregate
+    as figure and % of supply_ruled, captioned as the slice's upper bound;
+    per-operation rows with ceiling and utilization; the net position line
+    carrying "pro-cyclical, non-credited" and "valued at par"."""
+    els = _report_elements(page)
+    s = _s3(page)
+    ops = b.stabilizer.operations
+    slice_rows = [e for e in els if "protocol stabilizer debt" in e]
+    if not slice_rows:
+        raise Level3('DET-22: no row labeled "protocol stabilizer debt"')
+    fmt = s["fmt"]
+    debt = sum(o.current_debt for o in ops)
+    sup = Decimal(b.supply.supply_ruled)
+    forms = {fmt(debt, "base_units"), fmt(debt, "base_units", compact=True)}
+    pct = {fmt(Decimal(debt) / sup, "ratio", "supply_ruled"),
+           fmt(Decimal(debt) / sup, "ratio", "supply_ruled", compact=True)}
+    if not any(any(f in e for f in forms) and any(p in e for p in pct) for e in slice_rows):
+        raise Level3("DET-22: the slice row lacks Σ current_debt or its % of supply")
+    ceil = b.stabilizer.ceiling_aggregate
+    cforms = {fmt(ceil, "base_units"), fmt(ceil, "base_units", compact=True)}
+    cpct = {fmt(Decimal(ceil) / sup, "ratio", "supply_ruled"),
+            fmt(Decimal(ceil) / sup, "ratio", "supply_ruled", compact=True)}
+    if not any(any(f in e for f in cforms) and any(p in e for p in cpct) and "upper bound" in e
+               for e in els):
+        raise Level3("DET-22: ceiling_aggregate not printed with its % of supply_ruled "
+                     "captioned as the upper bound")
+    for o in ops:
+        oc = {fmt(o.debt_ceiling, "base_units"), fmt(o.debt_ceiling, "base_units", compact=True)}
+        ou = ({fmt(o.utilization, "ratio"), fmt(o.utilization, "ratio", "debt_ceiling")}
+              if o.utilization is not None else {"—", "n/a"})
+        short = fmt(o.operation_address, "address")
+        if not any(short in e and any(c in e for c in oc) and any(u in e for u in ou)
+                   for e in els):
+            raise Level3(f"DET-22: operation {short} row lacks ceiling or utilization")
+    if ops and not any("pro-cyclical, non-credited" in e and "valued at par" in e for e in els):
+        raise Level3('DET-22: net position line lacks "pro-cyclical, non-credited" / '
+                     '"valued at par"')
+    return f"slice row, ceiling bound, {len(ops)} operation row(s)"
+
+
+def det_29c(b: Bundle, t: VerifiabilityTree, r: StressReport, page: dict) -> str:
+    """DET-29(c), S3: printed K-subset share >= 90% (1e-6) and memo §5.7's
+    exit-depth one-liner with [freeze date] = freeze_date, text exact."""
+    s = _s3(page)
+    k90 = Decimal(str(s["rows"]["exit.sensitivity.K90.share_of_F"]["value"]))
+    if k90 < Decimal("0.9") - Decimal("1e-6"):
+        raise Level3(f"DET-29(c): K-subset share {k90} < 90%")
+    txt = _report_text(page)
+    shares = _figures(page, "exit.sensitivity.K90.share_of_F")
+    if not any("frozen set" in e and any(f in e for f in shares) for e in _report_elements(page)):
+        raise Level3("DET-29(c): the K-subset share is not printed with the frozen set it covers")
+    line = ("modeled pools: the largest pools covering 90% of the frozen set, which itself "
+            "covered 95% of discovered on-Curve liquidity at freeze time "
+            f"({s['rows']['header.freeze_date']['value']}).")
+    if line not in txt:
+        raise Level3("DET-29(c): the §5.7 one-liner with the freeze date is not printed")
+    return f"K90 share {k90}; one-liner printed"
+
+
+def det_36(b: Bundle, t: VerifiabilityTree, r: StressReport, page: dict) -> str:
+    """LP-flight assumption line, S3: the headline exit-depth line carries "LP
+    capital assumed sticky"; the grid printed 0% / 30% / 60% with "assumed
+    scenario modifier, not data-derived"; "single-sided withdrawal of the paired
+    asset" once."""
+    els = _report_elements(page)
+    depth = _figures(page, "headline.m3.exit_depth")
+    if not any("LP capital assumed sticky" in e and any(f in e for f in depth) for e in els):
+        raise Level3('DET-36: the headline exit-depth line lacks "LP capital assumed sticky"')
+    if not any("0% / 30% / 60%" in e and "assumed scenario modifier, not data-derived" in e
+               for e in els):
+        raise Level3('DET-36: grid not printed "0% / 30% / 60%" with "assumed scenario '
+                     'modifier, not data-derived"')
+    n = _report_text(page).count("single-sided withdrawal of the paired asset")
+    if n != 1:
+        raise Level3(f'DET-36: "single-sided withdrawal of the paired asset" printed {n} times')
+    return "LP-flight lines printed"
+
+
+BIAS_LITERALS = (("sell-side bound", "overstates"), ("gsm cap headroom", "overstates"),
+                 ("liquidator recycling (h5)", "understates"),
+                 ("stability pool refills (h3)", "understates"))
+
+
+def det_53(b: Bundle, t: VerifiabilityTree, r: StressReport, page: dict) -> str:
+    """Bias note per mechanism (R-31), S3: `bias_table[]` rendered under the
+    heading "stock-only capacity — direction of error per mechanism"; enum
+    {overstates, understates, both}; the four memo-derived rows as literals.
+    Coverage: every `capacity` lineage entry has a row - no lineage entry of
+    that name exists in the stress artifact, so the check reads C5's nine rows."""
+    s = _s3(page)
+    els = _report_elements(page)
+    if "stock-only capacity — direction of error per mechanism" not in els:
+        raise Level3("DET-53: heading absent")
+    bias = sorted({f.split(".")[1] for f in s["rows"] if f.startswith("bias.")}, key=int)
+    if not bias:
+        raise Level3("DET-53: no bias rows")
+    got = []
+    for i in bias:
+        mech = s["rows"][f"bias.{i}.mechanism"]["value"]
+        d = s["rows"][f"bias.{i}.direction"]["value"]
+        if d not in ("overstates", "understates", "both"):
+            raise Level3(f"DET-53: direction {d!r} outside the enum")
+        if not any(mech in e and d in e for e in els):
+            raise Level3(f"DET-53: row {mech!r} not rendered with its direction")
+        got.append((mech.lower(), d))
+    for lit, d in BIAS_LITERALS:
+        if not any(lit in m and dd == d for m, dd in got):
+            raise Level3(f"DET-53: mandatory row {lit!r} -> {d} absent")
+    cap = [x for c in r.cells for x in c.lineage if "capacity" in x]
+    return (f"{len(bias)} rows rendered; four literals present; "
+            f"capacity lineage entries: {len(cap)}")
+
+
+def det_54(b: Bundle, t: VerifiabilityTree, r: StressReport, page: dict) -> str:
+    """Observation assumption per token (R-30), S3. GHO/LUSD: X = max deviation
+    across the DET-55 `deviation_heartbeat` rows; X <= 1% => "instant
+    observation — nearly exact: Chainlink deviation triggers ≤ X%", else the
+    "weaker for" literal. crvUSD: the "knowingly optimistic" literal with the
+    per-market EMA windows listed."""
+    s = _s3(page)
+    txt = _report_text(page)
+    rows = s["rows"]
+    if page["table"]["token"] == "crvUSD":
+        lit = ("instant observation — knowingly optimistic: LLAMMA prices off an EMA oracle; "
+               "see counterfactual line EMA_lag")
+        if lit not in txt:
+            raise Level3("DET-54: crvUSD's knowingly-optimistic literal not printed")
+        wins = [f for f in rows if f.endswith(".ema_window_s")]
+        from collections import Counter
+        need = Counter(s["fmt"](rows[f]["value"], rows[f]["unit"]) for f in wins)
+        short = [v for v, n in need.items() if txt.count(v) < n]
+        if short:
+            raise Level3(f"DET-54: EMA windows not listed per market: {short}")
+        return f"knowingly optimistic; {len(wins)} EMA windows listed"
+    dev = [Decimal(str(rows[f[:-5] + ".deviation_bps"]["value"])) for f in rows
+           if re.match(r"oracle\.0x.*\.type$", f) and rows[f]["value"] == "deviation_heartbeat"
+           and f[:-5] + ".deviation_bps" in rows]
+    if not dev:
+        raise Level3("DET-54: no deviation_heartbeat rows for X")
+    x = max(dev)
+    if Decimal(str(rows["oracle.max_deviation.value_bps"]["value"])) != x:
+        raise Level3(f"DET-54: tree X {rows['oracle.max_deviation.value_bps']['value']} != {x}")
+    if x <= 100:
+        m = re.search(r"instant observation — nearly exact: Chainlink deviation triggers ≤ "
+                      r"(\d+(?:\.\d+)?)%", txt)
+        if m is None or Decimal(m.group(1)) != x / 100:
+            raise Level3(f"DET-54: nearly-exact literal with X = {x / 100}% not printed")
+    else:
+        if not re.search(r"instant observation — weaker for .+?: deviation "
+                         rf"{re.escape(str(x / 100))}%?; shock cells at ≥ 20% still trigger "
+                         r"immediately; residual error ≤ ", txt):
+            raise Level3(f"DET-54: weaker-for literal with X = {x / 100}% not printed")
+    return f"X = {x} bps"
+
+
+def det_56(b: Bundle, t: VerifiabilityTree, r: StressReport, page: dict) -> str:
+    """Failure-mode scope-out sentences, S3."""
+    s = _s3(page)
+    txt = _report_text(page)
+    need = ["oracle manipulation out of scope — feed control reported under the "
+            "admin-power surface", "sequencer/infra risk n/a — mainnet only"]
+    lusd = page["table"]["token"] == "LUSD"
+    if not lusd:
+        need.append("oracle failure/staleness out of scope")
+    missing = [x for x in need if x not in txt]
+    if lusd and "Tellor_fallback" not in txt and "Tellor fallback" not in txt:
+        missing.append("reference to the Tellor_fallback line")
+    if not any(f.startswith("admin.set_oracle.") for f in s["rows"]) or \
+            page["wording"]["powers"]["set_oracle"] not in txt.lower():
+        missing.append("the set_oracle rows the manipulation sentence cross-references")
+    if missing:
+        raise Level3(f"DET-56: not printed: {missing}")
+    return "scope-out sentences printed"
+
+
+DET57_REQUIRED = ("stock_only", "observation", "lp_sticky", "lp_grid", "sell_side_bound",
+                  "par_numeraire", "shock_grid_fixed", "member2_target", "freeze_reference")
+
+
+def det_57(b: Bundle, t: VerifiabilityTree, r: StressReport, page: dict) -> str:
+    """Assumptions block complete per token, S3: the required IDs, each with a
+    `data_ref` or `rule_ref`; `sell_side_bound` per volatile node (LUSD's exempt
+    literal); `par_numeraire` carrying "paired assets counted at 1.00 for
+    depth"; every required ID printed."""
+    s = _s3(page)
+    doc = page["table"]
+    token = doc["token"]
+    want = list(DET57_REQUIRED)
+    if token == "GHO":
+        want += ["h5_slippage_bound", "gsm_fee_exit"]
+    if token in ("crvUSD", "GHO"):
+        want.append("lst_discount_grid")
+    got = {a["id"]: a for a in doc["assumptions"]}
+    missing = [x for x in want if x not in got]
+    if missing:
+        raise Level3(f"DET-57: required ID(s) absent {missing}")
+    empty = [x for x in want if not (got[x]["data_ref"] or got[x]["rule_ref"])]
+    if empty:
+        raise Level3(f"DET-57: neither data_ref nor rule_ref on {empty}")
+    nodes = {f for f in s["rows"] if re.match(r"node\.0x[0-9a-f]{40}\.sell_side$", f)}
+    refs = set(got["sell_side_bound"]["data_ref"] or [])
+    if not nodes or nodes - refs:
+        raise Level3(f"DET-57: sell_side_bound misses node(s) {sorted(nodes - refs)[:3]}")
+    if token == "LUSD" and not any(
+            "exempt" in str(s["rows"][f]["value"]) for f in nodes):
+        raise Level3("DET-57: LUSD's exempt literal absent")
+    idx = s["el"]["index"]
+    unprinted = [x for x in want if x not in idx]
+    if unprinted:
+        raise Level3(f"DET-57: required ID(s) not printed {unprinted}")
+    if "paired assets counted at 1.00 for depth" not in _report_text(page):
+        raise Level3('DET-57: par_numeraire literal "paired assets counted at 1.00 for depth" '
+                     "not printed")
+    return f"{len(want)} required IDs"
+
+
+COUNTERPARTY_LITERAL = "n/a — archetype #1 holds no off-chain counterparties"
+
+
+def det_73(b: Bundle, t: VerifiabilityTree, r: StressReport, page: dict) -> str:
+    """§14 audit line and counterparty field (R-42), S3: audits {firm, date,
+    scope} (>= 1 or none), bug_bounty {platform, max} or none,
+    last_material_change_audited in {yes, no}, staleness_date printed; no
+    audit_* in any lineage; the counterparties literal with the WBTC note."""
+    s = _s3(page)
+    rows = s["rows"]
+    els = _report_elements(page)
+    firms = sorted({f.split(".")[1] for f in rows if re.match(r"audit\.\d+\.firm$", f)}, key=int)
+    for i in firms:
+        f, d, sc = (rows[f"audit.{i}.{k}"]["value"] for k in ("firm", "date", "scope"))
+        if not any(f in e and d in e and sc in e for e in els):
+            raise Level3(f"DET-73: audit {f} {d} not printed with firm, date and scope")
+    if not firms and not any("none" in e and "audit" in e.lower() for e in els):
+        raise Level3("DET-73: no audits and no 'none'")
+    plat, mx = rows["audit.bug_bounty.platform"]["value"], rows["audit.bug_bounty.max"]["value"]
+    if not any(plat in e and mx in e for e in els):
+        raise Level3("DET-73: bug_bounty platform and max not printed together")
+    lmc = rows["audit.last_material_change_audited"]["value"]
+    if lmc not in ("yes", "no"):
+        raise Level3(f"DET-73: last_material_change_audited {lmc!r}")
+    sd = rows["audit.staleness_date"]["value"]
+    if not any(sd in e and "audit" in e.lower() for e in els):
+        raise Level3(f"DET-73: staleness_date {sd} not printed on the audit line")
+    lin = [x for c in r.cells for x in c.lineage if str(x).startswith("audit")]
+    if lin:
+        raise Level3(f"DET-73: audit_* in lineage {lin[:3]}")
+    cp = rows["audit.counterparties"]["value"]
+    if not (cp.startswith(COUNTERPARTY_LITERAL) and "WBTC" in cp):
+        raise Level3("DET-73: counterparties literal or WBTC note absent from the sheet row")
+    if cp not in _report_text(page):
+        raise Level3("DET-73: counterparties literal not printed")
+    return f"{len(firms)} audits; bounty; lmc {lmc}; staleness_date {sd}"
+
+
+# DET-74's eighteen tags carry no M/S numbering in the documents; NAMED DEFAULT
+# (B-11b): each is identified by a fragment of its own tag text, in the document
+# and token section it lives in. Class F is DET-52's (registered), class N the
+# rubric Appendix's; neither is re-checked here.
+DET74_CLASS_S = {"M1": ("memo", None, "frxUSD not in pilot"),
+                 "S1": ("sheet", "crvUSD", "USDC ceiling not web-resolvable"),
+                 "S2": ("sheet", "crvUSD", "USDT $135M (Curve News July 2026)")}
+DET74_CLASS_D_MEMO = {"M2": ("GHO", "Sky reserves", "Sky")}
+
+
+def _analyst_supplied(obj, path="") -> list[tuple[str, dict]]:
+    out = []
+    if isinstance(obj, dict):
+        if obj.get("kind") == "analyst_supplied":
+            out.append((path, obj))
+        for k, v in obj.items():
+            out += _analyst_supplied(v, f"{path}/{k}")
+    elif isinstance(obj, list):
+        for i, v in enumerate(obj):
+            out += _analyst_supplied(v, f"{path}[{i}]")
+    return out
+
+
+def _sheet_section(sheet: str, token: str) -> str:
+    m = re.search(rf"^## {re.escape(token)}\n(.*?)(?=^## |\Z)", sheet, re.M | re.S)
+    return m.group(1) if m else ""
+
+
+def det_74(b: Bundle, t: VerifiabilityTree, r: StressReport, page: dict) -> str | None:
+    """Analyst-supplied tags by class (R-44), S3. Class I: every consumed
+    `analyst_supplied` value carries {source, date} (Level 3 without), > 92 d
+    => T-16 Level 1. Class D: the tag's date printed. Class S: the tag absent
+    from the consumed sheet version (M1 lives in the memo: the clause's object is
+    the sheet, so M1 reads absent from it - recorded in the scope)."""
+    import json as _json
+
+    from factory.schema import serialise
+    token = page["table"]["token"]
+    if page["sheet_hash"] != b.header.sheet_hash:
+        raise Level3(f"DET-74: sheet on disk {page['sheet_hash']} is not the consumed "
+                     f"version {b.header.sheet_hash}")
+    run_date = _dt.datetime.fromtimestamp(b.header.block_timestamp, _dt.UTC).date()
+    tags = _analyst_supplied(_json.loads(serialise(b)))
+    stale = []
+    for path, a in tags:
+        if not a.get("source") or not a.get("date"):
+            raise Level3(f"DET-74: consumed value without provenance at {path}")
+        if (run_date - _dt.date.fromisoformat(str(a["date"]))).days > STALENESS_LIMIT_DAYS:
+            stale.append(path)
+    els = _report_elements(page)
+    section = _sheet_section(page["sheet_text"], token)
+    problems = []
+    undated = []
+    for key in ("bug_bounty", "audits[]", "last_material_change_audited"):
+        m = re.search(rf"^- `{re.escape(key)}`.*?\[ANALYST-SUPPLIED (\d{{4}}-\d{{2}}-\d{{2}})",
+                      section, re.M)
+        if m and not any(m.group(1) in e and ("audit" in e.lower() or "bounty" in e.lower())
+                         for e in els):
+            undated.append(f"{key} {m.group(1)}")
+    for tag, (tok, frag, word) in DET74_CLASS_D_MEMO.items():
+        m = re.search(rf"\[ANALYST-SUPPLIED (\d{{4}}-\d{{2}}-\d{{2}}): {re.escape(frag)}",
+                      page["memo_text"])
+        if tok == token and m and not any(word in e and m.group(1) in e for e in els):
+            undated.append(f"{tag} {m.group(1)}")
+    if undated:
+        problems.append(f"class D tag date(s) not printed {undated}")
+    consumed = [tag for tag, (doc, tok, frag) in DET74_CLASS_S.items()
+                if doc == "sheet" and tok == token and frag in section]
+    if consumed:
+        problems.append(f"class S tag(s) still in the consumed sheet version {consumed}")
+    if problems:
+        raise Level3(f"DET-74: {'; '.join(problems)}" + (f"; T-16 would fire on {stale[:3]}"
+                                                         if stale else ""))
+    if stale:
+        return f"T-16 (L1) enumeration source stale: {stale[:3]}"
+    return (f"class I {len(tags)} value(s) dated; class D dates printed; class S absent "
+            "(M1 is a memo tag)")
+
+
+def det_79(b: Bundle, t: VerifiabilityTree, r: StressReport, page: dict) -> str:
+    """Template-artifact string leak, S3: zero matches over the pages for the
+    rubric's fixed list, the tag shape and the ruled placeholders, and the
+    substitution list emitted with the template (R19's patterns included)."""
+    sub = page["manifest"]["substitution_list"]
+    lits = list(dict.fromkeys([*RUBRIC_LEAKS, *sub["literals"]]))
+    pats = list(dict.fromkeys([*RUBRIC_LEAK_PATTERNS, *sub["patterns"]]))
+    hits = []
+    for name, html in page["html"].items():
+        txt = _s3(page)["text"][name]
+        for lit in lits:
+            n = (html if lit.startswith("<") else txt).count(lit)
+            if n:
+                hits.append(f"{name} {lit!r} x{n}")
+        for pat in pats:
+            n = len(re.findall(pat, txt))
+            if n:
+                hits.append(f"{name} /{pat}/ x{n}")
+    if hits:
+        raise Level3(f"DET-79: {len(hits)} leak(s): {'; '.join(hits)}")
+    return f"{len(lits)} literals, {len(pats)} patterns, 0 matches"
+
+
+VERDICT_WORDS = ("grade", "score", "letter", "verdict", "rating")
+
+
+def det_88(b: Bundle, t: VerifiabilityTree, r: StressReport, page: dict) -> str:
+    """No grade, score, letter or verdict field (R-52): no key or field id of
+    that name in bundle, tree, stress report, table or grid; no such field on
+    the pages (an attribute naming one, or a "Grade:"-style label)."""
+    import json as _json
+
+    from factory.schema import serialise, serialise_stress, serialise_tree
+    word = re.compile(r"(?:^|[._\-\s])(" + "|".join(VERDICT_WORDS) + r")(?:$|[._\-\s])", re.I)
+    found = []
+
+    def keys(obj, where):
+        if isinstance(obj, dict):
+            for k, v in obj.items():
+                if word.search(str(k)):
+                    found.append(f"{where}:{k}")
+                keys(v, where)
+        elif isinstance(obj, list):
+            for v in obj:
+                keys(v, where)
+
+    for where, obj in (("bundle", _json.loads(serialise(b))), ("tree", _json.loads(
+            serialise_tree(t))), ("stress", _json.loads(serialise_stress(r))),
+            ("grid", page["grid"])):
+        keys(obj, where)
+    found += [f"table:{x['field_id']}" for x in page["table"]["rows"]
+              if word.search(x["field_id"]) or word.search(x["label"])]
+    for name, html in page["html"].items():
+        if re.search(r'(?:class|id|name|data-[\w-]+)="[^"]*\b(?:' + "|".join(VERDICT_WORDS)
+                     + r')\b', html, re.I):
+            found.append(f"{name}: attribute")
+        if re.search(r"\b(?:" + "|".join(VERDICT_WORDS) + r")\s*[:=]", _s3(page)["text"][name],
+                     re.I):
+            found.append(f"{name}: label")
+    if found:
+        raise Level3(f"DET-88: grade/score/verdict field(s) {found[:5]}")
+    return "no grade, score, letter or verdict field"
+
+
+_DATE = re.compile(r"\d{4}-\d{2}(?:-\d{2})?(?: \d{2}:\d{2} UTC)?")
+_HEX = re.compile(r"0x[0-9a-fA-F]+(?:…[0-9a-fA-F]+)?|…[0-9a-fA-F]{4}\b")
+_NUM = re.compile(r"(?<![\w§.\-/#$])\$?\d[\d,]*(?:\.\d+)?(?:%|[kMB](?!\w)| d(?!\w))?(?!\w)")
+
+
+def _num_tokens(s: str) -> list[str]:
+    """Numeric figures in the display rule's sense (B-11b NAMED DEFAULT): a
+    number carrying a decimal point, a thousands separator, a percent, a
+    currency prefix, a magnitude suffix or a unit, or a bare integer of four or
+    more digits. Dates, addresses and their shortened forms are not figures;
+    bare integers below 1,000 (counts, names such as "Member 2") are not read."""
+    out = []
+    for x in _NUM.findall(_HEX.sub(" ", _DATE.sub(" ", s))):
+        x = x.rstrip(",")
+        if re.fullmatch(r"\d{1,3}", x):
+            continue
+        out.append(x)
+    return out
+
+
+def det_89(b: Bundle, t: VerifiabilityTree, r: StressReport, page: dict) -> str:
+    """Rendered-figure formatting and units (D-9), S3. (i) The display rule is
+    emitted with the template (thousands ","; 2 decimals >= 1k; 4 below 1).
+    (ii) The token's decimals come from a `decimals()` read with provenance.
+    (iii) Every numeric figure on index and appendix, and on verify outside its
+    sheet block, is a figure `fmt` prints for a table or grid value, or a
+    number in the template's own text. NAMED DEFAULT: dates are not numeric
+    figures; a figure matches by string, not by position."""
+    from factory.report.render import infer_unit
+    s = _s3(page)
+    fmt = s["fmt"]
+    rule = page["manifest"]["display_rule"]
+    if (rule.get("thousands_separator"), rule.get("usd_ge_1k_decimals"),
+            rule.get("token_amount_lt_1_decimals")) != (",", 2, 4):
+        raise Level3(f"DET-89: display rule emitted with the template differs: {rule}")
+    token = _token_address(b)
+    import json as _json
+
+    from factory.schema import serialise
+    reads = []
+
+    def walk(o):
+        if isinstance(o, dict):
+            if o.get("function") == "decimals()" and o.get("source_contract") == token:
+                reads.append(o)
+            for v in o.values():
+                walk(v)
+        elif isinstance(o, list):
+            for v in o:
+                walk(v)
+    walk(_json.loads(serialise(b)))
+    problems = []
+    if not reads:
+        problems.append(f"no decimals() read with provenance on the token {token}")
+    allowed: set[str] = set()
+    for row in page["table"]["rows"]:
+        for compact in (False, True):
+            allowed.update(_num_tokens(fmt(row["value"], row["unit"], row["denominator"],
+                                           compact=compact)))
+
+    def leaves(o):
+        if isinstance(o, dict):
+            for v in o.values():
+                yield from leaves(v)
+        elif isinstance(o, list):
+            for v in o:
+                yield from leaves(v)
+        else:
+            yield o
+    for cell in page["grid"]["cells"]:
+        for x in leaves({k: v for k, v in cell.items() if k not in ("id", "source_path")}):
+            if isinstance(x, bool) or x is None:
+                continue
+            u = infer_unit(x)
+            forms = [fmt(x, u)]
+            if u in ("ratio", "base_units"):
+                forms += [fmt(x, u, "d"), fmt(x, u, compact=True), fmt(x, u, "d", compact=True)]
+            for f in forms:
+                allowed.update(_num_tokens(f))
+    for text in page["template_strings"]:
+        allowed.update(_num_tokens(text))
+    stray: dict[str, int] = {}
+    for name in ("index", "appendix", "verify"):
+        html = page["html"][name]
+        if name == "verify":
+            html = re.sub(r'<pre class="sheet">.*?</pre>', " ", html, flags=re.S)
+        for tok in _num_tokens(_page_text(html)):
+            if tok not in allowed:
+                stray[f"{name}:{tok}"] = stray.get(f"{name}:{tok}", 0) + 1
+    if stray:
+        problems.append(f"{len(stray)} figure string(s) not printed by fmt: "
+                        f"{sorted(stray)[:12]}")
+    if problems:
+        raise Level3(f"DET-89: {'; '.join(problems)}")
+    return "display rule emitted; decimals() read; every figure a fmt output"
 
 
 CHECKS: list[Check] = [
@@ -2355,6 +3082,23 @@ CHECKS: list[Check] = [
     Check("DET-46", "S2", 2, det_46, "stress"),
     Check("DET-47", "S2", 2, det_47, "stress"),
     Check("DET-51", "S2", 2, det_51, "stress"),
+    # S3 - the rendered page and table.json (B-11b, P-7.01 R9); Level 2 = the
+    # pages route to out/rehearsal/ and `out/site/` receives nothing.
+    Check("DET-14cd", "S3", 2, det_14cd, "report"),
+    Check("DET-22-S3", "S3", 2, det_22_s3, "report"),
+    Check("DET-29c", "S3", 2, det_29c, "report"),
+    Check("DET-17", "S3", 2, det_17, "report"),
+    Check("DET-18", "S3", 2, det_18, "report"),
+    Check("DET-36", "S3", 2, det_36, "report"),
+    Check("DET-53", "S3", 2, det_53, "report"),
+    Check("DET-54", "S3", 2, det_54, "report"),
+    Check("DET-56", "S3", 2, det_56, "report"),
+    Check("DET-57", "S3", 2, det_57, "report"),
+    Check("DET-73", "S3", 2, det_73, "report"),
+    Check("DET-74", "S3", 3, det_74, "report"),
+    Check("DET-79", "S3", 2, det_79, "report"),
+    Check("DET-88", "S3", 2, det_88, "report"),
+    Check("DET-89", "S3", 2, det_89, "report"),
 ]
 
 

@@ -147,6 +147,14 @@ def build_rows(bundle: dict, tree: dict, stress: dict, mirror: dict) -> list[dic
                   f"{base}/{k}", u, "verifiability", "DET-18", d)
     t.add("verif.banner", "admin qualifier banner", "tree/banner", "literal", "verifiability",
           "DET-70")
+    for n in tree.get("nodes", []):
+        base = f"tree/nodes/[address={n['address']}]"
+        t.add(f"tree.node.{n['address']}.symbol", "node", f"{base}/symbol", "literal",
+              "verifiability", "DET-17")
+        t.add(f"tree.node.{n['address']}.label", "node label", f"{base}/label", "literal",
+              "verifiability", "DET-17")
+        t.add(f"tree.node.{n['address']}.share", f"{n['symbol']} share of backing",
+              f"{base}/share", "ratio", "verifiability", "DET-17", "backing_value")
     for k in sorted(tree["denominators"]):
         t.add(f"denominator.{k}", f"denominator of {k}", f"tree/denominators/{k}", "denominator",
               "verifiability", "DET-19")
@@ -164,6 +172,19 @@ def build_rows(bundle: dict, tree: dict, stress: dict, mirror: dict) -> list[dic
               f"{base}/amount", "base_units", "supply", "DET-15")
         t.add(f"supply.cause.{c['address']}.family", "named cause family", f"{base}/family",
               "literal", "supply", "DET-15")
+    for i in range(len(tree.get("residual_cause_families", []))):
+        base = f"tree/residual_cause_families/{i}"
+        t.add(f"supply.family.{i}.family", "named-cause family", f"{base}/family", "literal",
+              "supply", "DET-15")
+        t.add(f"supply.family.{i}.total", "named-cause family total", f"{base}/total",
+              "base_units", "supply", "DET-15")
+        t.add(f"supply.family.{i}.count", "named causes in the family", f"{base}/count",
+              "count", "supply", "DET-15")
+    if tree.get("oracle_max_deviation"):
+        for k, u in (("value_bps", "bps"), ("node_address", "address"),
+                     ("feed_or_source", "address")):
+            t.add(f"oracle.max_deviation.{k}", f"largest feed deviation {k.replace('_', ' ')}",
+                  f"tree/oracle_max_deviation/{k}", u, "oracle table", "DET-54")
     for k, u in (("backing_value", "value_scale_units"), ("value_scale", "count"),
                  ("backed_supply", "base_units"), ("perimeter", "literal")):
         t.add(f"tree.root.{k}", k.replace("_", " "), f"tree/root/{k}", u, "supply", "DET-15")
@@ -217,6 +238,11 @@ def build_rows(bundle: dict, tree: dict, stress: dict, mirror: dict) -> list[dic
         t.add(f"exit.sensitivity.K{r['k']}.share_of_F", f"K-subset {r['k']}% share of F",
               f"{ed}/sensitivity_rows/[k={r['k']}]/share_of_F", "ratio", "exit liquidity",
               "DET-30", "frozen_set_tvl")
+    if stress.get("structural_zero"):
+        t.add("stress.structural_zero.flag", "bad debt structurally zero on the Member-1 grid",
+              "stress/structural_zero/flag", "boolean", "stress (Member 1)", "DET-40")
+        t.add("stress.structural_zero.reason", "why bad debt is structurally zero",
+              "stress/structural_zero/reason", None, "stress (Member 1)", "DET-40")
     for p in stress["exit_depth"]["depth_curve"]:
         for k, own in (("total", "DET-31"), ("pool_depth", "DET-31"),
                        ("gsm_contribution", "DET-35")):
@@ -274,6 +300,17 @@ def build_rows(bundle: dict, tree: dict, stress: dict, mirror: dict) -> list[dic
         t.add(f"bias.{i}.direction", f"bias: {r['mechanism']}",
               f"mirror/bias_table/{i}/direction", "literal",
               "stress (Member 1)", "DET-53")
+        t.add(f"bias.{i}.mechanism", "bias mechanism", f"mirror/bias_table/{i}/mechanism",
+              "literal", "stress (Member 1)", "DET-53")
+        t.add(f"bias.{i}.tokens", "bias tokens", f"mirror/bias_table/{i}/tokens", "list",
+              "stress (Member 1)", "DET-53")
+        t.add(f"bias.{i}.reason", "bias reason", f"mirror/bias_table/{i}/reason", "literal",
+              "stress (Member 1)", "DET-53")
+    for i in range(len(stress["reference_points"])):
+        t.add(f"refpoint.{i}.symbol", "reference point node", f"stress/reference_points/{i}/symbol",
+              "literal", "stress (Member 1)", "DET-48")
+        t.add(f"refpoint.{i}.literal", "reference point", f"stress/reference_points/{i}/literal",
+              "literal", "stress (Member 1)", "DET-48")
 
     # ---- assumption text rows (Step 6's keys, kept as additional rows) ---------------
     for k in sorted(stress["assumptions"]):
@@ -324,6 +361,11 @@ def build_rows(bundle: dict, tree: dict, stress: dict, mirror: dict) -> list[dic
         prov = r["provenance"]
         t.add(f"{rid}.A8", f"{r['power']} A8 provenance", f"{sel}/provenance/kind", "literal",
               "admin surface", "DET-68")
+        for k in sorted(r.get("reads", {})):
+            if k.startswith(("owner:", "SWAP_FREEZER_ROLE:")):
+                t.add(f"{rid}.reads.{k}", f"{r['power']} evidence {k}",
+                      f"{sel}/reads/{k}/kind", "literal", "admin surface",
+                      "DET-71" if k.startswith("owner:") else "DET-72")
         if prov.get("function"):
             t.add(f"{rid}.A8.function", f"{r['power']} A8 function", f"{sel}/provenance/function",
                   "literal", "admin surface", "DET-68")
@@ -348,8 +390,20 @@ def build_rows(bundle: dict, tree: dict, stress: dict, mirror: dict) -> list[dic
     return t.rows
 
 
-def table_hash(doc: dict) -> str:
-    payload = {k: doc[k] for k in ("token", "run_block", "rows", "assumptions")}
+GRID_FIELDS = ("member", "shock", "lst", "lp", "target", "m1", "m2", "m3", "m4")
+
+
+def build_grid(stress: dict) -> dict:
+    """Amin's named default (P-7.06): the full grid is a second file, each cell's
+    m1-m4 fields copied with its `source_path`, inside `table_hash`; rendered as
+    the appendix; never the judge's input."""
+    return {"cells": [{"id": c["id"], "source_path": f"stress/cells/[id={c['id']}]",
+                       **{k: c[k] for k in GRID_FIELDS}} for c in stress["cells"]]}
+
+
+def table_hash(doc: dict, grid: dict) -> str:
+    payload = {**{k: doc[k] for k in ("token", "run_block", "rows", "assumptions")},
+               "grid": grid["cells"]}
     return hashlib.sha256(canonical(payload).encode("utf-8")).hexdigest()
 
 

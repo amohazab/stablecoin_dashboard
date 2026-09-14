@@ -1,0 +1,13 @@
+{% extends "base.html.j2" %}
+{% block title %}{{ token }} — verify this report{% endblock %}
+{% block heading %}{{ token }} — verify{% endblock %}
+{% block body %}
+<p class="prose">Every figure here was read from Ethereum at block {{ v('header.run_block') }}. The sheet below is produced by the same generator as the analyst's hand-verification sheet: repeat any call it lists on your own node at that block and you should get the same number.</p>
+{% if vrow %}
+<p class="banner">Hand-verified by the analyst on {{ vrow.date }}: {{ vrow.method }} (stress artifact <code>{{ vrow.artifact_hash[:8] }}</code>).</p>
+{% else %}
+<p class="banner">This stress artifact carries no analyst verification row.</p>
+{% endif %}
+<p class="meta">The sheet's figures are raw base units and recorded call arguments — the reproduction recipe — shown verbatim and not reformatted. Older Vyper pools return a padded buffer: decode the first 32-byte word.</p>
+<pre class="sheet">{{ sheet }}</pre>
+{% endblock %}

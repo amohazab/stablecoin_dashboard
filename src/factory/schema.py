@@ -890,6 +890,33 @@ class OffMainnetLine(BaseModel):
     facilitators: list[dict[str, Any]]
 
 
+class TreeNode(BaseModel):
+    """B-11a′ (R-B11.3): each node under its bar, share over `backing_value`."""
+
+    address: Address
+    symbol: str
+    label: str
+    share: Decimal
+
+
+class ResidualFamily(BaseModel):
+    """R-B11.5: DET-15's named-cause families, totalled tree-side."""
+
+    family: str
+    total: int
+    count: int
+
+
+class OracleMaxDeviation(BaseModel):
+    """R-B11.5: DET-54's X - the largest signed deviation across the token's
+    `deviation_heartbeat` rows (A-19 excludes `nav_schedule`), with the feed
+    that sets it. Ties break on ascending node address (named default)."""
+
+    value_bps: int
+    node_address: Address
+    feed_or_source: Address
+
+
 class VerifiabilityTree(BaseModel):
     token: str
     run_block: int
@@ -910,6 +937,12 @@ class VerifiabilityTree(BaseModel):
     # Present only where off-mainnet facilitators hold a level (GHO). Excluded
     # from serialisation when None, so a token without one keeps its tree bytes.
     off_mainnet_line: OffMainnetLine | None = None
+    # R-B11.3 / R-B11.5 (B-11a′): tree-side figures the page reads - the nodes
+    # beneath each bar, DET-15's cause families, DET-54's X. Derived here, in the
+    # fold, so the table copies them and the page computes nothing.
+    nodes: list[TreeNode] = []
+    residual_cause_families: list[ResidualFamily] = []
+    oracle_max_deviation: OracleMaxDeviation | None = None
     checks: list[GateResult] = []
     flags: list[str] = []
 
@@ -1229,6 +1262,15 @@ class Cell(BaseModel):
     lineage: list[Lineage] = []
 
 
+class StructuralZero(BaseModel):
+    """R-B11.8 (B-11a″): `flag` = the largest Member-1 `m2.bad_debt` on the grid
+    is below 0.001% of `supply_ruled`; `reason` is the token's code-owned literal
+    (P-3.39 ruling 1's pattern), null where the flag is unset."""
+
+    flag: bool
+    reason: str | None = None
+
+
 class StressReport(BaseModel):
     header: StressHeader
     # Copied from `tree.root.value_scale`, never recomputed: `tree.VALUE_SCALE`
@@ -1243,6 +1285,7 @@ class StressReport(BaseModel):
     # three four-point curves — `{target: {s: depth}}` — so the type is widened
     # to Any rather than flattening twelve values into prose (B-7).
     assumptions: dict[str, Any] = {}
+    structural_zero: StructuralZero | None = None       # R-B11.8
     checks: list[GateResult] = []
     flags: list[str] = []
 

@@ -1,0 +1,199 @@
+# Template-owned reader wording (P-7.01 R19; R-B11.2). Plain English, no rubric
+# IDs. No figure here - every number comes from table.json / grid.json through fmt.
+
+what_this_is = "An automated structural risk report on {token}: every number below is read from Ethereum at block {block} and can be reproduced ({verify})."
+behavioral_tier = "The behavioral tier — how the token trades: peg deviation, liquidity, holder concentration and flows — will come from an external monitoring service and is pending."
+structural_only = "This report is the structural tier only: what backs the token, how far that backing can be checked on-chain, and how it holds up under stress."
+reference_prices = "Independent market reference prices are not available from a pinned source in this pilot ({n} collaterals)."
+why_scenario = "The headline scenario is a 50% fall in the price of volatile collateral, with no extra discount on liquid-staking tokens and liquidity providers staying put — the one scenario the archetype memo names as the headline (memo §6.2.6)."
+headline_sentence = "In that scenario liquidations leave {bad_debt} of bad debt ({pct} of supply) and require selling {sold} into {exit} of exit liquidity."
+structural_zero_sentence = "Bad debt is structurally zero on the whole grid: {reason}"
+oracle_lag = "Prices may lag the market by up to {x}: the largest update threshold among this token's price feeds ({feed})."
+oracle_lag_ema = "Prices follow exponential moving averages of pool prices, so they lag the market by design; the window per market is in the oracle table."
+check_this = "Every figure on this page comes from one data table built from on-chain reads at a single block. Reproduce any of them from the verify page."
+specialists = "Detail for specialists"
+
+[pills]
+fresh_days = 30
+stale_days = 92
+freshness = "Disclosures {avg} old on average · worst {worst}, {days}"
+freshness_none = "No collateral depends on off-chain disclosures"
+governance = "Rule changes: {delay}"
+governance_immutable = "Rules cannot be changed: immutable contracts"
+flags_none = "No warnings this run"
+flags = "{n} notice(s): {names}"
+
+[governance]
+immutable = "No one can change the rules: the contracts are immutable."
+all_none = "No one holds any admin power: every contract is immutable and ownership was renounced."
+veto = "a veto holder can cancel the change"
+
+[holders]
+dao_governance = "the DAO"
+multisig = "a multisig"
+timelock = "a timelock"
+contract_automated = "automated contracts"
+eoa = "a single key"
+none = "no one holds this power"
+
+[delays]
+none = "with no delay"
+"<24h" = "with a delay under a day"
+"1–7d" = "with a 1–7 day delay"
+">7d" = "with a delay of more than a week"
+
+[delay_short]
+none = "no delay"
+"<24h" = "under a day"
+"1–7d" = "1–7 day delay"
+">7d" = "more than a week"
+
+[powers]
+mint = "minting"
+set_ceiling = "debt ceilings"
+upgrade = "contract upgrades"
+pause = "pausing"
+freeze_asset = "freezing assets"
+blacklist_address = "blacklisting addresses"
+set_oracle = "oracle settings"
+set_parameters = "risk parameters"
+seize = "seizing assets"
+gsm_freeze = "pausing GSM swaps"
+
+[tree]
+caption = "Where the backing sits and how far it can be checked on-chain; shares are of the value of all backing collateral."
+off_mainnet = "minted for other chains — not traced here ({share})"
+truncated_pill = "truncated"
+days_pill = "{days} d old"
+
+[tree.bars]
+terminal = "Checkable on-chain"
+terminal_other_layer = "Checkable one layer down"
+disclosure_dependent = "Depends on disclosures"
+
+[charts]
+a_title = "Bad debt as the collateral price falls"
+a_axis = "fall in volatile collateral prices"
+a_y = "bad debt ($)"
+b_x = "price impact sellers accept"
+b_y = "exit liquidity ($)"
+b_title = "Exit liquidity by how much price impact sellers accept"
+b_pool = "pool liquidity"
+b_gsm = "GSM swap capacity"
+b_caption = "Exit liquidity available if sellers accept up to 0.5%, 1%, 2% or 5% price impact; the report's headline uses 2%."
+collapse_title = "When the GSM freezes, most exit liquidity leaves with it"
+collapse_a = "Exit liquidity in the headline scenario"
+collapse_b = "Exit liquidity once the GSM freezer trips"
+
+[grid]
+legend = "Each cell: collateral that must be sold ÷ liquidity available to absorb it; “exit exhausted” = no liquidity left at that level of liquidity-provider flight."
+exhausted = "exit exhausted"
+reading = "At a 50% fall, {r50}; at a 70% fall, {r70}; and if 60% of liquidity providers leave at a 70% fall, {r70lp60}."
+reading_within = "forced sales use {ratio} of available exit liquidity"
+reading_over = "forced sales need more than all available exit liquidity ({ratio})"
+reading_exhausted = "no exit liquidity is left"
+swatches = [["s0", "0"], ["s1", "under 0.1%"], ["s2", "under 10%"], ["s3", "under 100%"], ["s4", "100% or more"], ["exhausted", "exit exhausted"]]
+
+[labels]
+supply = "Supply"
+originated = "originated"
+residual = "residual"
+named_causes = "named causes"
+supply_card = "Supply"
+bad_debt_card = "Bad debt, headline scenario"
+exit_card = "Exit liquidity, headline scenario"
+m1_pre = "collateral coverage before the shock"
+m1_post = "collateral coverage after the shock"
+m1_gap = "coverage restored by the liquidation mechanism"
+m2_bad_debt = "bad debt"
+m2_pct_supply = "bad debt as a share of supply"
+m3_forced_sell_volume = "collateral that must be sold"
+m3_exit_depth = "exit liquidity"
+m3_ratio = "forced sales ÷ exit liquidity"
+binding_side = "which side limits liquidation capacity"
+gho_sourceable = "GHO liquidators can source"
+collateral_sellable = "collateral that can be sold"
+gsm_mint_headroom = "room left to mint GHO through the GSMs"
+exit_depth_cell = "exit liquidity in this scenario"
+lp_flight_share = "share of liquidity providers leaving"
+sp_effective_cell = "Stability Pool available in this scenario"
+tcr_post = "system collateral ratio after the shock"
+recovery_mode_flag = "recovery mode triggered"
+effective = "PegKeeper headroom that can actually be used"
+naive = "PegKeeper headroom by debt ceilings alone"
+
+[assumption]
+stock_only = "Capacity is measured as a stock at the run block; how each mechanism's stock-only reading errs is the bias table below."
+observation = "Prices are taken as observed instantly at the run block; the oracle table lists each feed's update condition."
+lp_sticky = "Liquidity providers are assumed to stay in their pools unless a scenario applies the liquidity-flight modifier."
+lp_grid = "Liquidity-provider flight is an assumed modifier of 0%, 30% and 60%, not a measured behaviour."
+sell_side_bound = "Collateral that liquidations must sell is bounded by the analyst's dated sell-side capacity per volatile collateral."
+h5_slippage_bound = "What liquidators can buy is bounded by the smallest liquidation bonus among the shocked reserves."
+gsm_fee_exit = "A GSM counts as an exit at its exit fee, and only where that fee is below the price impact sellers accept."
+par_numeraire = "Paired assets are counted at 1.00 for exit liquidity."
+shock_grid_fixed = "The shock grid is fixed by the archetype memo, not tuned per token."
+lst_discount_grid = "Liquid-staking tokens take an additional discount of 0%, 5% or 10%."
+member2_target = "The depeg scenario targets the paired stablecoin named in the frozen pool set."
+freeze_reference = "Exit venues are the pool set frozen on the freeze date shown."
+additional = "An additional modelling disclosure carried by the stress model; its full text is in the appendix."
+
+[summaries]
+tree_nodes = "Collateral nodes whose backing depends on disclosures or stops at a truncation"
+supply = "Supply, what was originated, and the residual with its named causes"
+headline = "Every figure in the headline scenario"
+counterfactuals = "What changes under the counterfactual assumptions"
+chart_b = "Exit liquidity at four price-impact levels"
+assumptions = "The modelling assumptions and the data behind each"
+bias = "How a stock-only reading errs, mechanism by mechanism"
+admin = "The admin-power table, row by row"
+oracle = "Price feeds: type, update threshold and heartbeat"
+refpoints = "Reference prices"
+audits = "Audits, bug bounty and counterparties"
+
+[scope]
+crvUSD = "across the crvUSD mint markets in scope"
+GHO = "across the Aave facilitators in scope"
+LUSD = "across all Liquity troves"
+default = "across the markets in scope"
+
+[tips]
+supply = "Every {token} in existence at block {block}: total supply plus any supply bridged by burning on another chain."
+bad_debt = "Shortfall left after liquidations in the headline scenario (−50% collateral crash, no LP flight), {scope}, at block {block}."
+exit = "{token} that could be sold into the frozen set of exit pools before its price falls 2%, in the headline scenario, at block {block}."
+finding = "The three figures that summarise this report, read at block {block}; the written summary arrives with the prose stage."
+backing = "The collateral behind {token}, {scope}, split by how far its value can be checked on-chain, at block {block}."
+break = "The headline stress scenario and the grid around it: collateral price falls of 20–70% with liquidity-provider flight of 0–60%, {scope}, at block {block}."
+rules = "Who holds each administrative power over the protocol's contracts and how long a change takes to take effect, read at block {block}."
+check = "Every figure is pinned to block {block}; the verify page lists the calls that reproduce them."
+grid = "Each cell divides the collateral liquidations must sell by the exit liquidity left in that scenario, {scope}, at block {block}; above 100% the sales cannot all be absorbed."
+
+[m4_maps]
+is_killed = "PegKeepers"
+facilitator_bucket_levels = "Facilitator bucket levels"
+freezer_state = "GSM freezers"
+oracle_spot_gap = "Oracle vs pool spot price, per market"
+pegkeeper_lp_share = "PegKeeper share of its pool"
+paired_units_held = "Paired stablecoin held by each PegKeeper"
+provide_allowed = "PegKeeper provide limit"
+withdraw_allowed = "PegKeeper withdraw limit"
+pool_tilt_post_cell = "Pool balance after the shock"
+redemption_capacity = "Redemption capacity"
+
+[m4_columns]
+allowed = "allowed"
+balance = "balance"
+ceiling = "ceiling"
+debt = "debt"
+killed_provide = "killed (provide)"
+killed_withdraw = "killed (withdraw)"
+max_ratio = "max ratio"
+r = "debt share"
+reason = "reason"
+value = "value"
+
+[oracle]
+staleness = "not assessed in this pilot"
+
+[memo]
+section = "docs/context/archetype-memo-1-cdp.md"
+sheet = "docs/context/intake-sheets-cdp.md"

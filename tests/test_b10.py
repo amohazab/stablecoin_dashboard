@@ -32,7 +32,7 @@ def built(tmp_path_factory):
 
 
 def test_registry_carries_det84_at_the_report_stage():
-    assert len(CHECKS) == 67
+    assert len(CHECKS) == 82                                   # B-11b: + 15 S3 rows
     (c,) = [c for c in CHECKS if c.entry_id == "DET-84"]
     assert (c.stage, c.consumer) == ("S2", "report")
 
@@ -58,7 +58,10 @@ def _det84(token, doc):
     s = StressReport.model_validate_json((REPO / f"out/stress/{token}/{blk}.json")
                                          .read_text(encoding="utf-8"))
     mirror = json.loads(json.dumps(inp["cfg"].sheet, default=str))
-    return det_84(inp["bundle"], inp["tree"], s, {"table": doc, "mirror": mirror})
+    from factory.report.table import build_grid
+    from factory.schema import serialise_stress
+    grid = build_grid(json.loads(serialise_stress(s)))
+    return det_84(inp["bundle"], inp["tree"], s, {"table": doc, "grid": grid, "mirror": mirror})
 
 
 def test_det84_fails_an_edited_row_and_a_stale_hash(built):
@@ -112,8 +115,9 @@ def test_record_is_complete_and_enumerates_the_unregistered(built):
     rubric = (REPO / "docs/context/rubic_v1.md").read_bytes().replace(b"\r\n", b"\n").decode()
     un = record.unregistered(rubric)
     ids = [u["entry_id"] for u in un]
-    assert len(ids) == len(set(ids)) == 35
-    assert {"DET-81", "DET-29c", "DET-76abcd", "LLM-06"} <= set(ids)
+    assert len(ids) == len(set(ids)) == 20                     # B-11b: 35 - 15
+    assert {"DET-81", "DET-12-S3", "DET-76abcd", "LLM-06"} <= set(ids)
+    assert not {"DET-29c", "DET-14cd", "DET-22-S3", "DET-79"} & set(ids)
     assert not {c.entry_id for c in CHECKS} & set(ids)
     for r in built.values():
         rec = r["record"]

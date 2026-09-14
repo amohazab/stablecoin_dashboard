@@ -1,0 +1,202 @@
+{% extends "base.html.j2" %}
+{% block subtitle %}<p class="lede">{{ w.what_this_is.format(token=token, block=v('header.run_block'), verify='see the verify page') }}</p>{% endblock %}
+{% macro m4block(t) -%}
+{% if t.scalars %}
+<table class="striped"><tr><th>quantity</th><th class="num">value</th></tr>
+{% for lab, text, title in t.scalars %}<tr><td{% if title %} title="{{ title }}"{% endif %}>{{ lab }}</td><td class="num">{{ text }}</td></tr>{% endfor %}
+</table>
+{% endif %}
+{% for m in t.maps %}
+<h4>{{ m.title }}</h4>
+<table class="striped"><tr><th>{{ m.key_label }}</th>{% for col in m.columns %}<th class="num">{{ col }}</th>{% endfor %}</tr>
+{% for name, key, cells in m.rows %}<tr><td><code title="{{ key }}">{{ name }}</code></td>{% for text, title in cells %}<td class="num"{% if title %} title="{{ title }}"{% endif %}>{{ text }}</td>{% endfor %}</tr>{% endfor %}
+</table>
+{% endfor %}
+{%- endmacro %}
+{% block body %}
+{# ===================== the reader layer (R-B11.1) ===================== #}
+<div class="pills">
+{% for colour, text in pills %}<span class="pill {{ colour }}">{{ text }}</span>{% endfor %}
+</div>
+
+<section class="finding">
+<h2>The finding {{ tip('finding') }}</h2>
+<div class="slot">{{ slot('structural_summary') }}</div>
+<div class="cards">
+  <div class="card"><div class="card-label">{{ label('supply_card') }} {{ tip('supply') }}</div><div class="card-value" title="supply.supply_ruled">{{ c('supply.supply_ruled') }}</div></div>
+  <div class="card"><div class="card-label">{{ label('bad_debt_card') }} {{ tip('bad_debt') }}</div>
+    {% if sz_flag %}<div class="card-value" title="headline.m2.bad_debt">{{ c('headline.m2.bad_debt') }}</div><div class="card-note">structurally zero</div>
+    {% else %}<div class="card-value" title="headline.m2.bad_debt">{{ c('headline.m2.bad_debt') }}</div><div class="card-note" title="headline.m2.pct_supply">{{ c('headline.m2.pct_supply') }} of supply</div>{% endif %}
+  </div>
+  <div class="card"><div class="card-label">{{ label('exit_card') }} {{ tip('exit') }}</div><div class="card-value" title="headline.m3.exit_depth">{{ c('headline.m3.exit_depth') }}</div></div>
+</div>
+</section>
+
+<section>
+<h2>Where the backing sits {{ tip('backing') }}</h2>
+<figure class="wide tree">{{ tree_svg | safe }}</figure>
+<p class="prose">{{ governance }}</p>
+</section>
+
+<section>
+<h2>What could break it {{ tip('break') }}</h2>
+<p class="prose">{{ w.why_scenario }}</p>
+<p class="prose">{{ w.headline_sentence.format(bad_debt=c('headline.m2.bad_debt'), pct=c('headline.m2.pct_supply'), sold=c('headline.m3.forced_sell_volume'), exit=c('headline.m3.exit_depth')) }}</p>
+{% if sz_flag %}
+<p class="prose callout">{{ w.structural_zero_sentence.format(reason=sz_reason) }}</p>
+{% else %}
+<figure class="wide">{{ chart_a | safe }}</figure>
+{% endif %}
+<table class="grid wide">
+<tr><th>price fall</th><th>no LP flight</th><th>30% LP flight</th><th>60% LP flight</th></tr>
+{% for lab, line in grid_rows %}<tr><th>{{ lab }}</th>{% for cls, txt, fid in line %}<td class="{{ cls }}" title="{{ fid }}">{{ txt }}</td>{% endfor %}</tr>{% endfor %}
+</table>
+<p class="legend">{{ w.grid.legend }} {{ tip('grid') }}<br>
+{% for cls, lab in w.grid.swatches %}<span class="swatch {{ cls }}"></span>{{ lab }}{% if not loop.last %}&ensp;{% endif %}{% endfor %}</p>
+<p class="prose">{{ grid_reading }}</p>
+{% if collapse %}<figure class="wide">{{ collapse | safe }}</figure>{% endif %}
+<p class="prose">{% if 'oracle.max_deviation.value_bps' in rows %}{% set node = raw('oracle.max_deviation.node_address') %}{{ w.oracle_lag.format(x=v('oracle.max_deviation.value_bps'), feed=(raw('tree.node.' ~ node ~ '.symbol') if ('tree.node.' ~ node ~ '.symbol') in rows else (node | fmt('address')))) }}{% else %}{{ w.oracle_lag_ema }}{% endif %}</p>
+</section>
+
+<section>
+<h2>Who can change the rules {{ tip('rules') }}</h2>
+<ul class="plain">{% for s in power_sentences %}<li>{{ s }}</li>{% endfor %}</ul>
+</section>
+
+<section>
+<h2>How to check this {{ tip('check') }}</h2>
+<p class="prose">{{ w.check_this }} <a href="verify.html">Verify page</a> · report fingerprint <code title="{{ man.report_hash }}">{{ man.report_hash[:16] }}</code></p>
+<p class="prose">{{ w.behavioral_tier }} {{ w.structural_only }}</p>
+</section>
+
+{# ===================== the specialist layer ===================== #}
+<h2 class="specialists">{{ w.specialists }}</h2>
+
+<details><summary>{{ w.summaries.tree_nodes }}</summary>
+{% if ids('verif.truncated.') %}
+<table class="striped"><tr><th>depth-truncated node</th><th>reason</th><th class="num">share of backing</th></tr>
+{% for f in ids('verif.truncated.') if f.endswith('.share') %}
+<tr><td>{{ rows[f].label[11:] }}</td><td>{{ v(f[:-6] ~ '.reason') }}</td><td class="num" title="{{ f }}">{{ v(f) }}</td></tr>
+{% endfor %}</table>
+{% endif %}
+{% if ids('verif.staleness.0x') %}
+<table class="striped"><tr><th>disclosure-dependent node</th><th>last disclosure</th><th class="num">days old</th><th class="num">share of backing</th></tr>
+{% for f in ids('verif.staleness.0x') if f.endswith('.share') %}{% set p = f[:-6] %}
+<tr><td>{{ rows[f].label[:-6] }}</td><td>{{ v(p ~ '.last_disclosure_date') }}</td><td class="num">{{ v(p ~ '.staleness_days') }}</td><td class="num" title="{{ f }}">{{ v(f) }}</td></tr>
+{% endfor %}</table>
+{% else %}<p class="meta">{{ v('verif.staleness.status') }}</p>{% endif %}
+{% if raw('verif.staleness.companion') %}<p class="meta">{{ v('verif.staleness.companion') }}</p>{% endif %}
+</details>
+
+<details><summary>{{ w.summaries.supply }}</summary>
+<table class="striped">
+<tr><th>figure</th><th class="num">value</th></tr>
+<tr><td>supply</td><td class="num" title="supply.supply_ruled">{{ v('supply.supply_ruled') }}</td></tr>
+<tr><td>originated supply</td><td class="num" title="supply.origination_sum">{{ v('supply.origination_sum') }}</td></tr>
+<tr><td>supply the tree covers</td><td class="num" title="tree.root.backed_supply">{{ v('tree.root.backed_supply') }}</td></tr>
+<tr><td>residual (supply − originated)</td><td class="num" title="supply.residual">{{ v('supply.residual') }}</td></tr>
+{% for f in ids('supply.family.') if f.endswith('.total') %}{% set p = f[:-6] %}
+<tr><td>· {{ v(p ~ '.family') }} ({{ v(p ~ '.count') }})</td><td class="num" title="{{ f }}">{{ v(f) }}</td></tr>
+{% endfor %}
+<tr><td>unexplained after named causes</td><td class="num" title="supply.residual_unexplained">{{ v('supply.residual_unexplained') }}</td></tr>
+<tr><td>stabilizer debt ÷ supply</td><td class="num" title="supply.stabilizer_over_supply">{{ v('supply.stabilizer_over_supply') }}</td></tr>
+{% if 'supply.off_mainnet.amount' in rows %}
+<tr><td>{{ v('supply.off_mainnet.literal') }}</td><td class="num" title="supply.off_mainnet.amount">{{ v('supply.off_mainnet.amount') }} ({{ v('supply.off_mainnet.share') }} of supply)</td></tr>
+{% endif %}
+</table>
+{% set seen = namespace(list=[]) %}
+{% for f in ids('supply.cause.') if f.endswith('.family') %}{% if raw(f) not in seen.list %}{% set seen.list = seen.list + [raw(f)] %}{% endif %}{% endfor %}
+{% for fam in seen.list %}
+<details class="inner"><summary>{{ fam }}</summary>
+<table class="striped"><tr><th>address</th><th class="num">amount</th></tr>
+{% for f in ids('supply.cause.') if f.endswith('.family') and raw(f) == fam %}
+<tr><td><code>{{ f[13:-7] | fmt('address') }}</code></td><td class="num" title="{{ f[:-7] }}.amount">{{ v(f[:-7] ~ '.amount') }}</td></tr>
+{% endfor %}</table></details>
+{% endfor %}
+</details>
+
+<details><summary>{{ w.summaries.headline }}</summary>
+<table class="striped">
+<tr><th>metric</th><th class="num">value</th></tr>
+{% for f, k in [('headline.m1.pre.ratio','m1_pre'),('headline.m1.post.ratio','m1_post'),('headline.m1.gap','m1_gap'),('headline.m2.bad_debt','m2_bad_debt'),('headline.m2.pct_supply','m2_pct_supply'),('headline.m3.forced_sell_volume','m3_forced_sell_volume'),('headline.m3.exit_depth','m3_exit_depth'),('headline.m3.ratio','m3_ratio')] %}
+<tr><td title="{{ f }}">{{ label(k) }}</td><td class="num">{{ v(f) }}</td></tr>
+{% endfor %}
+</table>
+<h3>Mechanism state in the headline scenario</h3>
+{{ m4block(headline_m4) }}
+</details>
+
+{% if ids('headline.cf.') %}
+<details><summary>{{ w.summaries.counterfactuals }}</summary>
+<table class="striped"><tr><th>counterfactual</th><th>affects</th><th class="num">as modelled</th><th class="num">under the counterfactual</th></tr>
+{% for f in ids('headline.cf.') if f.endswith('.metric_affected') %}{% set p = f[:-16] %}
+<tr><td>{{ p[12:] | replace('_', ' ') }}</td><td>{{ v(f) }}</td><td class="num">{{ raw(p ~ '.value_primary') | fmt(infer_unit(raw(p ~ '.value_primary'))) }}</td><td class="num">{{ raw(p ~ '.value_counterfactual') | fmt(infer_unit(raw(p ~ '.value_counterfactual'))) }}</td></tr>
+{% endfor %}</table>
+<div class="slot">{{ slot('counterfactual_explanations') }}</div>
+</details>
+{% endif %}
+
+<details><summary>{{ w.summaries.chart_b }}</summary>
+<figure class="wide">{{ chart_b | safe }}<figcaption>{{ w.charts.b_caption }}</figcaption></figure>
+<p class="meta">Depeg scenario target: <code>{{ v('exit.member2_target') }}</code> · <a href="appendix.html">every scenario in the appendix</a></p>
+<div class="slot">{{ slot('member1_opening') }}</div>
+<div class="slot">{{ slot('member2_opening') }}</div>
+</details>
+
+<details><summary>{{ w.summaries.assumptions }}</summary>
+<table class="striped"><tr><th>assumption</th><th>what it means</th><th>data</th><th>source</th></tr>
+{% for a in doc.assumptions %}
+<tr><td><code>{{ a.id }}</code></td>
+<td>{{ w.assumption[a.id] if a.required else w.assumption.additional }}</td>
+<td>{% if a.data_ref %}{% for f in a.data_ref[:4] %}<span title="{{ f }}">{{ rows[f].label | replace('_', ' ') }}: {{ v(f) if rows[f].unit != 'literal' else 'see appendix' }}</span>{% if not loop.last %}<br>{% endif %}{% endfor %}{% if a.data_ref | length > 4 %}<br>… {{ a.data_ref | length - 4 }} more in table.json{% endif %}{% else %}—{% endif %}</td>
+<td>{{ a.rule_ref or '—' }}</td></tr>
+{% endfor %}
+</table>
+</details>
+
+<details><summary>{{ w.summaries.bias }}</summary>
+<h3>stock-only capacity — direction of error per mechanism</h3>
+<table class="striped"><tr><th>mechanism</th><th>tokens</th><th>direction</th><th>reason</th></tr>
+{% for f in ids('bias.') if f.endswith('.direction') %}{% set p = f[:-10] %}
+<tr><td>{{ v(p ~ '.mechanism') }}</td><td>{{ v(p ~ '.tokens') }}</td><td>{{ v(f) }}</td><td>{{ v(p ~ '.reason') }}</td></tr>
+{% endfor %}</table>
+</details>
+
+<details><summary>{{ w.summaries.admin }}</summary>
+<div class="slot">{{ slot('admin_surface_narrative') }}</div>
+<table class="striped"><tr><th>power</th><th>holder</th><th>type</th><th>delay</th><th>veto</th><th>upgradeable</th><th>scope</th><th>evidence</th></tr>
+{% for f in ids('admin.') if f.endswith('.holder_type') %}{% set p = f[:-12] %}
+<tr><td>{{ w.powers[f.split('.')[1]] }}</td><td><code>{{ v(p ~ '.holder_address') }}</code></td><td>{{ w.holders[raw(f)] if raw(f) != 'none' else 'none' }}</td>
+<td>{{ v(p ~ '.delay_bucket') }}</td><td>{{ v(p ~ '.veto_address') }}</td><td>{{ v(p ~ '.upgradeability') }}</td>
+<td>{% for a in raw(p ~ '.scope') %}<code>{{ a | fmt('address') }}</code> {% endfor %}</td>
+<td>{{ v(p ~ '.A8') | replace('_', ' ') }}{% if (p ~ '.A8.function') in rows %}: {{ v(p ~ '.A8.function') }}{% endif %}{% for e in ids(p ~ '.reads.') %}<br>{{ e.split('.reads.')[1].split(':')[0] | replace('_', ' ') }} {{ e.split(':')[1] | fmt('address') }} ({{ v(e) | replace('_', ' ') }}){% endfor %}</td></tr>
+{% endfor %}</table>
+</details>
+
+<details><summary>{{ w.summaries.oracle }}</summary>
+<table class="striped"><tr><th>collateral</th><th>market or reserve</th><th>update rule</th><th class="num">threshold</th><th class="num">window / heartbeat</th><th>staleness</th></tr>
+{% for f in ids('oracle.0x') if f.endswith('.type') %}{% set p = f[:-5] %}{% set parts = p.split('.') %}
+<tr><td>{{ raw('tree.node.' ~ parts[1] ~ '.symbol') if ('tree.node.' ~ parts[1] ~ '.symbol') in rows else (parts[1] | fmt('address')) }}</td><td><code>{{ parts[2] | fmt('address') }}</code></td><td>{{ v(f) | replace('_', ' ') }}</td>
+<td class="num">{{ v(p ~ '.deviation_bps') if (p ~ '.deviation_bps') in rows else '—' }}</td>
+<td class="num">{{ v(p ~ '.ema_window_s') if (p ~ '.ema_window_s') in rows else v(p ~ '.heartbeat_s') }}</td>
+<td>{{ w.oracle.staleness }}</td></tr>
+{% endfor %}</table>
+<p class="meta">{{ w.reference_prices.format(n=n_refs) }}</p>
+<div class="slot">{{ slot('flag_explanations') }}</div>
+</details>
+
+<details><summary>{{ w.summaries.audits }}</summary>
+<ul class="plain">{% for f in ids('audit.') if f.endswith('.firm') %}<li>{{ v(f) }} {{ v(f[:-5] ~ '.date') }} — {{ v(f[:-5] ~ '.scope') }}</li>{% endfor %}</ul>
+<p class="meta">Bug bounty: {{ v('audit.bug_bounty.platform') }}, max {{ v('audit.bug_bounty.max') }}. Last material change audited: {{ v('audit.last_material_change_audited') }}. Counterparties: {{ v('audit.counterparties') }}</p>
+</details>
+
+<nav class="links">
+  <a href="../../../{{ w.memo.section }}">archetype memo</a>
+  <a href="../../../{{ w.memo.sheet }}">intake sheet</a>
+  <a href="verify.html">verify</a>
+  <a href="appendix.html">appendix</a>
+  <a href="data/table.json">table.json</a>
+  <a href="data/grid.json">grid.json</a>
+  <a href="data/evaluation-{{ doc.run_block }}.json">gate record</a>
+</nav>
+{% endblock %}

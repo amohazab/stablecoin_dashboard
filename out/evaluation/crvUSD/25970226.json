@@ -2,9 +2,9 @@
  "bundle_hash": "dbddf680dcea82c52188c620875c1a4babc21db5f09ce4d98f4c30ee9f467428",
  "generation": [],
  "judge": [],
- "outcome": null,
+ "outcome": "blocked_S3",
  "pipeline_version": "0.1.0",
- "report_hash": "49bd7fb6ade3c361b1439da554aa4a17c5744af5fa07de8f10f3e39c27cbbb5a",
+ "report_hash": "22baa037b2f72e73e55cd11716c6fea7832b256825d2aae7ee0f3f3a9047ee7c",
  "results": [
   {
    "entry_id": "DET-02",
@@ -405,19 +405,109 @@
   {
    "entry_id": "DET-84",
    "result": "pass",
-   "scope_condition": "465 rows replay from their owners; table_hash 12743eff",
+   "scope_condition": "548 rows replay from their owners; table_hash 5507461b",
    "stage": "S2"
+  },
+  {
+   "entry_id": "DET-14cd",
+   "result": "pass",
+   "scope_condition": "3 segments printed, sum 100.0",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "DET-22-S3",
+   "result": "fail",
+   "scope_condition": "DET-22: no row labeled \"protocol stabilizer debt\"",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "DET-29c",
+   "result": "fail",
+   "scope_condition": "DET-29(c): the K-subset share is not printed with the frozen set it covers",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "DET-17",
+   "result": "pass",
+   "scope_condition": "three bars in order; 0 truncated reason(s)",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "DET-18",
+   "result": "fail",
+   "scope_condition": "DET-18: no printed element carries weighted days, worst node cbBTC, worst days 1 and worst weight together",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "DET-36",
+   "result": "fail",
+   "scope_condition": "DET-36: the headline exit-depth line lacks \"LP capital assumed sticky\"",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "DET-53",
+   "result": "pass",
+   "scope_condition": "9 rows rendered; four literals present; capacity lineage entries: 0",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "DET-54",
+   "result": "fail",
+   "scope_condition": "DET-54: crvUSD's knowingly-optimistic literal not printed",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "DET-56",
+   "result": "fail",
+   "scope_condition": "DET-56: not printed: ['oracle manipulation out of scope — feed control reported under the admin-power surface', 'sequencer/infra risk n/a — mainnet only', 'oracle failure/staleness out of scope']",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "DET-57",
+   "result": "fail",
+   "scope_condition": "DET-57: par_numeraire literal \"paired assets counted at 1.00 for depth\" not printed",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "DET-73",
+   "result": "fail",
+   "scope_condition": "DET-73: staleness_date 2026-09-13 not printed on the audit line",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "DET-74",
+   "result": "fail",
+   "scope_condition": "DET-74: class D tag date(s) not printed ['bug_bounty 2026-09-13', 'audits[] 2026-09-13', 'last_material_change_audited 2026-09-13']; class S tag(s) still in the consumed sheet version ['S1', 'S2']",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "DET-79",
+   "result": "fail",
+   "scope_condition": "DET-79: 6 leak(s): index '[slot:' x6; index /#\\d+/ x1; appendix /P-\\d+\\.\\d+/ x6; appendix /#\\d+/ x1; verify '}}' x1; verify /P-\\d+\\.\\d+/ x4",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "DET-88",
+   "result": "pass",
+   "scope_condition": "no grade, score, letter or verdict field",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "DET-89",
+   "result": "fail",
+   "scope_condition": "DET-89: no decimals() read with provenance on the token 0xf939e0a03fb07f59a73314e73794be0e57ac1b4e; 7 figure string(s) not printed by fmt: ['index:0 d', 'index:0.500%', 'index:1 d', 'index:1.00%', 'index:2.00%', 'index:20%', 'index:35%']",
+   "stage": "S3"
   }
  ],
  "revision_cause": [],
  "revision_count": 0,
  "run_block": 25970226,
  "sheet_hash": "5486f264",
- "stress_hash": "9bafc6955e567efe433861f03aa480be2cc5e7e32ddf9bc6272b6cc6e5fd1f87",
- "table_hash": "12743effab47549b34b101f943996614d03fb2a580252f2f738d0a23f4b1a7fa",
- "template_hash": "bd6e9e8c331944306bad526927e5c89c95dd8e6097847fc374937a89a4088bb8",
+ "stress_hash": "384fa39411f5220f9c1f3ddf024493b03307a982bbef25e03707a695a9e31ed9",
+ "table_hash": "5507461bf3bd8d9075aad9c28972594ccd420ddbf6ddca93847ae0f159e1ba4f",
+ "template_hash": "fb82eba6a493dd5e6104fa2646001b25736bc697f800ac6676a8f8d83134f24b",
  "token": "crvUSD",
- "tree_hash": "8136ce194b4dffca31077a4c0ebffa44e1b713f971849986bb91b1f8b6fbb5c5",
+ "tree_hash": "a45e48905deea1b0e2057ab4ca6fd9fd220fef2fa15dd599a9f1997f1ce4f8ca",
  "triggers": [],
  "unregistered": [
   {
@@ -441,52 +531,12 @@
    "queue_item": "P-4.01 (GHO [[reference_feed]] rows, gap column - P-7.05)"
   },
   {
-   "entry_id": "DET-14cd",
-   "queue_item": "B-11 (templates, page; P-7.01 R5)"
-  },
-  {
    "entry_id": "DET-23abd",
    "queue_item": "P-4.01 (DET-23 limbs a/b/d beside the registered DET-23c)"
   },
   {
-   "entry_id": "DET-22-S3",
-   "queue_item": "B-11 (templates, page; P-7.01 R5)"
-  },
-  {
-   "entry_id": "DET-29c",
-   "queue_item": "B-11 (templates, page; P-7.01 R5)"
-  },
-  {
    "entry_id": "DET-64",
    "queue_item": "P-4.01 (GHO attribution cross-check: aggregate reads)"
-  },
-  {
-   "entry_id": "DET-17",
-   "queue_item": "B-11 (templates, page; P-7.01 R5)"
-  },
-  {
-   "entry_id": "DET-18",
-   "queue_item": "B-11 (templates, page; P-7.01 R5)"
-  },
-  {
-   "entry_id": "DET-36",
-   "queue_item": "B-11 (templates, page; P-7.01 R5)"
-  },
-  {
-   "entry_id": "DET-53",
-   "queue_item": "B-11 (templates, page; P-7.01 R5)"
-  },
-  {
-   "entry_id": "DET-54",
-   "queue_item": "B-11 (templates, page; P-7.01 R5)"
-  },
-  {
-   "entry_id": "DET-56",
-   "queue_item": "B-11 (templates, page; P-7.01 R5)"
-  },
-  {
-   "entry_id": "DET-57",
-   "queue_item": "B-11 (templates, page; P-7.01 R5)"
   },
   {
    "entry_id": "DET-58",
@@ -501,28 +551,8 @@
    "queue_item": "B-12 (log, flags, banner, integrity; R14/R15)"
   },
   {
-   "entry_id": "DET-73",
-   "queue_item": "B-11 (templates, page; P-7.01 R5)"
-  },
-  {
-   "entry_id": "DET-74",
-   "queue_item": "B-11 (templates, page; P-7.01 R5)"
-  },
-  {
-   "entry_id": "DET-79",
-   "queue_item": "B-11 (templates, page; P-7.01 R5)"
-  },
-  {
    "entry_id": "DET-80",
    "queue_item": "B-13 (prose, judge, loop; R12)"
-  },
-  {
-   "entry_id": "DET-88",
-   "queue_item": "B-11 (templates, page; P-7.01 R5)"
-  },
-  {
-   "entry_id": "DET-89",
-   "queue_item": "B-11 (templates, page; P-7.01 R5)"
   },
   {
    "entry_id": "DET-87",

@@ -783,6 +783,16 @@ def _reproduce_calls(bundle, report) -> list[str]:
 
 
 def write_stress(bundle, report, out_dir: pathlib.Path) -> pathlib.Path:
+    """Writes `stress_sheet_text` to `out/spotcheck/` (R17); the site's verify
+    page renders the same text (P-7.01 R11)."""
+    path = out_dir / "out/spotcheck" / bundle.header.token / \
+        f"stress-{bundle.header.run_block}.md"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(stress_sheet_text(bundle, report, out_dir), encoding="utf-8")
+    return path
+
+
+def stress_sheet_text(bundle, report, out_dir: pathlib.Path) -> str:
     """R17's hand-verification sheet for a promoted stress artifact (B-4b).
 
     Every figure traces to a bundle field, a raw-dump row or a recorded read,
@@ -974,8 +984,4 @@ def write_stress(bundle, report, out_dir: pathlib.Path) -> pathlib.Path:
     lines += ["", "## 5. Assumptions carried on this artifact", ""]
     for k, v in sorted(report.assumptions.items()):
         lines.append(f"- **{k}** — {v}")
-    path = out_dir / "out/spotcheck" / bundle.header.token / \
-        f"stress-{bundle.header.run_block}.md"
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
-    return path
+    return "\n".join(lines) + "\n"

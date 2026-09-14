@@ -1,0 +1,133 @@
+/* The one stylesheet (P-7.01 R5; R-B11.7). 16px base, an 880px column, one
+   accent colour, stat cards, coloured pills, lighter striped tables. No
+   JavaScript. Print rules close the file (B-11b). */
+:root {
+  --ink: #1b2430;
+  --muted: #5d6b79;
+  --rule: #e3e7ec;
+  --pale: #f5f7fa;
+  --accent: #1f5fa8;
+  --green-bg: #e6f4ea; --green-ink: #1e6b34;
+  --amber-bg: #fdf1dc; --amber-ink: #8a5a00;
+  --red-bg: #fbe4e2; --red-ink: #9b2c22;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  color: var(--ink);
+  background: #fff;
+  font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+main { max-width: 880px; margin: 0 auto; padding: 32px 20px 80px; }
+header.page { border-bottom: 3px solid var(--accent); padding-bottom: 16px; margin-bottom: 28px; }
+h1 { font-size: 34px; line-height: 1.15; margin: 0 0 8px; }
+h2 { font-size: 22px; margin: 48px 0 12px; }
+h3 { font-size: 17px; margin: 24px 0 8px; }
+section { margin-bottom: 8px; }
+p, .prose, .lede { max-width: 72ch; }
+.lede { font-size: 18px; color: var(--ink); margin: 0 0 10px; }
+.meta { color: var(--muted); font-size: 14px; }
+code { font-family: ui-monospace, "SFMono-Regular", Consolas, monospace; font-size: 0.88em; }
+nav.links a { margin-right: 16px; }
+a { color: var(--accent); }
+
+.pills { margin: 4px 0 8px; }
+.pill { display: inline-block; padding: 4px 12px; border-radius: 999px; font-size: 14px;
+        margin: 4px 8px 4px 0; border: 1px solid transparent; }
+.pill.green { background: var(--green-bg); color: var(--green-ink); }
+.pill.amber { background: var(--amber-bg); color: var(--amber-ink); }
+.pill.red { background: var(--red-bg); color: var(--red-ink); }
+
+.cards { display: flex; flex-wrap: wrap; gap: 16px; margin: 16px 0 8px; }
+.card { flex: 1 1 220px; border: 1px solid var(--rule); border-top: 4px solid var(--accent);
+        border-radius: 8px; padding: 14px 18px; background: #fff; }
+.card-label { color: var(--muted); font-size: 14px; }
+.card-value { font-size: 30px; font-weight: 650; line-height: 1.2; margin-top: 4px; }
+.card-note { color: var(--muted); font-size: 14px; }
+.slot { max-width: 72ch; padding: 8px 12px; border: 1px dashed #b9c2cc; color: var(--muted);
+        font-style: italic; border-radius: 6px; margin: 8px 0; }
+
+figure { margin: 16px 0 24px; }
+figure svg { display: block; max-width: 100%; height: auto; }
+figcaption { color: var(--muted); font-size: 14px; max-width: 72ch; }
+ul.plain { padding-left: 20px; max-width: 72ch; }
+ul.plain li { margin: 4px 0; }
+
+table { width: 100%; border-collapse: collapse; margin: 10px 0 18px; font-size: 14px; }
+th, td { text-align: left; padding: 6px 10px; vertical-align: top; }
+th { color: var(--muted); font-weight: 600; border-bottom: 1px solid var(--rule); }
+table.striped tr:nth-child(even) td { background: var(--pale); }
+td.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+caption { caption-side: bottom; text-align: left; color: var(--muted); font-size: 14px; padding-top: 6px; }
+.scroll { overflow-x: auto; }
+.grid td { text-align: center; border: 2px solid #fff; }
+.grid td.s0 { background: #f5f7fa; }
+.grid td.s1 { background: #e7f0fa; }
+.grid td.s2 { background: #c9dcf1; }
+.grid td.s3 { background: #7fa9dc; color: #fff; }
+.grid td.s4 { background: #1f5fa8; color: #fff; }
+.grid td.exhausted { background: #3a3f45; color: #fff; }
+
+h2.specialists { margin-top: 64px; padding-top: 16px; border-top: 1px solid var(--rule); }
+details { margin: 10px 0; border-bottom: 1px solid var(--rule); padding-bottom: 8px; }
+details.inner { border: 0; margin-left: 12px; }
+summary { cursor: pointer; color: var(--accent); text-decoration: underline;
+          text-underline-offset: 3px; list-style-position: outside; }
+summary:hover { text-decoration-thickness: 2px; }
+pre.sheet { white-space: pre-wrap; background: var(--pale); padding: 14px; border-radius: 6px;
+            font-size: 13px; }
+.banner { max-width: 72ch; padding: 10px 14px; background: var(--pale); border-left: 4px solid var(--accent); }
+
+/* ---- B-11a″ (R-B11.10, R-B11.11) ------------------------------------------ */
+main { max-width: 1000px; }
+figure.wide, table.wide { width: 100%; max-width: none; }
+h4 { font-size: 15px; margin: 18px 0 6px; }
+.callout { background: var(--pale); border-left: 4px solid var(--accent); padding: 10px 14px; }
+details table, .scroll table { font-size: 15px; }
+details td.num { text-align: right; }
+.grid td { padding: 16px 10px; font-size: 16px; }
+.legend { color: var(--muted); font-size: 14px; max-width: none; }
+.swatch { display: inline-block; width: 14px; height: 14px; border-radius: 3px; margin: 0 5px -2px 0;
+          border: 1px solid var(--rule); }
+.swatch.s0 { background: #f5f7fa; } .swatch.s1 { background: #e7f0fa; } .swatch.s2 { background: #c9dcf1; }
+.swatch.s3 { background: #7fa9dc; } .swatch.s4 { background: #1f5fa8; } .swatch.exhausted { background: #3a3f45; }
+.tip { position: relative; display: inline-flex; align-items: center; justify-content: center;
+       width: 18px; height: 18px; border-radius: 50%; border: 1px solid var(--accent); color: var(--accent);
+       font-size: 12px; font-weight: 700; cursor: help; vertical-align: middle; margin-left: 4px; }
+.tip-text { visibility: hidden; opacity: 0; position: absolute; z-index: 10; left: 50%; top: 150%;
+            transform: translateX(-50%); width: 300px; padding: 10px 12px; border-radius: 6px;
+            background: var(--ink); color: #fff; font-size: 13px; font-weight: 400; line-height: 1.45;
+            text-align: left; box-shadow: 0 4px 14px rgba(0,0,0,.18); transition: opacity .12s; }
+.tip:hover .tip-text, .tip:focus .tip-text, .tip:focus-within .tip-text { visibility: visible; opacity: 1; }
+.tip:focus { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ---- B-11b: print (P-7.01 R6) --------------------------------------------------
+   The reader layer prints in full; tooltips are hidden; each specialist <details>
+   prints as its summary line and "full tables: appendix"; pills carry their
+   level in words, not only in colour; the tree and the stress section start a
+   page. NAMED DEFAULT: the level words are "ok", "caution" and "warning". */
+@media print {
+  @page { size: A4; margin: 14mm 12mm; }
+  body { font-size: 10.5pt; line-height: 1.45; }
+  main { max-width: none; padding: 0; }
+  nav.links, .tip, .tip-text { display: none !important; }
+  a { color: var(--ink); text-decoration: none; }
+  h2 { margin-top: 20px; break-after: avoid; }
+  figure, .cards, .card, table.grid, .callout { break-inside: avoid; }
+  section:has(figure.tree), section:has(table.grid) { break-before: page; }
+  .scroll { overflow: visible; }
+  .card-value { font-size: 22pt; }
+
+  .pill { background: #fff !important; color: var(--ink) !important; border: 1px solid var(--ink); }
+  .pill.green::before { content: "ok: "; font-weight: 700; }
+  .pill.amber::before { content: "caution: "; font-weight: 700; }
+  .pill.red::before { content: "warning: "; font-weight: 700; }
+
+  details { border: 0; margin: 4px 0; padding: 0; }
+  details > :not(summary) { display: none !important; }
+  details::details-content { display: none; }
+  summary { color: var(--ink); text-decoration: none; list-style: none; font-weight: 600; }
+  summary::-webkit-details-marker { display: none; }
+  summary::after { content: "full tables: appendix"; display: block; font-weight: 400;
+                   color: var(--muted); font-size: 9.5pt; }
+}
