@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GHO — verify this report</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<main>
+<header class="page">
+  <h1>GHO — verify</h1>
+  
+  <div class="meta">
+    read 2026-09-14 09:55 UTC · block 25974932 ·
+    report <code title="447281cb4b87dcd40bd17e9fd0a8b9db741d4fd2c825262d5e1a0a15dd6183d1">447281cb</code> · intake sheet <code>29682310</code>
+  </div>
+  <nav class="links meta">
+    <a href="index.html">report</a><a href="appendix.html">appendix</a><a href="verify.html">verify</a>
+  </nav>
+</header>
+
+<p class="prose">Every figure here was read from Ethereum at block 25974932. The sheet below is produced by the same generator as the analyst's hand-verification sheet: repeat any call it lists on your own node at that block and you should get the same number.</p>
+
+<p class="banner">Hand-verified by the analyst on 2026-09-14: one pinned get_dy per token, Amin&#39;s RPC, tools/light_sample_check.py (stress artifact <code>986887b7</code>).</p>
+
+<p class="meta">The sheet's figures are raw base units and recorded call arguments — the reproduction recipe — shown verbatim and not reformatted. Older Vyper pools return a padded buffer: decode the first 32-byte word.</p>
+<pre class="sheet"># Stress spot-check — GHO @ 25974932
+
+- bundle `6b7d77e3` · tree `46740d07` · stress `986887b7`
+- cells 47 · checks 26/26 · headline **M1-s50-d0-lp0** (memo §6.2.6)
+
+## 1. The headline cell, by hand
+
+| quantity | value | where it comes from |
+|---|---|---|
+| m1.pre.ratio | 1.222727 | Σ collateral × (1+shock)(1−d) × price ÷ Σ net debt; collateral and debt per position in `out/raw/&lt;block&gt;.json`, price per (instance, reserve) from that instance&#39;s own AaveOracle (DET-81) |
+| m1.post.ratio | 1.690919 | the same over the book left after absorption |
+| m1.gap | 0.468192 | post − pre, the mechanism&#39;s measured contribution (DET-39) |
+| m2.bad_debt | 8,637,285.34 GHO | Σ (debt − value) over unabsorbed positions with hf &lt; 1, attributed to GHO pro-rata by `gho_debt_base / total_debt_base`; base units `8637285335286180000000000` |
+| m2.pct_supply | 0.0123566314 | ÷ `supply.supply_ruled` = 699,000,000.00 |
+| m3.forced_sell_volume | 8,637,285.34 | = bad_debt, DET-25&#39;s Member-1 identity |
+| m3.exit_depth | 18,826,336.57 | LP-0, so equal to DET-31 depth(0.02) = 18,826,336.57 |
+| m3.ratio | 0.4587873643615483117881352787 | forced_sell ÷ exit_depth |
+
+## 2. DET-46 routing, and DET-47&#39;s binding side
+
+`check_pass = automated_freezer_present ∧ freeze_lower_bound &gt;= 0.88`. Both inputs are the bundle&#39;s own GSM rows; the automation probe is a successful `checkUpkeep(bytes)` call, not a returned flag.
+
+| GSM | freezer | freeze band | automated | routing |
+|---|---|---|---|---|
+| `0x3a3868898305f04bec7fea77becff04c13444112` | `0x6e51936e0ed4256f9da4794b536b619c88ff0047` | [0.99, 1.01] | yes | **freezer_effective** |
+| `0x882285e62656b9623af136ce3078c6bdcc33f5e3` | `0x733ab16005c39d07fd3d9d1a350aa6768d10125b` | [0.99, 1.01] | yes | **freezer_effective** |
+
+- `gho_sourceable` 289813803324367574884266651
+- `collateral_sellable` 37015781289504850000000000
+- `gsm_mint_headroom` 288769063424861216663890937
+- **`binding_side` collateral_sellable**
+
+## 2b. `m1.pre` as a hand sum — per reserve
+
+GHO&#39;s book is 2,160 positions across three instances; the sum is taken per reserve from §2c&#39;s prices and decimals, with the cell&#39;s factor -0.50 on every volatile and tail reserve and 1 on the stables (DET-39, R-B5.1). The per-reserve collateral totals are in `out/raw/&lt;block&gt;.json`, which is gitignored and regenerable at `run_block` (P-3.05).
+
+`m1.pre.ratio` = **1.222726710503453242437112489**; `m1.post.ratio` = **1.690918733190950802784342036**.
+
+## 2c. The 37 (instance, reserve) pairs — expected values
+
+`getReserveConfigurationData(asset)` on the instance&#39;s data provider returns ten words; words 2, 3 and 4 are **LTV**, **liquidation threshold** and **liquidation bonus**, all in bps. The price is that instance&#39;s own `AaveOracle.getAssetPrice(asset)` at 8 dp (DET-81). Word 1 is `decimals`.
+
+| instance | reserve | dec | LTV | liq. threshold | bonus | price (8dp) |
+|---|---|---|---|---|---|---|
+| `0x4e033931` | `0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0` | 18 | 8200 | **8300** | 10600 | 313504127990 |
+| `0x4e033931` | `0x9d39a5de30e57443bff2a8307a4256c8797a3497` | 18 | 0 | **10** | 10750 | 124769936 |
+| `0x4e033931` | `0xbf5495efe5db9ce00f80364c8b423567e58d2110` | 18 | 0 | **10** | 10750 | 273586567925 |
+| `0x4e033931` | `0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2` | 18 | 8400 | **8500** | 10500 | 252024000000 |
+| `0x87870bca` | `0x18084fba666a33d37592fa2633fd49a74dd93a88` | 18 | 7300 | **7800** | 10750 | 7813399675515 |
+| `0x87870bca` | `0x1abaea1f7c830bd89acc67ec4af516284b1bc33c` | 6 | 0 | **7800** | 10500 | 115538250 |
+| `0x87870bca` | `0x2260fac5e5542a773aa44fbcfedf7c193bc2c599` | 8 | 7300 | **7800** | 10500 | 7814578717526 |
+| `0x87870bca` | `0x356b8d89c1e1239cbbb9de4815c39a1474d5ba7d` | 6 | 5 | **10** | 10600 | 114283291 |
+| `0x87870bca` | `0x4c9edd5852cd905f086c759e8383e09bff1e68b3` | 18 | 0 | **7500** | 10850 | 99972163 |
+| `0x87870bca` | `0x514910771af9ca656af840dff83e8264ecf986ca` | 18 | 0 | **7100** | 10700 | 1136632000 |
+| `0x87870bca` | `0x5f98805a4e8be255a32880fdec7f6728c6568ba0` | 18 | 0 | **7700** | 10450 | 101031379 |
+| `0x87870bca` | `0x657e8c867d8b37dcc18fa4caead9c45eb088c642` | 8 | 6700 | **7200** | 11000 | 7843718791615 |
+| `0x87870bca` | `0x68749665ff8d2d112fa859aa293f07a622782f38` | 6 | 0 | **7500** | 10600 | 428846000000 |
+| `0x87870bca` | `0x6b175474e89094c44da98b954eedeac495271d0f` | 18 | 0 | **7700** | 10500 | 99963774 |
+| `0x87870bca` | `0x6c3ea9036406852006290770bedfcaba0e23a0e8` | 6 | 0 | **7800** | 10750 | 99994806 |
+| `0x87870bca` | `0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0` | 18 | 7850 | **8100** | 10600 | 313504127990 |
+| `0x87870bca` | `0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9` | 18 | 6900 | **7600** | 10750 | 12717511498 |
+| `0x87870bca` | `0x8236a87084f8b84306f72007f36f2618a5634494` | 8 | 7000 | **7500** | 10850 | 7851552451636 |
+| `0x87870bca` | `0x83f20f44975d03b1b09e64809b757c47f942beea` | 18 | 0 | **7800** | 10450 | 118008507 |
+| `0x87870bca` | `0x90d2af7d622ca3141efa4d8f1f24d86e5974cc8f` | 18 | 0 | **10** | 10750 | 99972163 |
+| `0x87870bca` | `0x9d39a5de30e57443bff2a8307a4256c8797a3497` | 18 | 0 | **7500** | 10850 | 124769936 |
+| `0x87870bca` | `0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48` | 6 | 7500 | **7800** | 10450 | 99984417 |
+| `0x87870bca` | `0xa1290d69c65a6fe4df752f95823fae25cb99e5a7` | 18 | 0 | **7500** | 10750 | 272209720857 |
+| `0x87870bca` | `0xa35b1b31ce002fbf2058d22f30f95d405200a15b` | 18 | 0 | **7700** | 10750 | 276512999132 |
+| `0x87870bca` | `0xae78736cd615f374d3085123a210448e74fc6393` | 18 | 7500 | **7900** | 10750 | 295300131479 |
+| `0x87870bca` | `0xb0f70c0bd6fd87dbeb7c10dc692a2a6106817072` | 8 | 7300 | **7800** | 10750 | 7813399675515 |
+| `0x87870bca` | `0xbe9895146f7af43049ca1c1ae358b0541ea49704` | 18 | 7500 | **7900** | 10750 | 287155219151 |
+| `0x87870bca` | `0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2` | 18 | 8050 | **8300** | 10500 | 252024000000 |
+| `0x87870bca` | `0xc96de26018a54d51c097160568752c4e3bd6c364` | 8 | 7300 | **7800** | 10750 | 7813399675515 |
+| `0x87870bca` | `0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf` | 8 | 7300 | **7800** | 10750 | 7813399675515 |
+| `0x87870bca` | `0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee` | 18 | 7750 | **8000** | 10700 | 278142845704 |
+| `0x87870bca` | `0xdac17f958d2ee523a2206206994597c13d831ec7` | 6 | 7500 | **7800** | 10450 | 99972163 |
+| `0x87870bca` | `0xdc035d45d973e3ec169d2276ddab16f1e407384f` | 18 | 0 | **7800** | 10750 | 99988440 |
+| `0x87870bca` | `0xf1c9acdc66974dfb6decb12aa385b9cd01190e38` | 18 | 0 | **7500** | 10750 | 271930229092 |
+| `0xae05cd22` | `0x14d60e7fdc0d71d8611742720e4c50e7a974020c` | 6 | 8500 | **8800** | 10500 | 1174207000 |
+| `0xae05cd22` | `0x43415eb6ff9db7e26a15b704e7a3edce97d31c4e` | 6 | 8800 | **9000** | 10300 | 1120816000 |
+| `0xae05cd22` | `0x5a0f93d040de44e78f251b03c43be9cf317dcf64` | 6 | 8100 | **8600** | 10500 | 104956700 |
+
+The 8 live eMode categories. Where a position claims one, ITS liquidation threshold replaces the per-reserve value above:
+
+| instance | category | liq. threshold (bps) |
+|---|---|---|
+| `0x4e033931` | 2 | **7800** |
+| `0x4e033931` | 4 | **9200** |
+| `0x87870bca` | 33 | **9200** |
+| `0x87870bca` | 41 | **7800** |
+| `0x87870bca` | 43 | **7500** |
+| `0xae05cd22` | 10 | **9000** |
+| `0xae05cd22` | 2 | **9200** |
+| `0xae05cd22` | 4 | **9000** |
+
+## 3. The Member-2 headline cell — M2-t0.93-lp0
+
+| quantity | value | where it comes from |
+|---|---|---|
+| m3.forced_sell_volume | 22,309,249.39 | boxed holdings + the attributed slice; base units `22309249385005360000000000` |
+| m3.exit_depth | 220,381.64 | the cell&#39;s own venue set, DET-35 |
+| m3.ratio | 101.2300738390406700027844213 | forced_sell ÷ exit_depth |
+
+**Counterfactual `H2_freezer`** — primary 220,381.64, counterfactual 18,826,336.57. The difference is what the routing decision is worth on this cell.
+
+## 4. The pinned reads to reproduce
+
+**Every call below is a pinned read at `run_block` 25974932** — the same block the bundle was assembled at (R-13). Pin the block inside the JSON-RPC body; a `tag` query parameter is silently ignored by some proxies (P-3.39).
+
+**Decoding note.** Pools compiled with old Vyper (0.2.8 and earlier) return a padded buffer rather than a single word — LUSD&#39;s `0xed279fdd` answers `get_dy` with ~4 KB. **Decode the first 32-byte word**; the rest is padding. Verified by the analyst on 2026-09-13, whose first word matched this sheet to the wei.
+
+The depth m3 divides by is the sum over K-subset(0.90) = 1 pools. On each, call `get_dy` with the recorded `dx` — **`i` and `j` are the recorded argument values, not placeholders** — and check the implied marginal price sits at 1 − s = 0.98 ± ε:
+
+- `0x635ef0056a597d13863b73825cca297236578595` → `get_dy(i=0, j=1, dx=220381636987421748137663)` = 219222010184839857711620; implied 0.980014163483393616 (within ε: True)
+
+And the three reads the mechanism section rests on, as `eth_call` targets:
+
+- GSM `0x3a3868898305f04bec7fea77becff04c13444112` `getAvailableLiquidity()` — expect `29226`
+  ```powershell
+  (Invoke-RestMethod https://gateway.tenderly.co/public/mainnet -Method Post -ContentType application/json -Body &#39;{&#34;jsonrpc&#34;:&#34;2.0&#34;,&#34;id&#34;:1,&#34;method&#34;:&#34;eth_call&#34;,&#34;params&#34;:[{&#34;to&#34;:&#34;0x3a3868898305f04bec7fea77becff04c13444112&#34;,&#34;data&#34;:&#34;0x9b745aec&#34;},&#34;0x18c5894&#34;]}&#39;).result
+  ```
+- GSM `0x882285e62656b9623af136ce3078c6bdcc33f5e3` `getAvailableLiquidity()` — expect `15831354066204`
+  ```powershell
+  (Invoke-RestMethod https://gateway.tenderly.co/public/mainnet -Method Post -ContentType application/json -Body &#39;{&#34;jsonrpc&#34;:&#34;2.0&#34;,&#34;id&#34;:1,&#34;method&#34;:&#34;eth_call&#34;,&#34;params&#34;:[{&#34;to&#34;:&#34;0x882285e62656b9623af136ce3078c6bdcc33f5e3&#34;,&#34;data&#34;:&#34;0x9b745aec&#34;},&#34;0x18c5894&#34;]}&#39;).result
+  ```
+- freezer `0x6e51936e0ed4256f9da4794b536b619c88ff0047` `checkUpkeep(bytes)` — DET-46&#39;s automation probe: the call **answering at all** is the signal (an address that is not an automation-compatible keeper reverts)
+  ```powershell
+  (Invoke-RestMethod https://gateway.tenderly.co/public/mainnet -Method Post -ContentType application/json -Body &#39;{&#34;jsonrpc&#34;:&#34;2.0&#34;,&#34;id&#34;:1,&#34;method&#34;:&#34;eth_call&#34;,&#34;params&#34;:[{&#34;to&#34;:&#34;0x6e51936e0ed4256f9da4794b536b619c88ff0047&#34;,&#34;data&#34;:&#34;0x6e04ff0d00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000000&#34;},&#34;0x18c5894&#34;]}&#39;).result
+  ```
+- data provider `0xb85b2bfebec4f5f401dbf92ac147a3076391fcd5` `getReserveConfigurationData(0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0)` — one of the 37 (instance, reserve) pairs; word 3 is the liquidation threshold in bps, which is what the health factor weights by
+  ```powershell
+  (Invoke-RestMethod https://gateway.tenderly.co/public/mainnet -Method Post -ContentType application/json -Body &#39;{&#34;jsonrpc&#34;:&#34;2.0&#34;,&#34;id&#34;:1,&#34;method&#34;:&#34;eth_call&#34;,&#34;params&#34;:[{&#34;to&#34;:&#34;0xb85b2bfebec4f5f401dbf92ac147a3076391fcd5&#34;,&#34;data&#34;:&#34;0x3e1501410000000000000000000000007f39c581f595b53c5cb19bd0b3f8da6c935e2ca0&#34;},&#34;0x18c5894&#34;]}&#39;).result
+  ```
+
+## 5. Assumptions carried on this artifact
+
+- **freezer** — freezer_effective: the automated freezer holds SWAP_FREEZER_ROLE and its lower band is at or above 0.88, so in a depeg cell the GSM freezes and its exit contribution leaves exit depth (memo 6.3 H2, same event). The boxed supply does NOT leave the forced-sell numerator - a holder whose backing is the shocked stable still exits; what it loses is the venue.
+- **health_factor** — eligibility is the WHOLE position&#39;s Aave health factor over all collateral and all debt - a borrower is liquidated entire or not at all - and the resulting bad debt is attributed to GHO pro-rata by `gho_debt_base / total_debt_base` (memo 11.1).
+- **lp_flight** — LP capital assumed sticky; haircut grid 0% / 30% / 60% - assumed scenario modifier, not data-derived; LP flight modeled as single-sided withdrawal of the paired asset.
+- **oracle_assumption** — GHO carries no EMA_lag line: there is no LLAMMA and no per-market price EMA. Section 7&#39;s assumption for GHO is instant observation of the Aave oracle - Chainlink feeds and CAPO adapters read at `run_block` - and the per-feed staleness surface is the oracle table&#39;s (DET-55/DET-81), not a counterfactual line&#39;s (P-6.01 R13).
+- **tail_reserves** — tail reserves (15, 1.549% of attributed weight, unlabeled by threshold) enter position health at Aave&#39;s oracle and are excluded from absorption; in Member 1 they are shocked as volatile, no LST axis - overstates bad debt where a tail reserve is a stable.
+</pre>
+
+</main>
+</body>
+</html>

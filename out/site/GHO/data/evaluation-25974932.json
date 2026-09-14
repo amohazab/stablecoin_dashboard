@@ -467,37 +467,8 @@
    "pass": 1
   }
  ],
- "outcome": "published_without_banner_by_ruling",
+ "outcome": "blocked_S3",
  "pipeline_version": "0.1.0",
- "publication": {
-  "date": "2026-09-14",
-  "pill": {
-   "after": "<span class=\"pill red\">4 notice(s): freeze coverage below target, off-venue share 92.4%, gate failure and harness error</span>",
-   "before": "<span class=\"pill red\">4 notice(s): freeze coverage below target, off-venue share 92.4%, gate failure and harness error</span>",
-   "note": "pill rebuilt from open entries"
-  },
-  "placeholders_removed": [
-   "index.html: member2_opening"
-  ],
-  "prior_outcome": "blocked_S3",
-  "removed": {
-   "appendix.html": {
-    "banner": 0,
-    "placeholders": 0
-   },
-   "elements": "DET-59 quarantine banner; empty prose-slot placeholders",
-   "index.html": {
-    "banner": 1,
-    "placeholders": 1
-   },
-   "verify.html": {
-    "banner": 0,
-    "placeholders": 0
-   }
-  },
-  "ruling": "P-7.11",
-  "source": "out/rehearsal/GHO/25974932"
- },
  "report_hash": "447281cb4b87dcd40bd17e9fd0a8b9db741d4fd2c825262d5e1a0a15dd6183d1",
  "results": [
   {

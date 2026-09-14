@@ -10,6 +10,7 @@ from __future__ import annotations
 import copy
 import json
 import pathlib
+import re
 
 import pytest
 
@@ -114,8 +115,12 @@ def test_det18(inputs):
     # carries all four; crvUSD's per-node WBTC row happens to (weighted 1.0 = worst 1.0).
     page = inputs["GHO"][3]
     assert "D = 8" in run(det_18, "GHO", inputs, fresh(page))            # B-11c's pill
+    # the live page's prose also names the worst node's weight: mutate the pill without it
+    bare = fresh(page)
+    bare["html"]["index"] = re.sub(r'<div class="prose-slot".*?</div>', "", page["html"]["index"],
+                                   flags=re.S)
     with pytest.raises(Level3, match="worst weight"):
-        run(det_18, "GHO", inputs, edit(page, "index", "76.0 days old, 3.5% of backing",
+        run(det_18, "GHO", inputs, edit(bare, "index", "76.0 days old, 3.5% of backing",
                                         "76.0 days old"))
 
 
@@ -220,8 +225,9 @@ def test_det79_and_its_placeholder_case(inputs):
     assert "0 matches" in run(det_79, "LUSD", inputs, clean)
     with pytest.raises(Level3, match=r"\[freeze date\]"):
         run(det_79, "LUSD", inputs, fresh(clean, index="<p>frozen on [freeze date]</p>"))
-    with pytest.raises(Level3, match=r"index '\[slot:' x7"):         # the expected fail, 7 slots
-        run(det_79, "LUSD", inputs, fresh(page))
+    # P-7.10: LUSD published; GHO's last live page keeps one empty slot's placeholder
+    with pytest.raises(Level3, match=r"index '\[slot:' x1"):
+        run(det_79, "GHO", inputs, fresh(inputs["GHO"][3]))
 
 
 def test_det79_citations_read_index_only(inputs):

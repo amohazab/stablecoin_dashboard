@@ -1,0 +1,529 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GHO — structural risk report</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<main>
+<header class="page">
+  <h1>GHO</h1>
+  <p class="lede">An automated structural risk report on GHO: every number below is read from Ethereum at block 25974932 and can be reproduced (see the verify page).</p>
+  <div class="meta">
+    read 2026-09-14 09:55 UTC · block 25974932 ·
+    report <code title="447281cb4b87dcd40bd17e9fd0a8b9db741d4fd2c825262d5e1a0a15dd6183d1">447281cb</code> · intake sheet <code>29682310</code>
+  </div>
+  <nav class="links meta">
+    <a href="index.html">report</a><a href="appendix.html">appendix</a><a href="verify.html">verify</a>
+  </nav>
+</header>
+
+
+
+
+<div class="pills">
+<span class="pill amber">Disclosures 20.3 days old on average · worst waEthUSDT, 76.0 days old, 3.5% of backing</span><span class="pill red">Rule changes: no delay</span><span class="pill red">4 notice(s): freeze coverage below target, off-venue share 92.4%, gate failure and harness error</span>
+</div>
+
+<section class="finding" id="finding">
+<h2>The finding <span class="tip" tabindex="0" role="button" aria-label="The three figures that summarise this report, read at block 25974932; the written summary arrives with the prose stage.">?<span class="tip-text" role="tooltip">The three figures that summarise this report, read at block 25974932; the written summary arrives with the prose stage.</span></span></h2>
+
+<div class="prose-slot" data-slot="structural_summary"><p>GHO&#39;s supply of $699.0M is minted entirely through Aave facilitators, and 21.5% of that supply ($150.0M) is issued against off-mainnet facilitators on Arbitrum, Monad and Plasma, whose backing is not traced by this tree. Of the traced backing value of $538.9M, 28.7% sits in assets that can be checked directly on-chain, another 39.5% sits in wrapped assets that can be checked one layer down through their wrapper, and the remaining 31.9% is checked only through issuer or custodian disclosures rather than on-chain data.</p><p>In the headline stress scenario, $8.6M of collateral must be sold, which is also the bad debt figure at 1.2% of supply, against exit liquidity of $18.8M, putting forced sales at 45.9% of that exit liquidity.</p></div>
+<div class="cards">
+  <div class="card"><div class="card-label">Supply <span class="tip" tabindex="0" role="button" aria-label="Every GHO in existence at block 25974932: total supply plus any supply bridged by burning on another chain.">?<span class="tip-text" role="tooltip">Every GHO in existence at block 25974932: total supply plus any supply bridged by burning on another chain.</span></span></div><div class="card-value" title="supply.supply_ruled">$699.0M</div></div>
+  <div class="card"><div class="card-label">Bad debt, headline scenario <span class="tip" tabindex="0" role="button" aria-label="Shortfall left after liquidations in the headline scenario (−50% collateral crash, no LP flight), across the Aave facilitators in scope, at block 25974932.">?<span class="tip-text" role="tooltip">Shortfall left after liquidations in the headline scenario (−50% collateral crash, no LP flight), across the Aave facilitators in scope, at block 25974932.</span></span></div>
+    <div class="card-value" title="headline.m2.bad_debt">$8.6M</div><div class="card-note" title="headline.m2.pct_supply">1.24% of supply</div>
+  </div>
+  <div class="card"><div class="card-label">Exit liquidity, headline scenario <span class="tip" tabindex="0" role="button" aria-label="GHO that could be sold into the frozen set of exit pools before its price falls 2%, in the headline scenario, at block 25974932.">?<span class="tip-text" role="tooltip">GHO that could be sold into the frozen set of exit pools before its price falls 2%, in the headline scenario, at block 25974932.</span></span></div><div class="card-value" title="headline.m3.exit_depth">$18.8M</div></div>
+</div>
+</section>
+
+<section id="backing">
+<h2>Where the backing sits <span class="tip" tabindex="0" role="button" aria-label="The collateral behind GHO, across the Aave facilitators in scope, split by how far its value can be checked on-chain, at block 25974932.">?<span class="tip-text" role="tooltip">The collateral behind GHO, across the Aave facilitators in scope, split by how far its value can be checked on-chain, at block 25974932.</span></span></h2>
+
+<figure class="wide tree"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 438" width="100%" role="img" aria-label="verifiability tree" font-family="system-ui, -apple-system, Segoe UI, Roboto, sans-serif"><title>verifiability tree</title><rect x="20" y="10" width="420" height="60" fill="#ffffff" rx="10" stroke="#1f5fa8" stroke-width="1.5"/><text x="230" y="34" font-size="16" text-anchor="middle" fill="#1b2430" font-weight="600">Supply $699.0M</text><text x="230" y="54" font-size="13" text-anchor="middle" fill="#1b2430" font-weight="normal">originated $699.0M · residual $0</text><rect x="480" y="10" width="500" height="60" fill="#fbf4ea" rx="10" stroke="#b07a2a" stroke-dasharray="6 4"/><line x1="440" y1="40" x2="480" y2="40" stroke="#b07a2a" stroke-dasharray="6 4"/><text x="730" y="45" font-size="13" text-anchor="middle" fill="#7a5418" font-weight="normal">minted for other chains — not traced here (21.5%)</text><line x1="230" y1="70" x2="230" y2="100" stroke="#6b7886"/><rect x="20" y="100" width="275.4" height="36" fill="#1f5fa8"/><rect x="295.4" y="100" width="378.8" height="36" fill="#5f9ad6"/><rect x="674.2" y="100" width="305.8" height="36" fill="#c7a35a"/><rect x="20" y="148" width="14" height="14" fill="#1f5fa8" rx="3"/><text x="42" y="160" font-size="14" text-anchor="start" fill="#1b2430" font-weight="600">Checkable on-chain — 28.7%</text><rect x="20" y="176" width="304" height="30" fill="#f5f7fa" rx="6" stroke="#d9dee4"/><text x="30" y="196" font-size="13" text-anchor="start" fill="#1b2430" font-weight="600">WETH</text><text x="314" y="196" font-size="13" text-anchor="end" fill="#1b2430" font-weight="normal">21.1%</text><rect x="20" y="214" width="304" height="30" fill="#f5f7fa" rx="6" stroke="#d9dee4"/><text x="30" y="234" font-size="13" text-anchor="start" fill="#1b2430" font-weight="600">AAVE</text><text x="314" y="234" font-size="13" text-anchor="end" fill="#1b2430" font-weight="normal">7.3%</text><rect x="20" y="252" width="304" height="30" fill="#f5f7fa" rx="6" stroke="#d9dee4"/><text x="30" y="272" font-size="13" text-anchor="start" fill="#1b2430" font-weight="600">LINK</text><text x="314" y="272" font-size="13" text-anchor="end" fill="#1b2430" font-weight="normal">0.3%</text><rect x="340" y="148" width="14" height="14" fill="#5f9ad6" rx="3"/><text x="362" y="160" font-size="14" text-anchor="start" fill="#1b2430" font-weight="600">Checkable one layer down — 39.5%</text><rect x="340" y="176" width="304" height="30" fill="#f5f7fa" rx="6" stroke="#d9dee4"/><text x="350" y="196" font-size="13" text-anchor="start" fill="#1b2430" font-weight="600">wstETH</text><text x="634" y="196" font-size="13" text-anchor="end" fill="#1b2430" font-weight="normal">34.1%</text><rect x="340" y="214" width="304" height="30" fill="#f5f7fa" rx="6" stroke="#d9dee4"/><text x="350" y="234" font-size="13" text-anchor="start" fill="#1b2430" font-weight="600">weETH</text><text x="634" y="234" font-size="13" text-anchor="end" fill="#1b2430" font-weight="normal">2.4%</text><rect x="340" y="252" width="304" height="30" fill="#f5f7fa" rx="6" stroke="#d9dee4"/><text x="350" y="272" font-size="13" text-anchor="start" fill="#1b2430" font-weight="600">tBTC</text><text x="634" y="272" font-size="13" text-anchor="end" fill="#1b2430" font-weight="normal">2.1%</text><rect x="340" y="290" width="304" height="30" fill="#f5f7fa" rx="6" stroke="#d9dee4"/><text x="350" y="310" font-size="13" text-anchor="start" fill="#1b2430" font-weight="600">rETH</text><text x="634" y="310" font-size="13" text-anchor="end" fill="#1b2430" font-weight="normal">0.9%</text><rect x="660" y="148" width="14" height="14" fill="#c7a35a" rx="3"/><text x="682" y="160" font-size="14" text-anchor="start" fill="#1b2430" font-weight="600">Depends on disclosures — 31.9%</text><rect x="660" y="176" width="304" height="30" fill="#f5f7fa" rx="6" stroke="#d9dee4"/><text x="670" y="196" font-size="13" text-anchor="start" fill="#1b2430" font-weight="600">WBTC</text><text x="866" y="196" font-size="13" text-anchor="end" fill="#1b2430" font-weight="normal">13.0%</text><rect x="874" y="183" width="80" height="17" fill="#ffffff" rx="8" stroke="#d9dee4"/><text x="914" y="196" font-size="11" text-anchor="middle" fill="#6b7886" font-weight="normal">1.0 days old</text><rect x="660" y="214" width="304" height="30" fill="#f5f7fa" rx="6" stroke="#d9dee4"/><text x="670" y="234" font-size="13" text-anchor="start" fill="#1b2430" font-weight="600">JAAA</text><text x="866" y="234" font-size="13" text-anchor="end" fill="#1b2430" font-weight="normal">3.7%</text><rect x="874" y="221" width="80" height="17" fill="#ffffff" rx="8" stroke="#d9dee4"/><text x="914" y="234" font-size="11" text-anchor="middle" fill="#6b7886" font-weight="normal">truncated</text><rect x="660" y="252" width="304" height="30" fill="#f5f7fa" rx="6" stroke="#d9dee4"/><text x="670" y="272" font-size="13" text-anchor="start" fill="#1b2430" font-weight="600">waEthUSDT</text><text x="866" y="272" font-size="13" text-anchor="end" fill="#1b2430" font-weight="normal">3.5%</text><rect x="874" y="259" width="80" height="17" fill="#ffffff" rx="8" stroke="#d9dee4"/><text x="914" y="272" font-size="11" text-anchor="middle" fill="#6b7886" font-weight="normal">76.0 days old</text><rect x="660" y="290" width="304" height="30" fill="#f5f7fa" rx="6" stroke="#d9dee4"/><text x="670" y="310" font-size="13" text-anchor="start" fill="#1b2430" font-weight="600">USDC</text><text x="866" y="310" font-size="13" text-anchor="end" fill="#1b2430" font-weight="normal">2.7%</text><rect x="874" y="297" width="80" height="17" fill="#ffffff" rx="8" stroke="#d9dee4"/><text x="914" y="310" font-size="11" text-anchor="middle" fill="#6b7886" font-weight="normal">45.0 days old</text><rect x="660" y="328" width="304" height="30" fill="#f5f7fa" rx="6" stroke="#d9dee4"/><text x="670" y="348" font-size="13" text-anchor="start" fill="#1b2430" font-weight="600">USTB</text><text x="866" y="348" font-size="13" text-anchor="end" fill="#1b2430" font-weight="normal">2.6%</text><rect x="874" y="335" width="80" height="17" fill="#ffffff" rx="8" stroke="#d9dee4"/><text x="914" y="348" font-size="11" text-anchor="middle" fill="#6b7886" font-weight="normal">truncated</text><rect x="660" y="366" width="304" height="30" fill="#f5f7fa" rx="6" stroke="#d9dee4"/><text x="670" y="386" font-size="13" text-anchor="start" fill="#1b2430" font-weight="600">cbBTC</text><text x="866" y="386" font-size="13" text-anchor="end" fill="#1b2430" font-weight="normal">2.3%</text><rect x="874" y="373" width="80" height="17" fill="#ffffff" rx="8" stroke="#d9dee4"/><text x="914" y="386" font-size="11" text-anchor="middle" fill="#6b7886" font-weight="normal">1.0 days old</text><text x="670" y="418" font-size="12" text-anchor="start" fill="#6b7886" font-weight="normal">+8 more below</text><text x="20" y="432" font-size="13" text-anchor="start" fill="#6b7886" font-weight="normal">Where the backing sits and how far it can be checked on-chain; shares are of the value of all backing collateral.</text></svg></figure>
+<p class="prose">Automated contracts can change minting and oracle settings with no delay.</p>
+<div class="prose-slot" data-slot="verifiability_narrative"><p>GHO&#39;s backing splits into three checkability classes. About 28.7% sits in assets you can verify directly on-chain, the largest being WETH at 21.1% of backing. A further 39.5% is checkable one layer down, through a wrapper, led by wstETH at 34.1% of backing. The remaining 31.9% depends on an issuer&#39;s or custodian&#39;s published disclosures, and here WBTC is the largest single holding at 13.0% of backing.</p><p>Of the disclosure-dependent slice, 8.4% of total backing is depth-truncated, meaning the pipeline stopped tracing before reaching that collateral&#39;s own backing. This applies to USCC (2.2%), USTB (2.6%), JAAA (3.7%), DAI (under 0.1%), sDAI (under 0.1%) and USDS (under 0.1%) — for these, the underlying backing itself was not analyzed, so their true collateral quality can&#39;t be confirmed from this data. Separately, disclosure staleness varies widely: WBTC, cbETH and cbBTC were last disclosed 1.0 days ago, while waEthUSDT (3.5% of backing) and USDT (0.7% of backing) are 76.0 days old, and USDC (2.7% of backing) and waEthUSDC are 45.0 days old. The average staleness across weighted backing is 20.3 days, and the depth-truncated 8.4% has no staleness assessment at all.</p><p>A governance banner notes that verifiability here is conditional: minting and oracle-setting are both listed as contract-automated actions with no admin delay attached. This means the rules governing how GHO is minted and how its price reference is set can operate without a waiting period before taking effect, so the picture described above reflects current settings that could shift immediately rather than after a notice period.</p></div>
+</section>
+
+<section id="break">
+<h2>What could break it <span class="tip" tabindex="0" role="button" aria-label="The headline stress scenario and the grid around it: collateral price falls of 20–70% with liquidity-provider flight of 0–60%, across the Aave facilitators in scope, at block 25974932.">?<span class="tip-text" role="tooltip">The headline stress scenario and the grid around it: collateral price falls of 20–70% with liquidity-provider flight of 0–60%, across the Aave facilitators in scope, at block 25974932.</span></span></h2>
+<p class="flag" data-section="exit liquidity" data-entry="GHO:9">Notice: off-venue share &gt; 25% — entry GHO:9, first fired 2026-09-14</p>
+<p class="flag" data-section="exit liquidity" data-entry="GHO:10">Notice: freeze coverage below target — entry GHO:10, first fired 2026-09-14</p>
+
+<p class="prose">The headline scenario is a 50% fall in the price of volatile collateral, with no extra discount on liquid-staking tokens and liquidity providers staying put — the one scenario the archetype memo names as the headline (memo §6.2.6).</p>
+<p class="prose">In that scenario liquidations leave $8.6M of bad debt (1.24% of supply) and require selling $8.6M into $18.8M of exit liquidity.</p>
+
+<figure class="wide"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 320" width="100%" role="img" aria-label="Bad debt as the collateral price falls" font-family="system-ui, -apple-system, Segoe UI, Roboto, sans-serif"><title>Bad debt as the collateral price falls</title><text x="20" y="22" font-size="15" text-anchor="start" fill="#1b2430" font-weight="600">Bad debt as the collateral price falls</text><line x1="90" y1="256" x2="960" y2="256" stroke="#6b7886"/><line x1="90" y1="56" x2="90" y2="256" stroke="#6b7886"/><line x1="85" y1="256" x2="960" y2="256" stroke="#d9dee4"/><text x="82" y="260" font-size="12" text-anchor="end" fill="#6b7886" font-weight="normal">$0</text><line x1="85" y1="56" x2="960" y2="56" stroke="#d9dee4"/><text x="82" y="60" font-size="12" text-anchor="end" fill="#6b7886" font-weight="normal">$48.1M</text><text x="90" y="44" font-size="12" text-anchor="start" fill="#6b7886" font-weight="normal">bad debt ($)</text><circle cx="110" cy="254.6" r="5" fill="#1f5fa8"/><text x="110" y="278" font-size="13" text-anchor="middle" fill="#1b2430" font-weight="normal">-20.0%</text><text x="110" y="242.6" font-size="12" text-anchor="middle" fill="#1b2430" font-weight="normal">$341.7k</text><circle cx="386.7" cy="246.9" r="5" fill="#1f5fa8"/><text x="386.7" y="278" font-size="13" text-anchor="middle" fill="#1b2430" font-weight="normal">-35.0%</text><text x="386.7" y="234.9" font-size="12" text-anchor="middle" fill="#1b2430" font-weight="normal">$2.2M</text><circle cx="663.3" cy="220.1" r="5" fill="#1f5fa8"/><text x="663.3" y="278" font-size="13" text-anchor="middle" fill="#1b2430" font-weight="normal">-50.0%</text><text x="663.3" y="208.1" font-size="12" text-anchor="middle" fill="#1b2430" font-weight="normal">$8.6M</text><circle cx="940" cy="56" r="5" fill="#1f5fa8"/><text x="940" y="278" font-size="13" text-anchor="middle" fill="#1b2430" font-weight="normal">-70.0%</text><text x="940" y="44" font-size="12" text-anchor="middle" fill="#1b2430" font-weight="normal">$48.1M</text><polyline points="110,254.6 386.7,246.9 663.3,220.1 940,56" fill="none" stroke="#1f5fa8" stroke-width="2.5"/><text x="525" y="310" font-size="12" text-anchor="middle" fill="#6b7886" font-weight="normal">fall in volatile collateral prices</text></svg></figure>
+
+<table class="grid wide">
+<tr><th>price fall</th><th>no LP flight</th><th>30% LP flight</th><th>60% LP flight</th></tr>
+<tr><th>-20.0%</th><td class="s2" title="panel.M1-s20-d0-lp0.m3.ratio">1.8%</td><td class="s2" title="panel.M1-s20-d0-lp30.m3.ratio">1.8%</td><td class="s2" title="panel.M1-s20-d0-lp60.m3.ratio">1.8%</td></tr><tr><th>-35.0%</th><td class="s3" title="panel.M1-s35-d0-lp0.m3.ratio">11.6%</td><td class="s3" title="panel.M1-s35-d0-lp30.m3.ratio">11.7%</td><td class="s3" title="panel.M1-s35-d0-lp60.m3.ratio">11.7%</td></tr><tr><th>-50.0%</th><td class="s3" title="panel.M1-s50-d0-lp0.m3.ratio">45.9%</td><td class="s3" title="panel.M1-s50-d0-lp30.m3.ratio">46.4%</td><td class="s3" title="panel.M1-s50-d0-lp60.m3.ratio">46.4%</td></tr><tr><th>-70.0%</th><td class="s4" title="panel.M1-s70-d0-lp0.m3.ratio">255.4%</td><td class="s4" title="panel.M1-s70-d0-lp30.m3.ratio">258.4%</td><td class="s4" title="panel.M1-s70-d0-lp60.m3.ratio">258.4%</td></tr>
+</table>
+<p class="legend">Each cell: collateral that must be sold ÷ liquidity available to absorb it; “exit exhausted” = no liquidity left at that level of liquidity-provider flight. <span class="tip" tabindex="0" role="button" aria-label="Each cell divides the collateral liquidations must sell by the exit liquidity left in that scenario, across the Aave facilitators in scope, at block 25974932; above 100% the sales cannot all be absorbed.">?<span class="tip-text" role="tooltip">Each cell divides the collateral liquidations must sell by the exit liquidity left in that scenario, across the Aave facilitators in scope, at block 25974932; above 100% the sales cannot all be absorbed.</span></span><br>
+<span class="swatch s0"></span>0&ensp;<span class="swatch s1"></span>under 0.1%&ensp;<span class="swatch s2"></span>under 10%&ensp;<span class="swatch s3"></span>under 100%&ensp;<span class="swatch s4"></span>100% or more&ensp;<span class="swatch exhausted"></span>exit exhausted</p>
+<p class="prose">At a 50% fall, forced sales use 45.88% of available exit liquidity; at a 70% fall, forced sales need more than all available exit liquidity (255.38%); and if 60% of liquidity providers leave at a 70% fall, forced sales need more than all available exit liquidity (258.41%).</p>
+<figure class="wide"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 160" width="100%" role="img" aria-label="When the GSM freezes, most exit liquidity leaves with it" font-family="system-ui, -apple-system, Segoe UI, Roboto, sans-serif"><title>When the GSM freezes, most exit liquidity leaves with it</title><text x="20" y="22" font-size="15" text-anchor="start" fill="#1b2430" font-weight="600">When the GSM freezes, most exit liquidity leaves with it</text><text x="20" y="50" font-size="13" text-anchor="start" fill="#1b2430" font-weight="normal">Exit liquidity in the headline scenario</text><rect x="20" y="58" width="780" height="22" fill="#1f5fa8"/><text x="810" y="75" font-size="13" text-anchor="start" fill="#1b2430" font-weight="600">$18.8M</text><text x="20" y="102" font-size="13" text-anchor="start" fill="#1b2430" font-weight="normal">Exit liquidity once the GSM freezer trips</text><rect x="20" y="110" width="9.1" height="22" fill="#b07a2a"/><text x="39.1" y="127" font-size="13" text-anchor="start" fill="#1b2430" font-weight="600">$220.4k</text></svg></figure>
+<p class="prose">Prices may lag the market by up to 1.00%: the largest update threshold among this token&#39;s price feeds (AAVE).</p>
+</section>
+
+<section id="rules">
+<h2>Who can change the rules <span class="tip" tabindex="0" role="button" aria-label="Who holds each administrative power over the protocol&#39;s contracts and how long a change takes to take effect, read at block 25974932.">?<span class="tip-text" role="tooltip">Who holds each administrative power over the protocol&#39;s contracts and how long a change takes to take effect, read at block 25974932.</span></span></h2>
+<ul class="plain"><li>Minting: automated contracts, with no delay.</li><li>Debt ceilings: automated contracts, with no delay.</li><li>Contract upgrades: no one holds this power.</li><li>Pausing: a multisig, with no delay.</li><li>Freezing assets: automated contracts, with no delay.</li><li>Oracle settings: automated contracts, with no delay.</li><li>Risk parameters: automated contracts, with no delay.</li><li>Pausing GSM swaps: automated contracts, with no delay.</li><li>Pausing GSM swaps: automated contracts, with no delay.</li><li>Blacklisting addresses: no one holds this power.</li><li>Seizing assets: no one holds this power.</li></ul>
+</section>
+
+<section id="check">
+<h2>How to check this <span class="tip" tabindex="0" role="button" aria-label="Every figure is pinned to block 25974932; the verify page lists the calls that reproduce them.">?<span class="tip-text" role="tooltip">Every figure is pinned to block 25974932; the verify page lists the calls that reproduce them.</span></span></h2>
+<p class="prose">Every figure on this page comes from one data table built from on-chain reads at a single block. Reproduce any of them from the verify page. <a href="verify.html">Verify page</a> · report fingerprint <code title="447281cb4b87dcd40bd17e9fd0a8b9db741d4fd2c825262d5e1a0a15dd6183d1">447281cb4b87dcd4</code></p>
+<p class="prose">The behavioral tier — how the token trades: peg deviation, liquidity, holder concentration and flows — will come from an external monitoring service and is pending. This report is the structural tier only: what backs the token, how far that backing can be checked on-chain, and how it holds up under stress.</p>
+</section>
+
+
+<h2 class="specialists">Detail for specialists</h2>
+<p class="meta">behavioral tier: pending</p>
+
+<details id="tree-nodes"><summary>Collateral nodes whose backing depends on disclosures or stops at a truncation</summary>
+
+<table class="striped"><tr><th>depth-truncated node</th><th>reason</th><th class="num">share of backing</th></tr>
+
+
+<tr><td>USCC</td><td>depth truncated at USCC; node&#39;s own backing not analyzed by this pipeline</td><td class="num" title="verif.truncated.0x14d60e7fdc0d71d8611742720e4c50e7a974020c.share">2.2%</td></tr>
+
+
+<tr><td>USTB</td><td>depth truncated at USTB; node&#39;s own backing not analyzed by this pipeline</td><td class="num" title="verif.truncated.0x43415eb6ff9db7e26a15b704e7a3edce97d31c4e.share">2.6%</td></tr>
+
+
+<tr><td>JAAA</td><td>depth truncated at JAAA; node&#39;s own backing not analyzed by this pipeline</td><td class="num" title="verif.truncated.0x5a0f93d040de44e78f251b03c43be9cf317dcf64.share">3.7%</td></tr>
+
+
+<tr><td>DAI</td><td>depth truncated at DAI; node&#39;s own backing not analyzed by this pipeline<br><span class="meta">Sky reserves ≈ USDC-via-LitePSM + RWA; note only, not analyzed (analyst-supplied 2026-09-01)</span></td><td class="num" title="verif.truncated.0x6b175474e89094c44da98b954eedeac495271d0f.share">&lt; 0.1%</td></tr>
+
+
+<tr><td>sDAI</td><td>depth truncated at sDAI; node&#39;s own backing not analyzed by this pipeline<br><span class="meta">Sky reserves ≈ USDC-via-LitePSM + RWA; note only, not analyzed (analyst-supplied 2026-09-01)</span></td><td class="num" title="verif.truncated.0x83f20f44975d03b1b09e64809b757c47f942beea.share">&lt; 0.1%</td></tr>
+
+
+<tr><td>USDS</td><td>depth truncated at USDS; node&#39;s own backing not analyzed by this pipeline<br><span class="meta">Sky reserves ≈ USDC-via-LitePSM + RWA; note only, not analyzed (analyst-supplied 2026-09-01)</span></td><td class="num" title="verif.truncated.0xdc035d45d973e3ec169d2276ddab16f1e407384f.share">&lt; 0.1%</td></tr>
+</table>
+
+
+<table class="striped"><tr><th>disclosure-dependent node</th><th>last disclosure</th><th class="num">days old</th><th class="num">share of backing</th></tr>
+
+<tr><td>WBTC</td><td>2026-09-13</td><td class="num">1.0 days</td><td class="num" title="verif.staleness.0x2260fac5e5542a773aa44fbcfedf7c193bc2c599.share">13.0%</td></tr>
+
+<tr><td>waEthUSDT</td><td>2026-06-30</td><td class="num">76.0 days</td><td class="num" title="verif.staleness.0x7bc3485026ac48b6cf9baf0a377477fff5703af8.share">3.5%</td></tr>
+
+<tr><td>sUSDe</td><td>2026-08-26</td><td class="num">19.0 days</td><td class="num" title="verif.staleness.0x9d39a5de30e57443bff2a8307a4256c8797a3497.share">1.2%</td></tr>
+
+<tr><td>USDC</td><td>2026-07-31</td><td class="num">45.0 days</td><td class="num" title="verif.staleness.0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.share">2.7%</td></tr>
+
+<tr><td>cbETH</td><td>2026-09-13</td><td class="num">1.0 days</td><td class="num" title="verif.staleness.0xbe9895146f7af43049ca1c1ae358b0541ea49704.share">&lt; 0.1%</td></tr>
+
+<tr><td>cbBTC</td><td>2026-09-13</td><td class="num">1.0 days</td><td class="num" title="verif.staleness.0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf.share">2.3%</td></tr>
+
+<tr><td>waEthUSDC</td><td>2026-07-31</td><td class="num">45.0 days</td><td class="num" title="verif.staleness.0xd4fa2d31b7968e448877f69a96de69f5de8cd23e.share">&lt; 0.1%</td></tr>
+
+<tr><td>USDT</td><td>2026-06-30</td><td class="num">76.0 days</td><td class="num" title="verif.staleness.0xdac17f958d2ee523a2206206994597c13d831ec7.share">0.7%</td></tr>
+</table>
+
+<p class="meta">8.4% of backing depth-truncated — staleness not assessed</p>
+</details>
+
+<details id="supply"><summary>Supply, what was originated, and the residual with its named causes</summary>
+<table class="striped">
+<tr><th>figure</th><th class="num">value</th></tr>
+<tr><td>supply</td><td class="num" title="supply.supply_ruled">699,000,000.00</td></tr>
+<tr><td>originated supply</td><td class="num" title="supply.origination_sum">699,000,000.00</td></tr>
+<tr><td>supply the tree covers</td><td class="num" title="tree.root.backed_supply">699,000,000.00</td></tr>
+<tr><td>residual (supply − originated)</td><td class="num" title="supply.residual">0</td></tr>
+
+<tr><td>unexplained after named causes</td><td class="num" title="supply.residual_unexplained">0</td></tr>
+<tr><td>stabilizer debt ÷ supply</td><td class="num" title="supply.stabilizer_over_supply">0</td></tr>
+<tr><td>protocol stabilizer debt</td><td class="num" title="stabilizer.slice.debt">0 (0 of supply)</td></tr>
+<tr><td>ceiling aggregate — the upper bound of the protocol stabilizer slice</td><td class="num" title="stabilizer.slice.ceiling_aggregate">0 (0 of supply)</td></tr>
+
+<tr><td>minted against off-mainnet facilitators; backing on Arbitrum/Monad/Plasma, not traced by this tree</td><td class="num" title="supply.off_mainnet.amount">150,000,000.00 (21.5% of supply)</td></tr>
+
+</table>
+
+
+
+
+</details>
+
+<details id="headline"><summary>Every figure in the headline scenario</summary>
+
+<table class="striped">
+<tr><th>metric</th><th class="num">value</th></tr>
+
+<tr><td title="headline.m1.pre.ratio">collateral coverage before the shock</td><td class="num">1.2227</td></tr>
+
+<tr><td title="headline.m1.post.ratio">collateral coverage after the shock</td><td class="num">1.6909</td></tr>
+
+<tr><td title="headline.m1.gap">coverage restored by the liquidation mechanism</td><td class="num">0.4682</td></tr>
+
+<tr><td title="headline.m2.bad_debt">bad debt</td><td class="num">8,637,285.34</td></tr>
+
+<tr><td title="headline.m2.pct_supply">bad debt as a share of supply</td><td class="num">1.2%</td></tr>
+
+<tr><td title="headline.m3.forced_sell_volume">collateral that must be sold</td><td class="num">8,637,285.34</td></tr>
+
+<tr><td title="headline.m3.exit_depth">exit liquidity</td><td class="num">18,826,336.57</td></tr>
+
+<tr><td title="headline.m3.ratio">forced sales ÷ exit liquidity</td><td class="num">45.9%</td></tr>
+
+</table>
+<h3>Mechanism state in the headline scenario</h3>
+
+<table class="striped"><tr><th>quantity</th><th class="num">value</th></tr>
+<tr><td title="headline.m4.binding_side">which side binds liquidation capacity first: the GHO liquidators can source, or the collateral they can sell</td><td class="num">collateral_sellable</td></tr><tr><td title="headline.m4.collateral_sellable">collateral liquidators can sell within the liquidation bonus, bounded by the analyst&#39;s dated sell-side capacity</td><td class="num">37,015,781.29</td></tr><tr><td title="headline.m4.counterfactual_ref">the counterfactual lines printed with this scenario</td><td class="num"></td></tr><tr><td title="headline.m4.exit_depth_cell">exit liquidity in this scenario</td><td class="num">18,826,336.57</td></tr><tr><td title="headline.m4.gho_sourceable">GHO liquidators can source within the liquidation bonus: pool buy-side depth plus the GSMs&#39; remaining mint headroom</td><td class="num">289,813,803.32</td></tr><tr><td title="headline.m4.gsm_mint_headroom">GHO the GSMs can still mint before their exposure caps bind; one part of the GHO liquidators can source</td><td class="num">288,769,063.42</td></tr><tr><td title="headline.m4.lp_flight_share">share of liquidity providers leaving in this scenario</td><td class="num">0</td></tr>
+</table>
+
+
+<h4>Facilitator bucket levels</h4>
+<table class="striped"><tr><th>address</th><th class="num">GHO minted by each facilitator, which its bucket cap bounds; the cap limits recovery minting, not liquidation</th></tr>
+<tr><td><code title="0x0cb7c2a2ab38aed3e6096631d7dba3dabf237134">0x0cb7c2…7134</code></td><td class="num" title="headline.m4.facilitator_bucket_levels.0x0cb7c2a2ab38aed3e6096631d7dba3dabf237134">50,000,000.00</td></tr><tr><td><code title="0x2bd010ab5393ab51b601b99c4b33ba148d9466e9">0x2bd010…66e9</code></td><td class="num" title="headline.m4.facilitator_bucket_levels.0x2bd010ab5393ab51b601b99c4b33ba148d9466e9">50,000,000.00</td></tr><tr><td><code title="0x2ce01c87fec1b71a9041c52caed46fc5f4807285">0x2ce01c…7285</code></td><td class="num" title="headline.m4.facilitator_bucket_levels.0x2ce01c87fec1b71a9041c52caed46fc5f4807285">45,000,000.00</td></tr><tr><td><code title="0x436dccc028322afc355f608cf582b7d7f19fdfed">0x436dcc…dfed</code></td><td class="num" title="headline.m4.facilitator_bucket_levels.0x436dccc028322afc355f608cf582b7d7f19fdfed">50,000,000.00</td></tr><tr><td><code title="0x5513224daaeabca31af5280727878d52097afa05">0x551322…fa05</code></td><td class="num" title="headline.m4.facilitator_bucket_levels.0x5513224daaeabca31af5280727878d52097afa05">135,000,000.00</td></tr><tr><td><code title="0xb639d208bcf0589d54fac24e655c79ec529762b8">0xb639d2…62b8</code></td><td class="num" title="headline.m4.facilitator_bucket_levels.0xb639d208bcf0589d54fac24e655c79ec529762b8">0</td></tr><tr><td><code title="0xe10c78a3ac7f016ed2de1a89c5479b1039eab9ea">0xe10c78…b9ea</code></td><td class="num" title="headline.m4.facilitator_bucket_levels.0xe10c78a3ac7f016ed2de1a89c5479b1039eab9ea">59,000,000.00</td></tr><tr><td><code title="0xe9ac5231faecb633da0fe85fcb2785b8363427d2">0xe9ac52…27d2</code></td><td class="num" title="headline.m4.facilitator_bucket_levels.0xe9ac5231faecb633da0fe85fcb2785b8363427d2">310,000,000.00</td></tr>
+</table>
+
+<h4>GSM freezers</h4>
+<table class="striped"><tr><th>address</th><th class="num">the GSM&#39;s freezer routing: freezer_effective means the freezer can act, which removes that GSM from exit liquidity in a depeg scenario; in a collateral crash the GSM stays an exit venue</th></tr>
+<tr><td><code title="0x3a3868898305f04bec7fea77becff04c13444112">0x3a3868…4112</code></td><td class="num" title="headline.m4.freezer_state.0x3a3868898305f04bec7fea77becff04c13444112">freezer_effective</td></tr><tr><td><code title="0x882285e62656b9623af136ce3078c6bdcc33f5e3">0x882285…f5e3</code></td><td class="num" title="headline.m4.freezer_state.0x882285e62656b9623af136ce3078c6bdcc33f5e3">freezer_effective</td></tr>
+</table>
+
+</details>
+
+
+<details id="counterfactuals"><summary>What changes under the counterfactual assumptions</summary>
+<table class="striped"><tr><th>counterfactual</th><th>affects</th><th class="num">as modelled</th><th class="num">under the counterfactual</th></tr>
+
+<tr><td>H2 freezer</td><td>m3</td><td class="num">220,381.64</td><td class="num">18,826,336.57</td></tr>
+</table>
+<div class="prose-slot" data-slot="counterfactual_explanations"><p>One counterfactual line asks what would happen to the money available to exit GHO if the GSM freezer had not stepped in during the modelled depeg. In the actual run, with the freezer acting, exit liquidity falls to just $220.4k. If the freezer instead does nothing and the GSMs stay open as exit routes, that figure jumps to $18.8M. The gap between these two numbers shows how much of GHO&#39;s exit capacity depends on those GSM venues staying open: freezing them removes almost all of the liquidity a holder could reach, while leaving them open restores it. The takeaway is that GHO&#39;s exit liquidity in stress is not a fixed pool sitting somewhere; it is largely conditional on whether the GSM freezer mechanism has been triggered.</p></div>
+</details>
+
+
+<details id="exit-liquidity"><summary>Exit liquidity at four price-impact levels</summary>
+
+<figure class="wide"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 340" width="100%" role="img" aria-label="Exit liquidity by how much price impact sellers accept" font-family="system-ui, -apple-system, Segoe UI, Roboto, sans-serif"><title>Exit liquidity by how much price impact sellers accept</title><text x="20" y="22" font-size="15" text-anchor="start" fill="#1b2430" font-weight="600">Exit liquidity by how much price impact sellers accept</text><line x1="90" y1="256" x2="960" y2="256" stroke="#6b7886"/><line x1="90" y1="56" x2="90" y2="256" stroke="#6b7886"/><line x1="85" y1="256" x2="960" y2="256" stroke="#d9dee4"/><text x="82" y="260" font-size="12" text-anchor="end" fill="#6b7886" font-weight="normal">$0</text><line x1="85" y1="56" x2="960" y2="56" stroke="#d9dee4"/><text x="82" y="60" font-size="12" text-anchor="end" fill="#6b7886" font-weight="normal">$18.9M</text><text x="90" y="44" font-size="12" text-anchor="start" fill="#6b7886" font-weight="normal">exit liquidity ($)</text><rect x="144.4" y="254.5" width="108.8" height="1.5" fill="#1f5fa8"/><rect x="144.4" y="57.2" width="108.8" height="197.3" fill="#b07a2a"/><text x="198.8" y="278" font-size="13" text-anchor="middle" fill="#1b2430" font-weight="normal">0.5%</text><text x="198.8" y="49.2" font-size="12" text-anchor="middle" fill="#1b2430" font-weight="normal">$18.7M</text><rect x="361.9" y="254" width="108.8" height="2" fill="#1f5fa8"/><rect x="361.9" y="56.7" width="108.8" height="197.3" fill="#b07a2a"/><text x="416.3" y="278" font-size="13" text-anchor="middle" fill="#1b2430" font-weight="normal">1.0%</text><text x="416.3" y="48.7" font-size="12" text-anchor="middle" fill="#1b2430" font-weight="normal">$18.8M</text><rect x="579.4" y="253.7" width="108.8" height="2.3" fill="#1f5fa8"/><rect x="579.4" y="56.3" width="108.8" height="197.3" fill="#b07a2a"/><text x="633.8" y="278" font-size="13" text-anchor="middle" fill="#1b2430" font-weight="normal">2.0%</text><text x="633.8" y="48.3" font-size="12" text-anchor="middle" fill="#1b2430" font-weight="normal">$18.8M</text><rect x="796.9" y="253.3" width="108.8" height="2.7" fill="#1f5fa8"/><rect x="796.9" y="56" width="108.8" height="197.3" fill="#b07a2a"/><text x="851.3" y="278" font-size="13" text-anchor="middle" fill="#1b2430" font-weight="normal">5.0%</text><text x="851.3" y="48" font-size="12" text-anchor="middle" fill="#1b2430" font-weight="normal">$18.9M</text><text x="525" y="300" font-size="12" text-anchor="middle" fill="#6b7886" font-weight="normal">price impact sellers accept</text><rect x="90" y="316" width="12" height="12" fill="#1f5fa8"/><text x="108" y="326" font-size="12" text-anchor="start" fill="#1b2430" font-weight="normal">pool liquidity</text><rect x="310" y="316" width="12" height="12" fill="#b07a2a"/><text x="328" y="326" font-size="12" text-anchor="start" fill="#1b2430" font-weight="normal">GSM swap capacity</text></svg><figcaption>Exit liquidity available if sellers accept up to 0.5%, 1%, 2% or 5% price impact; the report&#39;s headline uses 2%.</figcaption></figure>
+<p class="meta">Depeg scenario target: <code>0xdac17f…1ec7</code> · <a href="appendix.html">every scenario in the appendix</a></p>
+<p class="meta">Headline exit liquidity 18,826,336.57 — LP capital assumed sticky.</p>
+<p class="meta">LP-flight grid 0% / 30% / 60% — assumed scenario modifier, not data-derived.</p>
+
+
+<p class="meta">modeled pools: the largest pools covering 90% of the frozen set, which itself covered 95% of discovered on-Curve liquidity at freeze time (2026-09-08). K-subset share of the frozen set: 100.0%</p>
+<div class="prose-slot" data-slot="member1_opening"><p>GHO borrowers post collateral into Aave markets, and when a collateral price crash pushes a position&#39;s health factor below one, the whole position is liquidated across all its collateral and debt, not just the GHO slice; any shortfall is then attributed to GHO in proportion to its share of that borrower&#39;s debt. The GSMs, which mint and redeem GHO against approved stable assets, sit alongside this as a separate exit venue for holders rather than as part of the liquidation process itself.</p><p>Before the shock, collateral coverage across the book stands at 1.22, with 0.43 of positions already below full collateral backing. After the shock this coverage measure moves to 1.69, and the liquidation mechanism is credited with restoring 0.47 of coverage. Bad debt from the event comes to $8.6M, equal to 1.2% of supply.</p><p>That bad debt is not structurally zero: the relevant check found bad debt did occur under this grid, so the $8.6M figure stands as a real shortfall rather than a reprised or eliminated one.</p><p>The collateral that must be sold to cover the shortfall is $8.6M, measured against exit liquidity of $18.8M, giving a forced sales to exit liquidity ratio of 45.9%. This means the forced selling would take up nearly half of the available exit liquidity in this scenario, leaving a meaningful buffer unconsumed rather than exhausting it outright.</p></div>
+</details>
+
+<details id="assumptions"><summary>The modelling assumptions and the data behind each</summary>
+<table class="striped"><tr><th>assumption</th><th>what it means</th><th>data</th><th>source</th></tr>
+
+<tr><td><code>stock_only</code></td>
+<td>Capacity is measured as a stock at the run block; how each mechanism&#39;s stock-only reading errs is the bias table below.</td>
+<td><span title="bias.0.direction">bias: Collateral-sell-side bound: see appendix</span><br><span title="bias.0.mechanism">bias mechanism: see appendix</span><br><span title="bias.0.tokens">bias tokens: crvUSD, GHO</span><br><span title="bias.0.reason">bias reason: see appendix</span><br>… 32 more in table.json</td>
+<td>memo §7.1</td></tr>
+
+<tr><td><code>observation</code></td>
+<td>Prices are taken as observed instantly at the run block; the oracle table lists each feed&#39;s update condition.</td>
+<td><span title="oracle.0x18084fba666a33d37592fa2633fd49a74dd93a88.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.deviation_bps">deviation: 0.50%</span><br><span title="oracle.0x2260fac5e5542a773aa44fbcfedf7c193bc2c599.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.deviation_bps">deviation: 0.50%</span><br><span title="oracle.0x514910771af9ca656af840dff83e8264ecf986ca.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.deviation_bps">deviation: 0.50%</span><br><span title="oracle.0x6b175474e89094c44da98b954eedeac495271d0f.0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2.deviation_bps">deviation: 0.25%</span><br>… 14 more in table.json</td>
+<td>memo §7.2</td></tr>
+
+<tr><td><code>lp_sticky</code></td>
+<td>Liquidity providers are assumed to stay in their pools unless a scenario applies the liquidity-flight modifier.</td>
+<td><span title="exit.lp_flight_literal">LP-flight assumption line: see appendix</span></td>
+<td>memo §6.1.4</td></tr>
+
+<tr><td><code>lp_grid</code></td>
+<td>Liquidity-provider flight is an assumed modifier of 0%, 30% and 60%, not a measured behaviour.</td>
+<td><span title="exit.lp_flight_literal">LP-flight assumption line: see appendix</span></td>
+<td>memo §6.1.4</td></tr>
+
+<tr><td><code>sell_side_bound</code></td>
+<td>Collateral that liquidations must sell is bounded by the analyst&#39;s dated sell-side capacity per volatile collateral.</td>
+<td><span title="node.0x14d60e7fdc0d71d8611742720e4c50e7a974020c.sell_side">sell-side bound: USCC: 0</span><br><span title="node.0x18084fba666a33d37592fa2633fd49a74dd93a88.sell_side">sell-side bound: tBTC: 28.13</span><br><span title="node.0x2260fac5e5542a773aa44fbcfedf7c193bc2c599.sell_side">sell-side bound: WBTC: 131.25</span><br><span title="node.0x514910771af9ca656af840dff83e8264ecf986ca.sell_side">sell-side bound: LINK: 425,000.00</span><br>… 7 more in table.json</td>
+<td>memo §6.3</td></tr>
+
+<tr><td><code>h5_slippage_bound</code></td>
+<td>What liquidators can buy is bounded by the smallest liquidation bonus among the shocked reserves.</td>
+<td><span title="mech.reserve.0x4e033931ad43597d96d6bcc25c280717730b58b1:0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0.liquidation_bonus">reserve liquidation bonus: 106.00%</span><br><span title="mech.reserve.0x4e033931ad43597d96d6bcc25c280717730b58b1:0x9d39a5de30e57443bff2a8307a4256c8797a3497.liquidation_bonus">reserve liquidation bonus: 107.50%</span><br><span title="mech.reserve.0x4e033931ad43597d96d6bcc25c280717730b58b1:0xbf5495efe5db9ce00f80364c8b423567e58d2110.liquidation_bonus">reserve liquidation bonus: 107.50%</span><br><span title="mech.reserve.0x4e033931ad43597d96d6bcc25c280717730b58b1:0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2.liquidation_bonus">reserve liquidation bonus: 105.00%</span><br>… 33 more in table.json</td>
+<td>memo §6.3 H5</td></tr>
+
+<tr><td><code>gsm_fee_exit</code></td>
+<td>A GSM counts as an exit at its exit fee, and only where that fee is below the price impact sellers accept.</td>
+<td><span title="exit.gsm.0x3a3868898305f04bec7fea77becff04c13444112.fee_exit">GSM venue fee exit: 0.0010</span><br><span title="exit.gsm.0x882285e62656b9623af136ce3078c6bdcc33f5e3.fee_exit">GSM venue fee exit: 0.0015</span></td>
+<td>memo §5.10</td></tr>
+
+<tr><td><code>par_numeraire</code></td>
+<td>paired assets counted at 1.00 for depth</td>
+<td>—</td>
+<td>memo §6.1.3</td></tr>
+
+<tr><td><code>shock_grid_fixed</code></td>
+<td>The shock grid is fixed by the archetype memo, not tuned per token.</td>
+<td>—</td>
+<td>memo §6.2.1</td></tr>
+
+<tr><td><code>lst_discount_grid</code></td>
+<td>Liquid-staking tokens take an additional discount of 0%, 5% or 10%.</td>
+<td>—</td>
+<td>memo §6.2.2</td></tr>
+
+<tr><td><code>member2_target</code></td>
+<td>The depeg scenario targets the paired stablecoin named in the frozen pool set.</td>
+<td><span title="exit.member2_target">Member-2 target: 0xdac17f…1ec7</span></td>
+<td>memo §6.2.5</td></tr>
+
+<tr><td><code>freeze_reference</code></td>
+<td>Exit venues are the pool set frozen on the freeze date shown.</td>
+<td><span title="header.freeze_date">freeze date: 2026-09-08</span></td>
+<td>memo §5.7</td></tr>
+
+<tr><td><code>freezer</code></td>
+<td>An additional modelling disclosure carried by the stress model; its full text is in the appendix.</td>
+<td><span title="assumption.freezer">assumption: freezer: see appendix</span></td>
+<td>—</td></tr>
+
+<tr><td><code>health_factor</code></td>
+<td>An additional modelling disclosure carried by the stress model; its full text is in the appendix.</td>
+<td><span title="assumption.health_factor">assumption: health factor: see appendix</span></td>
+<td>—</td></tr>
+
+<tr><td><code>lp_flight</code></td>
+<td>An additional modelling disclosure carried by the stress model; its full text is in the appendix.</td>
+<td><span title="assumption.lp_flight">assumption: lp flight: see appendix</span></td>
+<td>—</td></tr>
+
+<tr><td><code>oracle_assumption</code></td>
+<td>An additional modelling disclosure carried by the stress model; its full text is in the appendix.</td>
+<td><span title="assumption.oracle_assumption">assumption: oracle assumption: see appendix</span></td>
+<td>—</td></tr>
+
+<tr><td><code>tail_reserves</code></td>
+<td>An additional modelling disclosure carried by the stress model; its full text is in the appendix.</td>
+<td><span title="assumption.tail_reserves">assumption: tail reserves: see appendix</span></td>
+<td>—</td></tr>
+
+</table>
+</details>
+
+<details id="bias"><summary>How a stock-only reading errs, mechanism by mechanism</summary>
+<h3>stock-only capacity — direction of error per mechanism</h3>
+<table class="striped"><tr><th>mechanism</th><th>tokens</th><th>direction</th><th>reason</th></tr>
+
+<tr><td>Collateral-sell-side bound</td><td>crvUSD, GHO</td><td>overstates</td><td>full bound treated as immediately absorbable</td></tr>
+
+<tr><td>GSM cap headroom (H2.i)</td><td>GHO</td><td>overstates</td><td>full cap headroom treated as instantly mintable</td></tr>
+
+<tr><td>Liquidator recycling (H5)</td><td>GHO</td><td>understates</td><td>no multi-round capital recycling</td></tr>
+
+<tr><td>Stability Pool refills (H3)</td><td>LUSD</td><td>understates</td><td>no SP deposits between liquidation waves</td></tr>
+
+<tr><td>PegKeeper effective headroom (H1)</td><td>crvUSD</td><td>overstates</td><td>full effective headroom treated as deployed within the window; peer co-deployment dynamics omitted — runs conservative</td></tr>
+
+<tr><td>H4 redemption capacity</td><td>LUSD</td><td>overstates</td><td>full schedule capacity treated as immediately available; base-rate decay (regenerative, 12h half-life) omitted — runs conservative</td></tr>
+
+<tr><td>H5 liquidator appetite (composite)</td><td>GHO</td><td>both</td><td>two named opposite-sign terms; `binding_side` states per cell which dominates</td></tr>
+
+<tr><td>Pool exit depth — no LP inflow</td><td>all</td><td>understates</td><td>no LP inflow modeled</td></tr>
+
+<tr><td>Pool exit depth — LP sticky at flight-0</td><td>all</td><td>overstates</td><td>static composition; spread disclosed by the LP-flight grid</td></tr>
+</table>
+</details>
+
+<details id="admin"><summary>The admin-power table, row by row</summary>
+<div class="prose-slot" data-slot="admin_surface_narrative"><p>Minting authority sits with a contract-automated holder (0x5300a1…192a), and the debt ceiling that limits how much can be minted is also controlled by a contract-automated holder (0x46aa10…5409). Both act on-chain without a waiting period before taking effect, and no address is recorded as able to veto either action. The oracle used for pricing collateral can be changed by a contract-automated holder (0x09e8e1…7dda) as well, again with no delay and no veto path shown.</p><p>Other levers that affect the system&#39;s safety are held in similar fashion. Parameters can be adjusted by a contract-automated holder (0x2ce01c…7285), which also controls freezing of a specific asset. Pausing exists in several forms: one pause function is controlled by a multisig (0x2cfe3e…aa30), while two other pause functions sit with contract-automated holders (0x6e5193…0047 and 0x733ab1…125b) covering separate scopes. None of these show a recorded delay or veto address.</p><p>There is no upgrade authority recorded for the core contract — its upgradeability is marked immutable — and no holder is recorded for blacklisting addresses or for seizing funds; both of those powers show no holder at all. So while backing itself cannot be upgraded away, the combination of automated, veto-free control over minting, the debt ceiling, and the oracle means the parameters that determine how much GHO can exist and how its collateral is priced can be changed immediately by the addresses named above, without any built-in delay for holders to react.</p></div>
+<table class="striped"><tr><th>power</th><th>holder</th><th>type</th><th>delay</th><th>veto</th><th>upgradeable</th><th>scope</th><th>evidence</th></tr>
+
+<tr><td>minting</td><td><code>0x5300a1…192a</code></td><td>automated contracts</td>
+<td>none</td><td>—</td><td>—</td>
+<td><code>0x40d16f…6c2f</code> </td>
+<td>contract read: hasRole(bytes32,address)</td></tr>
+
+<tr><td>debt ceilings</td><td><code>0x46aa10…5409</code></td><td>automated contracts</td>
+<td>none</td><td>—</td><td>—</td>
+<td><code>0x40d16f…6c2f</code> </td>
+<td>contract read: hasRole(bytes32,address)</td></tr>
+
+<tr><td>contract upgrades</td><td><code>—</code></td><td>none</td>
+<td>none</td><td>—</td><td>immutable</td>
+<td><code>0x40d16f…6c2f</code> </td>
+<td>absence read</td></tr>
+
+<tr><td>pausing</td><td><code>0x2cfe3e…aa30</code></td><td>a multisig</td>
+<td>none</td><td>—</td><td>—</td>
+<td><code>0x4e0339…58b1</code> <code>0x87870b…a4e2</code> <code>0xae05cd…32c8</code> </td>
+<td>contract read: hasRole(bytes32,address)</td></tr>
+
+<tr><td>freezing assets</td><td><code>0x2ce01c…7285</code></td><td>automated contracts</td>
+<td>none</td><td>—</td><td>—</td>
+<td><code>0x4e0339…58b1</code> <code>0x87870b…a4e2</code> <code>0xae05cd…32c8</code> </td>
+<td>contract read: hasRole(bytes32,address)</td></tr>
+
+<tr><td>oracle settings</td><td><code>0x09e8e1…7dda</code></td><td>automated contracts</td>
+<td>none</td><td>—</td><td>—</td>
+<td><code>0x4e0339…58b1</code> <code>0x87870b…a4e2</code> <code>0xae05cd…32c8</code> </td>
+<td>contract read: hasRole(bytes32,address)</td></tr>
+
+<tr><td>risk parameters</td><td><code>0x2ce01c…7285</code></td><td>automated contracts</td>
+<td>none</td><td>—</td><td>—</td>
+<td><code>0x4e0339…58b1</code> <code>0x87870b…a4e2</code> <code>0xae05cd…32c8</code> </td>
+<td>contract read: hasRole(bytes32,address)</td></tr>
+
+<tr><td>pausing</td><td><code>0x6e5193…0047</code></td><td>automated contracts</td>
+<td>none</td><td>—</td><td>—</td>
+<td><code>0x3a3868…4112</code> </td>
+<td>contract read: hasRole(bytes32,address)<br>SWAP FREEZER ROLE 0x3a3868…4112 (contract read)</td></tr>
+
+<tr><td>pausing</td><td><code>0x733ab1…125b</code></td><td>automated contracts</td>
+<td>none</td><td>—</td><td>—</td>
+<td><code>0x882285…f5e3</code> </td>
+<td>contract read: hasRole(bytes32,address)<br>SWAP FREEZER ROLE 0x882285…f5e3 (contract read)</td></tr>
+
+<tr><td>blacklisting addresses</td><td><code>—</code></td><td>none</td>
+<td>none</td><td>—</td><td>—</td>
+<td></td>
+<td>absence read</td></tr>
+
+<tr><td>seizing assets</td><td><code>—</code></td><td>none</td>
+<td>none</td><td>—</td><td>—</td>
+<td><code>0x3a3868…4112</code> <code>0x882285…f5e3</code> </td>
+<td>absence read</td></tr>
+</table>
+</details>
+
+<details id="oracle"><summary>Price feeds: type, update threshold and heartbeat</summary>
+
+<table class="striped"><tr><th>collateral</th><th>market or reserve</th><th>update rule</th><th class="num">threshold</th><th class="num">window / heartbeat</th><th>staleness</th></tr>
+
+<tr><td>USCC</td><td><code>0xae05cd…32c8</code></td><td>nav schedule</td>
+<td class="num">—</td>
+<td class="num">1 day</td>
+<td>not assessed in this pilot</td></tr>
+
+<tr><td>tBTC</td><td><code>0x87870b…a4e2</code></td><td>deviation heartbeat</td>
+<td class="num">0.50%</td>
+<td class="num">1 hour</td>
+<td>not assessed in this pilot</td></tr>
+
+<tr><td>WBTC</td><td><code>0x87870b…a4e2</code></td><td>deviation heartbeat</td>
+<td class="num">0.50%</td>
+<td class="num">1 hour</td>
+<td>not assessed in this pilot</td></tr>
+
+<tr><td>USTB</td><td><code>0xae05cd…32c8</code></td><td>nav schedule</td>
+<td class="num">—</td>
+<td class="num">1 day</td>
+<td>not assessed in this pilot</td></tr>
+
+<tr><td>LINK</td><td><code>0x87870b…a4e2</code></td><td>deviation heartbeat</td>
+<td class="num">0.50%</td>
+<td class="num">1 hour</td>
+<td>not assessed in this pilot</td></tr>
+
+<tr><td>JAAA</td><td><code>0xae05cd…32c8</code></td><td>nav schedule</td>
+<td class="num">—</td>
+<td class="num">86,436 s</td>
+<td>not assessed in this pilot</td></tr>
+
+<tr><td>DAI</td><td><code>0x87870b…a4e2</code></td><td>deviation heartbeat</td>
+<td class="num">0.25%</td>
+<td class="num">1 hour</td>
+<td>not assessed in this pilot</td></tr>
+
+<tr><td>waEthUSDT</td><td><code>0x87870b…a4e2</code></td><td>deviation heartbeat</td>
+<td class="num">0.25%</td>
+<td class="num">1 day</td>
+<td>not assessed in this pilot</td></tr>
+
+<tr><td>wstETH</td><td><code>0x4e0339…58b1</code></td><td>deviation heartbeat</td>
+<td class="num">0.50%</td>
+<td class="num">1 hour</td>
+<td>not assessed in this pilot</td></tr>
+
+<tr><td>AAVE</td><td><code>0x87870b…a4e2</code></td><td>deviation heartbeat</td>
+<td class="num">1.00%</td>
+<td class="num">1 hour</td>
+<td>not assessed in this pilot</td></tr>
+
+<tr><td>sDAI</td><td><code>0x87870b…a4e2</code></td><td>deviation heartbeat</td>
+<td class="num">0.25%</td>
+<td class="num">1 hour</td>
+<td>not assessed in this pilot</td></tr>
+
+<tr><td>sUSDe</td><td><code>0x4e0339…58b1</code></td><td>deviation heartbeat</td>
+<td class="num">0.25%</td>
+<td class="num">1 day</td>
+<td>not assessed in this pilot</td></tr>
+
+<tr><td>USDC</td><td><code>0x87870b…a4e2</code></td><td>deviation heartbeat</td>
+<td class="num">0.25%</td>
+<td class="num">23 hours</td>
+<td>not assessed in this pilot</td></tr>
+
+<tr><td>rETH</td><td><code>0x87870b…a4e2</code></td><td>deviation heartbeat</td>
+<td class="num">0.50%</td>
+<td class="num">1 hour</td>
+<td>not assessed in this pilot</td></tr>
+
+<tr><td>cbETH</td><td><code>0x87870b…a4e2</code></td><td>deviation heartbeat</td>
+<td class="num">0.50%</td>
+<td class="num">1 hour</td>
+<td>not assessed in this pilot</td></tr>
+
+<tr><td>WETH</td><td><code>0x4e0339…58b1</code></td><td>deviation heartbeat</td>
+<td class="num">0.50%</td>
+<td class="num">1 hour</td>
+<td>not assessed in this pilot</td></tr>
+
+<tr><td>cbBTC</td><td><code>0x87870b…a4e2</code></td><td>deviation heartbeat</td>
+<td class="num">0.50%</td>
+<td class="num">1 hour</td>
+<td>not assessed in this pilot</td></tr>
+
+<tr><td>weETH</td><td><code>0x87870b…a4e2</code></td><td>deviation heartbeat</td>
+<td class="num">0.50%</td>
+<td class="num">1 hour</td>
+<td>not assessed in this pilot</td></tr>
+
+<tr><td>waEthUSDC</td><td><code>0x87870b…a4e2</code></td><td>deviation heartbeat</td>
+<td class="num">0.25%</td>
+<td class="num">23 hours</td>
+<td>not assessed in this pilot</td></tr>
+
+<tr><td>USDT</td><td><code>0x87870b…a4e2</code></td><td>deviation heartbeat</td>
+<td class="num">0.25%</td>
+<td class="num">1 day</td>
+<td>not assessed in this pilot</td></tr>
+
+<tr><td>USDS</td><td><code>0x87870b…a4e2</code></td><td>deviation heartbeat</td>
+<td class="num">0.30%</td>
+<td class="num">23 hours</td>
+<td>not assessed in this pilot</td></tr>
+</table>
+<p class="meta">Independent market reference prices are not available from a pinned source in this pilot (11 collaterals).</p>
+<p class="meta">instant observation — nearly exact: Chainlink deviation triggers ≤ 1.00%</p>
+
+<p class="meta">oracle manipulation out of scope — feed control reported under the admin-power surface (the oracle settings rows of the admin-power table). oracle failure/staleness out of scope. sequencer/infra risk n/a — mainnet only.</p>
+<div class="prose-slot" data-slot="flag_explanations"><p>A notice fired because most of the exchange liquidity found for GHO sits in venues this report does not model. Off-venue liquidity discovered across pools comes to $29.0M, of which the off-venue curve mainnet liquidity, at $2.2M, is only a slice. In total, 92.4% of discovered DEX liquidity lies outside modeled venues. This means the exit-liquidity figures elsewhere in this report describe only a small modeled corner of where GHO actually trades, so real-world sale capacity could differ substantially from what those figures suggest.</p><p>A second notice fired because the frozen set of exit pools, locked in as of the freeze date of 2026-09-08, covers less of the discovered pool liquidity than the archetype&#39;s coverage target calls for. This is a dated waiver: the coverage shortfall was accepted rather than corrected, and it compounds the first point, since both stem from most liquidity for GHO sitting outside the venues this report tracks. Readers should treat any exit-liquidity metric for GHO as a lower bound drawn from a partial, frozen picture rather than a full market view.</p></div>
+</details>
+
+<details id="audits"><summary>Audits, bug bounty and counterparties</summary>
+<ul class="plain"><li>SigmaPrime 2023-10-23 — GSM (v2.4; scope includes Gsm4626.sol; commits e4ea98c, 7c03c52)</li><li>Certora 2023-12-07 — GSM formal verification (work 2023-08-09 → 2023-12-07, commit f368bef, scope Gsm.sol and Gsm4626.sol; no publication date on the document)</li><li>Emanuele Ricci 2024-01 — GSM (AIP-8)</li><li>Certora 2024-03-14 — GhoStewardV2</li><li>Certora 2024-06-11 — UpgradeableGHO</li><li>Certora 2024-09-15 — ModularGhoStewards</li><li>Certora 2025-07-15 — RemoteGSM</li><li>OpenZeppelin 2022-08-12 — GHO token</li><li>OpenZeppelin 2022-11-10 — GHO token</li><li>ABDK 2023-03-01 — GHO</li><li>Certora 2023-02-28 — GHO formal verification</li><li>SigmaPrime 2023-07-06 — GHO</li></ul>
+<p class="meta">Audit list (analyst-supplied 2026-09-13)</p>
+<p class="meta">Bug bounty: Immunefi, max USD 1,000,000 (analyst-supplied 2026-09-13). Last material change audited: yes (analyst-supplied 2026-09-13). Audit status as of 2026-09-13. Counterparties: n/a — archetype #1 holds no off-chain counterparties. WBTC custodian captured in §4 look-through.</p>
+</details>
+
+<nav class="links">
+  <a href="../../../docs/context/archetype-memo-1-cdp.md">archetype memo</a>
+  <a href="../../../docs/context/intake-sheets-cdp.md">intake sheet</a>
+  <a href="verify.html">verify</a>
+  <a href="appendix.html">appendix</a>
+  <a href="data/table.json">table.json</a>
+  <a href="data/grid.json">grid.json</a>
+  <a href="data/evaluation-25974932.json">gate record</a>
+</nav>
+
+
+</main>
+</body>
+</html>

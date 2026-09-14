@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>crvUSD — verify this report</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<main>
+<header class="page">
+  <h1>crvUSD — verify</h1>
+  
+  <div class="meta">
+    read 2026-09-14 09:53 UTC · block 25974925 ·
+    report <code title="8ac6132bc407aad7549f4d9f7ab127e229b521c03c58f5a8a66f03576c4f2912">8ac6132b</code> · intake sheet <code>29682310</code>
+  </div>
+  <nav class="links meta">
+    <a href="index.html">report</a><a href="appendix.html">appendix</a><a href="verify.html">verify</a>
+  </nav>
+</header>
+
+<p class="prose">Every figure here was read from Ethereum at block 25974925. The sheet below is produced by the same generator as the analyst's hand-verification sheet: repeat any call it lists on your own node at that block and you should get the same number.</p>
+
+<p class="banner">Hand-verified by the analyst on 2026-09-14: one pinned get_dy per token, Amin&#39;s RPC, tools/light_sample_check.py (stress artifact <code>d1fae157</code>).</p>
+
+<p class="meta">The sheet's figures are raw base units and recorded call arguments — the reproduction recipe — shown verbatim and not reformatted. Older Vyper pools return a padded buffer: decode the first 32-byte word.</p>
+<pre class="sheet"># Stress spot-check — crvUSD @ 25974925
+
+- bundle `aa826538` · tree `aceafe61` · stress `d1fae157`
+- cells 47 · checks 26/26 · headline **M1-s50-d0-lp0** (memo §6.2.6)
+
+## 1. The headline cell, by hand
+
+| quantity | value | where it comes from |
+|---|---|---|
+| m1.pre.ratio | 0.992165 | Σ collateral × (1+shock)(1−d) × price ÷ Σ net debt; collateral and debt per position in `out/raw/&lt;block&gt;.json`, price in `mechanism.llamma.markets[].oracle` |
+| m1.post.ratio | 1.203998 | the same over the book left after absorption |
+| m1.gap | 0.211834 | post − pre, the mechanism&#39;s measured contribution (DET-39) |
+| m2.bad_debt | 5.96 crvUSD | Σ (debt − value) over unabsorbed positions with CR &lt; 1; base units `5957996383823311527` |
+| m2.pct_supply | 0.0000000028 | ÷ `supply.supply_ruled` = 2,104,809,204.98 |
+| m3.forced_sell_volume | 5.96 | = bad_debt, DET-25&#39;s Member-1 identity |
+| m3.exit_depth | 20,440,870.89 | LP-0, so equal to DET-31 depth(0.02) = 20,440,870.89 |
+| m3.ratio | 2.914746840662765528733075907E-7 | forced_sell ÷ exit_depth |
+
+## 2. DET-45, from the bundle&#39;s own keeper rows
+
+- effective **85,426,438.45** ≤ naive **317,413,016.69**
+- gate views: provide_allowed {0}, withdraw_allowed 5 × 2²⁵⁶−1; reason `aggregator.price() &lt; ONE`
+
+| keeper | debt | balance | ceiling | r | max_ratio | allowed |
+|---|---|---|---|---|---|---|
+| `0x338cb2d8` | 0.00 | 9,000,000.00 | 9,000,000.00 | 0.00000000 | 0.308272 | 2,774,448.66 |
+| `0x3fa20eaa` | 0.00 | 45,000,000.00 | 45,000,000.00 | 0.00000000 | 0.308272 | 13,872,243.28 |
+| `0x53876b15` | 0.00 | 0.00 | 0.00 | 0.00000000 | 0.308272 | 0.00 |
+| `0x9201da0d` | 0.00 | 135,000,000.00 | 135,000,000.00 | 0.00000000 | 0.308272 | 41,616,729.83 |
+| `0xfb726f57` | 6,586,983.31 | 128,413,016.69 | 135,000,000.00 | 0.04879247 | 0.250000 | 27,163,016.69 |
+
+## 2b. `m1.pre` as a hand sum — per market
+
+Nine markets, each at its own `price_oracle()` shocked by -0.50. Collateral is the bundle&#39;s `external_collateral_sum` in the asset&#39;s own decimals.
+
+| market | sym | dec | collateral | oracle | shocked | value | net debt |
+|---|---|---|---|---|---|---|---|
+| `0x100daa78` | wstETH | 18 | 22,217.707581 | 3,127.56 | 1,563.78 | 34,743,609.35 | 36,214,594.22 |
+| `0x4e595413` | WBTC | 8 | 676.694346 | 77,553.30 | 38,776.65 | 26,239,939.49 | 25,063,515.33 |
+| `0x1c91da02` | tBTC | 18 | 128.972922 | 77,845.27 | 38,922.63 | 5,019,965.84 | 5,571,414.85 |
+| `0xf8c786b1` | cbBTC | 8 | 119.054144 | 77,559.31 | 38,779.66 | 4,616,878.81 | 5,273,291.67 |
+| `0xa920de41` | WETH | 18 | 2,185.019889 | 2,514.49 | 1,257.25 | 2,747,106.46 | 2,283,773.32 |
+| `0xec0820ef` | sfrxETH | 18 | 1,469.073418 | 2,934.33 | 1,467.16 | 2,155,372.54 | 1,851,129.24 |
+| `0x652aea6b` | weETH | 18 | 218.106550 | 2,774.81 | 1,387.40 | 302,601.65 | 218,906.09 |
+| `0x8472a9a7` | sfrxETH | 18 | 139.292184 | 2,939.25 | 1,469.62 | 204,706.95 | 153,964.86 |
+| `0x8aca5a77` | LBTC | 8 | 0.000042 | 77,838.10 | 38,919.05 | 1.62 | 1.09 |
+| **total** | | | | | | **76,030,182.72** | **76,630,590.67** |
+
+`m1.pre.ratio` = 76,030,182.72 / 76,630,590.67 = **0.9921649050412223040495120103**.
+
+## 3. The Member-2 headline cell — M2-t0.93-lp0
+
+| quantity | value | where it comes from |
+|---|---|---|
+| m3.forced_sell_volume | 0.00 | zero by construction — no stable node and no GSM (DET-43); base units `0` |
+| m3.exit_depth | 18,913,044.47 | the cell&#39;s own venue set, DET-35 |
+| m3.ratio | 0 | forced_sell ÷ exit_depth |
+
+**Counterfactual `H1_v1_contagion`** — carried unsized on this cell: primary: V2 gating effective, no new mint, LP share stuck in the depegging asset. Counterfactual: V1 contagion mint sized by headroom (memo §6.3 H1 depeg path).
+
+## 4. The pinned reads to reproduce
+
+**Every call below is a pinned read at `run_block` 25974925** — the same block the bundle was assembled at (R-13). Pin the block inside the JSON-RPC body; a `tag` query parameter is silently ignored by some proxies (P-3.39).
+
+**Decoding note.** Pools compiled with old Vyper (0.2.8 and earlier) return a padded buffer rather than a single word — LUSD&#39;s `0xed279fdd` answers `get_dy` with ~4 KB. **Decode the first 32-byte word**; the rest is padding. Verified by the analyst on 2026-09-13, whose first word matched this sheet to the wei.
+
+The depth m3 divides by is the sum over K-subset(0.90) = 3 pools. On each, call `get_dy` with the recorded `dx` — **`i` and `j` are the recorded argument values, not placeholders** — and check the implied marginal price sits at 1 − s = 0.98 ± ε:
+
+- `0x13e12bb0e6a2f1a3d6901a59a9d585e89a6243e1` → `get_dy(i=1, j=0, dx=6337011083026826383917735)` = 6322109690801100162885555; implied 0.9800010613003609328213557804 (within ε: True)
+- `0x390f3595bca2df7d23783dfd126427cceb997bf4` → `get_dy(i=1, j=0, dx=9224723296884409269906503)` = 9206001016103; implied 0.9800000183261083802347386837 (within ε: True)
+- `0x4dece678ceceb27446b35c672dc7d61f30bad69e` → `get_dy(i=1, j=0, dx=4879136507073107270730844)` = 4865301615544; implied 0.9800000457188181867889727429 (within ε: True)
+
+## 5. Assumptions carried on this artifact
+
+- **band_linear** — crash-path conversion modeled band-linear (P-6.01 R11): a position&#39;s collateral is allocated across its bands in proportion to each band&#39;s recorded `y` (P-6.09 R-B4.15) - per-user band shares are not read - and conversion inside a crossed band is linear in price at the interval midpoint. Band prices are READ (`p_oracle_up(n)`, `p_oracle_up(n+1)`), never computed; LLAMMA&#39;s own curve inside a band is not reproduced.
+- **capacity** — absorption = Σ_nodes sell_side_capacity × shocked price, in crvUSD base units (P-6.08 R-B4.11). PegKeeper `effective` headroom is metric 4&#39;s mechanism trajectory and is NOT absorption — a keeper providing crvUSD into a crvUSD/stable pool does not buy collateral from a liquidator; DET-23(c) and DET-25 forbid `stabilizer_*` in the metric-1/2/3 and forced-sell lineages. Band conversion is uncapacitated.
+- **ema_lag_readings** — M1-s50-d0-lp0: m1.post 1.203998 primary vs 0.790398 under EMA_lag; M1-s70-d0-lp0: m1.post 1.125962 primary vs 0.372248 under EMA_lag
+- **lp_flight** — LP capital assumed sticky; haircut grid 0% / 30% / 60% - assumed scenario modifier, not data-derived; LP flight modeled as single-sided withdrawal of the paired asset.
+- **m2_curves** — {&#39;0.88&#39;: {&#39;0.005&#39;: 15236339642157363444702555, &#39;0.01&#39;: 16742487187108016656972047, &#39;0.02&#39;: 17823511846934562918517552, &#39;0.05&#39;: 18804092378685972833152015}, &#39;0.93&#39;: {&#39;0.005&#39;: 16246960019968105123597315, &#39;0.01&#39;: 17807355111920460834006037, &#39;0.02&#39;: 18913044471834514593147373, &#39;0.05&#39;: 19919759407191710921424306}, &#39;0.97&#39;: {&#39;0.005&#39;: 17064244690680019388733855, &#39;0.01&#39;: 18658379647648924809547346, &#39;0.02&#39;: 19784576778962947794479339, &#39;0.05&#39;: 20811572198848592022468460}}
+- **structural_insulation** — structurally insulated; exposed through exit venues only
+- **undefined_ratio** — exit depth exhausted at this LP-flight level - ratio undefined (infinity)
+</pre>
+
+</main>
+</body>
+</html>

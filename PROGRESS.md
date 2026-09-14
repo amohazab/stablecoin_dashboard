@@ -49,7 +49,7 @@ Status: DONE (opened 2026-09-11; done-condition met 2026-09-11, P-5.04). Record:
 Status: DONE (opened 2026-09-12; done-condition met 2026-09-13, P-6.12).
 
 ## Step 7 — Report generation + evaluation loop
-Status: IN PROGRESS (opened 2026-09-13, P-7.01).
+Status: DONE (opened 2026-09-13; done-condition met 2026-09-14, P-7.11).
 
 ## P-3.01 — Block 0.1 anomaly dispositions; Python stack ruling; checksum task
 - **Date:** 2026-09-03
@@ -8265,3 +8265,74 @@ Status: IN PROGRESS (opened 2026-09-13, P-7.01).
   - the three open findings;
   - crvUSD and GHO leave the banner state on their next green run;
   - Step 9 takes `out/site/`.
+## P-7.11 — Step 7 closed: B-14's done-condition met; LUSD published, crvUSD and GHO published without the banner by ruling; `len(CHECKS)` 96
+
+- **Date:** 2026-09-14
+- **Type:** closing
+- **Confirmed by:** Amin
+- **Content:**
+  **P-7.10 COMMITTED** at `7c0cc83`, proven against the committed blob.
+  **B-14's DONE-CONDITION**, met twice over.
+  - By the recorded fixtures (`tests/test_b13.py`, fake client, 11 cases):
+    - K3: the same (kind, section) on both passes gives template_defect;
+    - K4: a malformed envelope errors the LLM rows and fires T-25;
+    - K6: differing findings (6a) or an unlocated span (6b) give judge_instability and T-24;
+    - K8: the positive control publishes with its flag and resolves T-28 as `template_change`;
+    - a refusal is an error;
+    - pass 2 green publishes with one revision.
+  - By the live record: fourteen runs (P-7.10), and every block a real defect found and
+    ruled.
+  **THE RULING** (Amin, 2026-09-14). API spend is closed: no further `--llm` runs. crvUSD
+  and GHO publish from their last rehearsal pages without the quarantine banner; the
+  notices pill already discloses the open notices.
+  - Built: `python -m factory.report --publish-without-banner <token>`. It copies the
+    token's latest rehearsal set (index, appendix, verify, `data/`) as the last live run
+    rendered it, removes the DET-59 `<div class="banner quarantine">`, and writes
+    `out/site/<token>/`.
+  - Two template-only additions (Amin, 2026-09-14):
+    - (a) empty prose-slot placeholder elements are removed as well, each recorded;
+    - (b) the notices pill is rebuilt through `render.pills` from the log's open Level
+      1/2/3 entries, recorded as "pill rebuilt from open entries" (before and after). Named
+      default: names in the record's trigger order, then other open entries in log order.
+  - The gate record keeps every result and trigger. It gains outcome
+    `published_without_banner_by_ruling` and `publication` {date, ruling P-7.11, source,
+    removed per page, placeholders_removed, pill, prior_outcome}.
+  - Diff against the rehearsal pages: banners removed ×2, GHO's placeholder removed,
+    crvUSD's pill text changed; nothing else (appendix, verify and `data/` identical).
+  - The log gains no line, and DET-59 is not evaluated on these pages.
+  - What it means: the gate records stand as the evidence. The methodology page (Step 9)
+    states that crvUSD's and GHO's pages carry open notices from their last evaluation
+    run, shown in the notices pill.
+  **FINAL STATE**
+
+  | token | outcome | report | results | open lines | notices pill |
+  |---|---|---|---|---|---|
+  | LUSD @25974949 | published | `003b4fcd` | 96/96 | none | "No warnings this run" |
+  | crvUSD @25974925 | published_without_banner_by_ruling (was judge_instability) | `8ac6132b` | 94/96 | `crvUSD:10` T-28, `:11` T-25, `:12` T-24 | "3 notice(s): judge instability, gate failure and harness error" |
+  | GHO @25974932 | published_without_banner_by_ruling (was blocked_S3) | `447281cb` | 87/96 | `GHO:9` T-02 L1, `:10` T-20 L1, `:11` T-28, `:12` T-25 | "4 notice(s): …" |
+
+  `out/site/` holds `crvUSD/`, `GHO/`, `LUSD/` and `style.css`.
+  **FOUND ON PUBLISHING:**
+  - GHO's empty `member2_opening` placeholder: resolved by (a);
+  - crvUSD's pill named only this run's trigger: resolved by (b);
+  - recorded, not changed: each page's `data/evaluation-<blk>.json` is the record as rendered, carrying the prior
+    outcome;
+  - recorded, not changed: a later report-stage run withdraws `out/site/<token>/` unless it publishes (B-11b).
+  **`len(CHECKS)` 96**; unregistered 6, by A-16. **TESTS 299 → 300** (the publish mode); ruff
+  clean. B-13's recorded spend is **≈ $30.05**.
+  **AS-COUNTED.** Builder: P-7.10's "299" was measured before the final-spend runs. Those
+  runs rewrote the rehearsal pages and LUSD's log, so six tests encoding the earlier state
+  failed at `7c0cc83`: DET-12-S3, DET-59, DET-13(d), the GHO log, DET-18's mutation and
+  DET-79's placeholder case. They now read the recorded state. Design layer: none new.
+  **STATUS:** Step 7 → DONE (opened 2026-09-13; done-condition met 2026-09-14, P-7.11).
+- **Artifacts:** `src/factory/report/{__main__,record}.py`; `tests/{test_b12,test_b13,test_s3}.py`;
+  `out/evaluation/{crvUSD/25974925,GHO/25974932}.json`; `out/site/{crvUSD,GHO}/` (new;
+  `LUSD/` and `style.css` committed at P-7.10); `PROGRESS.md` (entry and the Step 7 status line).
+- **Follow-ups spawned:**
+  - Step 9: the token selector; the methodology page, including the open-notices sentence;
+    GitHub Pages.
+  - Recorded fixes, each needing a re-render:
+    - the structural-zero stress sentence ("… $6 of bad debt — structurally zero on this
+      grid, because <reason>");
+    - the guard accepting numerically equal percentages with fewer decimals;
+    - pass 2 skipped when pass 1's only defects lie outside prose.

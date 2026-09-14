@@ -73,7 +73,11 @@ class GateRecord(BaseModel):
     revision_count: Literal[0, 1] = 0
     revision_cause: list[str] = []
     outcome: Literal["published", "quarantined", "template_defect", "judge_instability",
-                     "harness_error", "blocked_S3", "rehearsal"] | None = None
+                     "harness_error", "blocked_S3", "rehearsal",
+                     "published_without_banner_by_ruling"] | None = None
+    # Amin, 2026-09-14 (P-7.11): a page published from its last live run's rehearsal set with
+    # the DET-59 banner removed - {date, ruling, source, removed, prior_outcome}
+    publication: dict[str, Any] | None = None
 
 
 def rubric_ids(rubric_text: str) -> list[str]:

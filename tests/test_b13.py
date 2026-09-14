@@ -379,3 +379,32 @@ def test_final_spend_rulings(tmp_path):
     assert "JudgeEnvelope" not in fake.messages.calls
     assert r["record"].judge[0]["error"] == "not judged: budget guard"
     assert r["record"].outcome == "blocked_S3"
+
+
+def test_publish_without_banner_by_ruling(tmp_path):
+    from factory.report.__main__ import BANNER, PILL_FLAGS, PLACEHOLDER, publish_without_banner
+    root = tmp_repo(tmp_path)
+    build(root, "crvUSD")                           # a rehearsal page set: banner, placeholders
+    log_before = (root / "out/logs/events_crvusd.jsonl").read_bytes()
+    stage = root / "out/rehearsal/crvUSD/25974925"
+    staged = (stage / "index.html").read_text(encoding="utf-8")
+    assert '<div class="banner quarantine">' in staged and "[slot:" in staged
+    r = publish_without_banner(root, "crvUSD", "2026-09-14")
+    site = root / "out/site/crvUSD"
+    index = (site / "index.html").read_text(encoding="utf-8")
+    assert r["removed"]["index.html"] == {"banner": 1, "placeholders": 7}
+    # nothing else changes: banner and placeholders removed, the notices pill rebuilt
+    expected = PLACEHOLDER.sub("", BANNER.sub("", staged))
+    expected = PILL_FLAGS.sub(lambda m: r["pill"]["after"], expected, count=1)
+    assert index == expected and "[slot:" not in index
+    open_names = ("gate failure", "harness error", "judge instability")   # T-28, T-25, T-24
+    assert all(x in r["pill"]["after"] for x in open_names)
+    for n in ("appendix.html", "verify.html", "data/table.json"):
+        assert (site / n).read_bytes() == (stage / n).read_bytes()
+    rec = json.loads((root / "out/evaluation/crvUSD/25974925.json").read_text(encoding="utf-8"))
+    pub = rec["publication"]
+    assert rec["outcome"] == "published_without_banner_by_ruling" and pub["ruling"] == "P-7.11"
+    assert pub["pill"]["note"] == "pill rebuilt from open entries" and pub["date"] == "2026-09-14"
+    assert len(pub["placeholders_removed"]) == 7
+    assert (root / "out/logs/events_crvusd.jsonl").read_bytes() == log_before
+    assert (root / "out/site/style.css").exists()

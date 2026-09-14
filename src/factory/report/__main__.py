@@ -578,8 +578,106 @@ def build(repo: pathlib.Path, token: str, client=None, extra_fired: tuple = (),
             "site": site, "pages": stage if ok else None, "log_lines": lines}
 
 
+BANNER = re.compile(r'<div class="banner quarantine">.*?</div>\n?', re.S)
+PLACEHOLDER = re.compile(r'<div class="slot">\[slot: ([a-z0-9_]+) — pending B-13\]</div>\n?')
+PILL_FLAGS = re.compile(r'<span class="pill [a-z]+">[^<]*</span>(?=\n</div>)')
+
+
+def publish_without_banner(repo: pathlib.Path, token: str, date: str,
+                           ruling: str = "P-7.11") -> dict:
+    """Amin, 2026-09-14 (P-7.11): API spend is closed; the token publishes from its latest
+    rehearsal page set as its last live run rendered it, template-only changes:
+    - the DET-59 quarantine banner element is removed;
+    - (a) an empty prose-slot placeholder element ("[slot: … — pending B-13]") is removed;
+    - (b) the notices pill is rebuilt through `render.pills` from the log's open Level
+      1/2/3 entries. NAMED DEFAULT: the names in the record's trigger order, then any other
+      open entry in log order.
+    The gate record keeps its results and gains the outcome
+    `published_without_banner_by_ruling` and `publication` (each removal, the pill); the log
+    gains no line; DET-59 is not evaluated on these pages."""
+    from markupsafe import Markup
+
+    from factory.report.render import Formatter, pills
+    ev = repo / "out/evaluation" / token
+    rec_path = max((p for p in ev.glob("*.json") if p.stem.isdigit()), key=lambda p: int(p.stem))
+    blk = int(rec_path.stem)
+    stage = repo / "out/rehearsal" / token / str(blk)
+    names = ("index.html", "appendix.html", "verify.html")
+    missing = [n for n in (*names, "data") if not (stage / n).exists()]
+    if missing:
+        raise AssemblyStop(f"{token}: rehearsal page set incomplete at {stage}: {missing}")
+    rec = record.GateRecord.model_validate_json(rec_path.read_text(encoding="utf-8"))
+    prior = (rec.publication or {}).get("prior_outcome", rec.outcome)      # a re-run keeps it
+
+    # (b) the notices pill from the open entries, through the same fragment
+    tpl = repo / "templates"
+    mf = tomllib.loads((tpl / "manifest.toml").read_text(encoding="utf-8"))
+    w = tomllib.loads((tpl / "wording.toml").read_text(encoding="utf-8"))
+    doc = json.loads((stage / "data/table.json").read_text(encoding="utf-8"))
+    rows = {r["field_id"]: r for r in doc["rows"]}
+    fmt = Formatter(mf["display_rule"], mf["compact"], int(rows["tree.root.value_scale"]["value"]))
+
+    def v(fid: str) -> str:
+        r = rows[fid]
+        return fmt(r["value"], r["unit"], r["denominator"])
+    tnames = {k: (x["name"], x["section"])
+              for k, x in trigger_table(_lf(repo / "docs/context/rubic_v1.md")).items()}
+    opened = eventlog.open_entries(
+        eventlog.read(repo / "out/logs" / f"events_{token.lower()}.jsonl"), token)
+    level: dict[str, int] = {}
+    for _eid, e in opened:
+        level[e.trigger] = max(level.get(e.trigger, 0), e.level)
+    order = [t["trigger"] for t in rec.triggers if t["trigger"] in level]
+    order += [e.trigger for _eid, e in opened]
+    ordered = list(dict.fromkeys(order))
+    colour, text = pills(rows, {"triggers": [{"trigger": t, "level": level[t]} for t in ordered]},
+                         tnames, w, v)[2]
+    new_pill = str(Markup('<span class="pill {}">{}</span>').format(colour, text))
+
+    site_root = repo / "out/site"
+    site = site_root / token
+    if site.exists():
+        shutil.rmtree(site)
+    shutil.copytree(stage, site)
+    removed, placeholders, pill = {}, [], None
+    for n in names:
+        html = (site / n).read_text(encoding="utf-8")
+        new, count = BANNER.subn("", html)
+        placeholders += [f"{n}: {m}" for m in PLACEHOLDER.findall(new)]
+        new, slots = PLACEHOLDER.subn("", new)
+        if n == "index.html":
+            old = PILL_FLAGS.search(new)
+            if old is None:
+                raise AssemblyStop(f"{token}: no notices pill on {n}")
+            pill = {"note": "pill rebuilt from open entries", "before": old.group(0),
+                    "after": new_pill}
+            new = new[:old.start()] + new_pill + new[old.end():]
+        removed[n] = {"banner": count, "placeholders": slots}
+        if new != html:
+            (site / n).write_bytes(new.encode("utf-8"))
+    if not (site_root / "style.css").exists():
+        shutil.copyfile(stage.parent / "style.css", site_root / "style.css")
+    rec = rec.model_copy(update={
+        "outcome": "published_without_banner_by_ruling",
+        "publication": {"date": date, "ruling": ruling,
+                        "source": stage.relative_to(repo).as_posix(),
+                        "removed": {"elements": "DET-59 quarantine banner; empty prose-slot "
+                                                "placeholders", **removed},
+                        "placeholders_removed": placeholders, "pill": pill,
+                        "prior_outcome": prior}})
+    rec_path.write_text(_json(rec.model_dump(mode="json")), encoding="utf-8", newline="")
+    return {"token": token, "run_block": blk, "site": site, "removed": removed,
+            "placeholders": placeholders, "pill": pill, "prior_outcome": prior}
+
+
 if __name__ == "__main__":
     _repo = pathlib.Path(__file__).resolve().parents[3]
+    if len(sys.argv) == 3 and sys.argv[1] == "--publish-without-banner":
+        _today = _dt.datetime.now(_dt.UTC).date().isoformat()
+        _p = publish_without_banner(_repo, sys.argv[2], _today)
+        print(f"published_without_banner_by_ruling | {_p['token']}@{_p['run_block']} | prior "
+              f"{_p['prior_outcome']} | removed {_p['removed']} | {_p['site']}")
+        sys.exit(0)
     if len(sys.argv) < 2:
         print("usage: python -m factory.report <TOKEN> [--llm [--preview]]  (crvUSD | GHO | LUSD)")
         sys.exit(2)

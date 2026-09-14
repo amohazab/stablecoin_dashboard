@@ -1,0 +1,566 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>crvUSD — structural risk report</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<main>
+<header class="page">
+  <h1>crvUSD</h1>
+  <p class="lede">An automated structural risk report on crvUSD: every number below is read from Ethereum at block 25974925 and can be reproduced (see the verify page).</p>
+  <div class="meta">
+    read 2026-09-14 09:53 UTC · block 25974925 ·
+    report <code title="8ac6132bc407aad7549f4d9f7ab127e229b521c03c58f5a8a66f03576c4f2912">8ac6132b</code> · intake sheet <code>29682310</code>
+  </div>
+  <nav class="links meta">
+    <a href="index.html">report</a><a href="appendix.html">appendix</a><a href="verify.html">verify</a>
+  </nav>
+</header>
+
+
+
+
+<div class="pills">
+<span class="pill green">Disclosures 1.0 days old on average · worst WBTC, 1.0 days old, 34.5% of backing</span><span class="pill amber">Rule changes: 1–7 day delay</span><span class="pill red">3 notice(s): judge instability, gate failure and harness error</span>
+</div>
+
+<section class="finding" id="finding">
+<h2>The finding <span class="tip" tabindex="0" role="button" aria-label="The three figures that summarise this report, read at block 25974925; the written summary arrives with the prose stage.">?<span class="tip-text" role="tooltip">The three figures that summarise this report, read at block 25974925; the written summary arrives with the prose stage.</span></span></h2>
+
+<div class="prose-slot" data-slot="structural_summary"><p>Of the total supply of $2.1B, only $82.9M is backed by the traced mint-market collateral this report follows; the residual of $2.0B is described as crvUSD minted but not borrowed, held by the protocol&#39;s own contracts, not in circulation, with the named causes accounting for it. That residual breaks down into mint-controller pre-mint inventory of $643.5M, PegKeeper undrawn inventory of $317.4M, and other non-mint-market minting facilitators totaling $1.1B, leaving only $284.1k unexplained.</p><p>Of the traced backing value of $152.1M, 3.6% sits in assets whose value can be checked directly on-chain, 55.8% sits in wrapped assets checkable one layer down through their wrapper, and 40.6% relies on an issuer&#39;s or custodian&#39;s published disclosures. Bad debt against this backing is structurally zero, because soft liquidation converts collateral at band prices before positions become insolvent. In the headline stress scenario, forced sales of $6 against exit liquidity of $20.4M give a forced-sales-to-exit-liquidity ratio of &lt; 0.1%.</p></div>
+<div class="cards">
+  <div class="card"><div class="card-label">Supply <span class="tip" tabindex="0" role="button" aria-label="Every crvUSD in existence at block 25974925: total supply plus any supply bridged by burning on another chain.">?<span class="tip-text" role="tooltip">Every crvUSD in existence at block 25974925: total supply plus any supply bridged by burning on another chain.</span></span></div><div class="card-value" title="supply.supply_ruled">$2.1B</div></div>
+  <div class="card"><div class="card-label">Bad debt, headline scenario <span class="tip" tabindex="0" role="button" aria-label="Shortfall left after liquidations in the headline scenario (−50% collateral crash, no LP flight), across the crvUSD mint markets in scope, at block 25974925.">?<span class="tip-text" role="tooltip">Shortfall left after liquidations in the headline scenario (−50% collateral crash, no LP flight), across the crvUSD mint markets in scope, at block 25974925.</span></span></div>
+    <div class="card-value" title="headline.m2.bad_debt">$6</div><div class="card-note">structurally zero</div>
+    
+  </div>
+  <div class="card"><div class="card-label">Exit liquidity, headline scenario <span class="tip" tabindex="0" role="button" aria-label="crvUSD that could be sold into the frozen set of exit pools before its price falls 2%, in the headline scenario, at block 25974925.">?<span class="tip-text" role="tooltip">crvUSD that could be sold into the frozen set of exit pools before its price falls 2%, in the headline scenario, at block 25974925.</span></span></div><div class="card-value" title="headline.m3.exit_depth">$20.4M</div></div>
+</div>
+</section>
+
+<section id="backing">
+<h2>Where the backing sits <span class="tip" tabindex="0" role="button" aria-label="The collateral behind crvUSD, across the crvUSD mint markets in scope, split by how far its value can be checked on-chain, at block 25974925.">?<span class="tip-text" role="tooltip">The collateral behind crvUSD, across the crvUSD mint markets in scope, split by how far its value can be checked on-chain, at block 25974925.</span></span></h2>
+
+<figure class="wide tree"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 438" width="100%" role="img" aria-label="verifiability tree" font-family="system-ui, -apple-system, Segoe UI, Roboto, sans-serif"><title>verifiability tree</title><rect x="290" y="10" width="420" height="60" fill="#ffffff" rx="10" stroke="#1f5fa8" stroke-width="1.5"/><text x="500" y="34" font-size="16" text-anchor="middle" fill="#1b2430" font-weight="600">Supply $2.1B</text><text x="500" y="54" font-size="13" text-anchor="middle" fill="#1b2430" font-weight="normal">originated $82.9M · residual $2.0B — 4 named causes</text><line x1="500" y1="70" x2="500" y2="100" stroke="#6b7886"/><rect x="20" y="100" width="34.7" height="36" fill="#1f5fa8"/><rect x="54.7" y="100" width="535.7" height="36" fill="#5f9ad6"/><rect x="590.4" y="100" width="389.6" height="36" fill="#c7a35a"/><rect x="20" y="148" width="14" height="14" fill="#1f5fa8" rx="3"/><text x="42" y="160" font-size="14" text-anchor="start" fill="#1b2430" font-weight="600">Checkable on-chain — 3.6%</text><rect x="20" y="176" width="304" height="30" fill="#f5f7fa" rx="6" stroke="#d9dee4"/><text x="30" y="196" font-size="13" text-anchor="start" fill="#1b2430" font-weight="600">WETH</text><text x="314" y="196" font-size="13" text-anchor="end" fill="#1b2430" font-weight="normal">3.6%</text><rect x="340" y="148" width="14" height="14" fill="#5f9ad6" rx="3"/><text x="362" y="160" font-size="14" text-anchor="start" fill="#1b2430" font-weight="600">Checkable one layer down — 55.8%</text><rect x="340" y="176" width="304" height="30" fill="#f5f7fa" rx="6" stroke="#d9dee4"/><text x="350" y="196" font-size="13" text-anchor="start" fill="#1b2430" font-weight="600">wstETH</text><text x="634" y="196" font-size="13" text-anchor="end" fill="#1b2430" font-weight="normal">45.7%</text><rect x="340" y="214" width="304" height="30" fill="#f5f7fa" rx="6" stroke="#d9dee4"/><text x="350" y="234" font-size="13" text-anchor="start" fill="#1b2430" font-weight="600">tBTC</text><text x="634" y="234" font-size="13" text-anchor="end" fill="#1b2430" font-weight="normal">6.6%</text><rect x="340" y="252" width="304" height="30" fill="#f5f7fa" rx="6" stroke="#d9dee4"/><text x="350" y="272" font-size="13" text-anchor="start" fill="#1b2430" font-weight="600">sfrxETH</text><text x="634" y="272" font-size="13" text-anchor="end" fill="#1b2430" font-weight="normal">3.1%</text><rect x="340" y="290" width="304" height="30" fill="#f5f7fa" rx="6" stroke="#d9dee4"/><text x="350" y="310" font-size="13" text-anchor="start" fill="#1b2430" font-weight="600">weETH</text><text x="634" y="310" font-size="13" text-anchor="end" fill="#1b2430" font-weight="normal">0.4%</text><rect x="660" y="148" width="14" height="14" fill="#c7a35a" rx="3"/><text x="682" y="160" font-size="14" text-anchor="start" fill="#1b2430" font-weight="600">Depends on disclosures — 40.6%</text><rect x="660" y="176" width="304" height="30" fill="#f5f7fa" rx="6" stroke="#d9dee4"/><text x="670" y="196" font-size="13" text-anchor="start" fill="#1b2430" font-weight="600">WBTC</text><text x="866" y="196" font-size="13" text-anchor="end" fill="#1b2430" font-weight="normal">34.5%</text><rect x="874" y="183" width="80" height="17" fill="#ffffff" rx="8" stroke="#d9dee4"/><text x="914" y="196" font-size="11" text-anchor="middle" fill="#6b7886" font-weight="normal">1.0 days old</text><rect x="660" y="214" width="304" height="30" fill="#f5f7fa" rx="6" stroke="#d9dee4"/><text x="670" y="234" font-size="13" text-anchor="start" fill="#1b2430" font-weight="600">cbBTC</text><text x="866" y="234" font-size="13" text-anchor="end" fill="#1b2430" font-weight="normal">6.1%</text><rect x="874" y="221" width="80" height="17" fill="#ffffff" rx="8" stroke="#d9dee4"/><text x="914" y="234" font-size="11" text-anchor="middle" fill="#6b7886" font-weight="normal">1.0 days old</text><rect x="660" y="252" width="304" height="30" fill="#f5f7fa" rx="6" stroke="#d9dee4"/><text x="670" y="272" font-size="13" text-anchor="start" fill="#1b2430" font-weight="600">LBTC</text><text x="866" y="272" font-size="13" text-anchor="end" fill="#1b2430" font-weight="normal">&lt; 0.1%</text><rect x="874" y="259" width="80" height="17" fill="#ffffff" rx="8" stroke="#d9dee4"/><text x="914" y="272" font-size="11" text-anchor="middle" fill="#6b7886" font-weight="normal">1.0 days old</text><text x="20" y="432" font-size="13" text-anchor="start" fill="#6b7886" font-weight="normal">Where the backing sits and how far it can be checked on-chain; shares are of the value of all backing collateral.</text></svg></figure>
+<p class="prose">The DAO can change minting and oracle settings with a 1–7 day delay.</p>
+<div class="prose-slot" data-slot="verifiability_narrative"><p>Only 3.6% of crvUSD&#39;s backing sits in assets you can check directly on-chain, and within that class WETH is the largest holding. A much bigger slice, 55.8%, is checkable one layer down, through a wrapper — here wstETH is the largest such collateral. The remaining 40.6% of backing depends on issuer or custodian disclosures rather than on-chain verification, and WBTC is the largest holding in that class.</p><p>None of the disclosure-dependent collateral is depth-truncated, so there is no missing slice hidden by data limits. But this class relies on published disclosures rather than on-chain proofs: WBTC, cbBTC and LBTC all show a last disclosure date of 2026-09-13, with staleness of 1.0 days each. WBTC alone makes up 34.5% of total backing, so its disclosure freshness matters most for how well the backing can currently be checked; cbBTC contributes 6.1% and LBTC less than 0.1%.</p><p>A governance banner shows that minting and oracle settings can both be changed by DAO governance, each subject to a delay of 1–7d. Because these controls sit behind the same governance path and delay, changes to how crvUSD is minted or how its price is read are not instant, but they are not independently checkable on-chain either — they depend on the same disclosed process as the collateral itself.</p></div>
+</section>
+
+<section id="break">
+<h2>What could break it <span class="tip" tabindex="0" role="button" aria-label="The headline stress scenario and the grid around it: collateral price falls of 20–70% with liquidity-provider flight of 0–60%, across the crvUSD mint markets in scope, at block 25974925.">?<span class="tip-text" role="tooltip">The headline stress scenario and the grid around it: collateral price falls of 20–70% with liquidity-provider flight of 0–60%, across the crvUSD mint markets in scope, at block 25974925.</span></span></h2>
+
+<p class="prose">The headline scenario is a 50% fall in the price of volatile collateral, with no extra discount on liquid-staking tokens and liquidity providers staying put — the one scenario the archetype memo names as the headline (memo §6.2.6).</p>
+<p class="prose">In that scenario liquidations leave $6 of bad debt (&lt; 0.01% of supply) and require selling $6 into $20.4M of exit liquidity.</p>
+
+<p class="prose callout">Bad debt is structurally zero on the whole grid: soft liquidation converts collateral at band prices before positions become insolvent</p>
+
+<table class="grid wide">
+<tr><th>price fall</th><th>no LP flight</th><th>30% LP flight</th><th>60% LP flight</th></tr>
+<tr><th>-20.0%</th><td class="s1" title="panel.M1-s20-d0-lp0.m3.ratio">&lt; 0.1%</td><td class="s1" title="panel.M1-s20-d0-lp30.m3.ratio">&lt; 0.1%</td><td class="exhausted" title="panel.M1-s20-d0-lp60.m3.ratio">exit exhausted</td></tr><tr><th>-35.0%</th><td class="s1" title="panel.M1-s35-d0-lp0.m3.ratio">&lt; 0.1%</td><td class="s1" title="panel.M1-s35-d0-lp30.m3.ratio">&lt; 0.1%</td><td class="exhausted" title="panel.M1-s35-d0-lp60.m3.ratio">exit exhausted</td></tr><tr><th>-50.0%</th><td class="s1" title="panel.M1-s50-d0-lp0.m3.ratio">&lt; 0.1%</td><td class="s1" title="panel.M1-s50-d0-lp30.m3.ratio">&lt; 0.1%</td><td class="exhausted" title="panel.M1-s50-d0-lp60.m3.ratio">exit exhausted</td></tr><tr><th>-70.0%</th><td class="s1" title="panel.M1-s70-d0-lp0.m3.ratio">&lt; 0.1%</td><td class="s1" title="panel.M1-s70-d0-lp30.m3.ratio">&lt; 0.1%</td><td class="exhausted" title="panel.M1-s70-d0-lp60.m3.ratio">exit exhausted</td></tr>
+</table>
+<p class="legend">Each cell: collateral that must be sold ÷ liquidity available to absorb it; “exit exhausted” = no liquidity left at that level of liquidity-provider flight. <span class="tip" tabindex="0" role="button" aria-label="Each cell divides the collateral liquidations must sell by the exit liquidity left in that scenario, across the crvUSD mint markets in scope, at block 25974925; above 100% the sales cannot all be absorbed.">?<span class="tip-text" role="tooltip">Each cell divides the collateral liquidations must sell by the exit liquidity left in that scenario, across the crvUSD mint markets in scope, at block 25974925; above 100% the sales cannot all be absorbed.</span></span><br>
+<span class="swatch s0"></span>0&ensp;<span class="swatch s1"></span>under 0.1%&ensp;<span class="swatch s2"></span>under 10%&ensp;<span class="swatch s3"></span>under 100%&ensp;<span class="swatch s4"></span>100% or more&ensp;<span class="swatch exhausted"></span>exit exhausted</p>
+<p class="prose">At a 50% fall, forced sales use &lt; 0.01% of available exit liquidity; at a 70% fall, forced sales use &lt; 0.01% of available exit liquidity; and if 60% of liquidity providers leave at a 70% fall, no exit liquidity is left.</p>
+
+<p class="prose">Prices follow exponential moving averages of pool prices, so they lag the market by design; the window per market is in the oracle table.</p>
+</section>
+
+<section id="rules">
+<h2>Who can change the rules <span class="tip" tabindex="0" role="button" aria-label="Who holds each administrative power over the protocol&#39;s contracts and how long a change takes to take effect, read at block 25974925.">?<span class="tip-text" role="tooltip">Who holds each administrative power over the protocol&#39;s contracts and how long a change takes to take effect, read at block 25974925.</span></span></h2>
+<ul class="plain"><li>Minting: the DAO, with a 1–7 day delay.</li><li>Debt ceilings: the DAO, with a 1–7 day delay; a veto holder can cancel the change.</li><li>Contract upgrades: no one holds this power.</li><li>Pausing: the DAO, with no delay.</li><li>Freezing assets: no one holds this power.</li><li>Blacklisting addresses: no one holds this power.</li><li>Oracle settings: the DAO, with a 1–7 day delay; a veto holder can cancel the change.</li><li>Risk parameters: the DAO, with a 1–7 day delay; a veto holder can cancel the change.</li><li>Seizing assets: no one holds this power.</li></ul>
+</section>
+
+<section id="check">
+<h2>How to check this <span class="tip" tabindex="0" role="button" aria-label="Every figure is pinned to block 25974925; the verify page lists the calls that reproduce them.">?<span class="tip-text" role="tooltip">Every figure is pinned to block 25974925; the verify page lists the calls that reproduce them.</span></span></h2>
+<p class="prose">Every figure on this page comes from one data table built from on-chain reads at a single block. Reproduce any of them from the verify page. <a href="verify.html">Verify page</a> · report fingerprint <code title="8ac6132bc407aad7549f4d9f7ab127e229b521c03c58f5a8a66f03576c4f2912">8ac6132bc407aad7</code></p>
+<p class="prose">The behavioral tier — how the token trades: peg deviation, liquidity, holder concentration and flows — will come from an external monitoring service and is pending. This report is the structural tier only: what backs the token, how far that backing can be checked on-chain, and how it holds up under stress.</p>
+</section>
+
+
+<h2 class="specialists">Detail for specialists</h2>
+<p class="meta">behavioral tier: pending</p>
+
+<details id="tree-nodes"><summary>Collateral nodes whose backing depends on disclosures or stops at a truncation</summary>
+
+
+<table class="striped"><tr><th>disclosure-dependent node</th><th>last disclosure</th><th class="num">days old</th><th class="num">share of backing</th></tr>
+
+<tr><td>WBTC</td><td>2026-09-13</td><td class="num">1.0 days</td><td class="num" title="verif.staleness.0x2260fac5e5542a773aa44fbcfedf7c193bc2c599.share">34.5%</td></tr>
+
+<tr><td>cbBTC</td><td>2026-09-13</td><td class="num">1.0 days</td><td class="num" title="verif.staleness.0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf.share">6.1%</td></tr>
+
+<tr><td>LBTC</td><td>2026-09-13</td><td class="num">1.0 days</td><td class="num" title="verif.staleness.0x8236a87084f8b84306f72007f36f2618a5634494.share">&lt; 0.1%</td></tr>
+</table>
+
+
+</details>
+
+<details id="supply"><summary>Supply, what was originated, and the residual with its named causes</summary>
+<table class="striped">
+<tr><th>figure</th><th class="num">value</th></tr>
+<tr><td>supply</td><td class="num" title="supply.supply_ruled">2,104,809,204.98</td></tr>
+<tr><td>originated supply</td><td class="num" title="supply.origination_sum">82,930,939.49</td></tr>
+<tr><td>supply the tree covers</td><td class="num" title="tree.root.backed_supply">82,930,939.49</td></tr>
+<tr><td>residual (supply − originated)</td><td class="num" title="supply.residual">2,021,878,265.49</td></tr>
+
+<tr><td>· non-mint-market minting facilitators enumerated from `SetDebtCeiling` history — the lend factories (zero ceilings, confirmed non-originating), the FlashLender, the FastBridgeVaults, and an unclassified minting factory (`0x370a449f…`, verified name Factory) pending perimeter re-ruling; amount = held + deployed (ceiling − held, floor 0) (17)</td><td class="num" title="supply.family.0.total">1,060,650,000.75</td></tr>
+
+<tr><td>· mint-controller pre-mint inventory (9)</td><td class="num" title="supply.family.1.total">643,521,890.68</td></tr>
+
+<tr><td>· PegKeeper undrawn inventory (5)</td><td class="num" title="supply.family.2.total">317,413,016.69</td></tr>
+
+<tr><td>· mint-market AMM float (9)</td><td class="num" title="supply.family.3.total">9,297.19</td></tr>
+
+<tr><td>unexplained after named causes</td><td class="num" title="supply.residual_unexplained">284,060.19</td></tr>
+<tr><td>stabilizer debt ÷ supply</td><td class="num" title="supply.stabilizer_over_supply">0.3%</td></tr>
+<tr><td>protocol stabilizer debt</td><td class="num" title="stabilizer.slice.debt">6,586,983.31 (0.3% of supply)</td></tr>
+<tr><td>ceiling aggregate — the upper bound of the protocol stabilizer slice</td><td class="num" title="stabilizer.slice.ceiling_aggregate">324,000,000.00 (15.4% of supply)</td></tr>
+
+</table>
+
+<table class="striped"><tr><th>stabilizer operation</th><th class="num">ceiling</th><th class="num">utilization</th><th class="num">net position value</th></tr>
+
+<tr><td><code>0x9201da…e340</code></td><td class="num">135,000,000.00</td><td class="num">0</td><td class="num">0</td></tr>
+
+<tr><td><code>0xfb726f…f9f3</code></td><td class="num">135,000,000.00</td><td class="num">4.9%</td><td class="num">3,576,443.05</td></tr>
+
+<tr><td><code>0x3fa20e…e09c</code></td><td class="num">45,000,000.00</td><td class="num">0</td><td class="num">0</td></tr>
+
+<tr><td><code>0x338cb2…1f9d</code></td><td class="num">9,000,000.00</td><td class="num">0</td><td class="num">0</td></tr>
+
+<tr><td><code>0x53876b…c50b</code></td><td class="num">0</td><td class="num">—</td><td class="num">0</td></tr>
+</table>
+<p class="meta">Net position of each stabilizer operation: pro-cyclical, non-credited; valued at par.</p>
+
+
+
+
+<details class="inner"><summary>non-mint-market minting facilitators enumerated from `SetDebtCeiling` history — the lend factories (zero ceilings, confirmed non-originating), the FlashLender, the FastBridgeVaults, and an unclassified minting factory (`0x370a449f…`, verified name Factory) pending perimeter re-ruling; amount = held + deployed (ceiling − held, floor 0)</summary>
+<table class="striped"><tr><th>address</th><th class="num">amount</th></tr>
+
+<tr><td><code>0x0a05ff…97d3</code></td><td class="num" title="supply.cause.0x0a05ff644878b908ef8eb29542aa88c07d9797d3.amount">0</td></tr>
+
+<tr><td><code>0x0b502e…c820</code></td><td class="num" title="supply.cause.0x0b502e48e950095d93e8b739ad146c72b4f6c820.amount">0</td></tr>
+
+<tr><td><code>0x1ef89e…ccae</code></td><td class="num" title="supply.cause.0x1ef89ed0edd93d1ec09e4c07373f69c49f4dccae.amount">0</td></tr>
+
+<tr><td><code>0x26de78…9ee1</code></td><td class="num" title="supply.cause.0x26de7861e213a5351f6ed767d00e0839930e9ee1.amount">30,000,000.75</td></tr>
+
+<tr><td><code>0x370a44…00c0</code></td><td class="num" title="supply.cause.0x370a449febb9411c95bf897021377fe0b7d100c0.amount">1,000,000,000.00</td></tr>
+
+<tr><td><code>0x503e1b…91f8</code></td><td class="num" title="supply.cause.0x503e1bf274e7a6c64152395ae8eb57ec391f91f8.amount">0</td></tr>
+
+<tr><td><code>0x5b49b9…a4c6</code></td><td class="num" title="supply.cause.0x5b49b9add1ecfe53e19cc2cfc8a33127cd6ba4c6.amount">0</td></tr>
+
+<tr><td><code>0x5ef620…b9ec</code></td><td class="num" title="supply.cause.0x5ef620631aa46e7d2f6f963b6be4f6823521b9ec.amount">150,000.00</td></tr>
+
+<tr><td><code>0x68e31e…21ca</code></td><td class="num" title="supply.cause.0x68e31e1edd641b13caeab1ac1be661b19cc021ca.amount">0</td></tr>
+
+<tr><td><code>0x6b765d…c345</code></td><td class="num" title="supply.cause.0x6b765d07cf966c745b340adca67749fe75b5c345.amount">0</td></tr>
+
+<tr><td><code>0x97d024…e937</code></td><td class="num" title="supply.cause.0x97d024859b68394122b3d0bb407dd7299cc8e937.amount">200,000.00</td></tr>
+
+<tr><td><code>0xa7a4bb…299b</code></td><td class="num" title="supply.cause.0xa7a4bb50af91f90b6feb3388e7f8286af45b299b.amount">0</td></tr>
+
+<tr><td><code>0xaa3467…ae22</code></td><td class="num" title="supply.cause.0xaa346781ddd7009caa644a4980f044c50cd2ae22.amount">0</td></tr>
+
+<tr><td><code>0xadb10d…843d</code></td><td class="num" title="supply.cause.0xadb10d2d5a95e58ddb1a0744a0d2d7b55db7843d.amount">300,000.00</td></tr>
+
+<tr><td><code>0xd99391…afff</code></td><td class="num" title="supply.cause.0xd99391df68cdb38a89828a6d51f3976e3e76afff.amount">30,000,000.00</td></tr>
+
+<tr><td><code>0xe7cd2b…c5c8</code></td><td class="num" title="supply.cause.0xe7cd2b4eb1d98cd6a4a48b6071d46401ac7dc5c8.amount">0</td></tr>
+
+<tr><td><code>0xff7846…92bf</code></td><td class="num" title="supply.cause.0xff78468340ee322ed63c432bf74d817742b392bf.amount">0</td></tr>
+</table></details>
+
+<details class="inner"><summary>mint-controller pre-mint inventory</summary>
+<table class="striped"><tr><th>address</th><th class="num">amount</th></tr>
+
+<tr><td><code>0x100daa…c6ce</code></td><td class="num" title="supply.cause.0x100daa78fc509db39ef7d04de0c1abd299f4c6ce.amount">113,785,911.00</td></tr>
+
+<tr><td><code>0x1c91da…e704</code></td><td class="num" title="supply.cause.0x1c91da0223c763d2e0173243eadaa0a2ea47e704.amount">44,428,661.42</td></tr>
+
+<tr><td><code>0x4e5954…5c67</code></td><td class="num" title="supply.cause.0x4e59541306910ad6dc1dac0ac9dfb29bd9f15c67.amount">174,933,020.69</td></tr>
+
+<tr><td><code>0x652aea…6b11</code></td><td class="num" title="supply.cause.0x652aea6b22310c89dcc506710cad24d2dba56b11.amount">19,781,096.87</td></tr>
+
+<tr><td><code>0x8472a9…8e76</code></td><td class="num" title="supply.cause.0x8472a9a7632b173c8cf3a86d3afec50c35548e76.amount">5,244.13</td></tr>
+
+<tr><td><code>0x8aca5a…58ef</code></td><td class="num" title="supply.cause.0x8aca5a776a878ea1f8967e70a23b8563008f58ef.amount">0</td></tr>
+
+<tr><td><code>0xa920de…9635</code></td><td class="num" title="supply.cause.0xa920de414ea4ab66b97da1bfe9e6eca7d4219635.amount">197,712,318.75</td></tr>
+
+<tr><td><code>0xec0820…15cf</code></td><td class="num" title="supply.cause.0xec0820efafc41d8943ee8de495fc9ba8495b15cf.amount">48,148,895.88</td></tr>
+
+<tr><td><code>0xf8c786…cbe3</code></td><td class="num" title="supply.cause.0xf8c786b1064889ffd3c8a08b48d5e0c159f4cbe3.amount">44,726,741.93</td></tr>
+</table></details>
+
+<details class="inner"><summary>PegKeeper undrawn inventory</summary>
+<table class="striped"><tr><th>address</th><th class="num">amount</th></tr>
+
+<tr><td><code>0x338cb2…1f9d</code></td><td class="num" title="supply.cause.0x338cb2d827112d989a861cde87cd9ffd913a1f9d.amount">9,000,000.00</td></tr>
+
+<tr><td><code>0x3fa20e…e09c</code></td><td class="num" title="supply.cause.0x3fa20eaa107de08b38a8734063d605d5842fe09c.amount">45,000,000.00</td></tr>
+
+<tr><td><code>0x53876b…c50b</code></td><td class="num" title="supply.cause.0x53876b157decf04389eed66c7c29d73863f8c50b.amount">0</td></tr>
+
+<tr><td><code>0x9201da…e340</code></td><td class="num" title="supply.cause.0x9201da0d97caaaff53f01b2fb56767c7072de340.amount">135,000,000.00</td></tr>
+
+<tr><td><code>0xfb726f…f9f3</code></td><td class="num" title="supply.cause.0xfb726f57d251ab5c731e5c64ed4f5f94351ef9f3.amount">128,413,016.69</td></tr>
+</table></details>
+
+<details class="inner"><summary>mint-market AMM float</summary>
+<table class="striped"><tr><th>address</th><th class="num">amount</th></tr>
+
+<tr><td><code>0x136e78…a696</code></td><td class="num" title="supply.cause.0x136e783846ef68c8bd00a3369f787df8d683a696.amount">0</td></tr>
+
+<tr><td><code>0x37417b…06e4</code></td><td class="num" title="supply.cause.0x37417b2238aa52d0dd2d6252d989e728e8f706e4.amount">0.0038</td></tr>
+
+<tr><td><code>0xe0438e…66ea</code></td><td class="num" title="supply.cause.0xe0438eb3703bf871e31ce639bd351109c88666ea.amount">4,175.16</td></tr>
+
+<tr><td><code>0x168119…c4ee</code></td><td class="num" title="supply.cause.0x1681195c176239ac5e72d9aebacf5b2492e0c4ee.amount">5,083.49</td></tr>
+
+<tr><td><code>0xfa96ad…c6fd</code></td><td class="num" title="supply.cause.0xfa96ad0a9e64261db86950e2da362f5572c5c6fd.amount">0</td></tr>
+
+<tr><td><code>0xf9bd9d…bcb0</code></td><td class="num" title="supply.cause.0xf9bd9da2427a50908c4c6d1599d8e62837c2bcb0.amount">0</td></tr>
+
+<tr><td><code>0xed3252…6da1</code></td><td class="num" title="supply.cause.0xed325262f54b2987e74436f4556a27f748146da1.amount">0.0000</td></tr>
+
+<tr><td><code>0xb6e62a…137a</code></td><td class="num" title="supply.cause.0xb6e62aa178a5421d0a51d17e720a05de78d3137a.amount">38.54</td></tr>
+
+<tr><td><code>0x9a2e6b…fac8</code></td><td class="num" title="supply.cause.0x9a2e6bb3114b1eeb5492d97188a3ecb09e39fac8.amount">0.0000</td></tr>
+</table></details>
+
+</details>
+
+<details id="headline"><summary>Every figure in the headline scenario</summary>
+
+<table class="striped">
+<tr><th>metric</th><th class="num">value</th></tr>
+
+<tr><td title="headline.m1.pre.ratio">collateral coverage before the shock</td><td class="num">0.9922</td></tr>
+
+<tr><td title="headline.m1.post.ratio">collateral coverage after the shock</td><td class="num">1.2040</td></tr>
+
+<tr><td title="headline.m1.gap">coverage restored by the liquidation mechanism</td><td class="num">0.2118</td></tr>
+
+<tr><td title="headline.m2.bad_debt">bad debt</td><td class="num">5.96</td></tr>
+
+<tr><td title="headline.m2.pct_supply">bad debt as a share of supply</td><td class="num">&lt; 0.1%</td></tr>
+
+<tr><td title="headline.m3.forced_sell_volume">collateral that must be sold</td><td class="num">5.96</td></tr>
+
+<tr><td title="headline.m3.exit_depth">exit liquidity</td><td class="num">20,440,870.89</td></tr>
+
+<tr><td title="headline.m3.ratio">forced sales ÷ exit liquidity</td><td class="num">&lt; 0.1%</td></tr>
+
+</table>
+<h3>Mechanism state in the headline scenario</h3>
+
+<table class="striped"><tr><th>quantity</th><th class="num">value</th></tr>
+<tr><td title="headline.m4.alpha">alpha</td><td class="num">0.5000</td></tr><tr><td title="headline.m4.beta">beta</td><td class="num">0.2500</td></tr><tr><td title="headline.m4.burn_capacity">burn capacity</td><td class="num">6,586,983.31</td></tr><tr><td title="headline.m4.ceiling_aggregate">ceiling aggregate</td><td class="num">324,000,000.00</td></tr><tr><td title="headline.m4.counterfactual_ref">the counterfactual lines printed with this scenario</td><td class="num">H1_kill, EMA_lag</td></tr><tr><td title="headline.m4.effective">PegKeeper headroom that can actually be used</td><td class="num">85,426,438.45</td></tr><tr><td title="headline.m4.exit_depth_cell">exit liquidity in this scenario</td><td class="num">20,440,870.89</td></tr><tr><td title="headline.m4.lp_flight_share">share of liquidity providers leaving in this scenario</td><td class="num">0</td></tr><tr><td title="headline.m4.naive">PegKeeper headroom by debt ceilings alone</td><td class="num">317,413,016.69</td></tr><tr><td title="headline.m4.stabilizer_debt_post_cell">stabilizer debt post cell</td><td class="num">6,586,983.31</td></tr><tr><td title="headline.m4.utilization_post_cell">utilization post cell</td><td class="num">0.0203</td></tr>
+</table>
+
+
+<h4>PegKeepers</h4>
+<table class="striped"><tr><th>address</th><th class="num">allowed</th><th class="num">balance</th><th class="num">ceiling</th><th class="num">debt</th><th class="num">killed (provide)</th><th class="num">killed (withdraw)</th><th class="num">max ratio</th><th class="num">debt share</th></tr>
+<tr><td><code title="0x338cb2d827112d989a861cde87cd9ffd913a1f9d">0x338cb2…1f9d</code></td><td class="num" title="headline.m4.is_killed.0x338cb2d827112d989a861cde87cd9ffd913a1f9d.allowed">2,774,448.66</td><td class="num" title="headline.m4.is_killed.0x338cb2d827112d989a861cde87cd9ffd913a1f9d.balance">9,000,000.00</td><td class="num" title="headline.m4.is_killed.0x338cb2d827112d989a861cde87cd9ffd913a1f9d.ceiling">9,000,000.00</td><td class="num" title="headline.m4.is_killed.0x338cb2d827112d989a861cde87cd9ffd913a1f9d.debt">0</td><td class="num" title="headline.m4.is_killed.0x338cb2d827112d989a861cde87cd9ffd913a1f9d.killed_provide">no</td><td class="num" title="headline.m4.is_killed.0x338cb2d827112d989a861cde87cd9ffd913a1f9d.killed_withdraw">no</td><td class="num" title="headline.m4.is_killed.0x338cb2d827112d989a861cde87cd9ffd913a1f9d.max_ratio">0.3083</td><td class="num" title="headline.m4.is_killed.0x338cb2d827112d989a861cde87cd9ffd913a1f9d.r">0</td></tr><tr><td><code title="0x3fa20eaa107de08b38a8734063d605d5842fe09c">0x3fa20e…e09c</code></td><td class="num" title="headline.m4.is_killed.0x3fa20eaa107de08b38a8734063d605d5842fe09c.allowed">13,872,243.28</td><td class="num" title="headline.m4.is_killed.0x3fa20eaa107de08b38a8734063d605d5842fe09c.balance">45,000,000.00</td><td class="num" title="headline.m4.is_killed.0x3fa20eaa107de08b38a8734063d605d5842fe09c.ceiling">45,000,000.00</td><td class="num" title="headline.m4.is_killed.0x3fa20eaa107de08b38a8734063d605d5842fe09c.debt">0</td><td class="num" title="headline.m4.is_killed.0x3fa20eaa107de08b38a8734063d605d5842fe09c.killed_provide">no</td><td class="num" title="headline.m4.is_killed.0x3fa20eaa107de08b38a8734063d605d5842fe09c.killed_withdraw">no</td><td class="num" title="headline.m4.is_killed.0x3fa20eaa107de08b38a8734063d605d5842fe09c.max_ratio">0.3083</td><td class="num" title="headline.m4.is_killed.0x3fa20eaa107de08b38a8734063d605d5842fe09c.r">0</td></tr><tr><td><code title="0x53876b157decf04389eed66c7c29d73863f8c50b">0x53876b…c50b</code></td><td class="num" title="headline.m4.is_killed.0x53876b157decf04389eed66c7c29d73863f8c50b.allowed">0</td><td class="num" title="headline.m4.is_killed.0x53876b157decf04389eed66c7c29d73863f8c50b.balance">0</td><td class="num" title="headline.m4.is_killed.0x53876b157decf04389eed66c7c29d73863f8c50b.ceiling">0</td><td class="num" title="headline.m4.is_killed.0x53876b157decf04389eed66c7c29d73863f8c50b.debt">0</td><td class="num" title="headline.m4.is_killed.0x53876b157decf04389eed66c7c29d73863f8c50b.killed_provide">no</td><td class="num" title="headline.m4.is_killed.0x53876b157decf04389eed66c7c29d73863f8c50b.killed_withdraw">no</td><td class="num" title="headline.m4.is_killed.0x53876b157decf04389eed66c7c29d73863f8c50b.max_ratio">0.3083</td><td class="num" title="headline.m4.is_killed.0x53876b157decf04389eed66c7c29d73863f8c50b.r">0</td></tr><tr><td><code title="0x9201da0d97caaaff53f01b2fb56767c7072de340">0x9201da…e340</code></td><td class="num" title="headline.m4.is_killed.0x9201da0d97caaaff53f01b2fb56767c7072de340.allowed">41,616,729.83</td><td class="num" title="headline.m4.is_killed.0x9201da0d97caaaff53f01b2fb56767c7072de340.balance">135,000,000.00</td><td class="num" title="headline.m4.is_killed.0x9201da0d97caaaff53f01b2fb56767c7072de340.ceiling">135,000,000.00</td><td class="num" title="headline.m4.is_killed.0x9201da0d97caaaff53f01b2fb56767c7072de340.debt">0</td><td class="num" title="headline.m4.is_killed.0x9201da0d97caaaff53f01b2fb56767c7072de340.killed_provide">no</td><td class="num" title="headline.m4.is_killed.0x9201da0d97caaaff53f01b2fb56767c7072de340.killed_withdraw">no</td><td class="num" title="headline.m4.is_killed.0x9201da0d97caaaff53f01b2fb56767c7072de340.max_ratio">0.3083</td><td class="num" title="headline.m4.is_killed.0x9201da0d97caaaff53f01b2fb56767c7072de340.r">0</td></tr><tr><td><code title="0xfb726f57d251ab5c731e5c64ed4f5f94351ef9f3">0xfb726f…f9f3</code></td><td class="num" title="headline.m4.is_killed.0xfb726f57d251ab5c731e5c64ed4f5f94351ef9f3.allowed">27,163,016.69</td><td class="num" title="headline.m4.is_killed.0xfb726f57d251ab5c731e5c64ed4f5f94351ef9f3.balance">128,413,016.69</td><td class="num" title="headline.m4.is_killed.0xfb726f57d251ab5c731e5c64ed4f5f94351ef9f3.ceiling">135,000,000.00</td><td class="num" title="headline.m4.is_killed.0xfb726f57d251ab5c731e5c64ed4f5f94351ef9f3.debt">6,586,983.31</td><td class="num" title="headline.m4.is_killed.0xfb726f57d251ab5c731e5c64ed4f5f94351ef9f3.killed_provide">no</td><td class="num" title="headline.m4.is_killed.0xfb726f57d251ab5c731e5c64ed4f5f94351ef9f3.killed_withdraw">no</td><td class="num" title="headline.m4.is_killed.0xfb726f57d251ab5c731e5c64ed4f5f94351ef9f3.max_ratio">0.2500</td><td class="num" title="headline.m4.is_killed.0xfb726f57d251ab5c731e5c64ed4f5f94351ef9f3.r">0.0488</td></tr>
+</table>
+
+<h4>Oracle vs pool spot price, per market</h4>
+<table class="striped"><tr><th>address</th><th class="num">oracle spot gap</th></tr>
+<tr><td><code title="0x100daa78fc509db39ef7d04de0c1abd299f4c6ce">0x100daa…c6ce</code></td><td class="num" title="headline.m4.oracle_spot_gap.0x100daa78fc509db39ef7d04de0c1abd299f4c6ce">0.0071</td></tr><tr><td><code title="0x1c91da0223c763d2e0173243eadaa0a2ea47e704">0x1c91da…e704</code></td><td class="num" title="headline.m4.oracle_spot_gap.0x1c91da0223c763d2e0173243eadaa0a2ea47e704">0.2039</td></tr><tr><td><code title="0x4e59541306910ad6dc1dac0ac9dfb29bd9f15c67">0x4e5954…5c67</code></td><td class="num" title="headline.m4.oracle_spot_gap.0x4e59541306910ad6dc1dac0ac9dfb29bd9f15c67">-0.0195</td></tr><tr><td><code title="0x652aea6b22310c89dcc506710cad24d2dba56b11">0x652aea…6b11</code></td><td class="num" title="headline.m4.oracle_spot_gap.0x652aea6b22310c89dcc506710cad24d2dba56b11">0.6091</td></tr><tr><td><code title="0x8472a9a7632b173c8cf3a86d3afec50c35548e76">0x8472a9…8e76</code></td><td class="num" title="headline.m4.oracle_spot_gap.0x8472a9a7632b173c8cf3a86d3afec50c35548e76">1.5828</td></tr><tr><td><code title="0x8aca5a776a878ea1f8967e70a23b8563008f58ef">0x8aca5a…58ef</code></td><td class="num" title="headline.m4.oracle_spot_gap.0x8aca5a776a878ea1f8967e70a23b8563008f58ef">0.0956</td></tr><tr><td><code title="0xa920de414ea4ab66b97da1bfe9e6eca7d4219635">0xa920de…9635</code></td><td class="num" title="headline.m4.oracle_spot_gap.0xa920de414ea4ab66b97da1bfe9e6eca7d4219635">0.0256</td></tr><tr><td><code title="0xec0820efafc41d8943ee8de495fc9ba8495b15cf">0xec0820…15cf</code></td><td class="num" title="headline.m4.oracle_spot_gap.0xec0820efafc41d8943ee8de495fc9ba8495b15cf">0.3220</td></tr><tr><td><code title="0xf8c786b1064889ffd3c8a08b48d5e0c159f4cbe3">0xf8c786…cbe3</code></td><td class="num" title="headline.m4.oracle_spot_gap.0xf8c786b1064889ffd3c8a08b48d5e0c159f4cbe3">-0.0197</td></tr>
+</table>
+
+<h4>Paired stablecoin held by each PegKeeper</h4>
+<table class="striped"><tr><th>address</th><th class="num">paired units held</th></tr>
+<tr><td><code title="0x338cb2d827112d989a861cde87cd9ffd913a1f9d">0x338cb2…1f9d</code></td><td class="num" title="headline.m4.paired_units_held.0x338cb2d827112d989a861cde87cd9ffd913a1f9d">0</td></tr><tr><td><code title="0x3fa20eaa107de08b38a8734063d605d5842fe09c">0x3fa20e…e09c</code></td><td class="num" title="headline.m4.paired_units_held.0x3fa20eaa107de08b38a8734063d605d5842fe09c">0</td></tr><tr><td><code title="0x53876b157decf04389eed66c7c29d73863f8c50b">0x53876b…c50b</code></td><td class="num" title="headline.m4.paired_units_held.0x53876b157decf04389eed66c7c29d73863f8c50b">0</td></tr><tr><td><code title="0x9201da0d97caaaff53f01b2fb56767c7072de340">0x9201da…e340</code></td><td class="num" title="headline.m4.paired_units_held.0x9201da0d97caaaff53f01b2fb56767c7072de340">0</td></tr><tr><td><code title="0xfb726f57d251ab5c731e5c64ed4f5f94351ef9f3">0xfb726f…f9f3</code></td><td class="num" title="headline.m4.paired_units_held.0xfb726f57d251ab5c731e5c64ed4f5f94351ef9f3">6,412,263.75</td></tr>
+</table>
+
+<h4>PegKeeper share of its pool</h4>
+<table class="striped"><tr><th>address</th><th class="num">pegkeeper lp share</th></tr>
+<tr><td><code title="0x338cb2d827112d989a861cde87cd9ffd913a1f9d">0x338cb2…1f9d</code></td><td class="num" title="headline.m4.pegkeeper_lp_share.0x338cb2d827112d989a861cde87cd9ffd913a1f9d">0</td></tr><tr><td><code title="0x3fa20eaa107de08b38a8734063d605d5842fe09c">0x3fa20e…e09c</code></td><td class="num" title="headline.m4.pegkeeper_lp_share.0x3fa20eaa107de08b38a8734063d605d5842fe09c">0</td></tr><tr><td><code title="0x53876b157decf04389eed66c7c29d73863f8c50b">0x53876b…c50b</code></td><td class="num" title="headline.m4.pegkeeper_lp_share.0x53876b157decf04389eed66c7c29d73863f8c50b">0</td></tr><tr><td><code title="0x9201da0d97caaaff53f01b2fb56767c7072de340">0x9201da…e340</code></td><td class="num" title="headline.m4.pegkeeper_lp_share.0x9201da0d97caaaff53f01b2fb56767c7072de340">0</td></tr><tr><td><code title="0xfb726f57d251ab5c731e5c64ed4f5f94351ef9f3">0xfb726f…f9f3</code></td><td class="num" title="headline.m4.pegkeeper_lp_share.0xfb726f57d251ab5c731e5c64ed4f5f94351ef9f3">0.3489</td></tr>
+</table>
+
+<h4>Pool balance after the shock</h4>
+<table class="striped"><tr><th>field</th><th class="num">pool tilt post cell</th></tr>
+<tr><td><code title="reason">reason</code></td><td class="num" title="headline.m4.pool_tilt_post_cell.reason">not applicable — M1</td></tr><tr><td><code title="value">value</code></td><td class="num" title="headline.m4.pool_tilt_post_cell.value">0</td></tr>
+</table>
+
+<h4>PegKeeper provide limit</h4>
+<table class="striped"><tr><th>address</th><th class="num">provide allowed</th></tr>
+<tr><td><code title="0x338cb2d827112d989a861cde87cd9ffd913a1f9d">0x338cb2…1f9d</code></td><td class="num" title="headline.m4.provide_allowed.0x338cb2d827112d989a861cde87cd9ffd913a1f9d">0</td></tr><tr><td><code title="0x3fa20eaa107de08b38a8734063d605d5842fe09c">0x3fa20e…e09c</code></td><td class="num" title="headline.m4.provide_allowed.0x3fa20eaa107de08b38a8734063d605d5842fe09c">0</td></tr><tr><td><code title="0x53876b157decf04389eed66c7c29d73863f8c50b">0x53876b…c50b</code></td><td class="num" title="headline.m4.provide_allowed.0x53876b157decf04389eed66c7c29d73863f8c50b">0</td></tr><tr><td><code title="0x9201da0d97caaaff53f01b2fb56767c7072de340">0x9201da…e340</code></td><td class="num" title="headline.m4.provide_allowed.0x9201da0d97caaaff53f01b2fb56767c7072de340">0</td></tr><tr><td><code title="0xfb726f57d251ab5c731e5c64ed4f5f94351ef9f3">0xfb726f…f9f3</code></td><td class="num" title="headline.m4.provide_allowed.0xfb726f57d251ab5c731e5c64ed4f5f94351ef9f3">0</td></tr>
+</table>
+
+<h4>PegKeeper withdraw limit</h4>
+<table class="striped"><tr><th>address</th><th class="num">withdraw allowed</th></tr>
+<tr><td><code title="0x338cb2d827112d989a861cde87cd9ffd913a1f9d">0x338cb2…1f9d</code></td><td class="num" title="headline.m4.withdraw_allowed.0x338cb2d827112d989a861cde87cd9ffd913a1f9d">115,792,089,237,316,195,423,570,985,008,687,907,853,269,984,665,640,564,039,457.58</td></tr><tr><td><code title="0x3fa20eaa107de08b38a8734063d605d5842fe09c">0x3fa20e…e09c</code></td><td class="num" title="headline.m4.withdraw_allowed.0x3fa20eaa107de08b38a8734063d605d5842fe09c">115,792,089,237,316,195,423,570,985,008,687,907,853,269,984,665,640,564,039,457.58</td></tr><tr><td><code title="0x53876b157decf04389eed66c7c29d73863f8c50b">0x53876b…c50b</code></td><td class="num" title="headline.m4.withdraw_allowed.0x53876b157decf04389eed66c7c29d73863f8c50b">115,792,089,237,316,195,423,570,985,008,687,907,853,269,984,665,640,564,039,457.58</td></tr><tr><td><code title="0x9201da0d97caaaff53f01b2fb56767c7072de340">0x9201da…e340</code></td><td class="num" title="headline.m4.withdraw_allowed.0x9201da0d97caaaff53f01b2fb56767c7072de340">115,792,089,237,316,195,423,570,985,008,687,907,853,269,984,665,640,564,039,457.58</td></tr><tr><td><code title="0xfb726f57d251ab5c731e5c64ed4f5f94351ef9f3">0xfb726f…f9f3</code></td><td class="num" title="headline.m4.withdraw_allowed.0xfb726f57d251ab5c731e5c64ed4f5f94351ef9f3">115,792,089,237,316,195,423,570,985,008,687,907,853,269,984,665,640,564,039,457.58</td></tr>
+</table>
+
+</details>
+
+
+<details id="counterfactuals"><summary>What changes under the counterfactual assumptions</summary>
+<table class="striped"><tr><th>counterfactual</th><th>affects</th><th class="num">as modelled</th><th class="num">under the counterfactual</th></tr>
+
+<tr><td>H1 kill</td><td>m2</td><td class="num">5.96</td><td class="num">5.96</td></tr>
+
+<tr><td>EMA lag</td><td>m1.post</td><td class="num">0</td><td class="num">31,692,837.14</td></tr>
+</table>
+<div class="prose-slot" data-slot="counterfactual_explanations"><p>One test asks what happens to the gap between assets and liabilities, measured here as bad debt, if the PegKeepers were switched off so they could no longer mint or burn crvUSD to defend the peg. The result shows no change at all: bad debt comes out at $6 (5.96) whether the PegKeepers are left running or switched off. That tells you this particular shortfall does not come from the PegKeepers&#39; buying and selling activity — something else is driving it, so removing their defence mechanism here neither helps nor hurts the number.</p><p>A second test asks what happens if the price oracle is allowed to lag the market by its full moving-average window, rather than tracking price instantly. Under instant pricing the upper bound on collateral value at risk is $0, but once the lag is applied it jumps to $31.7M. The underlying coverage figures show why: at a 50 percent shock the collateral-to-debt ratio falls from 1.203998 with instant pricing to 0.790398 once the oracle lags the market, and at a 70 percent shock it falls from 1.125962 to 0.372248. In both cases the lagged figure is markedly worse, and at the higher shock level it drops well below the point where collateral would fully cover debt. This shows that the delay built into the oracle&#39;s averaging window, not the size of the shock alone, is what turns a fully covered position into a shortfall — the slower the price catches up, the more collateral value can already have been lost by the time it is recognised.</p></div>
+</details>
+
+
+<details id="exit-liquidity"><summary>Exit liquidity at four price-impact levels</summary>
+
+<figure class="wide"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 340" width="100%" role="img" aria-label="Exit liquidity by how much price impact sellers accept" font-family="system-ui, -apple-system, Segoe UI, Roboto, sans-serif"><title>Exit liquidity by how much price impact sellers accept</title><text x="20" y="22" font-size="15" text-anchor="start" fill="#1b2430" font-weight="600">Exit liquidity by how much price impact sellers accept</text><line x1="90" y1="256" x2="960" y2="256" stroke="#6b7886"/><line x1="90" y1="56" x2="90" y2="256" stroke="#6b7886"/><line x1="85" y1="256" x2="960" y2="256" stroke="#d9dee4"/><text x="82" y="260" font-size="12" text-anchor="end" fill="#6b7886" font-weight="normal">$0</text><line x1="85" y1="56" x2="960" y2="56" stroke="#d9dee4"/><text x="82" y="60" font-size="12" text-anchor="end" fill="#6b7886" font-weight="normal">$21.5M</text><text x="90" y="44" font-size="12" text-anchor="start" fill="#6b7886" font-weight="normal">exit liquidity ($)</text><rect x="144.4" y="91.2" width="108.8" height="164.8" fill="#1f5fa8"/><text x="198.8" y="278" font-size="13" text-anchor="middle" fill="#1b2430" font-weight="normal">0.5%</text><text x="198.8" y="83.2" font-size="12" text-anchor="middle" fill="#1b2430" font-weight="normal">$17.7M</text><rect x="361.9" y="76.4" width="108.8" height="179.6" fill="#1f5fa8"/><text x="416.3" y="278" font-size="13" text-anchor="middle" fill="#1b2430" font-weight="normal">1.0%</text><text x="416.3" y="68.4" font-size="12" text-anchor="middle" fill="#1b2430" font-weight="normal">$19.3M</text><rect x="579.4" y="65.7" width="108.8" height="190.3" fill="#1f5fa8"/><text x="633.8" y="278" font-size="13" text-anchor="middle" fill="#1b2430" font-weight="normal">2.0%</text><text x="633.8" y="57.7" font-size="12" text-anchor="middle" fill="#1b2430" font-weight="normal">$20.4M</text><rect x="796.9" y="56" width="108.8" height="200" fill="#1f5fa8"/><text x="851.3" y="278" font-size="13" text-anchor="middle" fill="#1b2430" font-weight="normal">5.0%</text><text x="851.3" y="48" font-size="12" text-anchor="middle" fill="#1b2430" font-weight="normal">$21.5M</text><text x="525" y="300" font-size="12" text-anchor="middle" fill="#6b7886" font-weight="normal">price impact sellers accept</text><rect x="90" y="316" width="12" height="12" fill="#1f5fa8"/><text x="108" y="326" font-size="12" text-anchor="start" fill="#1b2430" font-weight="normal">pool liquidity</text></svg><figcaption>Exit liquidity available if sellers accept up to 0.5%, 1%, 2% or 5% price impact; the report&#39;s headline uses 2%.</figcaption></figure>
+<p class="meta">Depeg scenario target: <code>0xdac17f…1ec7</code> · <a href="appendix.html">every scenario in the appendix</a></p>
+<p class="meta">Headline exit liquidity 20,440,870.89 — LP capital assumed sticky.</p>
+<p class="meta">LP-flight grid 0% / 30% / 60% — assumed scenario modifier, not data-derived.</p>
+
+
+<p class="meta">modeled pools: the largest pools covering 90% of the frozen set, which itself covered 95% of discovered on-Curve liquidity at freeze time (2026-09-04). K-subset share of the frozen set: 94.9%</p>
+<div class="prose-slot" data-slot="member1_opening"><p>When the collateral behind this stablecoin drops sharply in price, crvUSD&#39;s LLAMMA system moves positions through soft liquidation: it converts collateral inside the crossed price bands as the price falls, rather than waiting for a single default event. PegKeepers, which can mint or burn crvUSD against paired stable pools, sit alongside this as a separate stabilizing mechanism.</p><p>Before the shock, collateral coverage across the book stood at 0.99. After the shock modeled here, coverage rose to 1.20, a gap of 0.2118 restored by the liquidation mechanism converting collateral through the bands. Bad debt in this scenario came to $6, a small figure against the book. Forced sales — the collateral that must be sold — also came to $6, measured against exit liquidity of $20.4M, giving a forced-sales-to-exit-liquidity ratio of under 0.1%.</p><p>Bad debt on this grid is structurally zero: soft liquidation converts collateral at band prices before positions become insolvent, so the mechanism itself prevents the kind of shortfall that would otherwise register as bad debt.</p><p>At higher levels of liquidity-provider flight in the exit-liquidity grid, some cells show exit liquidity falling to $0, which leaves the forced-sales-to-exit-liquidity ratio undefined at that point — there is no exit venue left to absorb any forced selling, whatever its size.</p></div>
+<div class="prose-slot" data-slot="member2_opening"><p>crvUSD is not directly minted or redeemed against the paired stablecoin at 0xdac17f…1ec7, so a depeg of that paired asset does not force crvUSD&#39;s mechanism itself to sell collateral. This is why forced sales in the Member-2 headline depeg scenario (paired stablecoin at its middle target, no liquidity-provider flight) come out at $0, with a ratio of forced sales to exit liquidity of 0.</p><p>That zero is a statement about the mechanism, not about market exposure. Holders who want to exit crvUSD still have to sell into pools, and those pools thin out as the paired stablecoin&#39;s price target moves further from parity: exit liquidity at a price impact of 0.5% falls from $17.1M when the target sits at 0.97, to $16.2M at 0.93, to $15.2M at 0.88. The same pattern holds at wider price impacts, for example at 2.0% impact exit liquidity runs $19.8M at 0.97, $18.9M at 0.93, and $17.8M at 0.88.</p><p>Separately, the PegKeeper&#39;s usable headroom stands at $85.4M, with $6.6M of burn capacity, and its paired-unit holdings are concentrated almost entirely in one address at $6.4M, with the other listed addresses holding $0. None of this changes the forced-sale figure, but it shapes how much cushion exists around the exit venues that actually absorb selling pressure during a depeg of the paired stablecoin.</p></div>
+</details>
+
+<details id="assumptions"><summary>The modelling assumptions and the data behind each</summary>
+<table class="striped"><tr><th>assumption</th><th>what it means</th><th>data</th><th>source</th></tr>
+
+<tr><td><code>stock_only</code></td>
+<td>Capacity is measured as a stock at the run block; how each mechanism&#39;s stock-only reading errs is the bias table below.</td>
+<td><span title="bias.0.direction">bias: Collateral-sell-side bound: see appendix</span><br><span title="bias.0.mechanism">bias mechanism: see appendix</span><br><span title="bias.0.tokens">bias tokens: crvUSD, GHO</span><br><span title="bias.0.reason">bias reason: see appendix</span><br>… 32 more in table.json</td>
+<td>memo §7.1</td></tr>
+
+<tr><td><code>observation</code></td>
+<td>Prices are taken as observed instantly at the run block; the oracle table lists each feed&#39;s update condition.</td>
+<td><span title="oracle.0xac3e018457b222d93114458476f3e3416abbe38f.0x8472a9a7632b173c8cf3a86d3afec50c35548e76.ema_window_s">EMA window: 10,387 s</span><br><span title="oracle.0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0.0x100daa78fc509db39ef7d04de0c1abd299f4c6ce.ema_window_s">EMA window: 2,597 s</span><br><span title="oracle.0x2260fac5e5542a773aa44fbcfedf7c193bc2c599.0x4e59541306910ad6dc1dac0ac9dfb29bd9f15c67.ema_window_s">EMA window: 866 s</span><br><span title="oracle.0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2.0xa920de414ea4ab66b97da1bfe9e6eca7d4219635.ema_window_s">EMA window: 866 s</span><br>… 5 more in table.json</td>
+<td>memo §7.2</td></tr>
+
+<tr><td><code>lp_sticky</code></td>
+<td>Liquidity providers are assumed to stay in their pools unless a scenario applies the liquidity-flight modifier.</td>
+<td><span title="exit.lp_flight_literal">LP-flight assumption line: see appendix</span></td>
+<td>memo §6.1.4</td></tr>
+
+<tr><td><code>lp_grid</code></td>
+<td>Liquidity-provider flight is an assumed modifier of 0%, 30% and 60%, not a measured behaviour.</td>
+<td><span title="exit.lp_flight_literal">LP-flight assumption line: see appendix</span></td>
+<td>memo §6.1.4</td></tr>
+
+<tr><td><code>sell_side_bound</code></td>
+<td>Collateral that liquidations must sell is bounded by the analyst&#39;s dated sell-side capacity per volatile collateral.</td>
+<td><span title="node.0xac3e018457b222d93114458476f3e3416abbe38f.sell_side">sell-side bound: sfrxETH: 10.25</span><br><span title="node.0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0.sell_side">sell-side bound: wstETH: 609.38</span><br><span title="node.0x2260fac5e5542a773aa44fbcfedf7c193bc2c599.sell_side">sell-side bound: WBTC: 131.25</span><br><span title="node.0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2.sell_side">sell-side bound: WETH: 13,750.00</span><br>… 4 more in table.json</td>
+<td>memo §6.3</td></tr>
+
+<tr><td><code>par_numeraire</code></td>
+<td>paired assets counted at 1.00 for depth</td>
+<td>—</td>
+<td>memo §6.1.3</td></tr>
+
+<tr><td><code>shock_grid_fixed</code></td>
+<td>The shock grid is fixed by the archetype memo, not tuned per token.</td>
+<td>—</td>
+<td>memo §6.2.1</td></tr>
+
+<tr><td><code>lst_discount_grid</code></td>
+<td>Liquid-staking tokens take an additional discount of 0%, 5% or 10%.</td>
+<td>—</td>
+<td>memo §6.2.2</td></tr>
+
+<tr><td><code>member2_target</code></td>
+<td>The depeg scenario targets the paired stablecoin named in the frozen pool set.</td>
+<td><span title="exit.member2_target">Member-2 target: 0xdac17f…1ec7</span></td>
+<td>memo §6.2.5</td></tr>
+
+<tr><td><code>freeze_reference</code></td>
+<td>Exit venues are the pool set frozen on the freeze date shown.</td>
+<td><span title="header.freeze_date">freeze date: 2026-09-04</span></td>
+<td>memo §5.7</td></tr>
+
+<tr><td><code>band_linear</code></td>
+<td>An additional modelling disclosure carried by the stress model; its full text is in the appendix.</td>
+<td><span title="assumption.band_linear">assumption: band linear: see appendix</span></td>
+<td>—</td></tr>
+
+<tr><td><code>capacity</code></td>
+<td>An additional modelling disclosure carried by the stress model; its full text is in the appendix.</td>
+<td><span title="assumption.capacity">assumption: capacity: see appendix</span></td>
+<td>—</td></tr>
+
+<tr><td><code>ema_lag_readings</code></td>
+<td>An additional modelling disclosure carried by the stress model; its full text is in the appendix.</td>
+<td><span title="assumption.ema_lag_readings">assumption: ema lag readings: see appendix</span></td>
+<td>—</td></tr>
+
+<tr><td><code>lp_flight</code></td>
+<td>An additional modelling disclosure carried by the stress model; its full text is in the appendix.</td>
+<td><span title="assumption.lp_flight">assumption: lp flight: see appendix</span></td>
+<td>—</td></tr>
+
+<tr><td><code>structural_insulation</code></td>
+<td>An additional modelling disclosure carried by the stress model; its full text is in the appendix.</td>
+<td><span title="assumption.structural_insulation">assumption: structural insulation: see appendix</span></td>
+<td>—</td></tr>
+
+<tr><td><code>undefined_ratio</code></td>
+<td>An additional modelling disclosure carried by the stress model; its full text is in the appendix.</td>
+<td><span title="assumption.undefined_ratio">assumption: undefined ratio: see appendix</span></td>
+<td>—</td></tr>
+
+</table>
+</details>
+
+<details id="bias"><summary>How a stock-only reading errs, mechanism by mechanism</summary>
+<h3>stock-only capacity — direction of error per mechanism</h3>
+<table class="striped"><tr><th>mechanism</th><th>tokens</th><th>direction</th><th>reason</th></tr>
+
+<tr><td>Collateral-sell-side bound</td><td>crvUSD, GHO</td><td>overstates</td><td>full bound treated as immediately absorbable</td></tr>
+
+<tr><td>GSM cap headroom (H2.i)</td><td>GHO</td><td>overstates</td><td>full cap headroom treated as instantly mintable</td></tr>
+
+<tr><td>Liquidator recycling (H5)</td><td>GHO</td><td>understates</td><td>no multi-round capital recycling</td></tr>
+
+<tr><td>Stability Pool refills (H3)</td><td>LUSD</td><td>understates</td><td>no SP deposits between liquidation waves</td></tr>
+
+<tr><td>PegKeeper effective headroom (H1)</td><td>crvUSD</td><td>overstates</td><td>full effective headroom treated as deployed within the window; peer co-deployment dynamics omitted — runs conservative</td></tr>
+
+<tr><td>H4 redemption capacity</td><td>LUSD</td><td>overstates</td><td>full schedule capacity treated as immediately available; base-rate decay (regenerative, 12h half-life) omitted — runs conservative</td></tr>
+
+<tr><td>H5 liquidator appetite (composite)</td><td>GHO</td><td>both</td><td>two named opposite-sign terms; `binding_side` states per cell which dominates</td></tr>
+
+<tr><td>Pool exit depth — no LP inflow</td><td>all</td><td>understates</td><td>no LP inflow modeled</td></tr>
+
+<tr><td>Pool exit depth — LP sticky at flight-0</td><td>all</td><td>overstates</td><td>static composition; spread disclosed by the LP-flight grid</td></tr>
+</table>
+</details>
+
+<details id="admin"><summary>The admin-power table, row by row</summary>
+<div class="prose-slot" data-slot="admin_surface_narrative"><p>Minting power sits with a dao governance holder at 0xb7400d…fb79. Any change takes effect only after a delay of 7 days, and no veto address is recorded for this action, so once the delay passes the change goes through unopposed. The same holder also controls the ceiling that limits new supply, again with a delay of 7 days, but here a veto address at 0x467947…1e0c is recorded, meaning that action can be blocked before it takes effect.</p><p>The oracle that feeds the price used for the system can also be changed by 0xb7400d…fb79, with the same delay of 7 days, and this action too carries a veto address at 0x467947…1e0c. Other core settings, grouped as parameters, follow the identical pattern: same holder, a delay of 7 days, and the same veto holder able to intervene. Pausing the system, by contrast, rests with 0x467947…1e0c directly and can happen with no delay at all.</p><p>Contract code itself cannot be upgraded, since the upgrade path is recorded as immutable, and there is no holder listed for freezing assets, blacklisting addresses, or seizing funds. So the only ways backing or minting can change run through the dao governance holder and its associated veto holder, and the fastest of these, pausing, carries no delay at all.</p></div>
+<table class="striped"><tr><th>power</th><th>holder</th><th>type</th><th>delay</th><th>veto</th><th>upgradeable</th><th>scope</th><th>evidence</th></tr>
+
+<tr><td>minting</td><td><code>0xb7400d…fb79</code></td><td>the DAO</td>
+<td>1–7 days</td><td>—</td><td>—</td>
+<td><code>0xc9332f…38bc</code> <code>0x36a04c…855f</code> </td>
+<td>contract read: admin()</td></tr>
+
+<tr><td>debt ceilings</td><td><code>0xb7400d…fb79</code></td><td>the DAO</td>
+<td>1–7 days</td><td>0x467947…1e0c</td><td>—</td>
+<td><code>0xc9332f…38bc</code> <code>0x36a04c…855f</code> </td>
+<td>contract read: admin()</td></tr>
+
+<tr><td>contract upgrades</td><td><code>—</code></td><td>none</td>
+<td>none</td><td>—</td><td>immutable</td>
+<td></td>
+<td>absence read</td></tr>
+
+<tr><td>pausing</td><td><code>0x467947…1e0c</code></td><td>the DAO</td>
+<td>none</td><td>—</td><td>—</td>
+<td><code>0x36a04c…855f</code> </td>
+<td>contract read: emergency_admin()</td></tr>
+
+<tr><td>freezing assets</td><td><code>—</code></td><td>none</td>
+<td>none</td><td>—</td><td>—</td>
+<td></td>
+<td>absence read</td></tr>
+
+<tr><td>blacklisting addresses</td><td><code>—</code></td><td>none</td>
+<td>none</td><td>—</td><td>—</td>
+<td></td>
+<td>absence read</td></tr>
+
+<tr><td>oracle settings</td><td><code>0xb7400d…fb79</code></td><td>the DAO</td>
+<td>1–7 days</td><td>0x467947…1e0c</td><td>—</td>
+<td><code>0xc9332f…38bc</code> <code>0x36a04c…855f</code> </td>
+<td>contract read: admin()</td></tr>
+
+<tr><td>risk parameters</td><td><code>0xb7400d…fb79</code></td><td>the DAO</td>
+<td>1–7 days</td><td>0x467947…1e0c</td><td>—</td>
+<td><code>0xc9332f…38bc</code> <code>0x36a04c…855f</code> </td>
+<td>contract read: admin()</td></tr>
+
+<tr><td>seizing assets</td><td><code>—</code></td><td>none</td>
+<td>none</td><td>—</td><td>—</td>
+<td></td>
+<td>absence read</td></tr>
+</table>
+</details>
+
+<details id="oracle"><summary>Price feeds: type, update threshold and heartbeat</summary>
+
+<table class="striped"><tr><th>collateral</th><th>market or reserve</th><th>update rule</th><th class="num">threshold</th><th class="num">window / heartbeat</th><th>staleness</th></tr>
+
+<tr><td>sfrxETH</td><td><code>0x8472a9…8e76</code></td><td>ema window</td>
+<td class="num">—</td>
+<td class="num">10,387 s</td>
+<td>not assessed in this pilot</td></tr>
+
+<tr><td>wstETH</td><td><code>0x100daa…c6ce</code></td><td>ema window</td>
+<td class="num">—</td>
+<td class="num">2,597 s</td>
+<td>not assessed in this pilot</td></tr>
+
+<tr><td>WBTC</td><td><code>0x4e5954…5c67</code></td><td>ema window</td>
+<td class="num">—</td>
+<td class="num">866 s</td>
+<td>not assessed in this pilot</td></tr>
+
+<tr><td>WETH</td><td><code>0xa920de…9635</code></td><td>ema window</td>
+<td class="num">—</td>
+<td class="num">866 s</td>
+<td>not assessed in this pilot</td></tr>
+
+<tr><td>sfrxETH</td><td><code>0xec0820…15cf</code></td><td>ema window</td>
+<td class="num">—</td>
+<td class="num">2,597 s</td>
+<td>not assessed in this pilot</td></tr>
+
+<tr><td>tBTC</td><td><code>0x1c91da…e704</code></td><td>ema window</td>
+<td class="num">—</td>
+<td class="num">601 s</td>
+<td>not assessed in this pilot</td></tr>
+
+<tr><td>weETH</td><td><code>0x652aea…6b11</code></td><td>ema window</td>
+<td class="num">—</td>
+<td class="num">866 s</td>
+<td>not assessed in this pilot</td></tr>
+
+<tr><td>cbBTC</td><td><code>0xf8c786…cbe3</code></td><td>ema window</td>
+<td class="num">—</td>
+<td class="num">866 s</td>
+<td>not assessed in this pilot</td></tr>
+
+<tr><td>LBTC</td><td><code>0x8aca5a…58ef</code></td><td>ema window</td>
+<td class="num">—</td>
+<td class="num">866 s</td>
+<td>not assessed in this pilot</td></tr>
+</table>
+<p class="meta">Independent market reference prices are not available from a pinned source in this pilot (9 collaterals).</p>
+<p class="meta">instant observation — knowingly optimistic: LLAMMA prices off an EMA oracle; see counterfactual line EMA_lag</p>
+
+<p class="meta">oracle manipulation out of scope — feed control reported under the admin-power surface (the oracle settings rows of the admin-power table). oracle failure/staleness out of scope. sequencer/infra risk n/a — mainnet only.</p>
+<div class="prose-slot" data-slot="flag_explanations"><p>No notices are open for crvUSD this run.</p></div>
+</details>
+
+<details id="audits"><summary>Audits, bug bounty and counterparties</summary>
+<ul class="plain"><li>MixBytes 2023-06-05 — crvUSD infrastructure</li><li>ChainSecurity 2024-01-24 — crvUSD infrastructure</li><li>ChainSecurity 2025-02-21 — crvUSD infrastructure</li><li>ChainSecurity 2023-12-12 — PegKeeperV2</li><li>ChainSecurity 2024-10-25 — FastBridge (cross-chain crvUSD)</li><li>MixBytes 2024-09-02 — LlamaLend</li></ul>
+<p class="meta">Audit list (analyst-supplied 2026-09-13)</p>
+<p class="meta">Bug bounty: Curve (self-run, docs.curve.finance/developer/security), max USD 250,000 (analyst-supplied 2026-09-13). Last material change audited: yes (analyst-supplied 2026-09-13). Audit status as of 2026-09-13. Counterparties: n/a — archetype #1 holds no off-chain counterparties. WBTC custodian captured in §4 look-through.</p>
+</details>
+
+<nav class="links">
+  <a href="../../../docs/context/archetype-memo-1-cdp.md">archetype memo</a>
+  <a href="../../../docs/context/intake-sheets-cdp.md">intake sheet</a>
+  <a href="verify.html">verify</a>
+  <a href="appendix.html">appendix</a>
+  <a href="data/table.json">table.json</a>
+  <a href="data/grid.json">grid.json</a>
+  <a href="data/evaluation-25974925.json">gate record</a>
+</nav>
+
+
+</main>
+</body>
+</html>

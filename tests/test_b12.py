@@ -144,9 +144,10 @@ def call(fn, runs, tok, page):
 
 def test_det12_s3(runs):
     page = runs["GHO"][3]
-    assert call(det_12_s3, runs, "GHO", fresh(page)).startswith("3 trigger(s)")
+    # P-7.10's final spend run added T-25 to GHO's record triggers
+    assert call(det_12_s3, runs, "GHO", fresh(page)).startswith("4 trigger(s)")
     bad = fresh(page)
-    bad["html"]["index"] = bad["html"]["index"].replace("3 notice(s)", "2 notice(s)")
+    bad["html"]["index"] = bad["html"]["index"].replace("4 notice(s)", "3 notice(s)")
     with pytest.raises(Level3, match="flags line"):
         call(det_12_s3, runs, "GHO", bad)
 
@@ -162,12 +163,14 @@ def test_det58(runs):
 
 
 def test_det59(runs):
-    page = runs["LUSD"][3]
-    assert "Current run: quarantined — gate failure" in call(det_59, runs, "LUSD", fresh(page))
-    bad = fresh(page)
+    # LUSD published at P-7.10 (no banner); crvUSD's last live page still carries it
+    crv = runs["crvUSD"][3]
+    assert "Current run: quarantined — gate failure" in call(det_59, runs, "crvUSD", fresh(crv))
+    bad = fresh(crv)
     bad["html"]["index"] = bad["html"]["index"].replace("Current run: quarantined", "Current run")
     with pytest.raises(Level3, match="banner literal"):
-        call(det_59, runs, "LUSD", bad)
+        call(det_59, runs, "crvUSD", bad)
+    page = runs["LUSD"][3]
     nob = fresh(page)
     nob["html"]["index"] = nob["html"]["index"].replace("behavioral tier: pending", "")
     with pytest.raises(Level3, match=r"DET-59\(b\)"):
@@ -215,9 +218,10 @@ def test_det13(runs):
     with pytest.raises(Level3, match=r"DET-13\(a\)"):
         call(det_13, runs, "LUSD", fresh(page, report_manifest={
             **page["report_manifest"], "bundle_hash": "0" * 64}))
+    crv = runs["crvUSD"][3]                    # (d) needs an open Level 2/3 entry: crvUSD's
     with pytest.raises(Level3, match=r"DET-13\(d\)"):
-        call(det_13, runs, "LUSD", fresh(page,
-                                         site_report_hash=page["report_manifest"]["report_hash"]))
+        call(det_13, runs, "crvUSD", fresh(crv,
+                                           site_report_hash=crv["report_manifest"]["report_hash"]))
     with pytest.raises(Level3, match=r"DET-13\(c\)"):
         call(det_13, runs, "LUSD", fresh(page, prior_results=page["prior_results"][1:]))
 
@@ -230,7 +234,7 @@ def test_the_recorded_run_logged_t28_and_the_gho_flags():
         assert ("T-28", 2, "2026-09-14") in got
     gho = {e.trigger for _, e in eventlog.open_entries(
         eventlog.read(REPO / "out/logs/events_gho.jsonl"), "GHO")}
-    assert gho == {"T-20", "T-02", "T-28"}
+    assert gho == {"T-20", "T-02", "T-28", "T-25"}                 # T-25: P-7.10's final spend
 
 
 def test_det89_reads_the_section3_literals_as_printed_text(runs):
