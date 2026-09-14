@@ -13,14 +13,22 @@
 </table>
 {% endfor %}
 {%- endmacro %}
+{% macro flags(key) -%}
+{% for f in log.flags.get(key, []) %}<p class="flag" data-section="{{ f.section }}" data-entry="{{ f.id }}">{{ w.flag.format(name=f.name, id=f.id, date=f.date) }}</p>
+{% endfor %}
+{%- endmacro %}
 {% block body %}
+{% if log.banner %}<div class="banner quarantine"><p>{{ log.banner.last }}</p>{% if log.banner.current %}<p>{{ log.banner.current }}</p>{% endif %}</div>{% endif %}
+{% if log.banner and log.banner.review %}<p class="banner quarantine">{{ log.banner.review }}</p>{% else %}
 {# ===================== the reader layer (R-B11.1) ===================== #}
+{{ flags('pills') }}
 <div class="pills">
 {% for colour, text in pills %}<span class="pill {{ colour }}">{{ text }}</span>{% endfor %}
 </div>
 
 <section class="finding">
 <h2>The finding {{ tip('finding') }}</h2>
+{{ flags('finding') }}
 <div class="slot">{{ slot('structural_summary') }}</div>
 <div class="cards">
   <div class="card"><div class="card-label">{{ label('supply_card') }} {{ tip('supply') }}</div><div class="card-value" title="supply.supply_ruled">{{ c('supply.supply_ruled') }}</div></div>
@@ -34,12 +42,14 @@
 
 <section>
 <h2>Where the backing sits {{ tip('backing') }}</h2>
+{{ flags('backing') }}
 <figure class="wide tree">{{ tree_svg | safe }}</figure>
 <p class="prose">{{ governance }}</p>
 </section>
 
 <section>
 <h2>What could break it {{ tip('break') }}</h2>
+{{ flags('break') }}
 <p class="prose">{{ w.why_scenario }}</p>
 <p class="prose">{{ w.headline_sentence.format(bad_debt=c('headline.m2.bad_debt'), pct=c('headline.m2.pct_supply'), sold=c('headline.m3.forced_sell_volume'), exit=c('headline.m3.exit_depth')) }}</p>
 {% if sz_flag %}
@@ -71,6 +81,7 @@
 
 {# ===================== the specialist layer ===================== #}
 <h2 class="specialists">{{ w.specialists }}</h2>
+<p class="meta">{{ w.behavioral_pending }}</p>
 
 <details><summary>{{ w.summaries.tree_nodes }}</summary>
 {% if ids('verif.truncated.') %}
@@ -126,6 +137,7 @@
 </details>
 
 <details><summary>{{ w.summaries.headline }}</summary>
+{{ flags('headline') }}
 <table class="striped">
 <tr><th>metric</th><th class="num">value</th></tr>
 {% for f, k in [('headline.m1.pre.ratio','m1_pre'),('headline.m1.post.ratio','m1_post'),('headline.m1.gap','m1_gap'),('headline.m2.bad_debt','m2_bad_debt'),('headline.m2.pct_supply','m2_pct_supply'),('headline.m3.forced_sell_volume','m3_forced_sell_volume'),('headline.m3.exit_depth','m3_exit_depth'),('headline.m3.ratio','m3_ratio')] %}
@@ -147,6 +159,7 @@
 {% endif %}
 
 <details><summary>{{ w.summaries.chart_b }}</summary>
+{{ flags('chart_b') }}
 <figure class="wide">{{ chart_b | safe }}<figcaption>{{ w.charts.b_caption }}</figcaption></figure>
 <p class="meta">Depeg scenario target: <code>{{ v('exit.member2_target') }}</code> · <a href="appendix.html">every scenario in the appendix</a></p>
 <p class="meta">{{ w.rubric.lp_sticky_line.format(exit=v('headline.m3.exit_depth')) }}</p>
@@ -189,6 +202,7 @@
 </details>
 
 <details><summary>{{ w.summaries.oracle }}</summary>
+{{ flags('oracle') }}
 <table class="striped"><tr><th>collateral</th><th>market or reserve</th><th>update rule</th><th class="num">threshold</th><th class="num">window / heartbeat</th><th>staleness</th></tr>
 {% for f in ids('oracle.0x') if f.endswith('.type') %}{% set p = f[:-5] %}{% set parts = p.split('.') %}
 <tr><td>{{ raw('tree.node.' ~ parts[1] ~ '.symbol') if ('tree.node.' ~ parts[1] ~ '.symbol') in rows else (parts[1] | fmt('address')) }}</td><td><code>{{ parts[2] | fmt('address') }}</code></td><td>{{ v(f) | replace('_', ' ') }}</td>
@@ -220,4 +234,5 @@
   <a href="data/grid.json">grid.json</a>
   <a href="data/evaluation-{{ doc.run_block }}.json">gate record</a>
 </nav>
+{% endif %}
 {% endblock %}

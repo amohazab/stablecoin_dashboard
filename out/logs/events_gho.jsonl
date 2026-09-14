@@ -6,3 +6,6 @@
 {"date":"2026-09-13","set_file_hash":"062b5a0c","sheet_hash":"32f8aa5d","source":"P-7.04 — C3+ signed edit: disclosure rows, feed table, audit rows (R7, R20, R21); rubric A-16–A-19","token":"GHO","type":"intake_trigger"}
 {"date":"2026-09-13","set_file_hash":"062b5a0c","sheet_hash":"5486f264","source":"P-7.05 — B-9 S9 signed edit: LUSD counterparties line gains the WBTC note (DET-73)","token":"GHO","type":"intake_trigger"}
 {"date":"2026-09-14","set_file_hash":"062b5a0c","sheet_hash":"29682310","source":"P-7.08 — B-11d signed edit: S1/S2 class-S tags retired (DET-74); DET-47 reference removed from the H5 bias reason; the DAI/USDS row gains the memo's Sky note tag (M2); rubric header re-stamp","token":"GHO","type":"intake_trigger"}
+{"date":"2026-09-14","level":1,"resolution_date":null,"resolution_type":null,"token":"GHO","trigger":"T-02","type":"quarantine"}
+{"date":"2026-09-14","level":1,"resolution_date":null,"resolution_type":null,"token":"GHO","trigger":"T-20","type":"quarantine"}
+{"date":"2026-09-14","level":2,"resolution_date":null,"resolution_type":null,"token":"GHO","trigger":"T-28","type":"quarantine"}

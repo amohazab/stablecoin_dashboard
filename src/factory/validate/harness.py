@@ -30,6 +30,19 @@ TRIGGER_TABLE: dict[str, int] = {
     "T-28": 2,                       # A-17, C3+ (P-7.04): gate failure, report stage
 }
 
+# The printed table's `section` column (where a flag renders), mirrored for DET-12 S0
+# and DET-58 (B-12). "—" = a Level 2/3 row with no flag.
+TRIGGER_SECTION: dict[str, str] = {
+    "T-01": "verifiability", "T-02": "exit liquidity", "T-03": "verifiability",
+    "T-04": "verifiability", "T-05": "supply", "T-06": "verifiability",
+    "T-07": "mechanism state", "T-08": "stress (Member 2)", "T-09": "—", "T-10": "—",
+    "T-11": "—", "T-12": "—", "T-13": "—", "T-14": "—", "T-15": "—", "T-16": "header",
+    "T-17": "exit liquidity", "T-18": "exit liquidity", "T-19": "supply",
+    "T-20": "exit liquidity", "T-21": "exit liquidity", "T-22": "exit liquidity",
+    "T-23": "—", "T-24": "—", "T-25": "—", "T-26": "oracle table", "T-27": "supply",
+    "T-28": "—",
+}
+
 STALENESS_LIMIT_DAYS = 92  # R-1
 DET83_FRESHNESS_LIMIT_S = 3600
 
@@ -95,10 +108,15 @@ def det_02(b: Bundle, ctx) -> None:
 
 
 def det_12(b: Bundle, ctx) -> None:
-    """Declare-your-level: the runtime trigger table equals the printed one."""
+    """Declare-your-level, S0: the runtime table equals rubric §3 as printed - IDs,
+    levels and `section` - where `printed_trigger_table` is `factory.rubric`'s parse of
+    `docs/context/rubic_v1.md` (B-12; it was a copy of the runtime table, finding 8).
+    A split-level row compares its first printed level."""
     printed = ctx["printed_trigger_table"]
-    if TRIGGER_TABLE != printed:
-        diff = set(TRIGGER_TABLE.items()) ^ set(printed.items())
+    runtime = {k: (TRIGGER_TABLE[k], TRIGGER_SECTION.get(k)) for k in TRIGGER_TABLE}
+    got = {k: (v["levels"][0], v["section"]) for k, v in printed.items()}
+    if runtime != got:
+        diff = set(runtime.items()) ^ set(got.items())
         raise Level3(f"DET-12: trigger table mismatch {sorted(diff)[:4]}")
 
 
@@ -2314,6 +2332,7 @@ def run_report_checks(bundle: Bundle, tree: VerifiabilityTree, report: StressRep
     the table (DET-84), S3 over the rendered pages (B-11b). A Level 3 row's
     trigger text, when it passes with one, is its scope."""
     results = []
+    page["_s3_results"] = []            # DET-13 reads the record as it stands (B-12)
     for chk in (c for c in CHECKS if c.consumer == "report" and c.stage == stage):
         try:
             scope = chk.fn(bundle, tree, report, page)
@@ -2325,6 +2344,8 @@ def run_report_checks(bundle: Bundle, tree: VerifiabilityTree, report: StressRep
         except Exception as exc:
             results.append(GateResult(entry_id=chk.entry_id, result="error",
                                       scope_condition=f"{type(exc).__name__}: {exc}"[:500]))
+        page["_s3_results"].append({"entry_id": chk.entry_id, "result": results[-1].result,
+                                    "scope_condition": results[-1].scope_condition})
     return results
 
 
@@ -2976,7 +2997,10 @@ def det_89(b: Bundle, t: VerifiabilityTree, r: StressReport, page: dict) -> str:
     (iii) Every numeric figure on index and appendix, and on verify outside its
     sheet block, is a figure `fmt` prints for a table or grid value, or a
     number in the template's own text. NAMED DEFAULT: dates are not numeric
-    figures; a figure matches by string, not by position."""
+    figures; a figure matches by string, not by position. RECORDED READING (Amin,
+    B-12 stop, ruling (a)): rubric §3's trigger literals are printed text, read as
+    template text is - a threshold in a flag's literal is a ruled constant, not a
+    rendered figure."""
     from factory.report.render import infer_unit
     s = _s3(page)
     fmt = s["fmt"]
@@ -3030,6 +3054,8 @@ def det_89(b: Bundle, t: VerifiabilityTree, r: StressReport, page: dict) -> str:
                 allowed.update(_num_tokens(f))
     for text in page["template_strings"]:
         allowed.update(_num_tokens(text))
+    for row in page.get("trigger_table", {}).values():        # ruling (a), B-12
+        allowed.update(_num_tokens(row["name"]))
     stray: dict[str, int] = {}
     for name in ("index", "appendix", "verify"):
         html = page["html"][name]
@@ -3044,6 +3070,225 @@ def det_89(b: Bundle, t: VerifiabilityTree, r: StressReport, page: dict) -> str:
     if problems:
         raise Level3(f"DET-89: {'; '.join(problems)}")
     return "display rule emitted; decimals() read; every figure a fmt output"
+
+
+# ------------------------------------------- S3, consumer "report" (B-12) ----------
+#
+# The log, the flags, the banner and gate integrity (P-7.01 R13-R16; rubric A-17;
+# inventory H). `page` additionally carries, from the report stage:
+#   `trigger_table`   rubric §3, parsed (factory.rubric)
+#   `log_entries`     the token's event log AFTER this run's planned lines (models)
+#   `log_raw`         the same lines as raw JSON objects (DET-60's closed schema)
+#   `log_date`        this run's date (UTC date of the block timestamp)
+#   `record_triggers` this run's `{trigger, level, source_entry}` - check-fired
+#                     triggers plus the report stage's T-28 / T-23 gate lines
+#   `prior_results`   the S0-S2 results as `{entry_id, stage, result, scope_condition}`
+#   `report_manifest` the report manifest; `run_hashes` `{date: {hash fields}}` from
+#                     the gate records (DET-87); `site_report_hash` the report_hash of
+#                     a page already under `out/site/<T>/`, or None.
+
+QUARANTINE_FIELDS = {"type", "date", "token", "trigger", "level", "resolution_type",
+                     "resolution_date"}
+EVIDENCE = {"template_change": "template_hash", "intake_change": "sheet_hash",
+            "config_change": "frozen_set_hash", "rubric_change": "rubric_hash",
+            "code_fix": "pipeline_version", "data_correction": "bundle_hash"}
+
+
+def _open(page: dict) -> list:
+    from factory.eventlog import open_entries
+    return open_entries(page["log_entries"], page["table"]["token"])
+
+
+def det_12_s3(b: Bundle, t: VerifiabilityTree, r: StressReport, page: dict) -> str:
+    """DET-12, S3: every log entry's trigger is in rubric §3 at its printed level;
+    the page's flags line names every trigger the record carries, and only those."""
+    from factory.eventlog import quarantine_lines
+    table = page["trigger_table"]
+    token = page["table"]["token"]
+    bad = [f"{e.trigger}/L{e.level}" for _, e in quarantine_lines(page["log_entries"], token)
+           if e.trigger not in table or e.level not in table[e.trigger]["levels"]]
+    if bad:
+        raise Level3(f"DET-12: log entries off the printed table {bad[:4]}")
+    fired = list(dict.fromkeys(x["trigger"] for x in page["record_triggers"]))
+    pills = [e for e in _s3(page)["el"]["index"] if re.fullmatch(r"\d+ notice\(s\): .+", e)]
+    if not fired:
+        if pills or page["wording"]["pills"]["flags_none"] not in _s3(page)["el"]["index"]:
+            raise Level3("DET-12: no trigger this run, but the flags line does not say so")
+        return "no triggers; flags line empty"
+    if len(pills) != 1:
+        raise Level3(f"DET-12: {len(pills)} flags lines for {len(fired)} trigger(s)")
+    n = int(pills[0].split(" ", 1)[0])
+    tp = page["wording"].get("trigger_pill", {})
+    missing = [x for x in fired if (tp[x].split("{")[0].strip() if x in tp
+                                    else table[x]["name"]) not in pills[0]]
+    if n != len(fired) or missing:
+        raise Level3(f"DET-12: flags line {pills[0]!r} against record triggers {fired}")
+    return f"{len(fired)} trigger(s) on the flags line; log entries on the printed table"
+
+
+def det_58(b: Bundle, t: VerifiabilityTree, r: StressReport, page: dict) -> str:
+    """Flags where triggers fired: every open Level-1 entry has a flag element in its
+    trigger's section with the trigger's literal text, the entry id and the original
+    fire date; a flag with no open entry fails. NAMED DEFAULT: a flag is
+    `<p class="flag" data-section=... data-entry=...>`; the section is the attribute."""
+    import html as _html
+    table = page["trigger_table"]
+    want = {eid: e for eid, e in _open(page) if e.level == 1}
+    flags = re.findall(r'<p class="flag" data-section="([^"]*)" data-entry="([^"]*)">(.*?)</p>',
+                       page["html"]["index"], flags=re.S)
+    seen = {}
+    for section, eid, body in flags:
+        text = _html.unescape(re.sub(r"<[^>]+>", " ", body))
+        if eid not in want:
+            raise Level3(f"DET-58: flag {eid} has no open Level-1 entry")
+        e = want[eid]
+        row = table[e.trigger]
+        if (_html.unescape(section) != row["section"] or row["name"] not in text
+                or eid not in text or e.date not in text):
+            raise Level3(f"DET-58: flag {eid} lacks its section, literal, id or fire date")
+        seen[eid] = True
+    unflagged = sorted(set(want) - set(seen))
+    if unflagged:
+        raise Level3(f"DET-58: open Level-1 entr(ies) with no flag {unflagged}")
+    return f"{len(want)} open Level-1 entr(ies) flagged"
+
+
+def det_59(b: Bundle, t: VerifiabilityTree, r: StressReport, page: dict) -> str:
+    """Stale-page banner and cap (R-33): an open Level 2/3 entry puts the banner
+    literals on the page ("Last successful run: [date]", "Current run: quarantined —
+    [trigger category]"); >= 4 consecutive quarantined runs replace the body with
+    "Under review — last successful run [date]"; no open Level 2/3 entry, no banner;
+    (b) the "behavioral tier: pending" literal. NAMED DEFAULT (R16): with no
+    published report the date reads "none yet"; the body the banner stands over is
+    the rehearsal page, which never reaches `out/site/` (DET-13(d))."""
+    from factory.eventlog import consecutive_quarantined_runs, last_published
+    w = page["wording"]["banner"]
+    token = page["table"]["token"]
+    txt = _s3(page)["text"]["index"]
+    table = page["trigger_table"]
+    heavy = [e for _, e in _open(page) if e.level in (2, 3)]
+    last = last_published(page["log_entries"], token)
+    date = last.date if last else w["none"]
+    runs = consecutive_quarantined_runs(page["log_entries"], token)
+    lits = [w["last"].format(date=date)]
+    if heavy:
+        cat = ", ".join(sorted({table[e.trigger]["name"] for e in heavy}))
+        lits.append(w["current"].format(category=cat))
+    review = w["review"].format(date=date)
+    if "behavioral tier: pending" not in txt:
+        raise Level3('DET-59(b): the "behavioral tier: pending" literal is absent')
+    if not heavy:
+        if w["current"].split("{")[0] in txt:
+            raise Level3("DET-59: quarantine banner on a run with no open Level 2/3 entry")
+        return "no open Level 2/3 entry; no banner"
+    missing = [x for x in lits if x not in txt]
+    if missing:
+        raise Level3(f"DET-59: banner literal(s) absent {missing}")
+    if runs >= 4 and (review not in txt or 'class="finding"' in page["html"]["index"]):
+        raise Level3(f"DET-59: {runs} consecutive quarantined runs but the page is not "
+                     "'Under review' without a body")
+    if runs < 4 and review in txt:
+        raise Level3(f"DET-59: 'Under review' at {runs} consecutive quarantined run(s)")
+    return f"banner: {lits[-1]}; consecutive quarantined runs {runs}"
+
+
+def det_60(b: Bundle, t: VerifiabilityTree, r: StressReport, page: dict) -> str:
+    """Log entries complete: every trigger fired this run has exactly one entry
+    (Level 1: its open entry, lifecycle (ii); Level 2/3: its fire line dated this
+    run); closed schema; level per DET-12; resolution fields set together.
+    NAMED DEFAULT: the methodology page's row count waits for Step 9's page."""
+    from factory.eventlog import open_entries, quarantine_lines
+    token = page["table"]["token"]
+    table = page["trigger_table"]
+    for raw in page["log_raw"]:
+        if raw.get("type") == "quarantine" and set(raw) != QUARANTINE_FIELDS:
+            raise Level3(f"DET-60: quarantine line fields {sorted(set(raw) ^ QUARANTINE_FIELDS)}")
+    lines = quarantine_lines(page["log_entries"], token)
+    for _, e in lines:
+        if (e.resolution_type is None) != (e.resolution_date is None):
+            raise Level3("DET-60: resolution_type and resolution_date set apart")
+        if e.trigger not in table or e.level not in table[e.trigger]["levels"]:
+            raise Level3(f"DET-60: {e.trigger} at level {e.level} is off DET-12's table")
+    opened = open_entries(page["log_entries"], token)
+    for trig, lvl in sorted({(x["trigger"], x["level"]) for x in page["record_triggers"]}):
+        if lvl == 1:
+            n = sum(1 for _, e in opened if (e.trigger, e.level) == (trig, 1))
+        else:
+            n = sum(1 for _, e in lines if (e.trigger, e.level, e.date) == (trig, lvl,
+                    page["log_date"]) and e.resolution_date is None)
+        if n != 1:
+            raise Level3(f"DET-60: {trig} (L{lvl}) fired this run with {n} entries")
+    return f"{len(lines)} quarantine line(s); every fired trigger has one entry"
+
+
+def det_87(b: Bundle, t: VerifiabilityTree, r: StressReport, page: dict) -> str:
+    """Resolution evidence (R-51): `template_hash` and `pipeline_version` present on
+    the manifest; every resolved entry's evidence hash differs between its fire run
+    and its resolution run, by type. NAMED DEFAULTS: runs are found by date in the
+    gate records; `config_change` reads `frozen_set_hash`; `data_correction` reads
+    `bundle_hash` (the re-read differs); `rubric_change` reads the record's
+    `rubric_hash`, the rubric header's stamp chain."""
+    from factory.eventlog import quarantine_lines
+    man = page["report_manifest"]
+    if not (man.get("template_hash") and man.get("pipeline_version")):
+        raise Level3("DET-87: template_hash or pipeline_version absent from the manifest")
+    hashes = page["run_hashes"]
+    resolved = [e for _, e in quarantine_lines(page["log_entries"], page["table"]["token"])
+                if e.resolution_date is not None]
+    for e in resolved:
+        field = EVIDENCE.get(e.resolution_type)
+        fire, fix = hashes.get(e.date, {}), hashes.get(e.resolution_date, {})
+        if field is None or not fire.get(field) or not fix.get(field):
+            raise Level3(f"DET-87: {e.trigger} resolved by {e.resolution_type} with no "
+                         f"{field} evidence on {e.date} / {e.resolution_date}")
+        if fire[field] == fix[field]:
+            raise Level3(f"DET-87: {e.trigger} resolved by {e.resolution_type} but {field} "
+                         "did not change")
+    return f"manifest hashes present; {len(resolved)} resolution(s) evidenced"
+
+
+def det_13(b: Bundle, t: VerifiabilityTree, r: StressReport, page: dict) -> str:
+    """Gate integrity, run last over the record as it stands. (a) the manifest embeds
+    this bundle's hash, its report_hash recomputes, and the page prints it; (b)
+    revision_count in {0, 1}; (c) every registered entry has exactly one result in
+    the closed set, `not_applicable` only with a scope; (d) no page for this run under
+    `out/site/` while a Level 2/3 entry is open; (e) resolution types closed; (f) a
+    Level-3 condition unquarantined - vacuous while DET-09 is unregistered (A-16); (g)
+    `revision_count = 1` cites only LLM IDs with the bundle unchanged."""
+    from factory.eventlog import RESOLUTION_TYPES, quarantine_lines
+    from factory.report.manifest import ORDER, report_hash
+    man = page["report_manifest"]
+    if man["bundle_hash"] != b.header.bundle_hash:
+        raise Level3("DET-13(a): the manifest's bundle_hash is not this bundle's")
+    if report_hash({k: man[k] for k in ORDER}) != man["report_hash"]:
+        raise Level3("DET-13(a): report_hash does not recompute")
+    if man["report_hash"][:16] not in _s3(page)["text"]["index"]:
+        raise Level3("DET-13(a): the page does not print its report fingerprint")
+    rev = page.get("revision_count", 0)
+    if rev not in (0, 1):
+        raise Level3(f"DET-13(b): revision_count {rev}")
+    results = [*page["prior_results"], *page.get("_s3_results", [])]
+    ids = [x["entry_id"] for x in results]
+    want = [c.entry_id for c in CHECKS if c.entry_id != "DET-13"]
+    if sorted(ids) != sorted(want):
+        raise Level3(f"DET-13(c): record entries differ {sorted(set(ids) ^ set(want))[:4]}")
+    for x in results:
+        if x["result"] not in ("pass", "fail", "not_applicable", "error"):
+            raise Level3(f"DET-13(c): {x['entry_id']} result {x['result']!r}")
+        if x["result"] == "not_applicable" and not x.get("scope_condition"):
+            raise Level3(f"DET-13(c): {x['entry_id']} not_applicable without a scope")
+    token = page["table"]["token"]
+    heavy = [e for _, e in _open(page) if e.level in (2, 3)]
+    if heavy and page.get("site_report_hash") == man["report_hash"]:
+        raise Level3("DET-13(d): a page for this run is published with a Level 2/3 entry open")
+    for _, e in quarantine_lines(page["log_entries"], token):
+        if e.resolution_type is not None and e.resolution_type not in RESOLUTION_TYPES:
+            raise Level3(f"DET-13(e): resolution_type {e.resolution_type!r}")
+    if rev == 1 and not all(c.startswith("LLM-") for c in page.get("revision_cause", [])):
+        raise Level3("DET-13(g): a revision against a non-prose failure")
+    f_scope = ("(f) vacuous: DET-09 unregistered (A-16)"
+               if not any(c.entry_id == "DET-09" for c in CHECKS) else "(f) checked")
+    return f"(a)-(e), (g) hold over {len(results)} results; {f_scope}"
 
 
 CHECKS: list[Check] = [
@@ -3119,6 +3364,13 @@ CHECKS: list[Check] = [
     Check("DET-79", "S3", 2, det_79, "report"),
     Check("DET-88", "S3", 2, det_88, "report"),
     Check("DET-89", "S3", 2, det_89, "report"),
+    # B-12 (P-7.01 R13-R16, A-17): the log, flags, banner and gate integrity; DET-13 last.
+    Check("DET-12-S3", "S3", 2, det_12_s3, "report"),
+    Check("DET-58", "S3", 2, det_58, "report"),
+    Check("DET-59", "S3", 2, det_59, "report"),
+    Check("DET-60", "S3", 2, det_60, "report"),
+    Check("DET-87", "S3", 2, det_87, "report"),
+    Check("DET-13", "S3", 2, det_13, "report"),
 ]
 
 

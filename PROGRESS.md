@@ -8076,3 +8076,86 @@ Status: IN PROGRESS (opened 2026-09-13, P-7.01).
   `PROGRESS.md`.
 - **Follow-ups spawned:** B-12 — the log, flags, banner and integrity rows (R14/R15);
   `out/site/` fills when B-13 fills the prose slots.
+
+## P-7.09 — B-12: the one log, T-28 and T-23, DET-12 against §3, flags and banner; six rows; `len(CHECKS)` 88
+
+- **Date:** 2026-09-14
+- **Type:** implementation
+- **Confirmed by:** Amin
+- **Content:**
+  **P-7.08 COMMITTED** at `8cf1216`; P-5.01-A2 appended before it, both proven against
+  the committed blob.
+  **THE LOG** (P-7.01 R14). `eventlog.py` is the one log; `Logbook` is retired (its three
+  tests go), and `logbook.py` keeps `is_first_run` / `load_prior`.
+  Lifecycle, as ruled:
+  - a resolution is a second `quarantine` line repeating the fire tuple;
+  - "open" = a fire line with no matching resolution;
+  - the entry id `<token>:<line>` is derived, never stored;
+  - a run = a distinct date among Level 2/3 fire lines after the last `published` line;
+  - Level 1 is lifecycle (ii), and a trigger that stops firing is resolved `data_correction`.
+  Named defaults, accepted:
+  - the run date is the block date, so a re-run appends nothing;
+  - Level 2/3 lines are written once per run and resolve only by an explicit `resolve()`
+    with DET-87's evidence.
+  Functions: `plan_quarantine`, `open_entries`, `consecutive_quarantined_runs`,
+  `last_published`, `resolve` (`RESOLUTION_TYPES` moved from `logbook.py`).
+  **T-28 AND T-23** (A-17). Every failed or erroring registered check fires T-28, Level 2; the
+  record's `triggers` names the check, and the log line is category-level (DET-60's closed
+  schema), one per (token, date, trigger, level). Named default, accepted: DET-13, DET-87 and
+  DET-59, §3's computing owners of T-23, fire T-23 instead.
+  **DET-12** (finding 8 closed). `factory/rubric.py` parses §3's printed table (28 rows; name,
+  levels, section). `run.harness_ctx` passes the parse, and DET-12 S0 compares it to
+  `TRIGGER_TABLE` plus the new `TRIGGER_SECTION` (IDs, levels, section); T-18's
+  "2 (≥ 5% exit depth) / 1 (< 5%)" compares its first level (accepted).
+  The S3 limb, `DET-12-S3`: every log line is on the table at a printed level, and the flags
+  line names each distinct record trigger.
+  **REGISTERED at S3, consumer "report":**
+  - DET-12-S3;
+  - DET-58: an open Level-1 entry ⇔ a `<p class="flag" data-section data-entry>` with the
+    literal, id and fire date;
+  - DET-59: the banner literals on an open Level 2/3 entry, "Under review" at ≥ 4 runs, and
+    "behavioral tier: pending";
+  - DET-60: exactly one entry per fired trigger, closed schema, levels per DET-12;
+  - DET-87: `template_hash` / `pipeline_version` on the manifest; per-type hash evidence
+    across the fire and resolution runs;
+  - DET-13 (a)–(g): run last, over the record as it stands.
+  DET-13(f) is vacuous while DET-09 is unregistered (A-16). DET-60's methodology-page row
+  count waits for Step 9's page. **`len(CHECKS)` 82 → 88; A-16 unregistered 20 → 14.**
+  The gate record gains `rubric_hash`, `rubric_change`'s evidence.
+  **PAGE.** Flags render per `[flag_section]` (accepted placement). The banner reads
+  "Last successful run: none yet" (R16) and "Current run: quarantined — gate failure". The
+  "behavioral tier: pending" literal sits in the specialist layer (B-11c precedent). The
+  flags line counts distinct triggers.
+  **THE LOOP.** The report stage renders, runs S3, re-plans the log from the failures and
+  re-renders until the failing set is stable (≤ 4 passes, accepted; two here). The log is
+  written last. Outcome: `blocked_S3` · `quarantined` (S3 green, a Level 2/3 entry open) ·
+  publish.
+  **THE STOP AND RULING (a).** DET-58 wants T-02's literal "off-venue share > 25%" on GHO's
+  flag, and DET-89 read its "25%" as a figure outside `fmt`. **RECORDED READING (Amin,
+  2026-09-14), no amendment:** DET-89 reads rubric §3's trigger literals as printed text, the
+  way it reads template text; the threshold is a ruled constant, not a rendered figure.
+  **RUN** (tables unchanged; template `f89ddcc5`):
+
+  | token | report | results | log lines appended |
+  |---|---|---|---|
+  | crvUSD | `d641bb09` | 87/88 | T-28 L2 |
+  | GHO | `6cad41e3` | 87/88 | T-02 L1 (`GHO:9`), T-20 L1 (`GHO:10`), T-28 L2 |
+  | LUSD | `19d18b5f` | 87/88 | T-28 L2 |
+
+  DET-79's `[slot:` fails alone ×3; T-28 open ×3; the banner reads the quarantine; outcome
+  `blocked_S3`; `out/site/` absent; a GHO re-run appended nothing.
+  **TESTS 264 → 274** (`tests/test_b12.py` 13 new, 3 `Logbook` tests retired); ruff clean.
+  **AS-COUNTED.** Builder:
+  - the first §3 level regex read T-18 as [2]; fixed to [2, 1] before any run;
+  - `render.trigger_names` was left dead by the parse and removed;
+  - the test count is 274, not the instruction's 273: ruling (a)'s test was added after it.
+  Design layer: B-12's expected "S3 green except DET-79" did not foresee DET-58's literal
+  meeting DET-89.
+- **Artifacts:** `src/factory/rubric.py` (new) · `src/factory/{eventlog,logbook,run}.py` ·
+  `src/factory/report/{__main__,record,render}.py` · `src/factory/validate/harness.py`;
+  `templates/index.html.j2` · `templates/{style.css,wording.toml}`;
+  `tests/test_b12.py` (new) · `tests/{test_b10,test_harness,test_s3}.py`;
+  `out/logs/events_{crvusd,gho,lusd}.jsonl`; `out/evaluation/<T>/<blk>.json` ×3 ·
+  `out/report/<T>/<blk>/manifest.json` ×3; `PROGRESS.md`.
+- **Follow-ups spawned:** B-13 Part 1 (read-only): the call surface; the open T-28 lines owe
+  their `template_change` resolution once the slots are filled.

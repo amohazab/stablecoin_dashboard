@@ -12,6 +12,8 @@ oracle_lag = "Prices may lag the market by up to {x}: the largest update thresho
 oracle_lag_ema = "Prices follow exponential moving averages of pool prices, so they lag the market by design; the window per market is in the oracle table."
 check_this = "Every figure on this page comes from one data table built from on-chain reads at a single block. Reproduce any of them from the verify page."
 specialists = "Detail for specialists"
+flag = "Notice: {name} — entry {id}, first fired {date}"
+behavioral_pending = "behavioral tier: pending"
 
 [pills]
 fresh_days = 30
@@ -48,6 +50,25 @@ tag_date = "(analyst-supplied {date})"
 slice_row = "protocol stabilizer debt"
 ceiling_row = "ceiling aggregate — the upper bound of the protocol stabilizer slice"
 net_position_line = "Net position of each stabilizer operation: pro-cyclical, non-credited; valued at par."
+
+# B-12 (DET-58): the page place a flag renders in, per rubric §3 `section`. NAMED
+# DEFAULT: "exit liquidity" flags sit under "What could break it", "stress (Member 2)"
+# in the exit-liquidity details, "mechanism state" in the headline details.
+[flag_section]
+verifiability = "backing"
+supply = "finding"
+"exit liquidity" = "break"
+"mechanism state" = "headline"
+"stress (Member 2)" = "chart_b"
+header = "pills"
+"oracle table" = "oracle"
+
+# B-12 (DET-59): the rubric's banner literals; "none yet" until a report publishes (R16).
+[banner]
+last = "Last successful run: {date}"
+current = "Current run: quarantined — {category}"
+review = "Under review — last successful run {date}"
+none = "none yet"
 
 [governance]
 immutable = "No one can change the rules: the contracts are immutable."

@@ -1,69 +1,16 @@
-"""B-6: the quarantine log — DET-60's closed schema, written at `out/logs/`.
+"""The bundle store's first-run and prior-bundle readers (DET-86, P-3.14).
 
-The log is public (§8.1.3) and is what DET-86's first-run gate and DET-59's
-consecutive-quarantine counter read. Committed, per P-3.05.
+B-12 (P-7.01 R14): `Logbook` retired - `eventlog.py` is the one log, and its
+quarantine lifecycle (`open_entries`, `consecutive_quarantined_runs`,
+`plan_quarantine`, `resolve`) replaced `open_levels` and the per-entry counter.
+`is_first_run` and `load_prior` stay here.
 """
 
 from __future__ import annotations
 
-import json
 import pathlib
 
-from factory.schema import LogEntry, PriorBundle
-
-RESOLUTION_TYPES = frozenset(
-    {"template_change", "intake_change", "config_change",
-     "data_correction", "code_fix", "rubric_change"}
-)
-
-
-class Logbook:
-    """Append-only log of quarantine events, one JSON array per token."""
-
-    def __init__(self, path: pathlib.Path):
-        self.path = path
-        self.entries: list[LogEntry] = []
-        if path.exists():
-            self.entries = [LogEntry(**e) for e in json.loads(path.read_text("utf-8"))]
-
-    def append(self, entry: LogEntry) -> None:
-        if entry.resolution_type is not None and entry.resolution_type not in RESOLUTION_TYPES:
-            # DET-13(e): no override or output-edit value exists
-            raise ValueError(f"illegal resolution_type: {entry.resolution_type}")
-        if (entry.resolution_type is None) != (entry.resolution_date is None):
-            raise ValueError("DET-60: resolution_type and resolution_date set together")
-        self.entries.append(entry)
-
-    def write(self) -> None:
-        self.path.parent.mkdir(parents=True, exist_ok=True)
-        payload = [e.model_dump() for e in self.entries]
-        self.path.write_text(
-            json.dumps(payload, sort_keys=True, separators=(",", ":"),
-                       ensure_ascii=False) + "\n",
-            encoding="utf-8", newline="")
-
-    # --- what downstream gates read from the log ----------------------------
-
-    def has_published_entry(self, token: str) -> bool:
-        """DET-86's letter. In Step 3 nothing publishes, hence the convention
-        below — see `is_first_run`."""
-        return any(e.token == token and e.trigger == "published" for e in self.entries)
-
-    def open_levels(self, token: str) -> list[int]:
-        return [e.level for e in self.entries
-                if e.token == token and e.resolution_date is None]
-
-    def consecutive_quarantined_runs(self, token: str) -> int:
-        """DET-59: counted from the tail; a published run resets it."""
-        n = 0
-        for e in reversed(self.entries):
-            if e.token != token:
-                continue
-            if e.trigger == "published":
-                break
-            if e.level in (2, 3):
-                n += 1
-        return n
+from factory.schema import PriorBundle
 
 
 def is_first_run(bundles_dir: pathlib.Path, token: str) -> bool:

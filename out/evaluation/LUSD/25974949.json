@@ -4,7 +4,7 @@
  "judge": [],
  "outcome": "blocked_S3",
  "pipeline_version": "0.1.0",
- "report_hash": "e480125e123faf059f794639d94a4e7f56a0ebce31571630e9dea4caad0128d1",
+ "report_hash": "19d18b5f1e84d2680eb790841d0d5dd7ec75a1a7a4607e2b7c9a41a5c2664b9f",
  "results": [
   {
    "entry_id": "DET-02",
@@ -497,23 +497,62 @@
    "result": "pass",
    "scope_condition": "display rule emitted; decimals() read; every figure a fmt output",
    "stage": "S3"
+  },
+  {
+   "entry_id": "DET-12-S3",
+   "result": "pass",
+   "scope_condition": "1 trigger(s) on the flags line; log entries on the printed table",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "DET-58",
+   "result": "pass",
+   "scope_condition": "0 open Level-1 entr(ies) flagged",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "DET-59",
+   "result": "pass",
+   "scope_condition": "banner: Current run: quarantined — gate failure; consecutive quarantined runs 1",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "DET-60",
+   "result": "pass",
+   "scope_condition": "1 quarantine line(s); every fired trigger has one entry",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "DET-87",
+   "result": "pass",
+   "scope_condition": "manifest hashes present; 0 resolution(s) evidenced",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "DET-13",
+   "result": "pass",
+   "scope_condition": "(a)-(e), (g) hold over 87 results; (f) vacuous: DET-09 unregistered (A-16)",
+   "stage": "S3"
   }
  ],
  "revision_cause": [],
  "revision_count": 0,
+ "rubric_hash": "f1e16ea8",
  "run_block": 25974949,
  "sheet_hash": "29682310",
  "stress_hash": "f01967bbf4d6b6cef3bd75ab97cf5d91b77e92293a56504ac1c7327118b3047d",
  "table_hash": "ed3b11e5b904dade244d269c207895ff4e24e9934eb4e9e109eb4e44fb944e2e",
- "template_hash": "11b6036e041b6e56698d3ca9a09889538b700bb590a550234278c683d6bd983d",
+ "template_hash": "f89ddcc585637aad72e330575d06057a8c06072421abe7456d5a0fd211183b73",
  "token": "LUSD",
  "tree_hash": "a88f33f12659223983e91801fc246181d04a3b414e2bb06dc7fb7e049f0592c4",
- "triggers": [],
- "unregistered": [
+ "triggers": [
   {
-   "entry_id": "DET-12-S3",
-   "queue_item": "B-12 (log, flags, banner, integrity; R14/R15)"
-  },
+   "level": 2,
+   "source_entry": "DET-79",
+   "trigger": "T-28"
+  }
+ ],
+ "unregistered": [
   {
    "entry_id": "DET-09",
    "queue_item": "P-4.01 (DET-09 set-file inputs: GHO discovery_m absent, LUSD 0.4459 - ruling)"
@@ -539,32 +578,12 @@
    "queue_item": "P-4.01 (GHO attribution cross-check: aggregate reads)"
   },
   {
-   "entry_id": "DET-58",
-   "queue_item": "B-12 (log, flags, banner, integrity; R14/R15)"
-  },
-  {
-   "entry_id": "DET-59",
-   "queue_item": "B-12 (log, flags, banner, integrity; R14/R15)"
-  },
-  {
-   "entry_id": "DET-60",
-   "queue_item": "B-12 (log, flags, banner, integrity; R14/R15)"
-  },
-  {
    "entry_id": "DET-80",
    "queue_item": "B-13 (prose, judge, loop; R12)"
   },
   {
-   "entry_id": "DET-87",
-   "queue_item": "B-12 (log, flags, banner, integrity; R14/R15)"
-  },
-  {
    "entry_id": "DET-85",
    "queue_item": "B-13 (prose, judge, loop; R12)"
-  },
-  {
-   "entry_id": "DET-13",
-   "queue_item": "B-12 (log, flags, banner, integrity; R14/R15)"
   },
   {
    "entry_id": "LLM-01",

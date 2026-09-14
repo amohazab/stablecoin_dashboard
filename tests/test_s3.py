@@ -40,7 +40,8 @@ from factory.validate.harness import (
 REPO = pathlib.Path(__file__).resolve().parents[1]
 BLOCKS = {"crvUSD": 25974925, "GHO": 25974932, "LUSD": 25974949}
 S3_IDS = {"DET-14cd", "DET-22-S3", "DET-29c", "DET-17", "DET-18", "DET-36", "DET-53", "DET-54",
-          "DET-56", "DET-57", "DET-73", "DET-74", "DET-79", "DET-88", "DET-89"}
+          "DET-56", "DET-57", "DET-73", "DET-74", "DET-79", "DET-88", "DET-89",
+          "DET-12-S3", "DET-58", "DET-59", "DET-60", "DET-87", "DET-13"}          # + B-12
 
 
 @pytest.fixture(scope="module")
@@ -85,7 +86,7 @@ def run(fn, tok, inputs, page):
 
 def test_registry_carries_the_fifteen_s3_rows():
     s3 = [c for c in CHECKS if c.stage == "S3"]
-    assert {c.entry_id for c in s3} == S3_IDS and len(CHECKS) == 82
+    assert {c.entry_id for c in s3} == S3_IDS and len(CHECKS) == 88
     assert all(c.consumer == "report" and c.level_on_fail >= 2 for c in s3)
 
 
@@ -285,7 +286,7 @@ def test_routing_blocks_the_site_and_records_the_outcome(tmp_path):
     r = build(tmp_path, "LUSD")
     rec = r["record"]
     assert rec.outcome == "blocked_S3" and r["site"] is None
-    assert len(rec.results) == 82 and [x.result for x in rec.results
+    assert len(rec.results) == 88 and [x.result for x in rec.results
                                        if x.entry_id == "DET-79"] == ["fail"]
     assert not (tmp_path / "out/site").exists()                  # withdrawn, then emptied
     stage = tmp_path / "out/rehearsal/LUSD/25974949"

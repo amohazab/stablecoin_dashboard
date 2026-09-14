@@ -140,13 +140,6 @@ def infer_unit(v: Any) -> str:
     return _unit_of(v)
 
 
-def trigger_names(rubric_text: str) -> dict[str, tuple[str, str]]:
-    out = {}
-    for m in re.finditer(r"^\| (T-\d\d) \| ([^|]+) \| [^|]+ \| ([^|]+) \|", rubric_text, re.M):
-        out[m.group(1)] = (m.group(2).strip(), m.group(3).strip())
-    return out
-
-
 def structural_zero(rows: dict) -> tuple[bool, str | None]:
     """R-B11.1(c) / R-B11.4's branch. It keys on a `stress.structural_zero`
     flag and reason row; no artifact carries a Member-1 structural-zero flag
@@ -244,7 +237,9 @@ def pills(rows: dict, rec: dict, tnames: dict, w: dict, v=None) -> list[tuple[st
         shortest = next(b for b in ("none", "<24h", "1–7d", ">7d") if b in buckets)
         gov = ("red" if shortest in ("none", "<24h") else "amber",
                p["governance"].format(delay=w["delay_short"][shortest]))
-    trig = rec.get("triggers", [])
+    # B-12: one entry per trigger on the flags line - T-28 names each failed check in
+    # the record, the line names the category once.
+    trig = list({t["trigger"]: t for t in rec.get("triggers", [])}.values())
     if not trig:
         flag = ("green", p["flags_none"])
     else:
@@ -341,7 +336,9 @@ def render_token(repo: pathlib.Path, token: str, doc: dict, grid: dict, man: dic
 
     cells = {x["id"]: x for x in grid["cells"]}
     rubric = (repo / "docs/context/rubic_v1.md").read_bytes().replace(b"\r\n", b"\n").decode()
-    tnames = trigger_names(rubric)
+    from factory.rubric import trigger_table
+    tnames = {k: (x["name"], x["section"]) for k, x in trigger_table(rubric).items()}
+    log = rec.get("log") or {"flags": {}, "banner": None}
     sz_flag, sz_reason = structural_zero(rows)
 
     # ---- the tree diagram (R-B11.3) --------------------------------------------------
@@ -453,7 +450,7 @@ def render_token(repo: pathlib.Path, token: str, doc: dict, grid: dict, man: dic
                       undefined=StrictUndefined, keep_trailing_newline=True)
     env.filters["fmt"] = fmt
     ctx = dict(token=token, rows=rows, v=v, c=c, raw=raw, ids=ids, label=label, cells=cells,
-               grid=grid, doc=doc, man=man, rec=rec, w=w, tnames=tnames,
+               grid=grid, doc=doc, man=man, rec=rec, w=w, tnames=tnames, log=log,
                tree_svg=tree_svg, chart_a=chart_a, chart_b=chart_b, collapse=collapse,
                grid_rows=grid_rows, grid_reading=grid_reading, infer_unit=infer_unit, fmt=fmt,
                sz_flag=sz_flag, sz_reason=sz_reason,

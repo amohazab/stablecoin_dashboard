@@ -16,13 +16,13 @@ import pytest
 from factory.config import Root
 from factory.discovery import still_enumerated
 from factory.eventlog import FreezeEvent, IntakeTriggerEvent, last_event
-from factory.logbook import Logbook, is_first_run, load_prior
+from factory.logbook import is_first_run, load_prior
 from factory.provenance import AbsenceRead
+from factory.rubric import read_trigger_table
 from factory.run import AssemblyStop, _admin_delay, execute
 from factory.schema import (
     AdminRow,
     Counts,
-    LogEntry,
     PoolDetectors,
     PoolRow,
     PriorBundle,
@@ -31,7 +31,6 @@ from factory.schema import (
 )
 from factory.spotcheck import generate as spot_generate
 from factory.validate.harness import (
-    TRIGGER_TABLE,
     Level3,
     NotYetImplemented,
     det_66,
@@ -53,9 +52,12 @@ def a_prior(**kw):
     return PriorBundle.model_validate(a_bundle(**kw).model_dump())
 
 
+REPO = pathlib.Path(__file__).resolve().parents[1]
+
+
 def a_ctx(**kw):
     base = dict(
-        labels={}, printed_trigger_table=dict(TRIGGER_TABLE),
+        labels={}, printed_trigger_table=read_trigger_table(REPO),
         sheet={"sheet_hash": "43a5d27b", "near_bound_threshold": 0.80,
                "counterparties": "n/a", "attribution_method": "direct"},
         roots={"controller_factory": Root("controller_factory", CF, "r", "s",
@@ -101,8 +103,8 @@ def test_clean_bundle_passes_every_check():
 
 
 def test_det12_trigger_table_mismatch_stops_the_pipeline():
-    bad = dict(TRIGGER_TABLE)
-    bad["T-13"] = 2                      # a Level-3 trigger demoted
+    bad = {k: dict(v) for k, v in read_trigger_table(REPO).items()}
+    bad["T-13"]["levels"] = [2]          # a Level-3 trigger demoted in the printed table
     with pytest.raises(Level3, match="DET-12"):
         run_harness(a_bundle(), a_ctx(printed_trigger_table=bad))
 
@@ -410,33 +412,6 @@ def test_clean_run_promotes():
 
 
 # --- the log -----------------------------------------------------------------
-
-
-def test_log_rejects_illegal_resolution_type(tmp_path):
-    lb = Logbook(tmp_path / "log.json")
-    with pytest.raises(ValueError, match="illegal resolution_type"):
-        lb.append(LogEntry(date="2026-09-04", token="crvUSD", trigger="T-01",
-                           level=1, resolution_type="override",
-                           resolution_date="2026-09-05"))
-
-
-def test_log_requires_type_and_date_together(tmp_path):
-    lb = Logbook(tmp_path / "log.json")
-    with pytest.raises(ValueError, match="set together"):
-        lb.append(LogEntry(date="2026-09-04", token="crvUSD", trigger="T-01",
-                           level=1, resolution_type="config_change"))
-
-
-def test_log_round_trips_and_counts_quarantined_runs(tmp_path):
-    p = tmp_path / "log.json"
-    lb = Logbook(p)
-    lb.append(LogEntry(date="2026-09-04", token="crvUSD", trigger="T-13", level=3))
-    lb.append(LogEntry(date="2026-09-05", token="crvUSD", trigger="T-09", level=2))
-    lb.write()
-    again = Logbook(p)
-    assert len(again.entries) == 2
-    assert again.consecutive_quarantined_runs("crvUSD") == 2
-    assert again.open_levels("crvUSD") == [3, 2]
 
 
 def test_is_first_run_uses_prior_bundles_not_publication(tmp_path):

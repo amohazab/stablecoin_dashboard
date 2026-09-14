@@ -67,7 +67,7 @@ from factory.schema import (
 from factory.spotcheck import write as write_spotcheck
 from factory.spotcheck import write_gho as write_spotcheck_gho
 from factory.spotcheck import write_lusd as write_spotcheck_lusd
-from factory.validate.harness import TRIGGER_TABLE, run_harness
+from factory.validate.harness import run_harness
 
 PIPELINE_VERSION = "0.1.0"
 BUNDLES = "out/bundles"
@@ -722,7 +722,10 @@ def execute(repo: pathlib.Path, rpc_url: str, token: str) -> dict:
 def harness_ctx(repo: pathlib.Path, cfg: Config, bundle: Bundle, token: str) -> dict:
     """The S0/S1 context, shared by `execute` and the gate record (B-10), which
     re-evaluates S0/S1 over the promoted bundle without raising."""
-    return {"labels": cfg.labels, "printed_trigger_table": dict(TRIGGER_TABLE),
+    from factory.rubric import read_trigger_table
+    # B-12 (finding 8): DET-12 S0's comparand is rubric §3 as printed, parsed here -
+    # the harness does no file I/O (P-3.43 R1).
+    return {"labels": cfg.labels, "printed_trigger_table": read_trigger_table(repo),
            "sheet": cfg.sheet, "roots": cfg.roots,
            "today": __import__("datetime").date.today(),
            "is_first_run": bundle.header.first_run,

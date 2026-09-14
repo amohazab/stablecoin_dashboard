@@ -142,3 +142,97 @@ def append_intake_trigger(path: pathlib.Path, *, date: str, token: str,
     append(path, IntakeTriggerEvent(date=date, token=token,
                                     sheet_hash=sheet_hash,
                                     set_file_hash=set_file_hash, source=source))
+
+
+# ---- B-12: the quarantine lifecycle (P-7.01 R14; inventory H.2/H.3) -----------------
+#
+# NAMED DEFAULTS (R14). A resolution is a SECOND `quarantine` line repeating the fire
+# line's `{date, token, trigger, level}` with `resolution_type` / `resolution_date` set;
+# "open" = a fire line with no matching resolution line. The entry id is
+# `<token>:<line>` - the fire line's 1-based line number in the token's file, derived,
+# never stored. A run = a distinct `(token, date)` among Level 2/3 fire lines after
+# the token's last `published` line. Level 1 follows lifecycle (ii): an open entry
+# satisfies later runs while its trigger keeps firing, and the run where it stops
+# firing resolves it with `data_correction`. Level 2/3 lines are written once per run
+# (per (token, date, trigger, level)) and are resolved only by an explicit
+# `resolution_type` with its DET-87 evidence - never automatically (B-12 default).
+# The run's `date` is the UTC date of the bundle's block timestamp, so a re-run of
+# the report stage over the same bundle writes nothing new.
+
+RESOLUTION_TYPES = frozenset({"template_change", "intake_change", "config_change",
+                              "data_correction", "code_fix", "rubric_change"})
+
+
+def _key(e) -> tuple:
+    return (e.date, e.token, e.trigger, e.level)
+
+
+def quarantine_lines(entries: list[BaseModel], token: str) -> list[tuple[int, QuarantineEvent]]:
+    """`(line number, entry)` for the token's quarantine lines, 1-based over the file."""
+    return [(i, e) for i, e in enumerate(entries, 1)
+            if e.type == "quarantine" and e.token == token]
+
+
+def entry_id(token: str, line: int) -> str:
+    return f"{token}:{line}"
+
+
+def open_entries(entries: list[BaseModel], token: str) -> list[tuple[str, QuarantineEvent]]:
+    """`(entry id, fire line)` for every fire line with no matching resolution line."""
+    lines = quarantine_lines(entries, token)
+    resolved = {_key(e) for _, e in lines if e.resolution_date is not None}
+    return [(entry_id(token, i), e) for i, e in lines
+            if e.resolution_date is None and _key(e) not in resolved]
+
+
+def last_published(entries: list[BaseModel], token: str) -> PublishedEvent | None:
+    return last_event(entries, ("published",), token)
+
+
+def consecutive_quarantined_runs(entries: list[BaseModel], token: str) -> int:
+    """DET-59: distinct run dates among Level 2/3 fire lines after the last
+    `published` line - runs, not entries."""
+    start = 0
+    for i, e in enumerate(entries):
+        if e.type == "published" and e.token == token:
+            start = i + 1
+    return len({e.date for e in entries[start:]
+                if e.type == "quarantine" and e.token == token and e.level in (2, 3)
+                and e.resolution_date is None})
+
+
+def plan_quarantine(entries: list[BaseModel], token: str, date: str,
+                    fired: list[tuple[str, int]]) -> list[QuarantineEvent]:
+    """The lines this run appends, given `fired` = the run's `(trigger, level)`s.
+
+    Level 1: a fire line only when no open entry exists for (trigger, level); an open
+    Level-1 entry whose trigger did not fire this run gets its resolution line
+    (`data_correction`, dated this run). Level 2/3: one fire line per run date."""
+    fired_set = set(fired)
+    opened = open_entries(entries, token)
+    new: list[QuarantineEvent] = []
+    for trig, lvl in sorted(fired_set):
+        if lvl == 1:
+            if any(e.trigger == trig and e.level == 1 for _, e in opened):
+                continue
+        elif any(e.trigger == trig and e.level == lvl and e.date == date
+                 for _, e in quarantine_lines(entries, token)):
+            continue
+        new.append(QuarantineEvent(date=date, token=token, trigger=trig, level=lvl))
+    for _, e in opened:
+        if e.level == 1 and (e.trigger, 1) not in fired_set:
+            new.append(QuarantineEvent(date=e.date, token=token, trigger=e.trigger, level=1,
+                                       resolution_type="data_correction",
+                                       resolution_date=date))
+    return new
+
+
+def resolve(path: pathlib.Path, fire: QuarantineEvent, resolution_type: str,
+            resolution_date: str) -> None:
+    """An explicit resolution line (Level 2/3, or any level by hand). DET-13(e)'s
+    closed set; DET-87's evidence is checked at the next report stage."""
+    if resolution_type not in RESOLUTION_TYPES:
+        raise ValueError(f"illegal resolution_type: {resolution_type}")
+    append(path, QuarantineEvent(date=fire.date, token=fire.token, trigger=fire.trigger,
+                                 level=fire.level, resolution_type=resolution_type,
+                                 resolution_date=resolution_date))

@@ -35,7 +35,7 @@ def built(tmp_path_factory):
 
 
 def test_registry_carries_det84_at_the_report_stage():
-    assert len(CHECKS) == 82                                   # B-11b: + 15 S3 rows
+    assert len(CHECKS) == 88                                   # B-11b +15, B-12 +6
     (c,) = [c for c in CHECKS if c.entry_id == "DET-84"]
     assert (c.stage, c.consumer) == ("S2", "report")
 
@@ -127,15 +127,17 @@ def test_record_is_complete_and_enumerates_the_unregistered(built):
     rubric = (REPO / "docs/context/rubic_v1.md").read_bytes().replace(b"\r\n", b"\n").decode()
     un = record.unregistered(rubric)
     ids = [u["entry_id"] for u in un]
-    assert len(ids) == len(set(ids)) == 20                     # B-11b: 35 - 15
-    assert {"DET-81", "DET-12-S3", "DET-76abcd", "LLM-06"} <= set(ids)
+    assert len(ids) == len(set(ids)) == 14                     # B-12: 20 - 6
+    assert {"DET-81", "DET-76abcd", "LLM-06", "DET-80"} <= set(ids)
+    assert not {"DET-12-S3", "DET-13", "DET-58", "DET-59", "DET-60", "DET-87"} & set(ids)
     assert not {"DET-29c", "DET-14cd", "DET-22-S3", "DET-79"} & set(ids)
     assert not {c.entry_id for c in CHECKS} & set(ids)
     for r in built.values():
         rec = r["record"]
         assert {x.entry_id for x in rec.results} == {c.entry_id for c in CHECKS}
         assert rec.revision_count == 0 and rec.revision_cause == [] and rec.judge == []
-    assert [x["trigger"] for x in built["GHO"]["record"].triggers] == ["T-20", "T-02"]
+    assert [x["trigger"] for x in built["GHO"]["record"].triggers][:2] == ["T-20", "T-02"]
+    assert {x["trigger"] for x in built["GHO"]["record"].triggers[2:]} == {"T-28"}   # A-17
 
 
 def test_evaluate_harness_never_raises():

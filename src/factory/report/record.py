@@ -29,8 +29,6 @@ from factory.validate.harness import CHECKS, TRIGGER_TABLE
 # P-7.01 block plan; P-4.01 for items no Step-7 block owns). A registry that
 # grows removes an ID from here; a rubric ID in neither place fails the build.
 QUEUE = {
-    **dict.fromkeys(("DET-12-S3", "DET-13", "DET-58", "DET-59", "DET-60", "DET-87"),
-                    "B-12 (log, flags, banner, integrity; R14/R15)"),
     **dict.fromkeys(("DET-80", "DET-85", "LLM-01", "LLM-02", "LLM-03", "LLM-04", "LLM-05",
                      "LLM-06"), "B-13 (prose, judge, loop; R12)"),
     "DET-09": "P-4.01 (DET-09 set-file inputs: GHO discovery_m absent, LUSD 0.4459 - ruling)",
@@ -72,6 +70,8 @@ class GateRecord(BaseModel):
     unregistered: list[dict[str, str]]
     judge: list[dict[str, Any]] = []
     generation: list[dict[str, Any]] = []
+    # B-12 (DET-87's rubric_change evidence): the rubric header stamp this run read.
+    rubric_hash: str | None = None
     revision_count: Literal[0, 1] = 0
     revision_cause: list[str] = []
     outcome: Literal["published", "quarantined", "template_defect", "judge_instability",
@@ -117,13 +117,14 @@ def triggers_of(results) -> list[dict]:
 
 
 def build(parts: dict, manifest: dict, s01, tree_checks, stress_checks, report_checks,
-          rubric_text: str) -> GateRecord:
+          rubric_text: str, gate_triggers: tuple = (), outcome: str | None = None) -> GateRecord:
     stage = {c.entry_id: c.stage for c in CHECKS}
     results, triggers = [], []
     for g in [*s01.results, *tree_checks, *stress_checks, *report_checks]:
         results.append(RecordResult(entry_id=g.entry_id, stage=stage[g.entry_id],
                                     result=g.result, scope_condition=g.scope_condition))
         triggers += _triggers_from_scope(g.entry_id, g.scope_condition)
+    triggers += list(gate_triggers)                  # B-12: T-28 / T-23 per failed check
     got = {r.entry_id for r in results}
     want = {c.entry_id for c in CHECKS}
     if got != want:
@@ -136,5 +137,7 @@ def build(parts: dict, manifest: dict, s01, tree_checks, stress_checks, report_c
                                                "pipeline_version", "sheet_hash")},
                       results=results, triggers=triggers,
                       unregistered=unregistered(rubric_text),
-                      outcome=("blocked_S3" if any(r.stage == "S3" and r.result != "pass"
-                                                   for r in results) else None))
+                      rubric_hash=__import__("hashlib").sha256(rubric_text.encode()).hexdigest()[:8],
+                      outcome=outcome if outcome is not None else
+                      ("blocked_S3" if any(r.stage == "S3" and r.result != "pass"
+                                           for r in results) else None))
