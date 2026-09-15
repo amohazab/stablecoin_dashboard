@@ -52,7 +52,7 @@ Status: DONE (opened 2026-09-12; done-condition met 2026-09-13, P-6.12).
 Status: DONE (opened 2026-09-13; done-condition met 2026-09-14, P-7.11).
 
 ## Step 9 — Static site v1
-Status: IN PROGRESS (opened 2026-09-14).
+Status: DONE (opened 2026-09-14; done-condition met 2026-09-15, P-9.03).
 
 ## P-3.01 — Block 0.1 anomaly dispositions; Python stack ruling; checksum task
 - **Date:** 2026-09-03
@@ -8509,3 +8509,67 @@ Status: IN PROGRESS (opened 2026-09-14).
   - Step 8: the report stage's withdrawal (`__main__.py` l.574–575) would
     delete the root pages if every token were withdrawn; queued, not fixed.
   - P-7.11's three $0 fixes, still queued.
+
+## P-9.03 — Step 9 closed: the site live on GitHub Pages
+
+- **Date:** 2026-09-15
+- **Type:** closing
+- **Confirmed by:** Amin
+- **Content:**
+  **P-9.02 COMMITTED** at `4f19cde` and pushed (`26cb1a9..4f19cde master`),
+  proven against the committed blob.
+  **THE DEPLOYMENT** (Amin, 2026-09-15). Pages source: GitHub Actions. The
+  `pages` workflow run 34897784402 completed green, and the site is live at
+  https://amohazab.github.io/stablecoin_dashboard/.
+  - All five pages opened and rendered correctly: the selector,
+    methodology.html, crvUSD, GHO and LUSD.
+  - "all tokens" returns to the selector, and "archetype memo" opens the file
+    on GitHub.
+  - The design layer read the selector and methodology pages live and the token
+    pages' markup: no defect.
+  **VERIFIED (Builder):** tree clean, HEAD `4f19cde` = `origin/master`. The live
+  `site.json` sha256 `5655d546…c17b` equals the committed file, and the live
+  index, methodology and three token index pages equal their committed bytes,
+  so the deployed tree is the committed tree.
+  **DONE-CONDITION MET** (P-9.01): the site is live, all five pages are opened,
+  and the memo and sheet links resolve on GitHub.
+  **REVIEW FINDINGS, recorded not fixed.** All are template-only and ride the
+  next re-render.
+  - (a) crvUSD's headline sentence prints "$6 of bad debt" beside
+    "structurally zero" (P-7.11's first $0 fix).
+  - (b) The raw ids sit on the assumptions table, which is in the specialist
+    block, not the reader layer (index l.330).
+    - No key lookup misses. `index.html.j2` l.179 gives every non-required
+      assumption (`ema_lag_readings`, `lp_flight`, `structural_insulation`,
+      `undefined_ratio`) the generic `[assumption] additional` sentence, since
+      `wording.toml` carries no entry for those ids.
+    - The data cell prints `table.py` l.370's row label `assumption: <key>` with
+      "see appendix", beside the id column's `<code>` id.
+  - (c) The verify pages cite `out/raw/<block>.json`, which is gitignored. One
+    sentence at the next render: raw dumps are regenerable from any archive
+    node at the block.
+  - (d) Appendix and verify gain "all tokens" at the next render (D4, accepted).
+  **CONFIRMED FOR THE RECORD:** on crvUSD and LUSD the reader-layer "What could
+  break it" section carries no chart, by R-B11's structural-zero rule (the
+  sentence replaces chart A). The exit-liquidity chart sits in the specialist
+  block (crvUSD l.319, LUSD l.161). GHO's break section carries chart A and the
+  GSM collapse.
+  **ROUNDS:** 5 turns to this draft (inventory and P-9.01 draft · rulings and
+  build · review edits · commit and push · close), 6 with this entry's
+  confirmation turn, against Inventory D §G's 6–8.
+  **AS-COUNTED.** Design layer: two wrong-page directions to the Run workflow
+  button (the actions/new gallery, the Settings → Pages cards); "one chart each"
+  said of crvUSD/LUSD's reader section, where there is none; finding (b) placed
+  in the reader layer, where it is in the specialist block. Builder: none new.
+  **STATUS:** Step 9 → DONE (opened 2026-09-14; done-condition met 2026-09-15,
+  P-9.03). The `## Step 9` status line is updated with this append.
+- **Artifacts:** `PROGRESS.md` (this entry and the Step 9 status line). No code,
+  template or `out/` change.
+- **Follow-ups spawned:**
+  - The queued $0 fixes, now four (P-7.11's three plus (b)), with (c) as a fifth
+    template sentence; all need a re-render.
+  - Step 8: cron, generator model and cadence, and the withdrawal at
+    `__main__.py` l.574–575.
+  - crvUSD and GHO leave the open-notice state on their next green run.
+  - A possible re-ruling of R-B11's chart rule for structural-zero tokens, not
+    taken.
