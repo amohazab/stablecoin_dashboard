@@ -51,6 +51,10 @@ Status: DONE (opened 2026-09-12; done-condition met 2026-09-13, P-6.12).
 ## Step 7 — Report generation + evaluation loop
 Status: DONE (opened 2026-09-13; done-condition met 2026-09-14, P-7.11).
 
+## Step 8 — Unattended execution
+Status: OPEN (opened 2026-09-24, P-8.01). Phase A: the behavioral tier from Webacy, at the
+site stage. Phase B: local-model (Ollama) scheduled runs; scoped at P-8.01, not built.
+
 ## Step 9 — Static site v1
 Status: DONE (opened 2026-09-14; done-condition met 2026-09-15, P-9.03).
 
@@ -8573,3 +8577,98 @@ Status: DONE (opened 2026-09-14; done-condition met 2026-09-15, P-9.03).
   - crvUSD and GHO leave the open-notice state on their next green run.
   - A possible re-ruling of R-B11's chart rule for structural-zero tokens, not
     taken.
+
+## P-8.01 — Step 8 opened: Inventory E, the rulings for both phases, A-20
+
+- **Date:** 2026-09-24
+- **Type:** decision
+- **Confirmed by:** Amin
+- **Content:**
+  **OPENED AT** `9098a9f`: 305 tests, `len(CHECKS)` 96, report_hash `8ac6132b` /
+  `447281cb` / `003b4fcd`, tree clean. Inventory E is at
+  `out/reports/step8-inventory-e.md` (120 lines, gitignored). **Echo stop:** the four
+  probe files were not in the repo; ruled (Amin, 2026-09-24): brought in from Downloads
+  (full-file sha256[:8] `503c5df3` / `4592b784` / `80850175` / `07d81d8a`, key and
+  `x-api-key` absent); `.gitattributes` gains `tests/fixtures/**/*.json text eol=lf`;
+  `out/behavioral/` stays live-fetch-only.
+  **STEP 8 RULE (both phases):** no Anthropic API call in any form; generator and judge
+  run on Ollama only; `ANTHROPIC_API_KEY` is never read by Step 8 code.
+  **RULED, PHASE A (Amin, 2026-09-24, as stated in the kickoff):**
+  - Stage: site. `python -m factory.behavioral` fetches into
+    `out/behavioral/<T>/<ISO-8601 UTC>.json`, one file per fetch; the three
+    `X-RateLimit-*` headers only; the key never written. `WEBACY_API_KEY` from the
+    environment or `.env`. `python -m factory.site` renders from the latest snapshot and
+    never calls the network.
+  - Block: peg price (4 d.p.); deviation `dev_clean`×10⁴ bp (signed, 1 d.p.); Webacy depeg
+    score and tier, "of 100" (documented 0–100, higher = riskier: E5b); one SVG line of
+    signed deviation (price − peg_value)×10⁴ over the 7-day series, oldest→newest,
+    auto-scaled, zero line, caption "7-day max |deviation|: <n> bp"; holder concentration
+    (top-10 index, top-10 share %, risk band, holder count) or "Holder concentration: not
+    covered by Webacy". Under it: "Behavioral data: Webacy, fetched <date> UTC. Fetched,
+    not computed or verified by this pipeline." Suffixes " — snapshot is older than 14
+    days" (named default) and " — Webacy marks this data stale" (`body.stale` or HCI
+    `meta.stale`). Webacy's structural grade is never rendered; /rwa/supply, drivers and
+    data_alerts are stored, not rendered. No snapshot: the pending text stays.
+  - Mechanism: a recorded rewrite in site.py, P-9.02's shape, two pairs per page — (i) the
+    DET-59 meta literal → the block; (ii) the reader sentence → "The behavioral tier — how
+    the token trades: peg deviation and holder concentration — is shown below from
+    Webacy's data, fetched at a timestamp rather than read at this report's block." Hashes
+    and substitutions in site.json; a second build on the same snapshot is byte-identical.
+  - Methodology: the reader paragraph replaces l.55's pending sentence; the specialist
+    block names the endpoints and the snapshot path. The selector is unchanged.
+  - Chore: `export_context.py --step 8` = Step 9's set + CLAUDE.md, PROGRESS.md,
+    phase-b-checklist.md, step8-inventory-e.md, behavioral.py, the latest snapshot per token.
+  - Deployment: Amin triggers `pages` after P-8.02. Done: the three token pages show the
+    block live.
+  **RULED, PHASE B (scoped, not built):** no Anthropic fallback in llm.py, a test asserting
+  no Anthropic client and no `ANTHROPIC_API_KEY` read, Claude-era envelopes kept as
+  history; Ollama local `qwen3.5:9b`, `think: false`, generator and judge, at
+  `http://localhost:11434/v1`, model recorded in the manifest, quality risk accepted;
+  Windows Task Scheduler — monthly full chain, weekly behavioral + site + push, a missed
+  run runs next time; the withdrawal (`__main__.py` l.574–575) and the five queued
+  template edits ride the first local re-render; first act a $0 rehearsal render,
+  nothing publishes until the loop passes.
+  **RULED AT THIS ENTRY (Amin, 2026-09-24):**
+  - P1 /v3/rwa dropped from the fetch.
+  - P2 Phase B deletes the Anthropic path (`make_client`, `_call`'s Anthropic stream,
+    `--llm`'s wiring) and the `anthropic` dependency; history keeps it at `9098a9f`.
+  - P3 As-of = the build's UTC date, recorded in site.json; byte identity holds per day;
+    tests inject the date.
+  - P4 The methodology h2 becomes "The behavioral tier" once all three tokens have a snapshot.
+  - P5 Trimmed commits. The committed snapshot holds only the rendered inputs: snapshot
+    {ts, price, peg_value, dev_clean, score, tier}; history.series[] {ts, price,
+    peg_value}; the token's HCI entry (or null) and HCI meta {generatedAt, stale, page};
+    body.stale; each request's {fetched_at, url, status, seconds, X-RateLimit-*}; sha256
+    of each full response body. Full envelopes → `out/behavioral-raw/<T>/`, gitignored.
+    Fixtures follow the same rule: trimmed by the same function, each recording the full
+    file's sha256; the full files in gitignored `tests/fixtures/webacy-raw/`; the trimmed
+    hci fixture keeps meta and the (empty) matches, not the other tokens' entries.
+  - P6 Implementer defaults as drafted: HCI one request at `pageSize=500`, matched by
+    lowercase address; the file shape; a shape mismatch writes no file and is a SiteStop at
+    build; one polyline across gaps; `YYYY-MM-DD HH:MM UTC`; figures formatted in
+    behavioral.py; D9 scans the block.
+  **A-20, ruled in its extended text** (rubric stamp `f1e16ea8` → `53feebe2`, applied
+  after this entry): "§1 / DET-59(b), DET-84, DET-89: DET-59(b) reads per page. On the
+  rendered report the literal "behavioral tier: pending" is present. On the site page,
+  once the behavioral tier lands for the token — a snapshot exists under
+  `out/behavioral/<T>/` — the page carries the behavioral block with its attribution line
+  in place of the literal, and before it lands the literal; never both, never neither.
+  Evaluated by `factory.site` at site build, fail-closed before any write. DET-84's
+  site-page clause and DET-89 do not apply inside the marked behavioral block: its figures
+  are fetched from the snapshot named in `site.json`, not bundle values (P-8.01)." No new
+  Check; `len(CHECKS)` stays 96. M8 stays in Appendix A (no report field).
+  **QUEUED, no action in phase A:** memo amendment for §11 item 4 / checklist 6.6 — s = 2%
+  vs Webacy peg_range ±1%; LUSD's 193.7 bp week with tier `ok` is the example.
+  **CRON:** phase B's first entry updates CLAUDE.md to Task Scheduler; brief.md stays as
+  the design record. **ESTIMATE:** 5–6 rounds for phase A (E9).
+  **AS-COUNTED.** Builder: the step-3 chat message was corrupted mid-summary (E6–E9 lost);
+  Amin reviewed from the inventory file. Content count 73 at the draft, accepted by ruling
+  (P-9.01 precedent).
+- **Artifacts:** `PROGRESS.md` — the `## Step 8` heading and status line, and this entry;
+  `tests/fixtures/webacy/` ×4, trimmed (new); `.gitattributes` (+1 line); `.gitignore` (+2
+  entries under one comment line). No code, and no `docs/context/` change (A-20 applies
+  after this entry).
+- **Follow-ups spawned:**
+  - A-20 applied; the phase A build, the one fetch, the site build; P-8.02 after Amin's
+    browser review.
+  - Amin asks Webacy about the public display when sending the live page (does not block).

@@ -15,3 +15,6 @@ out/rehearsal/
 out/reports/
 # Design-chat context exports (tools/export_context.py)
 out/context-*/
+# Full Webacy envelopes: ToS bars redistributing Webacy Data; trimmed copies are committed (P-8.01 P5)
+out/behavioral-raw/
+tests/fixtures/webacy-raw/

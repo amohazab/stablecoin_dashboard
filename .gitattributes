@@ -17,3 +17,4 @@ out/logs/*.jsonl    text eol=lf
 # B-11a: the templates and the rendered site are hashed or published as LF.
 templates/**         text eol=lf
 out/site/**          text eol=lf
+tests/fixtures/**/*.json  text eol=lf

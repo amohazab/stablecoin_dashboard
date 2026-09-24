@@ -1,0 +1,23 @@
+{
+ "body": {
+  "data": [],
+  "meta": {
+   "generatedAt": "2026-09-15T03:35:52.692885Z",
+   "page": 1,
+   "stale": false
+  }
+ },
+ "request": {
+  "body_sha256": "cec548590723a21a1469fbe32d63c0dc6c5a226e58728351d87a112c1f1f49be",
+  "fetched_at": "2026-09-15T18:17:06+00:00",
+  "rate_headers": {
+   "X-RateLimit-Limit": "6000",
+   "X-RateLimit-Remaining": "5999",
+   "X-RateLimit-Reset": "60"
+  },
+  "seconds": 1.03,
+  "status": 200,
+  "url": "https://api.webacy.com/rwa/hci?chain=eth"
+ },
+ "source_sha256": "07d81d8a9fd191a820a146e4d59589e55577bc9ea2b061ce3ec89a509a5adae9"
+}
