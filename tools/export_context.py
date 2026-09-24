@@ -71,6 +71,11 @@ PROFILES["8"] = [
     *((f"site-{p.name.replace('.html.j2', '_html.j2')}", f"{T}/site/{p.name}")
       for p in sorted((REPO / T / "site").glob("*.j2"))),
     ("pages.yml", ".github/workflows/pages.yml"),
+    # phase B's context: the rendered site root and one appendix
+    ("site.json", "out/site/site.json"),
+    ("site-index.html", "out/site/index.html"),
+    ("site-methodology.html", "out/site/methodology.html"),
+    ("site-appendix-crvUSD.html", "out/site/crvUSD/appendix.html"),
 ]
 
 KEY_VALUE = re.compile(r"\b(ANTHROPIC_API_KEY|ETH_RPC_URL|WEBACY_API_KEY)=[^\s\"'`]+")
