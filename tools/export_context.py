@@ -66,6 +66,11 @@ PROFILES["8"] = [
     ("step8-inventory-e.md", "out/reports/step8-inventory-e.md"),
     ("behavioral.py", "src/factory/behavioral.py"),
     *((f"behavioral-{t}-latest.json", f"out/behavioral/{t}/<latest>") for t in BLOCKS),
+    # P-8.03: the site stage the behavioral tier renders through
+    ("site.py", "src/factory/site.py"),
+    *((f"site-{p.name.replace('.html.j2', '_html.j2')}", f"{T}/site/{p.name}")
+      for p in sorted((REPO / T / "site").glob("*.j2"))),
+    ("pages.yml", ".github/workflows/pages.yml"),
 ]
 
 KEY_VALUE = re.compile(r"\b(ANTHROPIC_API_KEY|ETH_RPC_URL|WEBACY_API_KEY)=[^\s\"'`]+")

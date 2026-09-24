@@ -52,8 +52,8 @@ Status: DONE (opened 2026-09-12; done-condition met 2026-09-13, P-6.12).
 Status: DONE (opened 2026-09-13; done-condition met 2026-09-14, P-7.11).
 
 ## Step 8 — Unattended execution
-Status: OPEN (opened 2026-09-24, P-8.01). Phase A: the behavioral tier from Webacy, at the
-site stage. Phase B: local-model (Ollama) scheduled runs; scoped at P-8.01, not built.
+Status: phase A DONE (opened 2026-09-24; done-condition met 2026-09-24, P-8.03), phase B
+OPEN (scoped at P-8.01: local-model (Ollama) scheduled runs, not built).
 
 ## Step 9 — Static site v1
 Status: DONE (opened 2026-09-14; done-condition met 2026-09-15, P-9.03).
@@ -8750,3 +8750,59 @@ Status: DONE (opened 2026-09-14; done-condition met 2026-09-15, P-9.03).
   `tools/export_context.py`; `PROGRESS.md`.
 - **Follow-ups spawned:** Amin: push, trigger `pages`; P-8.03 closes phase A when the three
   pages show the block live. Amin asks Webacy about public display. Phase B per P-8.01.
+
+## P-8.03 — Step 8 phase A closed: the behavioral tier live on the three token pages
+
+- **Date:** 2026-09-24
+- **Type:** closing
+- **Confirmed by:** Amin
+- **Content:**
+  **P-8.02 COMMITTED** at `81b1888` (21 files) and pushed with P-8.01's `6205a05`
+  (`9098a9f..81b1888 master`). Slice and scratch diff empty; sha256 `220d6da8…f526` on both
+  and on the committed blob. Before the commit: the raw dirs were unstaged and ignored,
+  the trimmed-schema test passed, and the Webacy key was in no staged file.
+  **THE DEPLOYMENT** (Amin, 2026-09-24): the `pages` workflow ran, and Amin opened the
+  crvUSD, GHO, LUSD and methodology pages live; they match his local review.
+  **VERIFIED (Builder):** the live `site.json` sha256 `b00ad3cf…2e92` equals the committed
+  file. The four live pages equal their committed bytes: crvUSD `0b0c75f8`, GHO
+  `aa04b221`, LUSD `423bd796`, methodology `30b38e1a`. The deployed tree is the committed
+  tree.
+  **DONE-CONDITION MET** (P-8.01): the three token pages show the behavioral block live.
+  **EXPORT:** `export_context.py --step 8` first wrote 57 files, with a clean key scan. The
+  set is Step 9's as ruled, so `site.py` and `templates/site/` were missing from it.
+  Added by ruling (Amin, 2026-09-24): `src/factory/site.py`, `templates/site/*.j2` and
+  `pages.yml` join the `--step 8` set; re-run, 62 files (2.06 MB), key scan clean.
+  **ROUNDS:** 8 turns to this draft, 9 with its confirmation, against Inventory E's 5–6:
+  1. the placement stop;
+  2. the inventory and the P-8.01 draft;
+  3. confirm, build, fetch, and the P-8.02 draft;
+  4. review 1, R1–R5 (liquidity, flows, notes, placement);
+  5. review 2, R6–R10 (pools table, the supply note, the % base, HCI history);
+  6. review 3, R11–R16 (cards and charts);
+  7. approval, commit and push;
+  8. the live check.
+  The growth is the three browser-review rounds (4–6).
+  **WEBACY USE, whole phase:** one fetch of 7 requests; R9's probe was not made because no
+  history endpoint exists; everything after the fetch was rebuilt by `retrim` from the
+  gitignored raw files.
+  **AS-COUNTED.**
+  - Builder: the step-3 chat message lost its tail (E6–E9; P-8.01); the P-8.01 append
+    first stopped on an LF assertion, and nothing was written; `.gitignore` +3 where +2
+    was ruled; Decimal half-even rounding fixed to half-up; heredoc quoting broke two
+    patch scripts, caught at parse time with nothing written.
+  - Either side, unresolved: the P-8.02 approval reported that the chat summary put
+    LUSD's values under GHO; the draft, checked against `site.json`, carried all three
+    correctly.
+  - Design layer: none new.
+  **STATUS:** Step 8 phase A → DONE (opened 2026-09-24; done-condition met 2026-09-24,
+  P-8.03); phase B OPEN, scoped at P-8.01. The `## Step 8` status line is updated with
+  this append.
+- **Artifacts:** `PROGRESS.md` (this entry and the Step 8 status line);
+  `tools/export_context.py` (the `--step 8` additions). No template or `out/` change.
+- **Follow-ups spawned:**
+  - Amin: the Webacy public-display question to Maika, with the live pages.
+  - Phase B per P-8.01, beginning with its first entry updating CLAUDE.md to Task Scheduler.
+  - Retained Webacy data flags, recorded and not rendered (P-8.02): (a) crvUSD 24h burn >
+    7d burn; (b) GHO net 0 over 24h/7d/30d vs +$100.3M over 90d; (e) GHO cost-to-move ≈
+    2.07e47; top-30 share = top-10 share on all three.
+  - Queued memo amendment, memo §11 item 4 / checklist 6.6 (P-8.01).
