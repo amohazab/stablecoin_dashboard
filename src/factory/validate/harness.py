@@ -3162,7 +3162,10 @@ def det_59(b: Bundle, t: VerifiabilityTree, r: StressReport, page: dict) -> str:
     literals on the page ("Last successful run: [date]", "Current run: quarantined —
     [trigger category]"); >= 4 consecutive quarantined runs replace the body with
     "Under review — last successful run [date]"; no open Level 2/3 entry, no banner;
-    (b) the "behavioral tier: pending" literal. NAMED DEFAULT (R16): with no
+    (b) the "behavioral tier: pending" literal on the rendered report. A-20 (P-8.01):
+    (b) reads per page - on the site page, once a snapshot exists under
+    `out/behavioral/<T>/`, the behavioral block replaces the literal (never both, never
+    neither); `factory.site` evaluates that half at site build. NAMED DEFAULT (R16): with no
     published report the date reads "none yet"; the body the banner stands over is
     the rehearsal page, which never reaches `out/site/` (DET-13(d))."""
     from factory.eventlog import consecutive_quarantined_runs, last_published

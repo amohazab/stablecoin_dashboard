@@ -17,7 +17,17 @@ Fail-closed (each stops the build with its numbers, before anything is written):
 - D1: the methodology page's rendered log rows ≠ Σ quarantine lines (DET-60's
   row-count clause - this module is its evaluator);
 - D9: a DET-79 `literals` entry appears on either new page;
-- D4: a rewrite form is neither present once in its old form nor once in its new form.
+- D4: a rewrite form is neither present once in its old form nor once in its new form;
+- A-20 (P-8.01): a token page carrying both the DET-59 pending literal and the behavioral
+  block, or neither; a snapshot whose consumed paths do not validate.
+
+Step 8 phase A (P-8.01): with a snapshot under `out/behavioral/<T>/`, two more recorded
+rewrites per token page - (i) the DET-59 meta literal -> the behavioral block, rebuilt
+from the latest snapshot between `<!-- behavioral:begin/end -->` markers; (ii) the reader
+sentence -> wording `[behavioral] reader`. Both are inverted before every build, so
+"before" stays the report as rendered. No snapshot: neither applies and the pending text
+stays. The as-of date for the 14-day suffix is the build's UTC date (P3), recorded in
+site.json: two builds on the same day are byte-identical.
 
 NAMED DEFAULTS:
 - `TOKEN_ORDER` is the ruled card order (§3.2); the token directories under
@@ -31,6 +41,7 @@ NAMED DEFAULTS:
 
 from __future__ import annotations
 
+import datetime as dt
 import hashlib
 import html as _html
 import json
@@ -41,7 +52,7 @@ import tomllib
 
 from markupsafe import Markup
 
-from factory import eventlog
+from factory import behavioral, eventlog
 from factory.report.render import Formatter, environment, structural_zero
 from factory.rubric import read_trigger_table
 
@@ -52,6 +63,8 @@ CARD_ROWS = (("supply_card", "supply.supply_ruled"), ("bad_debt_card", "headline
 SLOT = re.compile(r'<div class="prose-slot" data-slot="structural_summary">(.*?)</div>', re.S)
 PILLS = re.compile(r'<div class="pills">\n?(.*?)\n?</div>', re.S)
 PILL = re.compile(r'<span class="pill [a-z]+">[^<]*</span>')
+MARKED = re.compile(re.escape(behavioral.MARK_BEGIN) + r".*?" + re.escape(behavioral.MARK_END),
+                    re.S)
 HEADER_NAV = ('<a href="index.html">report</a><a href="appendix.html">appendix</a>'
               '<a href="verify.html">verify</a>')
 
@@ -88,26 +101,70 @@ def rewrites(w: dict) -> list[tuple[str, str]]:
     return pairs
 
 
-def apply_rewrites(page: str, pairs: list[tuple[str, str]], token: str) -> tuple[str, str]:
+def apply_rewrites(page: str, pairs: list[tuple[str, str]], token: str,
+                   beh: tuple[str, tuple[str, str], str | None] | None = None) -> tuple[str, str]:
     """(original, rewritten). A form present in its new shape is inverted first (D8);
-    the original must then hold each old form exactly once and no new form."""
+    the original must then hold each old form exactly once and no new form.
+    `beh` = {pending, spec, check, readers, reader, block} (P-8.01; R4 at the P-8.02
+    review): a marked block is removed and the literal restored after the specialists h2;
+    every reader variant is inverted. Forward, with a block: the literal's line goes, the
+    block is inserted before the "How to check this" section, the reader pair applies."""
     original = page
-    for old, new in pairs:
+    extra: list[tuple[str, str]] = []
+    if beh is not None:
+        marked = MARKED.findall(original)
+        if len(marked) > 1:
+            raise SiteStop(f"{token}: behavioral block x{len(marked)}")
+        if marked:
+            region = marked[0] + "\n"
+            if original.count(region) != 1 or original.count(beh["spec"]) != 1:
+                raise SiteStop(f"{token}: behavioral block or specialists heading not once")
+            original = original.replace(region, "").replace(
+                beh["spec"], beh["spec"] + beh["pending"])
+        for new in beh["readers"]:
+            if new in original:
+                original = original.replace(new, beh["reader"][0])
+        if beh["block"] is not None:
+            extra = [beh["reader"]]
+    for old, new in [*pairs, *extra]:
         n_new = original.count(new)
         if n_new > 1:
             raise SiteStop(f"{token}: rewritten form {new[:60]!r} x{n_new}")
         if n_new == 1:
             original = original.replace(new, old)
     after = original
-    for old, new in pairs:
+    block = beh["block"] if beh is not None else None
+    for old, new in [*pairs, *extra]:
         n_old, n_new = original.count(old), original.count(new)
         if (n_old, n_new) != (1, 0):
             raise SiteStop(f"{token}: rewrite form {old[:60]!r} old x{n_old}, new x{n_new}")
         after = after.replace(old, new)
+    if block is not None:
+        lit, anchor = beh["spec"] + beh["pending"], beh["check"]
+        if after.count(lit) != 1 or after.count(anchor) != 1:
+            raise SiteStop(f"{token}: literal line x{after.count(lit)}, check section "
+                           f"x{after.count(anchor)} before the block")
+        after = after.replace(lit, beh["spec"]).replace(anchor, block + "\n" + anchor)
     return original, after
 
 
-def token_card(repo: pathlib.Path, token: str, w: dict, mf: dict, pairs) -> dict:
+def either_or(page: str, w: dict, landed: bool, token: str) -> None:
+    """A-20: the pending literal or the block with its attribution line - never both,
+    never neither; which one follows whether the tier has landed."""
+    lit = page.count(w["behavioral_pending"])
+    blocks = MARKED.findall(page)
+    attr = w["behavioral"]["attribution"].split("{")[0]
+    has_block = len(blocks) == 1 and attr in blocks[0]
+    if landed and (lit, len(blocks)) == (0, 1) and has_block:
+        return
+    if not landed and (lit, len(blocks)) == (1, 0):
+        return
+    raise SiteStop(f"{token}: A-20 either/or - literal x{lit}, block x{len(blocks)}"
+                   f"{'' if not blocks or has_block else ' without its attribution line'}, "
+                   f"snapshot {'present' if landed else 'absent'}")
+
+
+def token_card(repo: pathlib.Path, token: str, w: dict, mf: dict, pairs, as_of: dt.date) -> dict:
     site = repo / "out/site" / token
     missing = [n for n in PAGE_SET if not (site / n).exists()]
     if missing:
@@ -152,7 +209,33 @@ def token_card(repo: pathlib.Path, token: str, w: dict, mf: dict, pairs) -> dict
     if not spans:
         raise SiteStop(f"{token}: no notices pill on index.html")
     ts = rows["header.block_timestamp"]
-    original, after = apply_rewrites(page, pairs, token)
+    pending = f'<p class="meta">{w["behavioral_pending"]}</p>\n'
+    spec = f'<h2 class="specialists">{w["specialists"]}</h2>\n'
+    wb = w["behavioral"]
+    usd = Formatter(mf["display_rule"], mf["compact"])
+    snap_path = behavioral.latest(repo, token)
+    block, beh_rec, subs = None, {"state": "pending", "snapshot": None}, list(pairs)
+    if snap_path is not None:
+        try:
+            snap = behavioral.load(snap_path)
+            block, st = behavioral.block(snap, as_of, wb,
+                                         lambda x: usd(x, "usd_whole", compact=True))
+        except Exception as exc:                                        # P6: shape mismatch
+            raise SiteStop(f"{token}: snapshot {snap_path.name} does not validate: "
+                           f"{type(exc).__name__}: {exc}"[:400]) from exc
+        beh_rec = {"state": "rendered", "snapshot": snap_path.relative_to(repo).as_posix(),
+                   "snapshot_sha256": _sha(snap_path.read_bytes()),
+                   "block_sha256": _sha(block.encode("utf-8")), **st}
+    full = block is not None and st["liquidity_shown"] and st["supply_shown"]      # R4
+    reader = (w["behavioral_tier"], wb["reader_full"] if full else wb["reader"])
+    if block is not None:
+        subs += [reader, (spec + pending, spec),
+                 ('<section id="check">',
+                  f"<behavioral block, sha256 {beh_rec['block_sha256']}>" + '<section id="check">')]
+    original, after = apply_rewrites(page, pairs, token, {
+        "pending": pending, "spec": spec, "check": '<section id="check">',
+        "readers": (wb["reader"], wb["reader_full"]), "reader": reader, "block": block})
+    either_or(after, w, block is not None, token)                             # A-20
     return {
         "token": token, "run_block": blk, "report_hash": man["report_hash"],
         "read": fmt(ts["value"], ts["unit"], ts["denominator"]),
@@ -161,9 +244,9 @@ def token_card(repo: pathlib.Path, token: str, w: dict, mf: dict, pairs) -> dict
         "ruling": (rec.get("publication") or {}).get("ruling"),
         "passed": sum(1 for x in rec["results"] if x["result"] == "pass"),
         "total": len(rec["results"]), "unregistered": rec["unregistered"],
-        "index_after": after,
+        "index_after": after, "block": block, "behavioral": beh_rec,
         "rewrite": {"before": _sha(original.encode("utf-8")), "after": _sha(after.encode("utf-8")),
-                    "substitutions": [{"old": o, "new": n} for o, n in pairs]},
+                    "substitutions": [{"old": o, "new": n} for o, n in subs]},
     }
 
 
@@ -234,8 +317,10 @@ def leaks(texts: dict[str, str], literals: list[str]) -> list[str]:
     return hits
 
 
-def plan(repo: pathlib.Path) -> dict[str, bytes]:
-    """Every output as bytes, every fail-closed condition checked; nothing written."""
+def plan(repo: pathlib.Path, as_of: dt.date | None = None) -> dict[str, bytes]:
+    """Every output as bytes, every fail-closed condition checked; nothing written.
+    `as_of` defaults to today's UTC date (P-8.01 P3)."""
+    as_of = as_of or dt.datetime.now(dt.UTC).date()
     tpl = repo / "templates"
     w = tomllib.loads((tpl / "wording.toml").read_text(encoding="utf-8"))
     mf = tomllib.loads((tpl / "manifest.toml").read_text(encoding="utf-8"))
@@ -244,7 +329,7 @@ def plan(repo: pathlib.Path) -> dict[str, bytes]:
     if dirs != sorted(TOKEN_ORDER):
         raise SiteStop(f"token directories {dirs} != {sorted(TOKEN_ORDER)}")
     pairs = rewrites(w)
-    cards = [token_card(repo, t, w, mf, pairs) for t in TOKEN_ORDER]
+    cards = [token_card(repo, t, w, mf, pairs, as_of) for t in TOKEN_ORDER]
 
     unreg = [c["unregistered"] for c in cards]                                 # D2
     if any(u != unreg[0] for u in unreg):
@@ -261,7 +346,10 @@ def plan(repo: pathlib.Path) -> dict[str, bytes]:
                  "record_url": f"{blob}/out/evaluation/{c['token']}/{c['run_block']}.json"}
                 for c in cards]
     env = environment(tpl)
-    ctx = dict(s=w["site"], w=w, repo_url=repo_url, blob=blob)
+    snaps = [{"token": c["token"], "path": c["behavioral"]["snapshot"]} for c in cards
+             if c["behavioral"]["snapshot"]]
+    beh = {"landed": len(snaps) == len(cards), "snapshots": snaps}                # P4
+    ctx = dict(s=w["site"], w=w, repo_url=repo_url, blob=blob, beh=beh)
     index = env.get_template("site/index.html.j2").render(**ctx, cards=cards)
     method = env.get_template("site/methodology.html.j2").render(
         **ctx, log_rows=rows, n_log=len(rows), outcomes=outcomes,
@@ -270,17 +358,20 @@ def plan(repo: pathlib.Path) -> dict[str, bytes]:
     rendered = method.count('<tr class="log-row">')                            # D1
     if rendered != n_lines:
         raise SiteStop(f"methodology log rows {rendered} != quarantine lines {n_lines}")
-    hits = leaks({"index.html": index, "methodology.html": method},
-                 mf["substitution_list"]["literals"])                          # D9
+    texts = {"index.html": index, "methodology.html": method,
+             **{f"{c['token']} behavioral block": c["block"] for c in cards if c["block"]}}
+    hits = leaks(texts, mf["substitution_list"]["literals"])                     # D9
     if hits:
         raise SiteStop(f"literal leak on the new pages: {'; '.join(hits)}")
 
     record = {
         "repo_url": repo_url, "branch": w["repo"]["branch"], "log_rows": len(rows),
+        "behavioral_as_of": as_of.isoformat(),
         "a16": {"count": len(unreg[0]), "ids": [x["entry_id"] for x in unreg[0]]},
         "tokens": {c["token"]: {"run_block": c["run_block"], "report_hash": c["report_hash"],
                                 "outcome": c["outcome"], "pill": str(c["pill"]),
                                 "finding": c["finding"], "figures": c["figures"],
+                                "behavioral": c["behavioral"],
                                 "rewrites": {"index.html": c["rewrite"]}} for c in cards},
     }
     out = {"index.html": index.encode("utf-8"), "methodology.html": method.encode("utf-8"),
@@ -291,8 +382,8 @@ def plan(repo: pathlib.Path) -> dict[str, bytes]:
     return out
 
 
-def build(repo: pathlib.Path) -> dict[str, bytes]:
-    out = plan(repo)
+def build(repo: pathlib.Path, as_of: dt.date | None = None) -> dict[str, bytes]:
+    out = plan(repo, as_of)
     site = repo / "out/site"
     for rel, data in out.items():
         p = site / rel
@@ -313,3 +404,9 @@ if __name__ == "__main__":
           + " · ".join(f"{t} {v['report_hash'][:8]} {v['rewrites']['index.html']['before'][:8]}"
                        f"->{v['rewrites']['index.html']['after'][:8]}"
                        for t, v in _rec["tokens"].items()))
+    for _t, _v in _rec["tokens"].items():
+        _b = _v["behavioral"]
+        print(f"{_t} behavioral {_b['state']}" + ("" if _b["state"] == "pending" else
+              f" | {_b['snapshot']} {_b['snapshot_sha256'][:8]} | fetched_at {_b['fetched_at']} | "
+              f"age {_b['age_days']} d | stale depeg {_b['depeg_stale']} hci {_b['hci_stale']} | "
+              f"HCI {'page ' + str(_b['hci_page']) if _b['hci_found'] else 'not covered'}"))

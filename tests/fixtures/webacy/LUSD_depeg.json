@@ -1950,14 +1950,22 @@
    ]
   },
   "snapshot": {
+   "cost_to_move_down_usd": null,
+   "cost_to_move_up_usd": null,
    "dev_clean": 0.004718017966137911,
+   "liquidity_depth_tier": null,
    "peg_value": 1,
    "price": 1.004718017966138,
    "score": 4,
    "tier": "ok",
+   "total_dex_liquidity_usd": null,
    "ts": "2026-09-15T17:36:15.869514+00:00"
   },
-  "stale": false
+  "stale": false,
+  "token": {
+   "markets": [],
+   "total_supply_on_chain": 26227238.6719
+  }
  },
  "request": {
   "body_sha256": "a78267000f13ad4f9acd73324f5d8cbce32642b385c287b78e26eef2f174f706",

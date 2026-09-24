@@ -10,11 +10,61 @@
    "DET-64"
   ]
  },
+ "behavioral_as_of": "2026-09-24",
  "branch": "master",
  "log_rows": 11,
  "repo_url": "https://github.com/amohazab/stablecoin_dashboard",
  "tokens": {
   "GHO": {
+   "behavioral": {
+    "age_days": 0,
+    "as_of": "2026-09-24",
+    "block_sha256": "cd349b58d645315894a123e385ad764512cacc50e1336ceb11efaa2a937e3ceb",
+    "captions": [
+     "7-day max |deviation|: 16.8 bp",
+     "Share of liquidity among the 9 Ethereum pools Webacy lists, $30.4M — excludes 1 pool whose reported liquidity exceeds the token's supply",
+     "Net supply change, per Webacy",
+     "Share of supply held, 7,970 holders"
+    ],
+    "daggers": 1,
+    "depeg_stale": false,
+    "donut_caption": "Share of liquidity among the 9 Ethereum pools Webacy lists, $30.4M — excludes 1 pool whose reported liquidity exceeds the token's supply",
+    "donut_excluded": 1,
+    "donut_slices": 6,
+    "fetched": "2026-09-24 11:31",
+    "fetched_at": "2026-09-24T11:31:33+00:00",
+    "hci_found": true,
+    "hci_page": 1,
+    "hci_stale": false,
+    "holder_bar": true,
+    "holder_caption": "Share of supply held, 7,970 holders",
+    "holder_segments": [
+     "97.4%",
+     "0.0%",
+     "2.6%"
+    ],
+    "liquidity_exceeds_supply": true,
+    "liquidity_shown": true,
+    "markets": 10,
+    "max_abs_bp": "16.8",
+    "notes": [
+     "all_top_n_are_protocol_contracts_organic_low"
+    ],
+    "notes_line": [
+     "Webacy's figure exceeds the token's total supply ($699.0M); shown as given.",
+     "Webacy counts the largest holders as protocol contracts, so it rates concentration as low."
+    ],
+    "snapshot": "out/behavioral/GHO/20260924T113119Z.json",
+    "snapshot_sha256": "c39345034eefe2cd4ed577852cd69bd055fb40cb2e2080f73a387421dd5112ad",
+    "state": "rendered",
+    "suffixes": [],
+    "supply_bars": 3,
+    "supply_base": "$698.2M",
+    "supply_caption": "Net supply change, per Webacy",
+    "supply_not_shown": null,
+    "supply_shown": true,
+    "unknown_notes": []
+   },
    "figures": "Supply $699.0M · Bad debt, headline scenario $8.6M · Exit liquidity, headline scenario $18.8M",
    "finding": "GHO's supply of $699.0M is minted entirely through Aave facilitators, and 21.5% of that supply ($150.0M) is issued against off-mainnet facilitators on Arbitrum, Monad and Plasma, whose backing is not traced by this tree.",
    "outcome": "published_without_banner_by_ruling",
@@ -22,7 +72,7 @@
    "report_hash": "447281cb4b87dcd40bd17e9fd0a8b9db741d4fd2c825262d5e1a0a15dd6183d1",
    "rewrites": {
     "index.html": {
-     "after": "0b8f8404f7975d625bea1f4b3fd86777b4e5e4db2012c2e0e35a80f2c5ddaeb3",
+     "after": "aa04b22177f45e579a4c767d9dc900cf3187a01b090f107ad76ef00f88c6ecb8",
      "before": "f0e396e3fe7610c496b50601593f1eea012a1c044df4f068ec2f259b9cf628db",
      "substitutions": [
       {
@@ -36,6 +86,18 @@
       {
        "new": "<a href=\"../index.html\">all tokens</a><a href=\"index.html\">report</a><a href=\"appendix.html\">appendix</a><a href=\"verify.html\">verify</a>",
        "old": "<a href=\"index.html\">report</a><a href=\"appendix.html\">appendix</a><a href=\"verify.html\">verify</a>"
+      },
+      {
+       "new": "The behavioral tier — how the token trades: peg deviation, liquidity, holder concentration and supply flows — is shown under \"How it trades\", from Webacy's data fetched at a timestamp rather than read at this report's block.",
+       "old": "The behavioral tier — how the token trades: peg deviation, liquidity, holder concentration and flows — will come from an external monitoring service and is pending."
+      },
+      {
+       "new": "<h2 class=\"specialists\">Detail for specialists</h2>\n",
+       "old": "<h2 class=\"specialists\">Detail for specialists</h2>\n<p class=\"meta\">behavioral tier: pending</p>\n"
+      },
+      {
+       "new": "<behavioral block, sha256 cd349b58d645315894a123e385ad764512cacc50e1336ceb11efaa2a937e3ceb><section id=\"check\">",
+       "old": "<section id=\"check\">"
       }
      ]
     }
@@ -43,6 +105,48 @@
    "run_block": 25974932
   },
   "LUSD": {
+   "behavioral": {
+    "age_days": 0,
+    "as_of": "2026-09-24",
+    "block_sha256": "f4a5a73aeb475e75287d788e02c61b7275b5dca37696bf7c7c927a17201d7f6a",
+    "captions": [
+     "7-day max |deviation|: 225.6 bp",
+     "Net supply change, per Webacy",
+     "Share of supply held, 8,742 holders"
+    ],
+    "daggers": 0,
+    "depeg_stale": false,
+    "donut_excluded": 0,
+    "donut_slices": 0,
+    "fetched": "2026-09-24 11:31",
+    "fetched_at": "2026-09-24T11:31:40+00:00",
+    "hci_found": true,
+    "hci_page": 1,
+    "hci_stale": false,
+    "holder_bar": true,
+    "holder_caption": "Share of supply held, 8,742 holders",
+    "holder_segments": [
+     "22.0%",
+     "0.0%",
+     "78.0%"
+    ],
+    "liquidity_exceeds_supply": false,
+    "liquidity_shown": false,
+    "markets": 0,
+    "max_abs_bp": "225.6",
+    "notes": [],
+    "notes_line": [],
+    "snapshot": "out/behavioral/LUSD/20260924T113119Z.json",
+    "snapshot_sha256": "e9d5e77dc0832de5d6618e628c777eeeeeaf4d534d88a9e75e1baba63718397f",
+    "state": "rendered",
+    "suffixes": [],
+    "supply_bars": 3,
+    "supply_base": "$26.3M",
+    "supply_caption": "Net supply change, per Webacy",
+    "supply_not_shown": null,
+    "supply_shown": true,
+    "unknown_notes": []
+   },
    "figures": "Supply $26.2M · Bad debt, headline scenario $0, structurally zero · Exit liquidity, headline scenario $8.8M",
    "finding": "Every LUSD in supply, $26.2M, is accounted for as trove debt, so the residual is $0: there is no unexplained gap between what's issued and what's backed.",
    "outcome": "published",
@@ -50,7 +154,7 @@
    "report_hash": "003b4fcd0638ac8ecc7f5b741c212bd3945356560174af11409c36a9c03e7da7",
    "rewrites": {
     "index.html": {
-     "after": "37f55aec87dcb2390193a5c0c53c889bc4f3fbf16c216786c0bbdc22fb1e028e",
+     "after": "423bd796c2851822f10fa45f7e6e616dd74a00884d7d69dc8a203b27030deb95",
      "before": "75a2882f5c90d0e194750a1f61f90128456961e14c948395d3a23298bf526e43",
      "substitutions": [
       {
@@ -64,6 +168,18 @@
       {
        "new": "<a href=\"../index.html\">all tokens</a><a href=\"index.html\">report</a><a href=\"appendix.html\">appendix</a><a href=\"verify.html\">verify</a>",
        "old": "<a href=\"index.html\">report</a><a href=\"appendix.html\">appendix</a><a href=\"verify.html\">verify</a>"
+      },
+      {
+       "new": "The behavioral tier — how the token trades — is shown under \"How it trades\", from Webacy's data fetched at a timestamp rather than read at this report's block.",
+       "old": "The behavioral tier — how the token trades: peg deviation, liquidity, holder concentration and flows — will come from an external monitoring service and is pending."
+      },
+      {
+       "new": "<h2 class=\"specialists\">Detail for specialists</h2>\n",
+       "old": "<h2 class=\"specialists\">Detail for specialists</h2>\n<p class=\"meta\">behavioral tier: pending</p>\n"
+      },
+      {
+       "new": "<behavioral block, sha256 f4a5a73aeb475e75287d788e02c61b7275b5dca37696bf7c7c927a17201d7f6a><section id=\"check\">",
+       "old": "<section id=\"check\">"
       }
      ]
     }
@@ -71,6 +187,54 @@
    "run_block": 25974949
   },
   "crvUSD": {
+   "behavioral": {
+    "age_days": 0,
+    "as_of": "2026-09-24",
+    "block_sha256": "bd66689ace1431806ee09680b2851c21cfee425f45bd5be4835c26c336c9d53b",
+    "captions": [
+     "7-day max |deviation|: 19.1 bp",
+     "Share of liquidity among the 10 Ethereum pools Webacy lists, $318.2M",
+     "Net supply change, per Webacy",
+     "Share of supply held, 94,916 holders"
+    ],
+    "daggers": 0,
+    "depeg_stale": false,
+    "donut_caption": "Share of liquidity among the 10 Ethereum pools Webacy lists, $318.2M",
+    "donut_excluded": 0,
+    "donut_slices": 6,
+    "fetched": "2026-09-24 11:31",
+    "fetched_at": "2026-09-24T11:31:25+00:00",
+    "hci_found": true,
+    "hci_page": 1,
+    "hci_stale": false,
+    "holder_bar": true,
+    "holder_caption": "Share of supply held, 94,916 holders",
+    "holder_segments": [
+     "78.1%",
+     "0.0%",
+     "21.9%"
+    ],
+    "liquidity_exceeds_supply": false,
+    "liquidity_shown": true,
+    "markets": 10,
+    "max_abs_bp": "19.1",
+    "notes": [
+     "all_top_n_are_protocol_contracts_organic_low"
+    ],
+    "notes_line": [
+     "Webacy counts the largest holders as protocol contracts, so it rates concentration as low."
+    ],
+    "snapshot": "out/behavioral/crvUSD/20260924T113119Z.json",
+    "snapshot_sha256": "18c93851a4899cf970972c2aab2390bfb56f5fe83016c13e833b00ef1a01ab3b",
+    "state": "rendered",
+    "suffixes": [],
+    "supply_bars": 3,
+    "supply_base": "$229.1M",
+    "supply_caption": "Net supply change, per Webacy",
+    "supply_not_shown": null,
+    "supply_shown": true,
+    "unknown_notes": []
+   },
    "figures": "Supply $2.1B · Bad debt, headline scenario $6, structurally zero · Exit liquidity, headline scenario $20.4M",
    "finding": "Of the total supply of $2.1B, only $82.9M is backed by the traced mint-market collateral this report follows; the residual of $2.0B is described as crvUSD minted but not borrowed, held by the protocol's own contracts, not in circulation, with the named causes accounting for it.",
    "outcome": "published_without_banner_by_ruling",
@@ -78,7 +242,7 @@
    "report_hash": "8ac6132bc407aad7549f4d9f7ab127e229b521c03c58f5a8a66f03576c4f2912",
    "rewrites": {
     "index.html": {
-     "after": "fb56ee7c795fcf261ed10b92ac37da60b19599166481c64a22aaca982c1c93c5",
+     "after": "0b0c75f8f71f8b2178e365342bc51c9db485106133076f195c7eb7529c1a4df0",
      "before": "996a25d10a522f2aaa6da730f85dbed525590be7265ef3dae4fd59a905acb37a",
      "substitutions": [
       {
@@ -92,6 +256,18 @@
       {
        "new": "<a href=\"../index.html\">all tokens</a><a href=\"index.html\">report</a><a href=\"appendix.html\">appendix</a><a href=\"verify.html\">verify</a>",
        "old": "<a href=\"index.html\">report</a><a href=\"appendix.html\">appendix</a><a href=\"verify.html\">verify</a>"
+      },
+      {
+       "new": "The behavioral tier — how the token trades: peg deviation, liquidity, holder concentration and supply flows — is shown under \"How it trades\", from Webacy's data fetched at a timestamp rather than read at this report's block.",
+       "old": "The behavioral tier — how the token trades: peg deviation, liquidity, holder concentration and flows — will come from an external monitoring service and is pending."
+      },
+      {
+       "new": "<h2 class=\"specialists\">Detail for specialists</h2>\n",
+       "old": "<h2 class=\"specialists\">Detail for specialists</h2>\n<p class=\"meta\">behavioral tier: pending</p>\n"
+      },
+      {
+       "new": "<behavioral block, sha256 bd66689ace1431806ee09680b2851c21cfee425f45bd5be4835c26c336c9d53b><section id=\"check\">",
+       "old": "<section id=\"check\">"
       }
      ]
     }

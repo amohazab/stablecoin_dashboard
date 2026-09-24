@@ -4,6 +4,7 @@ code, templates, site pages, records and reports under fixed export names.
 
 Run from the repo root:
     python tools/export_context.py --step 9
+    python tools/export_context.py --step 8   (Step 9's set + the behavioral tier, P-8.01)
 
 Writes out/context-step<N>/ (a delete-later folder, never committed). Missing optional
 sources are listed, not fatal. Prints each export with its size and scans every exported
@@ -58,8 +59,24 @@ PROFILES = {
         ("step7-b13-plan.md", "out/reports/step7-b13-plan.md"),
     ],
 }
+# P-8.01: Step 9's set (which already carries CLAUDE.md, PROGRESS.md and
+# phase-b-checklist.md) + the inventory, the module and the latest snapshot per token.
+PROFILES["8"] = [
+    *PROFILES["9"],
+    ("step8-inventory-e.md", "out/reports/step8-inventory-e.md"),
+    ("behavioral.py", "src/factory/behavioral.py"),
+    *((f"behavioral-{t}-latest.json", f"out/behavioral/{t}/<latest>") for t in BLOCKS),
+]
 
-KEY_VALUE = re.compile(r"\b(ANTHROPIC_API_KEY|ETH_RPC_URL)=[^\s\"'`]+")
+KEY_VALUE = re.compile(r"\b(ANTHROPIC_API_KEY|ETH_RPC_URL|WEBACY_API_KEY)=[^\s\"'`]+")
+
+
+def resolve(src: str) -> pathlib.Path:
+    """`<latest>` = the last file by name in that directory (the ISO stamp sorts)."""
+    if src.endswith("/<latest>"):
+        found = sorted((REPO / src[: -len("/<latest>")]).glob("*.json"))
+        return found[-1] if found else REPO / src
+    return REPO / src
 
 
 def main() -> int:
@@ -73,7 +90,7 @@ def main() -> int:
     missing = []
     for name, src in PROFILES[sys.argv[2]]:
         optional = src.endswith("?")
-        path = REPO / src.rstrip("?")
+        path = resolve(src.rstrip("?"))
         if not path.exists():
             missing.append(f"{name} <- {src.rstrip('?')}{' (optional)' if optional else ''}")
             continue
@@ -89,7 +106,7 @@ def main() -> int:
         print(f"missing: {m}")
     hits = [f"{p.name}: {m.group(1)}=…" for p in files
             for m in KEY_VALUE.finditer(p.read_text(encoding="utf-8", errors="replace"))]
-    print("key scan (ANTHROPIC_API_KEY= / ETH_RPC_URL= with a value):",
+    print("key scan (ANTHROPIC_API_KEY= / ETH_RPC_URL= / WEBACY_API_KEY= with a value):",
           "none" if not hits else hits)
     return 1 if hits or any("optional" not in m for m in missing) else 0
 

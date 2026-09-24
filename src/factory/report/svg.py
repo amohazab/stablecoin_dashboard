@@ -188,3 +188,104 @@ def two_bars(a: tuple[str, Decimal, str], b: tuple[str, Decimal, str], title: st
         body.append(_text(left + Decimal(bw) * Decimal(v) / vmax + 10, y + 25, lab, size=13,
                           weight="600"))
     return _svg(w, 160, body, title)
+
+
+def deviation_chart(points: list[tuple[float, Decimal]], y_labels: dict[Decimal, str],
+                    x_labels: tuple[str, str], title: str) -> str:
+    """P-8.01: the behavioral block's peg-deviation line - (epoch seconds, signed bp)
+    oldest -> newest, one polyline across gaps, auto-scaled with zero included, a dashed
+    zero line; the y labels (max, 0, min) and the first/last x labels arrive formatted."""
+    w, h, left, top, pw, ph = 1000, 240, 90, 20, 870, 170
+    lo = min([v for _, v in points] + [Decimal(0)])
+    hi = max([v for _, v in points] + [Decimal(0)])
+    if hi == lo:
+        hi = lo + 1
+    t0, t1 = points[0][0], points[-1][0]
+    span = (t1 - t0) or 1
+
+    def y(v):
+        return top + Decimal(ph) * (hi - Decimal(v)) / (hi - lo)
+
+    body = []
+    for v, lab in sorted(y_labels.items(), reverse=True):
+        body.append(_text(left - 10, y(v) + 4, lab, anchor="end", size=12, fill=MUTED))
+    body.append(f'<line x1="{left}" y1="{_r(y(0))}" x2="{left + pw}" y2="{_r(y(0))}" '
+                f'stroke="{MUTED}" stroke-dasharray="6 4"/>')
+    body.append(f'<line x1="{left}" y1="{top}" x2="{left}" y2="{top + ph}" stroke="{RULE}"/>')
+    coords = " ".join(f"{_r(left + Decimal(pw) * Decimal(str((t - t0) / span)))},{_r(y(v))}"
+                      for t, v in points)
+    body.append(f'<polyline points="{coords}" fill="none" stroke="{ACCENT}" stroke-width="2"/>')
+    body.append(_text(left, top + ph + 24, x_labels[0], size=12, fill=MUTED))
+    body.append(_text(left + pw, top + ph + 24, x_labels[1], anchor="end", size=12, fill=MUTED))
+    return _svg(w, h, body, title)
+
+
+# P-8.02 R12-R14: the behavioral section's charts. Colours are style.css's own inks
+# (--accent, --green-ink, --amber-ink, --red-ink, --ink, --muted); style.css is frozen.
+PALETTE = ("#1f5fa8", "#1e6b34", "#8a5a00", "#9b2c22", "#1b2430", "#5d6b79")
+
+
+def donut(rows: list[tuple[str, Decimal, str]], title: str) -> str:
+    """R12: one ring, shares in `rows` = [(label, share 0-1, legend value)], clockwise
+    from 12 o'clock, legend beside it; a single slice is drawn as a full ring."""
+    import math
+    w, h, cx, cy, ro, ri = 500, 260, 130, 130, 110, 66
+    body = []
+    if len(rows) == 1:
+        body.append(f'<circle cx="{cx}" cy="{cy}" r="{(ro + ri) / 2}" fill="none" '
+                    f'stroke="{PALETTE[0]}" stroke-width="{ro - ri}"/>')
+    else:
+        a0 = Decimal(0)
+        for i, (_lab, share, _v) in enumerate(rows):
+            a1 = a0 + share
+            t0, t1 = float(a0) * 2 * math.pi, float(a1) * 2 * math.pi
+            big = 1 if float(share) > 0.5 else 0
+            p = [(cx + r * math.sin(t), cy - r * math.cos(t)) for r, t in
+                 ((ro, t0), (ro, t1), (ri, t1), (ri, t0))]
+            d = (f"M{_r(p[0][0])},{_r(p[0][1])} A{ro},{ro} 0 {big} 1 {_r(p[1][0])},{_r(p[1][1])} "
+                 f"L{_r(p[2][0])},{_r(p[2][1])} A{ri},{ri} 0 {big} 0 {_r(p[3][0])},{_r(p[3][1])} Z")
+            body.append(f'<path d="{d}" fill="{PALETTE[i % len(PALETTE)]}" stroke="#ffffff" '
+                        'stroke-width="1.5"/>')
+            a0 = a1
+    for i, (lab, _share, val) in enumerate(rows):
+        y = 40 + 34 * i
+        body.append(_rect(262, y - 11, 12, 12, PALETTE[i % len(PALETTE)], rx=2))
+        body.append(_text(282, y, lab, size=13))
+        body.append(_text(282, y + 15, val, size=12, fill=MUTED))
+    return _svg(w, h, body, title)
+
+
+def signed_bars(bars: list[tuple[str, Decimal, str]], title: str) -> str:
+    """R13: signed bars around a zero line, value labels on the bars, window labels
+    below; positive in the accent, negative in the red ink."""
+    w, h, left, top, ph = 500, 260, 30, 30, 180
+    mx = max([abs(v) for _, v, _ in bars] + [Decimal(1)])
+    zero = Decimal(top + ph / 2)
+    slot = Decimal(w - 2 * left) / len(bars)
+    bw = min(slot * Decimal("0.5"), Decimal(90))
+    body = [f'<line x1="{left}" y1="{_r(zero)}" x2="{w - left}" y2="{_r(zero)}" stroke="{MUTED}"/>']
+    for i, (lab, v, vl) in enumerate(bars):
+        x = left + slot * i + (slot - bw) / 2
+        bh = Decimal(ph / 2 - 20) * abs(v) / mx
+        y = zero - bh if v >= 0 else zero
+        body.append(_rect(x, y, bw, bh, PALETTE[0] if v >= 0 else PALETTE[3]))
+        ty = y - 8 if v >= 0 else y + bh + 18
+        body.append(_text(x + bw / 2, ty, vl, anchor="middle", size=13, weight="600"))
+        body.append(_text(x + bw / 2, h - 12, lab, anchor="middle", size=13, fill=MUTED))
+    return _svg(w, h, body, title)
+
+
+def stacked_bar(rows: list[tuple[str, Decimal, str]], title: str) -> str:
+    """R14: one horizontal bar of shares (0-1), a legend with % labels beneath."""
+    w, h, x0, bw = 1000, 110, 20, 960
+    body, x = [], Decimal(x0)
+    for i, (_lab, share, _t) in enumerate(rows):
+        seg = Decimal(bw) * max(share, Decimal(0))
+        body.append(_rect(x, 16, seg, 34, PALETTE[(0, 2, 5)[i % 3]]))
+        x += seg
+    lx = Decimal(x0)
+    for i, (_lab, _share, text) in enumerate(rows):
+        body.append(_rect(lx, 74, 12, 12, PALETTE[(0, 2, 5)[i % 3]], rx=2))
+        body.append(_text(lx + 18, 85, text, size=13))
+        lx += 320
+    return _svg(w, h, body, title)

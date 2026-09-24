@@ -8672,3 +8672,81 @@ Status: DONE (opened 2026-09-14; done-condition met 2026-09-15, P-9.03).
   - A-20 applied; the phase A build, the one fetch, the site build; P-8.02 after Amin's
     browser review.
   - Amin asks Webacy about the public display when sending the live page (does not block).
+
+## P-8.02 — Phase A built: the Webacy fetch, "How it trades" on the three pages, A-20 applied
+
+- **Date:** 2026-09-24
+- **Type:** implementation
+- **Confirmed by:** Amin
+- **Content:**
+  **P-8.01 COMMITTED** at `6205a05`: slice and scratch diff empty, sha256 `18fe58ec…a379a` on
+  both and on the committed blob; no full payload entered git history.
+  **A-20 APPLIED** (signed at P-8.01): one line after A-19, rubric stamp `f1e16ea8` →
+  `53feebe2` (LF); `det_59`'s docstring names A-20 and `factory.site`; `len(CHECKS)` 96.
+  **BUILT.** `factory.behavioral`: addresses from the roots configs, every response
+  validated before any write, one trim path for live files and fixtures, `retrim` from the
+  raw file. `factory.site`: the marked block and the reader pair, both inverted before every
+  build; `either_or` (A-20) fails closed; an invalid snapshot is a SiteStop; D9 scans the
+  block; `as_of` = the build's UTC date (P3). `wording.toml [behavioral]` with `.notes`,
+  `.cards`, `.dex`; the methodology section (P4) and "Sources" block; `export_context.py
+  --step 8` (not run: it would replace an existing `out/context-step8/`).
+  **THE FETCH** (stamp `20260924T113119Z`): 7 requests, all 200 — the session's whole
+  Webacy use; HCI found on page 1 for all three at `pageSize=500`; key absent from all files.
+  **REVIEW RULINGS (Amin, 2026-09-24), each applied by `retrim`, no refetch:**
+  - R1 liquidity total and depth tier; "cost to move" is undefined in the docs and spec, so
+    the pair is stored, not rendered.
+  - R2/R8/R16 the supply figures only when the returned row's `addresses.eth` is the token's
+    (all three are). The % base is `token.supply − token.net_7d`, "circulating supply 7 days
+    earlier". This is inferred from the documented `net_24h_pct` ("fraction of t-1d supply")
+    and reproduces the returned values: crvUSD 0.1039, LUSD −0.0020.
+  - R3 a known HCI note adds its sentence; an unknown one goes to site.json only.
+  - R4 the reader section "How it trades", placed before "How to check this"; the
+    four-item reader sentence where liquidity and flows both render (not LUSD).
+  - R5 methodology names what R1–R2, R6 and R13 add.
+  - R6 the Ethereum pool list, top 10, collapsed.
+  - R7 liquidity above Webacy's `total_supply_on_chain`: the note and a †; GHO only.
+  - R9 no HCI history endpoint or parameter (spec v1.7.3): no probe, no chart; recorded in
+    Sources.
+  - R11 six stat cards replace the bullets; a null field reads "not reported by Webacy".
+  - R12 the donut: listed pools less † pools, top 5 plus "other listed pools".
+  - R13 net 7/30/90-day bars; a null window is omitted and named.
+  - R14 the holder bar: top 10 · 11–30 · others. R15 the layout. R16 DEX display names.
+  **CHARTS** (inline SVG, `role="img"` + `<title>`, style.css's own six inks; the donut/bars
+  pair sits side by side through inline flex because style.css is frozen, D7): the deviation
+  line; `svg.donut`; `svg.signed_bars`; `svg.stacked_bar`.
+
+  | token | price · dev | score | liquidity | supply 7 d (base) | top-10 share | 30 d · 90 d | donut | 7-d max |
+  |---|---|---|---|---|---|---|---|---|
+  | crvUSD | 0.9999 · −1.4 bp | 0 ok | $337.0M deep | +$23.8M +10.4% ($229.1M) | 78.1% low | −$67.4M · +$64.0M | 10 pools, $318.2M | 19.1 bp |
+  | GHO | 0.9990 · −10.1 bp | 1 ok | $4.0B deep, note | $0 0.0% ($698.2M) | 97.4% low | $0 · +$100.3M | 9 pools, $30.4M, 1 excluded | 16.8 bp |
+  | LUSD | 1.0058 · +58.4 bp | 5 ok | not reported | −$52.1k −0.2% ($26.3M) | 22.0% medium | −$429.3k · −$1.8M | none | 225.6 bp |
+
+  **SUPPLY SHAPE** (`/rwa/supply`; trimmed: symbol, `addresses.eth`, supply, net_7d,
+  net_7d_pct, net_30d, net_90d): top level `{degraded, generated_at, stale, token}`. `token`
+  carries identity (symbol, name, `addresses{chain}`, canonical_id, llama_id), `chains{}`,
+  native and bridged totals, minted, burned and net over 24h and 7d, net over 30d and 90d,
+  `net_*_pct`, organic_net_24h, bridge fields, pressure_vs_30d, and risk score and tier.
+  **RETAINED FLAGS, recorded, not rendered:**
+  - (a) crvUSD `burned_24h` −10.24M exceeds `burned_7d` −31.6k;
+  - (b) GHO net 0 over 24h, 7d and 30d against +$100.3M over 90d;
+  - (e) GHO `cost_to_move_*` ≈ 2.07e47;
+  - new: Webacy's `top30.topSharePct` equals `top10` on all three, so holders 11–30 draw at
+    0.0%, as given.
+  **SITE BUILD ×2:** 26 files byte-identical; rewrites crvUSD `996a25d1` → `0b0c75f8`, GHO
+  `f0e396e3` → `aa04b221`, LUSD `75a2882f` → `423bd796` (befores = P-9.02's, asserted);
+  `site.json` `b00ad3cf`; snapshots `18c93851` / `c3934503` / `e9d5e77d`. Appendix, verify,
+  data/, style.css, site.css, selector untouched. **template_hash** `665c1bab` → `bc6e7bf8`;
+  manifests keep `aa81c051`. Committed fixtures re-trimmed by the same function.
+  **TESTS 305 → 334** (`tests/test_behavioral.py`, 29 cases; two skip without raw files; no
+  mocked-403 case, as no history request exists). Ruff clean.
+  **AS-COUNTED.** Builder: `.gitignore` +3 lines (2 entries and a comment) where +2 was
+  ruled; the P-8.01 append first stopped on an LF assertion (CRLF working copy), nothing
+  written; Decimal half-even rounding fixed to half-up.
+- **Artifacts:** `src/factory/behavioral.py`, `tests/test_behavioral.py` (new);
+  `src/factory/{site.py,report/svg.py,validate/harness.py}`; `templates/wording.toml`,
+  `templates/site/methodology.html.j2`; `docs/context/rubic_v1.md` (A-20);
+  `tests/fixtures/webacy/*_depeg.json` (re-trimmed); `out/behavioral/<T>/20260924T113119Z.json`
+  (new); `out/site/{crvUSD,GHO,LUSD}/index.html`, `out/site/{methodology.html,site.json}`;
+  `tools/export_context.py`; `PROGRESS.md`.
+- **Follow-ups spawned:** Amin: push, trigger `pages`; P-8.03 closes phase A when the three
+  pages show the block live. Amin asks Webacy about public display. Phase B per P-8.01.

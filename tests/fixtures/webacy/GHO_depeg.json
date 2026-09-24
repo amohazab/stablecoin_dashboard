@@ -1950,14 +1950,93 @@
    ]
   },
   "snapshot": {
+   "cost_to_move_down_usd": 742736.65,
+   "cost_to_move_up_usd": 754227.08,
    "dev_clean": -0.0013806441283815696,
+   "liquidity_depth_tier": "deep",
    "peg_value": 1,
    "price": 0.9986193558716184,
    "score": 2,
    "tier": "ok",
+   "total_dex_liquidity_usd": 4000524531.44,
    "ts": "2026-09-15T17:35:59.593822+00:00"
   },
-  "stale": false
+  "stale": false,
+  "token": {
+   "markets": [
+    {
+     "dex": "uniswap-v4-ethereum",
+     "liquidity_usd": 3975013450.85,
+     "pair": "GHO/USDC",
+     "pool_address": "0xdde30ed2ddd2b6a6faca9b81e6a1571eb9c375b6b0521c4ecc6be627cf87a5a6",
+     "volume_24h_usd": 0.0
+    },
+    {
+     "dex": "uniswap-v4-ethereum",
+     "liquidity_usd": 2953885.28,
+     "pair": "GHO/USDC",
+     "pool_address": "0xb3ec039dd452a0c23404fec0bcaf6a6e4e1111469f2bfe7b7b5f41a0e366c03c",
+     "volume_24h_usd": 180006.69
+    },
+    {
+     "dex": "curve",
+     "liquidity_usd": 1358196.77,
+     "pair": "GHO/crvUSD",
+     "pool_address": "0x635ef0056a597d13863b73825cca297236578595",
+     "volume_24h_usd": 574282.45
+    },
+    {
+     "dex": "uniswap-v4-ethereum",
+     "liquidity_usd": 531036.21,
+     "pair": "GHO/USDT",
+     "pool_address": "0x4eceeb5adaa1cabd56451c1f1ea82b33effb6de62097a19734936f574e9a2de2",
+     "volume_24h_usd": 1158487.23
+    },
+    {
+     "dex": "curve",
+     "liquidity_usd": 430439.84,
+     "pair": "GHO/cbBTC",
+     "pool_address": "0x8a4f252812dff2a8636e4f7eb249d8fc2e3bd77f-0x40d16fc0246ad3160ccc09b8d0d3a2cd28ae6c2f-0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf",
+     "volume_24h_usd": 1741.7
+    },
+    {
+     "dex": "curve",
+     "liquidity_usd": 425238.8,
+     "pair": "GHO/cbBTC/WETH",
+     "pool_address": "0x8a4f252812dff2a8636e4f7eb249d8fc2e3bd77f",
+     "volume_24h_usd": 19123.78
+    },
+    {
+     "dex": "curve",
+     "liquidity_usd": 422478.92,
+     "pair": "GHO/WETH",
+     "pool_address": "0x8a4f252812dff2a8636e4f7eb249d8fc2e3bd77f-0x40d16fc0246ad3160ccc09b8d0d3a2cd28ae6c2f-0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+     "volume_24h_usd": 12115.04
+    },
+    {
+     "dex": "balancer_ethereum",
+     "liquidity_usd": 117492.06,
+     "pair": "GHO/GHO/USDT/USDC/USDC/USDT",
+     "pool_address": "0x8353157092ed8be69a9df8f95af097bbf33cb2af",
+     "volume_24h_usd": 190.79
+    },
+    {
+     "dex": "curve",
+     "liquidity_usd": 110177.01,
+     "pair": "GHO/fxUSD",
+     "pool_address": "0x74345504eaea3d9408fc69ae7eb2d14095643c5b",
+     "volume_24h_usd": 17908.31
+    },
+    {
+     "dex": "balancer",
+     "liquidity_usd": 82870.51,
+     "pair": "GHO/USDC",
+     "pool_address": "0x8353157092ed8be69a9df8f95af097bbf33cb2af-0x40d16fc0246ad3160ccc09b8d0d3a2cd28ae6c2f-0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+     "volume_24h_usd": 17.7
+    }
+   ],
+   "total_supply_on_chain": 699000000.0
+  }
  },
  "request": {
   "body_sha256": "3af96a24733d6d82184259e707cc72facbe0965648d217c2ede55af8b1d1ae12",

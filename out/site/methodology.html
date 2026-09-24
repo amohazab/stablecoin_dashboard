@@ -51,8 +51,8 @@
 </section>
 
 <section>
-<h2>What is not covered yet</h2>
-<p class="prose">The behavioral tier — how the token trades: peg deviation, liquidity, holder concentration and flows — will come from an external monitoring service and is pending.</p>
+<h2>The behavioral tier</h2>
+<p class="prose">The behavioral tier shows how each token trades: how far its price has strayed from the peg over the last seven days, how much DEX liquidity Webacy counts for it, how its supply changed over seven days, and how concentrated its holders are. It comes from Webacy, an external monitoring service, and is fetched at a timestamp printed on each page. Unlike the structural figures, it is not read at the report&#39;s block, and this pipeline neither computes nor verifies it.</p>
 </section>
 
 <section>
@@ -98,6 +98,13 @@
 
 </table>
 <p class="prose">Each page's <code>data/evaluation-&lt;block&gt;.json</code> is the gate record as rendered; the ruled outcome is in the committed record, linked in the last column.</p>
+</details>
+
+<details>
+<summary>Sources for the behavioral tier</summary>
+<ul class="plain"><li><code>/rwa/{address}?chain=eth&amp;hours=168</code> — the depeg snapshot, its seven-day history, DEX liquidity (total and depth tier) and the Ethereum DEX pools list</li><li><code>/rwa/hci?chain=eth&amp;pageSize=500</code> — holder concentration, matched by contract address</li><li><code>/rwa/supply/{symbol}</code> — the net supply change over 7, 30 and 90 days, used only when the returned row&#39;s Ethereum address is the token&#39;s</li></ul>
+<p class="prose">Latest snapshot per token, committed trimmed to the fields the page uses (and the undocumented cost-to-move pair, stored only), with the sha256 of every full response: <a href="https://github.com/amohazab/stablecoin_dashboard/blob/master/out/behavioral/crvUSD/20260924T113119Z.json"><code>out/behavioral/crvUSD/20260924T113119Z.json</code></a> · <a href="https://github.com/amohazab/stablecoin_dashboard/blob/master/out/behavioral/GHO/20260924T113119Z.json"><code>out/behavioral/GHO/20260924T113119Z.json</code></a> · <a href="https://github.com/amohazab/stablecoin_dashboard/blob/master/out/behavioral/LUSD/20260924T113119Z.json"><code>out/behavioral/LUSD/20260924T113119Z.json</code></a>. Each token page's block is rebuilt from its snapshot when the site is built (rubric amendment A-20).</p>
+<p class="prose">Holder-concentration history is not offered by Webacy&#39;s API: its OpenAPI specification (v1.7.3) has no history endpoint or parameter for /rwa/hci, so no concentration chart is drawn.</p>
 </details>
 
 <details>

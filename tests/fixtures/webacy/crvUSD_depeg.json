@@ -1955,14 +1955,93 @@
    ]
   },
   "snapshot": {
+   "cost_to_move_down_usd": 5404207.98,
+   "cost_to_move_up_usd": 5420494.73,
    "dev_clean": -0.0005948788375644831,
+   "liquidity_depth_tier": "deep",
    "peg_value": 1,
    "price": 0.9994051211624355,
    "score": 1,
    "tier": "ok",
+   "total_dex_liquidity_usd": 308796960.2,
    "ts": "2026-09-15T17:39:36.239529+00:00"
   },
-  "stale": false
+  "stale": false,
+  "token": {
+   "markets": [
+    {
+     "dex": "curve",
+     "liquidity_usd": 66312730.72,
+     "pair": "crvUSD/WBTC",
+     "pool_address": "0x313698667d7fdd6789a9bc70821309ff891e729a",
+     "volume_24h_usd": 2442658.12
+    },
+    {
+     "dex": "curve",
+     "liquidity_usd": 56583511.45,
+     "pair": "crvUSD/cbBTC",
+     "pool_address": "0x862cb4e988fb66e72f128d1183829f8c05b6c6a0",
+     "volume_24h_usd": 3128538.69
+    },
+    {
+     "dex": "curve",
+     "liquidity_usd": 51632607.4,
+     "pair": "crvUSD/WETH",
+     "pool_address": "0x656341ef90b622c6634e0573772ffb7f3669b9f3",
+     "volume_24h_usd": 5556339.99
+    },
+    {
+     "dex": "curve",
+     "liquidity_usd": 36811319.13,
+     "pair": "crvUSD/tBTC",
+     "pool_address": "0x4f52c3a81e33521e5a9a47fd9d3be475d2279c2e",
+     "volume_24h_usd": 1257792.42
+    },
+    {
+     "dex": "curve",
+     "liquidity_usd": 20471566.43,
+     "pair": "crvUSD/cbBTC",
+     "pool_address": "0x83f24023d15d835a213df24fd309c47dab5beb32",
+     "volume_24h_usd": 1533020.88
+    },
+    {
+     "dex": "curve",
+     "liquidity_usd": 15009325.27,
+     "pair": "crvUSD/USDT",
+     "pool_address": "0x390f3595bca2df7d23783dfd126427cceb997bf4",
+     "volume_24h_usd": 6915350.23
+    },
+    {
+     "dex": "curve",
+     "liquidity_usd": 14980507.89,
+     "pair": "frxUSD/crvUSD",
+     "pool_address": "0x13e12bb0e6a2f1a3d6901a59a9d585e89a6243e1",
+     "volume_24h_usd": 2046676.23
+    },
+    {
+     "dex": "curve",
+     "liquidity_usd": 14078202.06,
+     "pair": "crvUSD/USDC",
+     "pool_address": "0x4dece678ceceb27446b35c672dc7d61f30bad69e",
+     "volume_24h_usd": 11970748.41
+    },
+    {
+     "dex": "curve",
+     "liquidity_usd": 7815276.0,
+     "pair": "crvUSD/tBTC",
+     "pool_address": "0xf1f435b05d255a5dbde37333c0f61da6f69c6127",
+     "volume_24h_usd": 343317.63
+    },
+    {
+     "dex": "curve",
+     "liquidity_usd": 6433258.99,
+     "pair": "crvUSD/WBTC",
+     "pool_address": "0xd9ff8396554a0d18b2cfbec53e1979b7ecce8373",
+     "volume_24h_usd": 364497.54
+    }
+   ],
+   "total_supply_on_chain": 2104809204.9818
+  }
  },
  "request": {
   "body_sha256": "f009b347f84e16a8a35449a29e30cf030c3d093e14cfbdf715ffd72786da22bb",

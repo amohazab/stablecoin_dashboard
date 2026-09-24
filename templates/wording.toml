@@ -329,3 +329,67 @@ all_tokens = "all tokens"
 title = "Stablecoin Dashboard"
 author = "structural risk reports for CDP stablecoins · Amin Mohazab · github.com/amohazab"
 lede = "Automated structural risk reports: every figure is read from Ethereum at one fixed block and traces to the contract call that produced it — see the methodology page."
+
+# Step 8 (P-8.01): the behavioral tier, rendered at the site stage from the latest
+# Webacy snapshot. Every figure arrives formatted from factory.behavioral (A-20).
+[behavioral]
+heading = "How it trades"
+tip = "Webacy's view of how this token trades, fetched at the time shown under the chart; not read at this report's block and not verified by this pipeline."
+reader = "The behavioral tier — how the token trades — is shown under \"How it trades\", from Webacy's data fetched at a timestamp rather than read at this report's block."
+reader_full = "The behavioral tier — how the token trades: peg deviation, liquidity, holder concentration and supply flows — is shown under \"How it trades\", from Webacy's data fetched at a timestamp rather than read at this report's block."
+not_covered_value = "not covered by Webacy"
+not_reported = "not reported by Webacy"
+donut_title = "Liquidity by Ethereum DEX pool"
+donut_other = "other listed pools"
+donut_caption = "Share of liquidity among the {n} Ethereum pools Webacy lists, {sum}"
+donut_excluded = " — excludes {k} pool{s} whose reported liquidity exceeds the token's supply"
+supply_title = "Net supply change by window"
+supply_caption = "Net supply change, per Webacy"
+supply_missing = " — no figure for {windows}"
+supply_windows = [["net_7d", "7 days"], ["net_30d", "30 days"], ["net_90d", "90 days"]]
+holder_title = "Share of supply by holder group"
+holder_segments = ["top 10", "holders 11–30", "all others"]
+holder_caption = "Share of supply held, {n} holders"
+exceeds_supply = "Webacy's figure exceeds the token's total supply ({supply}); shown as given"
+markets_summary = "DEX pools, top 10 by liquidity"
+markets_columns = ["#", "DEX", "pair", "liquidity", "24h volume", "pool"]
+markets_none = "DEX pools: not reported by Webacy"
+chart_title = "Peg deviation over seven days, in basis points"
+chart_caption = "7-day max |deviation|: {n} bp"
+attribution = "Behavioral data: Webacy, fetched {date} UTC. Fetched, not computed or verified by this pipeline."
+stale_days = 14
+suffix_old = " — snapshot is older than {days} days"
+suffix_webacy = " — Webacy marks this data stale"
+methodology_heading = "The behavioral tier"
+methodology_reader = "The behavioral tier shows how each token trades: how far its price has strayed from the peg over the last seven days, how much DEX liquidity Webacy counts for it, how its supply changed over seven days, and how concentrated its holders are. It comes from Webacy, an external monitoring service, and is fetched at a timestamp printed on each page. Unlike the structural figures, it is not read at the report's block, and this pipeline neither computes nor verifies it."
+methodology_sources = "Sources for the behavioral tier"
+hci_history = "Holder-concentration history is not offered by Webacy's API: its OpenAPI specification (v1.7.3) has no history endpoint or parameter for /rwa/hci, so no concentration chart is drawn."
+endpoints = [["/rwa/{address}?chain=eth&hours=168", "the depeg snapshot, its seven-day history, DEX liquidity (total and depth tier) and the Ethereum DEX pools list"], ["/rwa/hci?chain=eth&pageSize=500", "holder concentration, matched by contract address"], ["/rwa/supply/{symbol}", "the net supply change over 7, 30 and 90 days, used only when the returned row's Ethereum address is the token's"]]
+
+# R3 (P-8.02 review): one sentence per Webacy HCI note value; an unknown value renders
+# nothing and is listed in site.json.
+[behavioral.notes]
+all_top_n_are_protocol_contracts_organic_low = "Webacy counts the largest holders as protocol contracts, so it rates concentration as low."
+
+# R11: the six stat cards of "How it trades", each with its "?" tooltip.
+[behavioral.cards]
+price = "Peg price"
+price_tip = "Webacy's latest price for the token, against its $1 peg."
+deviation = "Deviation from peg"
+deviation_tip = "How far that price sits from the peg, in basis points (100 bp = 1%)."
+score = "Webacy depeg score"
+score_tip = "Webacy's 0–100 depeg risk score; higher is riskier. Its tiers: ok 0–24, watch 25–49, warning 50–69, critical 70–100."
+liquidity = "DEX liquidity"
+liquidity_tip = "Liquidity Webacy counts for the token across decentralised-exchange pools, with its depth tier."
+supply = "Supply change, 7 days"
+supply_tip = "Net tokens minted less burned over seven days, per Webacy."
+supply_tip_base = "Net tokens minted less burned over seven days, per Webacy; the % is of Webacy's circulating supply 7 days earlier ({base})."
+holders = "Top-10 holder share"
+holders_tip = "Share of supply held by the ten largest holders, with Webacy's risk band."
+
+# R16: DEX display names; an unmapped name prints as Webacy gives it.
+[behavioral.dex]
+uniswap-v4-ethereum = "Uniswap v4"
+balancer_ethereum = "Balancer"
+curve = "Curve"
+uniswap_v3 = "Uniswap v3"

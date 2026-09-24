@@ -38,8 +38,8 @@
 </section>
 
 <section>
-<h2>What is not covered yet</h2>
-<p class="prose">{{ w.behavioral_tier }}</p>
+<h2>{% if beh.landed %}{{ w.behavioral.methodology_heading }}{% else %}What is not covered yet{% endif %}</h2>
+<p class="prose">{% if beh.landed %}{{ w.behavioral.methodology_reader }}{% else %}{{ w.behavioral_tier }}{% endif %}</p>
 </section>
 
 <section>
@@ -80,7 +80,14 @@
 <p class="prose">Each page's <code>data/evaluation-&lt;block&gt;.json</code> is the gate record as rendered; the ruled outcome is in the committed record, linked in the last column.</p>
 </details>
 
-<details>
+{% if beh.snapshots %}<details>
+<summary>{{ w.behavioral.methodology_sources }}</summary>
+<ul class="plain">{% for path, what in w.behavioral.endpoints %}<li><code>{{ path }}</code> — {{ what }}</li>{% endfor %}</ul>
+<p class="prose">Latest snapshot per token, committed trimmed to the fields the page uses (and the undocumented cost-to-move pair, stored only), with the sha256 of every full response: {% for s in beh.snapshots %}<a href="{{ blob }}/{{ s.path }}"><code>{{ s.path }}</code></a>{% if not loop.last %} · {% endif %}{% endfor %}. Each token page's block is rebuilt from its snapshot when the site is built (rubric amendment A-20).</p>
+<p class="prose">{{ w.behavioral.hci_history }}</p>
+</details>
+
+{% endif %}<details>
 <summary>The public log ({{ n_log }} rows)</summary>
 <table class="striped">
 <tr><th>entry</th><th>date</th><th>token</th><th>category</th><th>trigger</th><th class="num">level</th><th>resolution type</th><th>resolution date</th><th>status</th></tr>
