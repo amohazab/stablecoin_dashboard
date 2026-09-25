@@ -47,6 +47,12 @@ STALENESS_LIMIT_DAYS = 92  # R-1
 DET83_FRESHNESS_LIMIT_S = 3600
 
 
+class NotEvaluated(Exception):
+    """A-24 (P-8.05): a registered row that is not evaluated in this configuration - the
+    judge withdrawn. Recorded as `not_evaluated` with the reason as its scope; never
+    `error`, so DET-85 and T-25 do not fire on it."""
+
+
 class Level3(Exception):
     """A Level-3 condition. Nothing downstream computes; no promotion."""
 
@@ -2342,6 +2348,9 @@ def run_report_checks(bundle: Bundle, tree: VerifiabilityTree, report: StressRep
         except Level3 as exc:
             results.append(GateResult(entry_id=chk.entry_id, result="fail",
                                       scope_condition=str(exc)[:500]))
+        except NotEvaluated as exc:                                   # A-24
+            results.append(GateResult(entry_id=chk.entry_id, result="not_evaluated",
+                                      scope_condition=str(exc)[:500]))
         except Exception as exc:
             results.append(GateResult(entry_id=chk.entry_id, result="error",
                                       scope_condition=f"{type(exc).__name__}: {exc}"[:500]))
@@ -2973,7 +2982,10 @@ def det_88(b: Bundle, t: VerifiabilityTree, r: StressReport, page: dict) -> str:
 
 _DATE = re.compile(r"\d{4}-\d{2}(?:-\d{2})?(?: \d{2}:\d{2} UTC)?")
 _HEX = re.compile(r"0x[0-9a-fA-F]+(?:…[0-9a-fA-F]+)?|…[0-9a-fA-F]{4}\b")
-_NUM = re.compile(r"(?<![\w§.\-/#$])\$?\d[\d,]*(?:\.\d+)?(?:%|[kMB](?!\w)| days?(?!\w))?(?!\w)")
+# P-8.04 (Amin, finding 1): a leading minus - ASCII "-" or U+2212 - is part of the figure;
+# a hyphen after a word character ("Member-1") still starts no figure.
+_NUM = re.compile(r"(?<![\w§.\-\u2212/#$])[-\u2212]?\$?\d[\d,]*(?:\.\d+)?"
+                  r"(?:%|[kMB](?!\w)| days?(?!\w))?(?!\w)")
 
 
 def _num_tokens(s: str) -> list[str]:
@@ -2981,11 +2993,12 @@ def _num_tokens(s: str) -> list[str]:
     number carrying a decimal point, a thousands separator, a percent, a
     currency prefix, a magnitude suffix or a unit, or a bare integer of four or
     more digits. Dates, addresses and their shortened forms are not figures;
-    bare integers below 1,000 (counts, names such as "Member 2") are not read."""
+    bare integers below 1,000 (counts, names such as "Member 2") are not read, signed or
+    not. A leading minus (ASCII or U+2212) belongs to the figure (P-8.04)."""
     out = []
     for x in _NUM.findall(_HEX.sub(" ", _DATE.sub(" ", s))):
         x = x.rstrip(",")
-        if re.fullmatch(r"\d{1,3}", x):
+        if re.fullmatch(r"[-\u2212]?\d{1,3}", x):
             continue
         out.append(re.sub(r" day$", " days", x))   # Amin, 2026-09-14: "N day" is "N days"
     return out
@@ -3289,10 +3302,12 @@ def det_13(b: Bundle, t: VerifiabilityTree, r: StressReport, page: dict) -> str:
     if sorted(ids) != sorted(want):
         raise Level3(f"DET-13(c): record entries differ {sorted(set(ids) ^ set(want))[:4]}")
     for x in results:
-        if x["result"] not in ("pass", "fail", "not_applicable", "error"):
+        if x["result"] not in ("pass", "fail", "not_applicable", "error", "not_evaluated"):
             raise Level3(f"DET-13(c): {x['entry_id']} result {x['result']!r}")
-        if x["result"] == "not_applicable" and not x.get("scope_condition"):
-            raise Level3(f"DET-13(c): {x['entry_id']} not_applicable without a scope")
+        if x["result"] in ("not_applicable", "not_evaluated") and not x.get("scope_condition"):
+            raise Level3(f"DET-13(c): {x['entry_id']} {x['result']} without a scope")
+        if x["result"] == "not_evaluated" and not x["entry_id"].startswith("LLM-"):
+            raise Level3(f"DET-13(c): {x['entry_id']} not_evaluated outside LLM-01-06 (A-24)")
     token = page["table"]["token"]
     heavy = [e for _, e in _open(page) if e.level in (2, 3)]
     if heavy and page.get("site_report_hash") == man["report_hash"]:
@@ -3338,6 +3353,8 @@ def det_80(b: Bundle, t: VerifiabilityTree, r: StressReport, page: dict) -> str:
 
 def _llm_row(cid: str):
     def fn(b: Bundle, t: VerifiabilityTree, r: StressReport, page: dict) -> str:
+        if page.get("judge_withdrawn"):                              # A-24 (P-8.05)
+            raise NotEvaluated(page["judge_withdrawn"])
         env = page.get("judge_envelope")
         if env is None:
             raise RuntimeError(page.get("judge_error") or "no judge envelope")   # -> error

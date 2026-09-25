@@ -15,11 +15,12 @@
 <section>
 <h2>Gates, and why their log is public</h2>
 <p class="prose">A gate is a check that must pass before a report is published. A minor finding publishes with a visible notice; a serious one withholds the report, except where a recorded ruling published a page regardless — the two cases on this site are stated under Open notices. Every time a gate fires, a public log records the date, the token, what kind of check fired, how serious it was, and how it was resolved. Anyone can say their work is checked; a log of checks stopping reports is the evidence. The log below holds {{ n_log }} entries.</p>
+<p class="prose">The written summaries on each page come from a local language model under a guard that only lets through figures printed in the data table. The deterministic checks on the page cover them, but no second model reviews them: the local model did not pass the control set for that role, so the judge is withdrawn.</p>
 </section>
 
 <section>
 <h2>One revision, no hand edits</h2>
-<p class="prose">A report gets one revision. If it fails its checks a second time, the fault is treated as a fault in the template, the rules or the prompts: those are fixed and the report is generated again. No report is edited by hand, and no gate can be switched off for a single run.</p>
+<p class="prose">A report gets one revision when a judge finds a defect in its prose. In the local configuration the judge is withdrawn, so there is no revision pass: a page that fails a deterministic check is not published, and the fix goes to the template, never to the page. No report is edited by hand, and no gate can be switched off for a single run.</p>
 </section>
 
 <section>
@@ -74,7 +75,7 @@
 <summary>Outcome per token</summary>
 <table class="striped">
 <tr><th>token</th><th>block</th><th>report</th><th class="num">checks passed</th><th>outcome</th><th>open log entries</th><th>gate record</th></tr>
-{% for o in outcomes %}<tr><td><a href="{{ o.token }}/index.html">{{ o.token }}</a></td><td>{{ o.run_block }}</td><td><code title="{{ o.report_hash }}">{{ o.report_hash[:8] }}</code></td><td class="num">{{ o.passed }}/{{ o.total }}</td><td><code>{{ o.outcome }}</code></td><td>{% if o.open %}{% for e in o.open %}<code>{{ e.id }}</code> {{ e.trigger }}{% if not loop.last %}, {% endif %}{% endfor %}{% else %}none{% endif %}</td><td><a href="{{ o.record_url }}">committed record</a></td></tr>
+{% for o in outcomes %}<tr><td><a href="{{ o.token }}/index.html">{{ o.token }}</a></td><td>{{ o.run_block }}</td><td><code title="{{ o.report_hash }}">{{ o.report_hash[:8] }}</code></td><td class="num">{{ o.checks }}</td><td><code>{{ o.outcome }}</code></td><td>{% if o.open %}{% for e in o.open %}<code>{{ e.id }}</code> {{ e.trigger }}{% if not loop.last %}, {% endif %}{% endfor %}{% else %}none{% endif %}</td><td><a href="{{ o.record_url }}">committed record</a></td></tr>
 {% endfor %}
 </table>
 <p class="prose">Each page's <code>data/evaluation-&lt;block&gt;.json</code> is the gate record as rendered; the ruled outcome is in the committed record, linked in the last column.</p>

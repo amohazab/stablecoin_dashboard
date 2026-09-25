@@ -48,7 +48,7 @@ UNREGISTERED_LIMBS = {"DET-23": "DET-23abd", "DET-76": "DET-76abcd",
 class RecordResult(BaseModel):
     entry_id: str
     stage: Literal["S0", "S1", "S2", "S3"]
-    result: Literal["pass", "fail", "not_applicable", "error"]
+    result: Literal["pass", "fail", "not_applicable", "error", "not_evaluated"]   # A-24
     scope_condition: str | None = None
 
 
@@ -66,10 +66,14 @@ class GateRecord(BaseModel):
     results: list[RecordResult]
     triggers: list[dict[str, Any]]
     unregistered: list[dict[str, str]]
+    # P-8.04 Q6: {backend, version, model, digest} of the run's model (null offline)
+    llm: dict[str, Any] | None = None
     judge: list[dict[str, Any]] = []            # B-13: envelopes, calls, span events
     generation: list[dict[str, Any]] = []       # B-13: one entry per slot call per pass
     # B-12 (DET-87's rubric_change evidence): the rubric header stamp this run read.
     rubric_hash: str | None = None
+    # P-8.04: "outside_prose" when pass 2 was skipped (every surviving defect outside prose)
+    pass2_skipped: str | None = None
     revision_count: Literal[0, 1] = 0
     revision_cause: list[str] = []
     outcome: Literal["published", "quarantined", "template_defect", "judge_instability",
@@ -135,8 +139,10 @@ def build(parts: dict, manifest: dict, s01, tree_checks, stress_checks, report_c
                          f"{sorted(got - want)}")
     llm = llm or {}
     return GateRecord(token=manifest["token"], run_block=manifest["run_block"],
+                      llm=llm.get("llm"),
                       judge=llm.get("judge", []), generation=llm.get("generation", []),
                       revision_count=llm.get("revision_count", 0),
+                      pass2_skipped=llm.get("pass2_skipped"),
                       revision_cause=llm.get("revision_cause", []),
                       report_hash=manifest["report_hash"],
                       **{k: parts[k] for k in ("bundle_hash", "tree_hash", "stress_hash",

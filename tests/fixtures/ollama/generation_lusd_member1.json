@@ -1,0 +1,20 @@
+{
+ "recorded": "F3: LUSD member1_opening, generate.md + slot_input, num_ctx 32768, 2026-09-24",
+ "response": {
+  "model": "qwen3.5:9b",
+  "created_at": "2026-09-24T19:40:57.2941791Z",
+  "message": {
+   "role": "assistant",
+   "content": "{\"text\":\"A crash in collateral prices does not trigger forced sales for LUSD because the Stability Pool absorbs liquidated troves instead of selling collateral. The system therefore avoids a sell-side bound and keeps bad debt at $0 across all scenarios shown.\\n\\nBefore any shock, collateral coverage sits at 3.50. After the shock, coverage remains at 3.50 in every panel because no forced sales occur to restore it. The gap between pre- and post-shock coverage is 0, reflecting that the mechanism restores stability without selling.\\n\\nExit liquidity totals $8.8M when no providers leave, drops to $5.6M with moderate flight, and falls further to $2.4M under heavy flight. Forced sales divided by exit liquidity stays at 0 in every case because the volume of collateral that must be sold is always $0.\\n\\nThe Stability Pool balance available to absorb liquidations starts at $7.6M and shrinks as liquidity providers leave, but this reduction does not create bad debt. Even when the pool is stressed, LUSD remains structurally insulated from forced sales on the ruled grid.\",\"references_field_ids\":[\"headline.m1.pre.ratio\",\"headline.m1.post.ratio\",\"headline.m1.gap\",\"headline.m2.bad_debt\",\"headline.m3.forced_sell_volume\",\"headline.m3.exit_depth\",\"headline.m3.ratio\",\"headline.m4.sp_effective_cell\",\"stress.structural_zero.flag\",\"stress.structural_zero.reason\"]}"
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 362660905900,
+  "load_duration": 9939588800,
+  "prompt_eval_count": 10030,
+  "prompt_eval_cached_count": 0,
+  "prompt_eval_duration": 292426837000,
+  "eval_count": 307,
+  "eval_duration": 60263548000
+ }
+}

@@ -8806,3 +8806,216 @@ Status: DONE (opened 2026-09-14; done-condition met 2026-09-15, P-9.03).
     7d burn; (b) GHO net 0 over 24h/7d/30d vs +$100.3M over 90d; (e) GHO cost-to-move ≈
     2.07e47; top-30 share = top-10 share on all three.
   - Queued memo amendment, memo §11 item 4 / checklist 6.6 (P-8.01).
+
+## P-8.04 — Step 8 phase B opened: Inventory F, the rulings Q1–Q14, A-21–A-23
+
+- **Date:** 2026-09-24
+- **Type:** decision
+- **Confirmed by:** Amin
+- **Content:**
+  **OPENED AT** `cb71180`: 334 tests, `len(CHECKS)` 96, report_hash `8ac6132b` / `447281cb` /
+  `003b4fcd`, origin = HEAD. **Echo stop:** `tools/export_context.py` modified, +5 lines (the
+  four hand-copied site files in `PROFILES["8"]`). **AS-COUNTED:** ruled (a) by Amin, committed
+  alone as `161be4f` "tools: the four hand-copied files join the --step 8 export profile", no
+  entry. Inventory F: `out/reports/step8-inventory-f.md` (114 lines, gitignored).
+  **MEASURED:** Ollama 0.34.4; `qwen3.5:9b` digest `6488c96f…893ea7`, Q4_K_M, 100% CPU, 7.2 GB
+  resident at `num_ctx` 32768; 6.00 GB RAM free before load, 1.15 GB minimum under load.
+  Prefill 34.5 tok/s, decode 5.1–6.9 tok/s; chars ÷ 3 = qwen tokens (10,030 for 30,122 chars).
+  LUSD member1_opening generation 364.7 s. LLM-01 on LUSD's `finding` 278.3 s: 4 false defects
+  (figures in the reason row it was given), 0 span_not_found.
+  **RULED (Amin, 2026-09-24):**
+  - Q1 Endpoint `/api/chat` with `format` and `think:false`; amends P-8.01's `/v1`, where
+    `think:false` is ignored and the schema reply came back empty (F1 a–c).
+  - Q2 Temperature 0 and seed 0 per call, recorded; digest and backend version in the gate
+    record — A-21.
+  - Q3 The judge split, one call per criterion (19 for seven slots), each input a subset of
+    2.1's; the harness assembles the envelope and computes each `pass` and `overall_pass` — A-22.
+  - Q4 Typed items (F1(d)): `ItemXX` objects in the per-criterion output; the Claude-era
+    string form stays readable for the 11 fixtures.
+  - Q5 `num_ctx` 32768; `num_predict` 2,000 generation, 4,000 judge; `OLLAMA_FLASH_ATTENTION=1`
+    and `OLLAMA_KV_CACHE_TYPE=q8_0` set by Amin (KV 1.00 → 0.53 GiB).
+  - Q6 Per call in the gate record (F6's fields); a record header `llm {backend, version,
+    model, digest}`; the manifest unchanged (R3). Fail-closed on `length`, invalid content,
+    chars ÷ 3 + num_predict > num_ctx, unreachable server, and prompt_eval_count +
+    num_predict > num_ctx after the call. The 11 fixtures keep their prompt hash as history.
+  - Q7 Withdrawal: `__main__.py` l.574–575 deleted; l.568–569 run on `published` only; the
+    last published pages stay on any other outcome. Supersedes B-11b's named default.
+  - Q8 The six edits (F8), with Amin's drafts for (1) the structural-zero sentence, (4) the
+    four assumption sentences and (5) the verify sentence, each checked against what the code
+    computes and flagged, not applied, where it misstates; (2) the guard, option (i); (3) by
+    Q3's computed `pass`; (6) "all tokens" by re-render.
+  - Q9 `factory.chain`, a lock file, the two `.cmd` wrappers, `docs/scheduler.md`. Weekly
+    Sunday 03:00; monthly as three tasks, days 1/2/3 at 01:00, one token each (F3: 6.5–18.6 h
+    for three), each ending behavioral → site → commit → push so the site updates as each
+    token lands (stated in `chain.py`'s docstring and `docs/scheduler.md`). No R17 light
+    sample per scheduled run.
+  - Q10 `pages.yml` also runs on a push to master that changes `out/site/**`.
+  - Q11 CLAUDE.md l.63 to Task Scheduler + Ollama; l.7 and l.10 updated; Step 7, 9 and 8A
+    lines added after l.134 (F11).
+  - Q12 Done: weekly twice untouched (forced, trigger-fired); each monthly token task once
+    forced and once trigger-fired; each run logged, pushed, deployed, pages opened by Amin.
+  - Q13 (amended) A control run after B-15, before B-17's loop: the per-criterion LLM-01
+    calls over the published LUSD page as it stands, then over the same text with one
+    planted "$5" where "$0" is printed in one slot — in the judge's input only, never in a
+    template, record or file. Pass = no surviving defect on the clean page, exactly the
+    planted one on the mutated page. One failure → one prompt adjustment (a figure inside
+    any given row's value or printed form is traceable to that row) and a re-run; a second
+    failure → case (c), stop, Amin's re-ruling. After the loop: (a) published → crvUSD,
+    GHO; (b) template_defect or judge_instability locatable in prompts or templates →
+    patch, re-run, one more loop.
+  - Q14 The export set gains `chain.py`, `tools/scheduler/`, `docs/scheduler.md`,
+    `tests/test_ollama.py`.
+  **RUBRIC** A-21, A-22 as drafted; A-23 in Amin's text (`guard_verified`: an LLM-01
+  `untraceable` defect whose span's numbers are printed forms of its slot's rows, or a
+  `mismatch` whose `matched_field_id` row prints them), all three applied at B-15 after
+  A-20, stamp `53feebe2` → recomputed there; exact text in the rubric draft file.
+  **ESTIMATE:** 10 rounds with three tokens in case (a), 12–15 with (b); (c) stops.
+- **Artifacts:** `PROGRESS.md` (this entry; the Step 8 status line unchanged);
+  `tools/export_context.py` at `161be4f`. No code, template or `docs/context/` change.
+- **Follow-ups spawned:** A-21–A-23 applied at B-15; the Q13 control run; B-16; B-17 (LUSD,
+  three renders, one stop).
+
+## P-8.05 — Phase B built to the control; the Q13 control failed: case (c), the judge withdrawn (A-24)
+
+- **Date:** 2026-09-25
+- **Type:** implementation
+- **Confirmed by:** Amin
+- **Content:**
+  **P-8.04 APPENDED** (slice and scratch diff empty, sha256 `72bdeb46…9163` on both), not yet
+  committed; `161be4f` local. **A-21–A-23 APPLIED** after A-20, A-23 in Amin's text: rubric
+  531 → 534 lines, stamp `53feebe2` → `64e716d7`. CLAUDE.md: the Q11 lines.
+  **B-15 BUILT.**
+  - `OllamaClient` + `_call` on `/api/chat`: `format` from the Pydantic models, think false,
+    temperature 0 / seed 0, num_ctx 32768, num_predict 2,000 / 4,000.
+  - Q6's fields and `wall_s` recorded per call; the gate record gains `llm {backend,
+    version, model, digest}`. Fail-closed: the five rules.
+  - The judge is one call per criterion (A-22, 19 calls), the envelope assembled and `pass`
+    computed; typed items; A-23 `guard_verified`; the guard substitutes the printed
+    percentage (Q8 (2)).
+  - `anthropic` removed; the cost machinery gone; `.env.example` → `WEBACY_API_KEY=`.
+  **B-16 APPLIED, not rendered:** the structural-zero sentence, the four assumption sentences,
+  the verify sentence (read back from `step8-b16-texts.md`, `7bdf03a3…`); Q7's withdrawal.
+  **RULED DURING THE BUILD (Amin, 2026-09-24):**
+  - the `judge.md` LLM-01 line: a figure inside a given row's value or printed forms is
+    traceable to that row; prompt_hash `5a816c38…` → `82e842e4…`, fixtures keep `155ed353…`;
+  - finding 1: `_num_tokens` reads a leading "-" or U+2212 as part of the figure (one owner,
+    DET-89 and the guard). The guard's view of the committed prose: 140 → 146 tokens, the six
+    new ones printed by their rows, no new violation;
+  - finding 2 (P-7.11's fix): pass 2 is skipped when every surviving pass-1 defect lies
+    outside prose, outcome `template_defect`, recorded `pass2_skipped: "outside_prose"`;
+  - model runs longer than a few minutes run in a plain terminal outside Claude Code.
+  **TESTS 334 → 348** (`tests/test_ollama.py` 14; the 11 Claude-era fixtures through the new
+  seam); ruff clean.
+  **Q13 CONTROL.** Run 1 was stopped by Claude Code under memory pressure after 2 calls; it
+  does not count, and F3 is the first failure. **Run 2** (after the prompt line, Ollama with
+  q8_0 KV and flash attention): 14 LLM-01 calls, 4,718 s. **VERDICT FAIL → case (c).**
+  - Clean page: 1 surviving defect. Counterfactuals ¶3, `untraceable`: "There is one
+    counterfactual line…". The claim is `headline.cf.Tellor_fallback.description` verbatim.
+  - Planted "$5" (finding ¶1, printed "$0"): **no defect**. The one discard in that call
+    (A-23, untraceable clause) was the −81.63% / −78.56% / −84.28% / 72-troves sentence;
+    "72" is no figure token and went with it.
+  - member1_opening: `length` at 4,000 output tokens, both runs (1,217.5 s and 775.7 s).
+  - admin_surface_narrative: 0 items, 18 output tokens, both runs.
+  - Per-call record: `out/reports/step8-q13-run2-findings.md`.
+  **RE-RULED (Amin, 2026-09-25): (A).** The judge is withdrawn in the local configuration.
+  - LLM-01–06 record `not_evaluated`, reason "judge withdrawn (P-8.05): the local model
+    failed the Q13 control". The loop is generate → guard → deterministic S3 → publish or
+    quarantine, with no revision pass.
+  - The Claude-era records and fixtures stand as the evidence that the loop works with a
+    judge that can hold the role; the loop code stays and stays tested.
+  - A-24 (stamp `64e716d7` → `ae79f798`): `not_evaluated` is distinct from `error`, so
+    DET-85's fail-closed clause and T-25 don't fire; `overall_pass` and the outcome rule
+    ignore the six rows. The methodology sentence is in `out/reports/step8-A24-draft.md`.
+  - Display: the selector card and the methodology count the evaluated rows ("90 of 90
+    evaluated, 6 not evaluated (judge withdrawn)"); `site.py`'s wording and D-rules adjusted.
+  - Forward note: a larger local model or a GPU reopens (B), the judge without LLM-01.
+  **AS-COUNTED.** Builder:
+  - Inventory F8(3) misread the pass-2 entry (the LLM rows read defects, not `pass`);
+  - one heredoc broke, nothing written; the first `item_shapes` patch missed, caught by ruff;
+  - the control script stored item counts, not items, and `_call` keeps no content on a
+    `length` stop, so run 2's `match` values and overflow content are lost;
+  - "346" was reported before three test edits;
+  - P-8.04's Q8 (3) line rests on the F8(3) error.
+  Design layer: none new.
+- **Artifacts:** `docs/context/rubic_v1.md` (A-21–A-24); `CLAUDE.md`;
+  `src/factory/report/{llm,__main__,record}.py` · `src/factory/validate/harness.py`;
+  `templates/prompts/judge.md` · `templates/{index,verify}.html.j2` · `templates/wording.toml`;
+  `tests/{llm_fake,test_b13,test_render,test_s3}.py` · `tests/test_ollama.py` ·
+  `tests/fixtures/ollama/` (new); `pyproject.toml` · `uv.lock` · `.env.example`; `PROGRESS.md`.
+- **Follow-ups spawned:** A-24 applied and the withdrawn path built; B-17 (LUSD render,
+  preview, generation + deterministic S3); Q9/Q10/Q14 at R8; the re-render of the three token pages.
+
+## P-8.06 — The judge withdrawn (A-24) built; LUSD published by the local model at 26052560, reviewed and re-run
+
+- **Date:** 2026-09-25
+- **Type:** implementation
+- **Confirmed by:** Amin
+- **Content:**
+  **P-8.05 APPENDED** (slice and scratch diff empty, sha256 `8ca7d73f…388d` on both); not
+  committed. **A-24 APPLIED** after A-23, rubric stamp `64e716d7` → `ae79f798`.
+  **BUILT.**
+  - Result value `not_evaluated` (`schema.GateResult`, `record.RecordResult`), raised by
+    the LLM rows as `NotEvaluated` when the page carries `judge_withdrawn`.
+  - DET-13(c) takes it only on LLM-01–06, with a scope. DET-85 and T-25 don't fire on it,
+    and the outcome rule counts LLM rows only on `fail` or `error`.
+  - `build()` defaults to `llm.JUDGE_WITHDRAWN`; the Claude-era loop tests pass
+    `judge_withdrawn=None`, so the loop stays tested.
+  - `site.checks_line` puts "90 of 90 evaluated, 6 not evaluated (judge withdrawn)" in the
+    methodology table. The card carries no count (Amin).
+  - Methodology: the withdrawal sentence under "Gates"; "One revision, no hand edits" takes
+    Amin's replacement for its first two sentences.
+  **B-17.** Step 1 (no model) at 25974949: 87/96, the only failures being DET-79's `[slot:`
+  and DET-80. template_hash `aa81c051` → `f3beed47`. The rewritten manifest was restored,
+  so the Claude-era set at 25974949 is whole (ruled (ii)).
+  **FRESH BLOCK 26052560:** bundle `bf5792db` (26/26), tree `65129970` (14/14), stress
+  `505aa927` (23 cells, 26/26); sheets `out/spotcheck/LUSD/{,tree-,stress-}26052560.md`.
+  **Step 2** (Amin's terminal): preview, 7 slots, 0 empty, 1,842 s.
+  **Step 3** (Amin's terminal): **published**, report `02c91141`, template `8f2b0cbb`;
+  90 pass, 6 not_evaluated; no trigger; revision_count 0; model wall time 490 s.
+  - One re-ask (admin: `references_outside_rows` `header.freeze_date`); no percent
+    substitution. DET-79, DET-80, DET-85, DET-13 and DET-89 (signed tokenizer) all pass.
+  - The log gains one `published` line (2026-09-25, `bf5792db`), no quarantine line.
+  - Texts, calls and checks: `out/reports/step8-lusd-render.md`.
+  **REVIEW (Amin + design layer), four findings; ruled under the loop rule, one patch and one
+  re-run.** Row checks first: "coverage 3.71 before and after" is what the rows say (struck);
+  the $12.6M "off-venue" total is `dex_liquidity_total_discovered`, every venue (0.4% stands).
+  - `generate.md`: rule 12 adds banned words (flag, banner, header, row, freeze date, grid);
+    rule 13 the "is X; the minimum is Y" example; rule 15 (none/dash in words); rule 16 (no
+    cause the rows don't give). prompt_hash `82e842e4…` → `5ab87668…`.
+  - `wording.toml [labels]`: `dex_liquidity_total_discovered` = "all DEX liquidity discovered
+    for the token, every venue". No other label changed.
+  **RE-RUN** (Amin's terminal, same promoted set): **published**, report `d771e7be`, template
+  `9ed62a14`, 0 re-asks, 1,659 s cold; the first run's record is kept in
+  `out/reports/step8-lusd-run1-record-26052560.json`. The log holds two `published` lines,
+  2026-09-25. Site ×2 byte-identical, 26 files; LUSD rewrite `9122c2a7` → `dedf6bea`; D5 holds.
+  - Gone: every finding except counterfactual's "the metric affected is none".
+  - New, of the same kinds: "grid" and "rows" (rule 12); `absence_read`, `contract_read`,
+    `run_block`, `fetchPrice`, "bundle" (row values and code names, rule 4); invented
+    "execute instantly", "exact identity", "maintenance collateral ratio", and owners that
+    "read contract data". Detail: `out/reports/step8-lusd-render-2.md`.
+  **FINDINGS.**
+  - Temperature 0 and seed 0 aren't enough for identical output. `verifiability_narrative`
+    differed between preview and run on an identical input: the run's prefill came from the
+    prompt-prefix cache, and so did most prefill time (490 s against 1,842 s). The cold
+    figure, 1,842 s, is the scheduling figure.
+  - The CLI prints the six `not_evaluated` rows under "not pass" (`__main__.py` l.719);
+    not changed.
+  **TESTS** 348 → 349 (the withdrawn-path fixture test). After the run, 22 tests read LUSD's
+  newest block where the Claude-era fixtures belong to 25974949. They're pinned to the
+  recorded blocks (`tests/llm_fake.py` `pin_to_recorded`; `test_b12`; `test_behavioral`'s
+  LUSD before-hash, now `9122c2a7` after the re-run, as `site.json` records it). 349 pass, ruff clean.
+  **AS-COUNTED.** Builder: B-17 step 1 wrote the committed manifest at 25974949 (a
+  rehearsal writes to the promoted path) and replaced the gitignored rehearsal pages
+  `test_b12` reads; the 22 test failures came from not pinning the fixtures before a new
+  block landed. Design layer: none new.
+  **NOT PUSHED:** nothing under `out/site/` is pushed before crvUSD and GHO are re-rendered
+  (Amin, P-8.05's methodology sentence).
+- **Artifacts:** `docs/context/rubic_v1.md` (A-24); `src/factory/{schema,site}.py` ·
+  `src/factory/report/{__main__,llm,record}.py` · `src/factory/validate/harness.py`;
+  `templates/site/methodology.html.j2` · `templates/prompts/generate.md` · `templates/wording.toml`;
+  `tests/{llm_fake,test_b12,test_b13,test_behavioral,test_render,test_s3}.py`;
+  `out/{bundles,trees,stress,evaluation}/LUSD/26052560.json` · `out/report/LUSD/26052560/` ·
+  `out/logs/events_lusd.jsonl` · `out/site/` (LUSD, index, methodology, site.json);
+  `PROGRESS.md`.
+- **Follow-ups spawned:** Amin's review of the LUSD page; crvUSD and GHO at fresh blocks the
+  same way; then the push, Q9/Q10/Q14 (R8) and the scheduled runs.

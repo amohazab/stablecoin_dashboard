@@ -1,6 +1,7 @@
 """B-13 tests: the generation / judge / remediation loop over recorded envelopes (plan §8;
 K3, K4, K6 both cases, K8, refusal, the pass-2 green branch), the span post-check,
-DET-80, DET-85 and the offline path. A fake client answers every call - no network."""
+DET-80, DET-85 and the offline path. A fake Ollama client answers every call through Step 8's
+`chat(body)` seam (P-8.04), the judge one call per criterion (A-22) - no network."""
 
 from __future__ import annotations
 
@@ -14,7 +15,7 @@ from factory import eventlog
 from factory.report import llm
 from factory.report.__main__ import build
 from factory.validate.harness import CHECKS, Level3, det_80, det_85
-from tests.llm_fake import FIXTURES, FakeClient
+from tests.llm_fake import FIXTURES, FakeClient, pin_to_recorded
 
 REPO = pathlib.Path(__file__).resolve().parents[1]
 LLM_ROWS = {f"LLM-0{i}" for i in range(1, 7)}
@@ -28,13 +29,13 @@ def tmp_repo(tmp_path: pathlib.Path) -> pathlib.Path:
     for code in ("src/factory/report/render.py", "src/factory/report/svg.py"):
         (tmp_path / code).parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(REPO / code, tmp_path / code)
-    return tmp_path
+    return pin_to_recorded(tmp_path)
 
 
 def run(tmp_path, case: str, **kw):
     root = tmp_repo(tmp_path)
     fake = FakeClient(case)
-    r = build(root, "LUSD", client=fake, **kw)
+    r = build(root, "LUSD", client=fake, judge_withdrawn=None, **kw)
     return root, fake, r, r["record"]
 
 
@@ -42,17 +43,23 @@ def results(rec) -> dict[str, str]:
     return {x.entry_id: x.result for x in rec.results}
 
 
-def test_fixtures_carry_the_current_prompt_hash():
-    ph = llm.prompt_hash(REPO)
+# P-8.04 Q6: the 11 recorded fixtures are Claude-era history; they keep the prompt hash they
+# were recorded under (P-7.10), which the Step-8 prompts no longer produce.
+CLAUDE_ERA_PROMPT_HASH = "155ed3530cb521f3da490600ccb1b7fe77464070344acabe0e0dac280b9fb009"
+
+
+def test_fixtures_carry_their_recorded_prompt_hash():
     for case in FIXTURES.iterdir():
-        assert (case / "prompt_hash.txt").read_text(encoding="utf-8").strip() == ph, case.name
+        assert (case / "prompt_hash.txt").read_text(encoding="utf-8").strip() == \
+            CLAUDE_ERA_PROMPT_HASH, case.name
+    assert llm.prompt_hash(REPO) != CLAUDE_ERA_PROMPT_HASH
 
 
 def test_k8_positive_control_publishes_with_its_flag(tmp_path):
     root, fake, r, rec = run(tmp_path, "k8_positive_control", extra_fired=(("T-22", 1),))
     assert rec.outcome == "published" and rec.revision_count == 0 and r["site"] is not None
-    calls = fake.messages.calls
-    assert calls.count("SlotProse") == 7 and calls.count("JudgeEnvelope") == 1
+    calls = fake.calls
+    assert calls.count("SlotProse") == 7 and fake.judgments == 1
     assert all(v == "pass" for v in results(rec).values()) and len(rec.results) == len(CHECKS)
     page = (root / "out/site/LUSD/index.html").read_text(encoding="utf-8")
     assert 'data-section="exit liquidity"' in page and "off-venue share not computed" in page
@@ -65,16 +72,23 @@ def test_k8_positive_control_publishes_with_its_flag(tmp_path):
     assert ev[-1]["resolution_type"] == "template_change" and ev[-1]["fire_value"] != \
         ev[-1]["resolution_value"]
     gens = [g for g in rec.generation if g.get("slot")]
-    assert len(gens) == 7 and all(g["sampling"] is None and g["thinking"] == "adaptive"
+    assert len(gens) == 7 and all(g["sampling"] == {"temperature": 0, "seed": 0}
+                                  and g["think"] is False and g["num_ctx"] == 32768
                                   and g["prompt_hash"] == llm.prompt_hash(root) for g in gens)
-    assert rec.judge[0]["model"] == llm.JUDGE_MODEL and gens[0]["model"] == llm.GENERATOR_MODEL
+    assert rec.judge[0]["model"] == llm.JUDGE_MODEL == gens[0]["model"] == "qwen3.5:9b"
+    assert rec.llm == {"backend": "ollama", "version": "fake", "model": "qwen3.5:9b",
+                       "digest": "sha256:fake"}
+    # A-22: one call per criterion, each scoped; the envelope's pass computed by the harness
+    crits = [c["criterion"] for c in rec.judge[0]["calls"]]
+    assert crits[0] == "LLM-03" and crits.count("LLM-01") == 7 and crits.count("LLM-02") == 2
+    assert rec.judge[0]["envelope"]["overall_pass"] is True
 
 
 def test_pass2_green_publishes_with_one_revision(tmp_path):
     _root, fake, r, rec = run(tmp_path, "pass2_green")
     assert rec.outcome == "published" and rec.revision_count == 1
     assert rec.revision_cause == ["LLM-04"] and r["site"] is not None
-    assert fake.messages.calls.count("JudgeEnvelope") == 2 and "Remediation" in fake.messages.calls
+    assert fake.judgments == 2 and "Remediation" in fake.calls
 
 
 def test_k3_same_kind_and_section_twice_is_a_template_defect(tmp_path):
@@ -101,7 +115,7 @@ def test_k6b_an_unlocated_span_is_discarded_and_is_judge_instability(tmp_path):
     assert results(rec)["LLM-03"] == "pass"                     # the discarded defect is gone
 
 
-@pytest.mark.parametrize("case,why", [("k4_malformed", "schema"), ("refusal", "refusal")])
+@pytest.mark.parametrize("case,why", [("k4_malformed", "schema"), ("refusal", "schema")])
 def test_k4_and_refusal_error_the_llm_rows_and_block_with_t25(tmp_path, case, why):
     _root, _fake, r, rec = run(tmp_path, case)
     res = results(rec)
@@ -173,31 +187,17 @@ def test_det80_and_det85_units(tmp_path):
         det_85(None, None, None, {"prior_results": prior})
 
 
-def test_the_api_key_is_never_written(tmp_path):
-    root, _fake, _r, _rec = run(tmp_path, "k8_positive_control", extra_fired=(("T-22", 1),))
-    key_line = next((ln for ln in (REPO / ".env").read_text(encoding="utf-8").splitlines()
-                     if ln.startswith("ANTHROPIC_API_KEY=")), "")
-    key = key_line.split("=", 1)[1].strip() if key_line else ""
-    if not key:
-        pytest.skip("no key configured")
-    for p in root.rglob("*"):
-        if p.is_file() and p.suffix in (".json", ".jsonl", ".html", ".md"):
-            assert key not in p.read_text(encoding="utf-8", errors="ignore"), p
-
-
 def test_guard_reasks_once_then_publishes(tmp_path):
     _root, fake, r, rec = run(tmp_path, "k8_reask", extra_fired=(("T-22", 1),))
     assert rec.outcome == "published" and r["site"] is not None
-    assert fake.messages.slot_calls["structural_summary"] == 2
+    assert fake.slot_calls["structural_summary"] == 2
     reasks = {g["slot"]: g["reasks"] for g in rec.generation if "reasks" in g}
     assert reasks["structural_summary"] == 1 and reasks["admin_surface_narrative"] == 0
-    assert all(g["effort"] == "low" for g in rec.generation if "effort" in g)
-    assert rec.judge[0]["effort"] == "medium"
 
 
 def test_a_second_slip_leaves_the_slot_empty_and_det80_blocks(tmp_path):
     _root, fake, r, rec = run(tmp_path, "double_slip")
-    assert fake.messages.slot_calls["structural_summary"] == 2
+    assert fake.slot_calls["structural_summary"] == 2
     bad = [g for g in rec.generation if g["slot"] == "structural_summary"]
     assert bad[0]["reasks"] == 1 and "guard failed" in bad[0]["error"]
     assert results(rec)["DET-80"] == "fail" and rec.outcome == "blocked_S3" and r["site"] is None
@@ -239,26 +239,26 @@ def test_guard_and_labels_units():
     assert llm.plain_label("headline.m2.bad_debt", "m2 bad debt", labels) == "bad debt"
     assert llm.plain_label("exit.curve.s0.005.s", "depth curve price impact", labels) == \
         "depth curve price impact"
-    assert len(json.dumps(llm.JudgeEnvelope.model_json_schema())) < 3000   # ruling (A)
 
 
-def test_judge_max_tokens_is_an_error_with_usage_kept(tmp_path):
+def test_judge_length_is_an_error_with_its_record_kept(tmp_path):
     _root, fake, r, rec = run(tmp_path, "judge_max_tokens")
     res = results(rec)
     assert {res[x] for x in LLM_ROWS} == {"error"} and rec.outcome == "blocked_S3"
     j = rec.judge[0]
-    assert "max_tokens" in j["error"] and j["stop_reason"] == "max_tokens"
-    assert j["usage"]["input_tokens"] > 0 and j["model"] == llm.JUDGE_MODEL
-    judge_req = next(q for q in fake.messages.requests if q["kind"] == "JudgeEnvelope")
-    gen_req = next(q for q in fake.messages.requests if q["kind"] == "SlotProse")
-    assert judge_req["max_tokens"] == 64000 and judge_req["effort"] == "medium"
-    assert gen_req["effort"] == "low" and gen_req["thinking"] == {"type": "adaptive"}
+    assert "done_reason length" in j["error"] and j["calls"][0]["done_reason"] == "length"
+    assert j["calls"][0]["prompt_eval_count"] > 0 and j["calls"][0]["model"] == llm.JUDGE_MODEL
+    judge_req = next(q for q in fake.requests if q["kind"].startswith("OutLLM"))
+    gen_req = next(q for q in fake.requests if q["kind"] == "SlotProse")
+    assert judge_req["options"]["num_predict"] == 4000 and judge_req["think"] is False
+    assert gen_req["options"] == {"num_ctx": 32768, "num_predict": 2000, "temperature": 0,
+                                  "seed": 0}
 
 
 def test_failed_generation_keeps_its_usage(tmp_path):
     _root, _fake, _r, rec = run(tmp_path, "double_slip")
     bad = next(g for g in rec.generation if g["slot"] == "structural_summary")
-    assert len(bad["calls"]) == 2 and bad["usage"]["input_tokens"] > 0
+    assert len(bad["calls"]) == 2 and bad["prompt_eval_count"] > 0
     # ruling 2 on the fourth live run: both rejected answers are in the record
     assert [c["rejected"]["guard_violations"] for c in bad["calls"]][0]
     assert all("26.2 million" in c["rejected"]["text"] for c in bad["calls"])
@@ -306,7 +306,7 @@ def test_rulings_on_the_sixth_live_run(tmp_path):
     from factory.report.__main__ import NOT_JUDGED
     # ruling 5: a deterministic S3 failure ends the pass with no judge call
     _root, fake, _r, rec = run(tmp_path / "a", "double_slip")
-    assert "JudgeEnvelope" not in fake.messages.calls and results(rec)["DET-80"] == "fail"
+    assert fake.judgments == 0 and results(rec)["DET-80"] == "fail"
     assert {x.result for x in rec.results if x.entry_id.startswith("LLM-")} == {"error"}
     assert rec.judge == [{"pass": 1, "error": NOT_JUDGED, "failing": ["DET-79", "DET-80"]}]
     # ruling 3: pass 2 regenerates only the slot carrying the pass-1 defect
@@ -314,30 +314,30 @@ def test_rulings_on_the_sixth_live_run(tmp_path):
     p2 = {g["slot"]: g for g in rec.generation if g["pass"] == 2}
     assert not p2["structural_summary"].get("carried")
     assert all(g.get("carried") for s, g in p2.items() if s != "structural_summary")
-    assert fake.messages.slot_calls["structural_summary"] == 1      # pass 2 is a revision call
-    revised = [q["slot"] for q in fake.messages.requests if q["kind"] == "SlotRevision"]
+    assert fake.slot_calls["structural_summary"] == 1      # pass 2 is a revision call
+    revised = [q["slot"] for q in fake.requests if q["kind"] == "SlotRevision"]
     assert revised == ["structural_summary"]
-    assert fake.messages.slot_calls["admin_surface_narrative"] == 1
+    assert fake.slot_calls["admin_surface_narrative"] == 1
     # ruling 2 (c): a bare string counterpart reads as figure_ref; 6: the judge model
     item = llm.Item03.model_validate_json('{"span_a":"a","section_a":"b","nature":'
                                           '"state_conflict","counterpart":"figure_ref: x"}')
     assert item.counterpart.figure_ref == "figure_ref: x"
-    assert llm.JUDGE_MODEL == "claude-opus-5" and rec.judge[0]["model"] == "claude-opus-5"
+    assert llm.JUDGE_MODEL == "qwen3.5:9b" and rec.judge[0]["model"] == "qwen3.5:9b"
 
 
 def test_ruling_a_on_the_seventh_live_run_and_the_preview(tmp_path):
     # pass 2 revises the defective slot against its own text and defects only
     _root, fake, _r, _rec = run(tmp_path / "a", "pass2_green")
-    p2 = [q for q in fake.messages.requests if q["kind"] == "SlotRevision"
+    p2 = [q for q in fake.requests if q["kind"] == "SlotRevision"
           and "pass1_text" in q["user_keys"]]
     assert [q["slot"] for q in p2] == ["structural_summary"] and p2[0]["pass1_defects"] == 1
     # the preview: generation only - no judge call, nothing written
     root = tmp_repo(tmp_path / "b")
     fake = FakeClient("k8_positive_control")
     before = sorted(p for p in (root / "out").rglob("*"))
-    r = build(root, "LUSD", client=fake, preview=True)
+    r = build(root, "LUSD", client=fake, preview=True, judge_withdrawn=None)
     assert r["preview"] and len(r["generation"]) == 7
-    assert "JudgeEnvelope" not in fake.messages.calls
+    assert fake.judgments == 0 and not [k for k in fake.calls if k.startswith("OutLLM")]
     assert sorted(p for p in (root / "out").rglob("*")) == before
 
 
@@ -365,20 +365,34 @@ def test_final_spend_rulings(tmp_path):
     p2 = next(g for g in rec.generation if g["pass"] == 2 and g["slot"] == "structural_summary")
     assert p2["replacements"] and "Liquity troves, each opened by one borrower." in p2["text"]
     assert p2["text"].split(".", 1)[1] == p1["text"].split(".", 1)[1]
-    assert "SlotRevision" in fake.messages.calls and rec.outcome == "published"
-    # (7) the judge's table block is cached; (8) judge effort medium
-    j = [q for q in fake.messages.requests if q["kind"] == "JudgeEnvelope"]
-    assert j[0]["cache"] == [llm.JUDGE_CACHE] and j[0]["effort"] == "medium"
+    assert "SlotRevision" in fake.calls and rec.outcome == "published"
     # "N day" reads as "N days"
     from factory.validate.harness import _num_tokens
     assert _num_tokens("a 7 day delay, 7 days") == ["7 days", "7 days"]
-    # the budget guard: no judge call when spent + 1.5 would exceed the budget
-    root = tmp_repo(tmp_path / "b")
+
+
+def test_pass2_is_skipped_when_every_defect_lies_outside_prose(tmp_path):
+    # P-8.04 (P-7.11's recorded fix): an LLM-03 defect on template text alone survives pass 1
+    case = tmp_path / "case"
+    shutil.copytree(FIXTURES / "k8_positive_control", case)
+    env = json.loads((case / "env1.json").read_text(encoding="utf-8"))
+    tpl = {"kind": "state_conflict", "table_ref": None, "figure_ref": None, "reason": "r",
+           "location": {"section_id": "finding", "paragraph_index": -1,
+                        "quoted_span": "The three figures that summarise this report"}}
+    next(c for c in env["criteria"] if c["id"] == "LLM-03")["defects"] = [tpl]
+    (case / "env1.json").write_text(json.dumps(env), encoding="utf-8")
+    root = tmp_repo(tmp_path / "repo")
     fake = FakeClient("k8_positive_control")
-    r = build(root, "LUSD", client=fake, budget=6.0, spent=5.0)
-    assert "JudgeEnvelope" not in fake.messages.calls
-    assert r["record"].judge[0]["error"] == "not judged: budget guard"
-    assert r["record"].outcome == "blocked_S3"
+    fake.dir = case
+    r = build(root, "LUSD", client=fake, extra_fired=(("T-22", 1),), judge_withdrawn=None)
+    rec = r["record"]
+    assert rec.pass2_skipped == "outside_prose" and rec.outcome == "template_defect"
+    assert fake.judgments == 1 and "SlotRevision" not in fake.calls
+    assert "Remediation" not in fake.calls and rec.revision_count == 0
+    assert results(rec)["LLM-03"] == "fail" and r["site"] is None
+    # a prose defect still enters pass 2 (pass2_green): nothing is skipped there
+    _root, _fake, _r, rec2 = run(tmp_path / "b", "pass2_green")
+    assert rec2.pass2_skipped is None and rec2.revision_count == 1
 
 
 def test_publish_without_banner_by_ruling(tmp_path):
@@ -408,3 +422,26 @@ def test_publish_without_banner_by_ruling(tmp_path):
     assert len(pub["placeholders_removed"]) == 7
     assert (root / "out/logs/events_crvusd.jsonl").read_bytes() == log_before
     assert (root / "out/site/style.css").exists()
+
+
+def test_the_withdrawn_judge_publishes_green_with_six_not_evaluated_rows(tmp_path):
+    # A-24 (P-8.05): generate -> guard -> deterministic S3 -> publish; no judge call, no T-25
+    root = tmp_repo(tmp_path)
+    fake = FakeClient("k8_positive_control")
+    r = build(root, "LUSD", client=fake)                   # the ruled default: withdrawn
+    rec = r["record"]
+    res = results(rec)
+    assert {res[x] for x in LLM_ROWS} == {"not_evaluated"}
+    assert all(x.scope_condition == llm.JUDGE_WITHDRAWN for x in rec.results
+               if x.entry_id in LLM_ROWS)
+    assert all(v == "pass" for k, v in res.items() if k not in LLM_ROWS)   # DET-85, DET-13 too
+    assert rec.outcome == "published" and r["site"] is not None and rec.revision_count == 0
+    assert fake.judgments == 0 and not [k for k in fake.calls if k.startswith("OutLLM")]
+    assert fake.calls.count("SlotProse") == 7 and "Remediation" not in fake.calls
+    assert not {x["trigger"] for x in rec.triggers} & {"T-25", "T-24", "T-28"}
+    assert rec.judge == [{"pass": 1, "not_evaluated": llm.JUDGE_WITHDRAWN}]
+    from factory.site import checks_line
+    assert checks_line([x.model_dump() for x in rec.results]) == \
+        "90 of 90 evaluated, 6 not evaluated (judge withdrawn)"
+    assert checks_line([{"result": "pass"}] * 94 + [{"result": "fail"}] * 2) == \
+        "94 of 96 evaluated"

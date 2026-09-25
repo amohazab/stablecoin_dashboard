@@ -289,15 +289,18 @@ def test_routing_blocks_the_site_and_records_the_outcome(tmp_path):
     for code in ("src/factory/report/render.py", "src/factory/report/svg.py"):   # template_hash
         (tmp_path / code).parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(REPO / code, tmp_path / code)
+    from tests.llm_fake import pin_to_recorded
+    pin_to_recorded(tmp_path)
     (tmp_path / "out/site/LUSD").mkdir(parents=True)
     (tmp_path / "out/site/LUSD/index.html").write_text("stale", encoding="utf-8")
     from tests.llm_fake import FakeClient  # B-13: a run without --llm is a rehearsal
-    r = build(tmp_path, "LUSD", client=FakeClient("k4_malformed"))
+    r = build(tmp_path, "LUSD", client=FakeClient("k4_malformed"), judge_withdrawn=None)
     rec = r["record"]
     assert rec.outcome == "blocked_S3" and r["site"] is None
     assert len(rec.results) == 96 and [x.result for x in rec.results
                                        if x.entry_id == "DET-85"] == ["fail"]
-    assert not (tmp_path / "out/site").exists()                  # withdrawn, then emptied
+    # P-8.04 Q7: a non-published run leaves the last published page in place
+    assert (tmp_path / "out/site/LUSD/index.html").read_text(encoding="utf-8") == "stale"
     stage = tmp_path / "out/rehearsal/LUSD/25974949"
     assert {p.name for p in stage.iterdir()} >= {"index.html", "appendix.html", "verify.html"}
     assert (stage.parent / "style.css").exists()

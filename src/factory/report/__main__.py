@@ -17,10 +17,11 @@ written either way - it is the evidence of the failure.
 B-11b, the report-stage gate. With DET-84 green the pages render into
 `out/rehearsal/<TOKEN>/<run_block>/` (stylesheet beside it) and the fifteen S3
 rows run over them. All pass: the directory is copied to `out/site/<TOKEN>/`
-with `out/site/style.css`. Any S3 row not passing: the pages stay in rehearsal,
-the record's outcome is "blocked_S3", and `out/site/<TOKEN>/` is withdrawn -
-NAMED DEFAULT: a page left there by an earlier attempt would be a published page
-this gate did not pass; `out/site/` itself goes when no token remains in it.
+with `out/site/style.css`. Any S3 row not passing: the pages stay in rehearsal
+and the record's outcome is "blocked_S3". P-8.04 Q7 (superseding B-11b's
+withdrawal default): `out/site/<TOKEN>/` is replaced only by a published run;
+the last published pages stay otherwise, with the failed run's record and log
+line as the evidence.
 The page's pills read the S0-S2 triggers (an S3 trigger, DET-74's T-16, reaches
 the record, not the rendered pill - named default until B-12).
 """
@@ -84,8 +85,6 @@ def s3_page(repo: pathlib.Path, doc: dict, grid: dict, mirror: dict, files: dict
 
 
 NOT_JUDGED = "not judged: deterministic S3 failure"         # sixth live run, ruling 5
-NOT_JUDGED_BUDGET = "not judged: budget guard"
-JUDGE_ESTIMATE = 1.5          # Amin, 2026-09-14: the ≈ $1.5 a judgment is taken to cost
 GATE_OWNERS = {"DET-13": "T-23", "DET-87": "T-23", "DET-59": "T-23", "DET-85": "T-25"}
 EVIDENCE_ORDER = (("template_hash", "template_change"), ("sheet_hash", "intake_change"),
                   ("pipeline_version", "code_fix"), ("rubric_hash", "rubric_change"),
@@ -222,22 +221,8 @@ def row_displays(repo: pathlib.Path, doc: dict) -> dict[str, list[str]]:
             for f, r in rows.items()}
 
 
-def run_cost(llm_rec: dict) -> float:
-    """The recorded API cost of this run so far (every generation, judge and remediation
-    call's usage at llm.PRICE)."""
-    from factory.report import llm
-    total = 0.0
-    for g in llm_rec["generation"]:
-        for c in g.get("calls") or []:
-            total += llm.call_cost(g.get("model", llm.GENERATOR_MODEL), c.get("usage", c))
-    for j in llm_rec["judge"]:
-        if j.get("usage"):
-            total += llm.call_cost(j["model"], j["usage"])
-    return total
-
-
 def build(repo: pathlib.Path, token: str, client=None, extra_fired: tuple = (),
-          preview: bool = False, budget: float | None = None, spent: float = 0.0) -> dict:
+          preview: bool = False, judge_withdrawn: str | None = "default") -> dict:
     """`client` = None is a REHEARSAL (Amin, 2026-09-14): no generation, no judgment, the
     slots stay placeholders; pages stay in `out/rehearsal/`, the record's outcome is
     "rehearsal" and it is written beside them, not to `out/evaluation/`; nothing is
@@ -247,6 +232,9 @@ def build(repo: pathlib.Path, token: str, client=None, extra_fired: tuple = (),
     `preview` (Amin, seventh live run): pass-1 generation with the guard only - returns the
     generation records before any render, judge, remediation, log line or file write."""
     from factory.report import llm
+    # A-24 (P-8.05): with a client, the judge is withdrawn unless a caller passes None - the
+    # loop's tests do, on the Claude-era fixtures; the loop code stays and stays tested
+    withdrawn = llm.JUDGE_WITHDRAWN if judge_withdrawn == "default" else judge_withdrawn
     inputs = load_inputs(repo, token)
     b, t, cfg = inputs["bundle"], inputs["tree"], inputs["cfg"]
     d = repo / "out/stress" / token
@@ -297,6 +285,8 @@ def build(repo: pathlib.Path, token: str, client=None, extra_fired: tuple = (),
     current = {**parts, "rubric_hash": _stamp(rubric), "frozen_set_hash": b.header.frozen_set_hash}
     persisted_evidence = read_evidence(repo, token)
     llm_rec: dict = {"judge": [], "generation": [], "revision_count": 0, "revision_cause": []}
+    if client is not None:
+        llm_rec["llm"] = llm.llm_header(client)          # P-8.04 Q6
     s3: list = []
     planned: list = []
     evidence: list = []
@@ -318,6 +308,10 @@ def build(repo: pathlib.Path, token: str, client=None, extra_fired: tuple = (),
         S3 row except LLM-01...06 and the two tail rows over the record, DET-85 and DET-13."""
         if client is None or "sections" in judge_state:
             return settle(prose, judge_state, instability)
+        if withdrawn:                        # A-24: generate -> guard -> deterministic S3
+            judge_state.update(withdrawn=withdrawn, sections={})
+            llm_rec["judge"].append({"pass": pass_no, "not_evaluated": withdrawn})
+            return settle(prose, judge_state, instability)
         judge_state["error"] = "judgment pending: deterministic S3 rows first"
         settle(prose, judge_state, instability)
         det = sorted(g.entry_id for g in s3 if g.result != "pass" and
@@ -327,33 +321,26 @@ def build(repo: pathlib.Path, token: str, client=None, extra_fired: tuple = (),
             llm_rec["judge"].append({"pass": pass_no, "error": NOT_JUDGED, "failing": det})
             return settle(prose, judge_state, instability)
         judge_state.pop("error")
-        total = spent + run_cost(llm_rec)
-        if budget is not None and total + JUDGE_ESTIMATE > budget:   # Amin, 2026-09-14
-            judge_state.update(envelope=None, error=NOT_JUDGED_BUDGET, lost=[],
-                               not_judged=["budget"])
-            llm_rec["judge"].append({"pass": pass_no, "error": NOT_JUDGED_BUDGET,
-                                     "failing": [f"spent {total:.4f} + {JUDGE_ESTIMATE} > "
-                                                 f"{budget:.2f}"]})
-            return settle(prose, judge_state, instability)
         try:
-            env, meta = llm.judge(llm.page_text(judge_state["sections"]), doc, client, repo,
-                                  rubric, {"rubric_version": "v1", "report_id": f"{token}@{blk}",
-                                           "bundle_hash": man["report_hash"],
-                                           "prompt_schema_version":
-                                           str(mf["prompt_schema_version"])})
+            # A-22: one call per criterion, the envelope assembled here; A-23 inside `judge`
+            env, meta = llm.judge(judge_state["sections"], slot_users(), prose,
+                                  row_displays(repo, doc), client, repo, rubric,
+                                  {"rubric_version": "v1", "report_id": f"{token}@{blk}",
+                                   "bundle_hash": man["report_hash"],
+                                   "prompt_schema_version": str(mf["prompt_schema_version"])})
             env, lost = llm.post_check(env, judge_state["sections"])
             env, outside = llm.drop_outside_prose(env, judge_state["sections"],
                                                   judge_state["prose_paras"])
+            env = llm.computed_pass(env, meta["criterion_errors"])
             judge_state.update(envelope=env.model_dump(by_alias=True), lost=lost,
-                               item_errors=llm.item_errors(env))
+                               item_errors={**llm.item_errors(env), **meta["criterion_errors"]})
             llm_rec["judge"].append({"pass": pass_no, **meta,
                                      "envelope": judge_state["envelope"],
                                      "item_errors": judge_state["item_errors"],
                                      "judge_span_not_found": lost, "outside_prose": outside})
         except llm.LLMError as exc:
             judge_state.update(envelope=None, error=str(exc), lost=[])
-            llm_rec["judge"].append({"pass": pass_no, "error": str(exc),
-                                     **(exc.calls[-1] if exc.calls else {})})
+            llm_rec["judge"].append({"pass": pass_no, "error": str(exc), "calls": exc.calls})
         return settle(prose, judge_state, instability)
 
     def settle(prose: dict, judge_state: dict, instability: bool):
@@ -378,7 +365,8 @@ def build(repo: pathlib.Path, token: str, client=None, extra_fired: tuple = (),
                    "prose": prose}
             pages = render_token(repo, token, doc, grid, man, pre, b, s, stage)
             index_html = pages["index"].read_text(encoding="utf-8")
-            if client is not None and "sections" not in judge_state:
+            if client is not None and not judge_state.get("sections") \
+                    and not judge_state.get("withdrawn"):
                 judge_state["sections"] = llm.page_sections(index_html)   # the first render
                 judge_state["prose_paras"] = llm.prose_paragraphs(index_html)
             page = s3_page(repo, doc, grid, mirror_j, pages)
@@ -387,6 +375,7 @@ def build(repo: pathlib.Path, token: str, client=None, extra_fired: tuple = (),
                         prior_results=prior_results, report_manifest=man,
                         resolution_evidence=[*persisted_evidence, *evidence],
                         site_report_hash=_site_report_hash(repo, token), prose=prose,
+                        judge_withdrawn=judge_state.get("withdrawn"),
                         judge_envelope=judge_state.get("envelope"),
                         judge_error=judge_state.get("error") or
                         ("no judgment: the report stage ran offline" if client is None else None),
@@ -401,14 +390,14 @@ def build(repo: pathlib.Path, token: str, client=None, extra_fired: tuple = (),
             seen = failing
         raise AssemblyStop(f"{token}: S3 failures did not stabilise across render passes")
 
-    def generate_all(pass_no: int, own: dict[str, list[dict]] | None = None,
-                     carry: dict[str, str] | None = None, pass1: dict[str, str] | None = None
-                     ) -> dict:
-        """Pass 2: slots in `carry` (no pass-1 defect) keep their pass-1 text verbatim and
-        make no call (sixth live run, ruling 3); every other slot is REVISED - its input
-        carries its own pass-1 text and only its own defects (seventh live run, ruling a)."""
-        if client is None:
-            return {}
+    inputs_memo: dict[str, str] = {}
+
+    def slot_users() -> dict[str, str]:
+        """Each slot's generator input (its rows with printed forms, the assumptions block,
+        the open Level-1 flags for flag explanations) - also the rows each scoped judge
+        call reads (A-22)."""
+        if inputs_memo:
+            return inputs_memo
         spec = llm.prompts(repo)["slots"]
         displays = row_displays(repo, doc)
         opened = eventlog.open_entries([*entries, *eventlog.plan_quarantine(
@@ -420,6 +409,21 @@ def build(repo: pathlib.Path, token: str, client=None, extra_fired: tuple = (),
                  for eid, e in opened if e.level == 1]
         owners = sorted({o for _eid, e in opened if e.level == 1
                          for o in ttable[e.trigger]["owners"]})
+        for slot in (x["id"] for x in mf["prose_slots"]):
+            sp = {**spec[slot], "owners": owners if spec[slot].get("owners_from_flags") else []}
+            inputs_memo[slot] = llm.slot_input(slot, sp, doc, displays, flags, wording)
+        return inputs_memo
+
+    def generate_all(pass_no: int, own: dict[str, list[dict]] | None = None,
+                     carry: dict[str, str] | None = None, pass1: dict[str, str] | None = None
+                     ) -> dict:
+        """Pass 2: slots in `carry` (no pass-1 defect) keep their pass-1 text verbatim and
+        make no call (sixth live run, ruling 3); every other slot is REVISED - its input
+        carries its own pass-1 text and only its own defects (seventh live run, ruling a)."""
+        if client is None:
+            return {}
+        spec = llm.prompts(repo)["slots"]
+        users = slot_users()
         prose = {}
         for slot in (x["id"] for x in mf["prose_slots"]):
             if carry is not None and slot in carry:
@@ -430,8 +434,8 @@ def build(repo: pathlib.Path, token: str, client=None, extra_fired: tuple = (),
                                               "references_field_ids":
                                               g1.get("references_field_ids", [])})
                 continue
-            sp = {**spec[slot], "owners": owners if spec[slot].get("owners_from_flags") else []}
-            user = llm.slot_input(slot, sp, doc, displays, flags, wording)
+            sp = spec[slot]
+            user = users[slot]
             bounds = llm.paragraph_bounds(sp, json.loads(user))
             try:
                 if own is not None:                    # pass 2: span replacement only
@@ -452,8 +456,8 @@ def build(repo: pathlib.Path, token: str, client=None, extra_fired: tuple = (),
                     "pass": pass_no, "slot": slot, "error": str(exc),
                     "reasks": 1 if "guard failed" in str(exc) else len(exc.calls) - 1,
                     "calls": exc.calls, "model": llm.GENERATOR_MODEL,
-                    "usage": {k: sum((c.get("usage") or {}).get(k) or 0 for c in exc.calls)
-                              for k in ("input_tokens", "output_tokens")}})
+                    **{k: sum(c.get(k) or 0 for c in exc.calls)
+                       for k in ("prompt_eval_count", "eval_count")}})
         return prose
 
     if preview and not ok:
@@ -467,7 +471,20 @@ def build(repo: pathlib.Path, token: str, client=None, extra_fired: tuple = (),
         evaluate(prose1, j1, False, 1)
         llm_fail = [g.entry_id for g in s3 if g.entry_id.startswith("LLM-") and g.result == "fail"]
         det_fail = [g for g in s3 if not g.entry_id.startswith("LLM-") and g.result != "pass"]
-        if client is not None and llm_fail and not det_fail and j1.get("envelope"):
+        surviving = [(c["id"], d) for c in (j1.get("envelope") or {}).get("criteria", [])
+                     for d in c["defects"]]
+        paras = j1.get("sections", {})
+        outside_only = bool(surviving) and all(
+            paras[d["location"]["section_id"]][d["location"]["paragraph_index"]]
+            not in j1.get("prose_paras", set()) for _cid, d in surviving)
+        if client is not None and llm_fail and not det_fail and j1.get("envelope") \
+                and outside_only:
+            # Amin, P-8.04 (P-7.11's recorded fix): every surviving pass-1 defect lies outside
+            # prose (after post_check and drop_outside_prose; only LLM-03 keeps such defects) -
+            # no slot revision can reach it, so pass 2 is skipped: a template defect.
+            llm_outcome = "template_defect"
+            llm_rec["pass2_skipped"] = "outside_prose"
+        elif client is not None and llm_fail and not det_fail and j1.get("envelope"):
             # R-48 pass 2: one revision against an unchanged bundle (DET-13(g)).
             assert table.table_hash(doc, grid) == doc["table_hash"] == man["table_hash"]
             llm_rec["revision_count"] = 1
@@ -494,8 +511,7 @@ def build(repo: pathlib.Path, token: str, client=None, extra_fired: tuple = (),
                 except (llm.LLMError, KeyError) as exc:
                     unaddressed = d1
                     llm_rec["judge"].append({"pass": 2, "remediation_error": str(exc),
-                                             **(exc.calls[-1] if getattr(exc, "calls", None)
-                                                else {})})
+                                             "calls": getattr(exc, "calls", [])})
                 env2 = j2.get("envelope")
                 k1 = {(x["kind"], x["location"]["section_id"]) for x in d1}
                 k2 = ({(dd["kind"], dd["location"]["section_id"]) for c in env2["criteria"]
@@ -518,7 +534,8 @@ def build(repo: pathlib.Path, token: str, client=None, extra_fired: tuple = (),
     heavy = [e for _, e in eventlog.open_entries(after, token) if e.level in (2, 3)]
     det_fail = [g for g in s3 if not g.entry_id.startswith("LLM-") and g.result != "pass"
                 and g.entry_id not in ("DET-85", "DET-13")]
-    llm_bad = [g for g in s3 if g.entry_id.startswith("LLM-") and g.result != "pass"]
+    # A-24: `not_evaluated` rows are ignored by the outcome rule
+    llm_bad = [g for g in s3 if g.entry_id.startswith("LLM-") and g.result in ("fail", "error")]
     tail_bad = [g for g in s3 if g.entry_id in ("DET-85", "DET-13") and g.result != "pass"]
     if rehearsal:
         outcome = "rehearsal"
@@ -565,14 +582,15 @@ def build(repo: pathlib.Path, token: str, client=None, extra_fired: tuple = (),
     if ok and not rehearsal:
         (stage / "data" / f"evaluation-{blk}.json").write_text(
             _json(rec.model_dump(mode="json")), encoding="utf-8", newline="")
-        if (site_root / token).exists():
-            shutil.rmtree(site_root / token)
+        # P-8.04 Q7 (supersedes B-11b's named default): only a published outcome replaces
+        # `out/site/<T>/`; any other outcome leaves the last published pages in place - the
+        # record and its log line are the evidence, rendered by `factory.site`
         if outcome == "published":
+            if (site_root / token).exists():
+                shutil.rmtree(site_root / token)
             shutil.copytree(stage, site_root / token)
             shutil.copyfile(stage.parent / "style.css", site_root / "style.css")
             site = site_root / token
-        elif site_root.exists() and not any(x.is_dir() for x in site_root.iterdir()):
-            shutil.rmtree(site_root)
     return {"ok": ok, "doc": doc, "grid": grid, "manifest": man, "record": rec, "out": out,
             "llm": llm_rec,
             "site": site, "pages": stage if ok else None, "log_lines": lines}
@@ -683,21 +701,19 @@ if __name__ == "__main__":
         sys.exit(2)
     try:
         _client = None
-        if "--llm" in sys.argv[2:]:          # B-13 NAMED DEFAULT: the API is called only on request
-            from factory.report.llm import make_client
-            _client = make_client(_repo)
+        if "--llm" in sys.argv[2:]:          # B-13 NAMED DEFAULT: the model only on request
+            from factory.report.llm import OllamaClient
+            _client = OllamaClient()         # P-8.04: the local Ollama model only
         _preview = "--preview" in sys.argv[2:]   # generation only, needs --llm (seventh run)
-        _opt = dict(zip(sys.argv[2:-1], sys.argv[3:], strict=True))
-        r = build(_repo, sys.argv[1], client=_client, preview=_preview,
-                  budget=float(_opt["--budget"]) if "--budget" in _opt else None,
-                  spent=float(_opt.get("--spent", 0)))
+        r = build(_repo, sys.argv[1], client=_client, preview=_preview)
     except Exception as exc:
         print(f"{type(exc).__name__}: {exc}", file=sys.stderr)
         raise SystemExit(1) from None
     if r.get("preview"):
         for g in r["generation"]:
             print(f"preview {r['token']}@{r['run_block']} | {g['slot']} | re-asks "
-                  f"{g.get('reasks')} | {'EMPTY: ' + g['error'] if g.get('error') else 'ok'}")
+                  f"{g.get('reasks')} | {'EMPTY: ' + g['error'] if g.get('error') else 'ok'} | "
+                  f"wall {sum(c.get('wall_s') or 0 for c in g.get('calls') or []):.0f} s")
         sys.exit(0)
     rec = r["record"]
     fails = [x.entry_id for x in rec.results if x.result != "pass"]
@@ -706,7 +722,11 @@ if __name__ == "__main__":
           f"report {rec.report_hash[:8]} | results {len(rec.results) - len(fails)}/"
           f"{len(rec.results)} | unregistered {len(rec.unregistered)} | "
           f"{'promoted' if r['ok'] else 'rehearsal'} | {r['out']}")
-    print(f"api cost this run {run_cost(r['llm']):.4f}")
+    if r["llm"].get("llm"):
+        _w = sum(c.get("wall_s") or 0 for g in r["llm"]["generation"] for c in g.get("calls") or [])
+        _w += sum(j.get("wall_s") or 0 for j in r["llm"]["judge"])
+        print(f"model {r['llm']['llm']['model']} | ollama {r['llm']['llm']['version']} | "
+              f"model wall time {_w:.0f} s")
     print(f"outcome {rec.outcome} | revision_count {rec.revision_count} | pages {r['pages']} | "
           f"site {r['site']}")
     if fails:

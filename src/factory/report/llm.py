@@ -1,22 +1,28 @@
-"""B-13 (P-7.01 R12; rubric 2.1, 2.2): the generation, judge and remediation calls.
+"""B-13 (P-7.01 R12; rubric 2.1, 2.2) and Step 8 phase B (P-8.04): the generation, judge and
+remediation calls, on the local Ollama model only (P-8.01: no Anthropic call in any form).
 
-Every call goes through `client.messages.parse(..., output_format=<Pydantic type>)`
-(anthropic 1.5.0: the type becomes `output_config={"format": {"type": "json_schema",
-...}}`; the parsed object is `response.parsed_output`). The client is injected: the
-report stage builds one only when asked to call the API (`--llm`), and the tests pass
-a fake that returns recorded JSON through the same models - the suite never touches
+Every call goes through `_call`: one `POST /api/chat` with `think: false`, `stream: false`,
+`format` = the Pydantic output model's own `model_json_schema()` (one source, nothing
+retyped) and options {num_ctx, num_predict, temperature 0, seed 0} (A-21). The client is
+injected: the report stage builds an `OllamaClient` only when asked (`--llm`); the tests pass
+a fake that answers the same `chat(body)` seam from recorded bodies - the suite never touches
 the network.
 
-Recorded per call (Amin, 2026-09-14): model, thinking `adaptive`, effort `default`,
-sampling `null` (A-18), the prompt hash, the input hash, stop reason and the API's own
-usage counts. `ANTHROPIC_API_KEY` is read like `ETH_RPC_URL` (environment, then
-`.env`) and never written to any artifact, record, log or fixture.
+Recorded per call (P-8.04 Q6): model, digest, ollama_version, think false, sampling, num_ctx,
+num_predict, prompt hash, input hash, done_reason, the five counters and the wall time.
+Fail-closed (`LLMError`): an unreachable server; an input whose chars / 3 + num_predict
+exceeds num_ctx (before the call); `done_reason == "length"`; prompt_eval_count +
+num_predict above num_ctx (a truncated prompt, after the call); a non-JSON or
+schema-invalid reply.
 
-NAMED DEFAULTS (B-13): one generation call per slot; the judge sees index.html's text
-split by section `id` into numbered paragraphs, plus table.json; a defect whose
-`quoted_span` is not in the paragraph it names is discarded and recorded as
-`judge_span_not_found`; a refusal, a missing parse or a schema-invalid response is an
-`LLMError`, which the LLM rows record as `error` (DET-85).
+The judge (A-22): one call per criterion, each scoped to the part of 2.1's input that the
+criterion reads; the harness assembles 2.1's envelope, fills its header and computes each
+`pass` and `overall_pass`. A-23: an LLM-01 `untraceable` defect whose span's number tokens are
+all printed forms of its slot's rows, or a `mismatch` whose matched row prints them, is
+discarded and recorded as `guard_verified`.
+
+NAMED DEFAULTS (B-13): one generation call per slot; a defect whose `quoted_span` is not in
+the paragraph it names is discarded and recorded as `judge_span_not_found`.
 """
 
 from __future__ import annotations
@@ -25,40 +31,28 @@ import hashlib
 import json
 import pathlib
 import re
+import time
 import tomllib
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, Field, create_model, field_validator, model_validator
 
-JUDGE_MODEL = "claude-opus-5"   # Amin, sixth live run, ruling 6 (runs 3-6: claude-fable-5-1)
-GENERATOR_MODEL = "claude-sonnet-5"
-THINKING = {"type": "adaptive"}
-CALL_RECORD = {"thinking": "adaptive", "sampling": None}
-EFFORT = {"generate": "low", "judge": "medium", "remediate": None}   # None = model default
-# Amin, 2026-09-14 (final spend): judge effort "medium" (8); the judge's table block is
-# cached (7) - NAMED DEFAULT: TTL 1 h, since pass 2's judgment starts more than five
-# minutes after pass 1's (a pass-1 judgment alone streams for about five).
-JUDGE_CACHE = {"type": "ephemeral", "ttl": "1h"}
-# $ per MTok (input, output); a 1-h cache write is 2x input, a cache read 0.1x input.
-PRICE = {"claude-sonnet-5": (2, 10), "claude-fable-5-1": (10, 50), "claude-opus-5": (5, 25)}
-
-
-def call_cost(model: str, usage: dict | None) -> float:
-    u = usage or {}
-    i, o = PRICE[model]
-    return ((u.get("input_tokens") or 0) * i + (u.get("output_tokens") or 0) * o
-            + (u.get("cache_creation_input_tokens") or 0) * i * 2
-            + (u.get("cache_read_input_tokens") or 0) * i * 0.1) / 1e6
-# Ruling (D): every call streams, so the judge's ceiling is 64,000 (the SDK refuses a
-# non-streaming call above 21,333).
-MAX_TOKENS = {"generate": 8000, "judge": 64000, "remediate": 8000}
+MODEL = "qwen3.5:9b"                     # P-8.01: generator and judge
+JUDGE_MODEL = GENERATOR_MODEL = MODEL
+OLLAMA_URL = "http://localhost:11434"
+NUM_CTX = 32768                          # P-8.04 Q5
+NUM_PREDICT = {"generate": 2000, "judge": 4000, "remediate": 2000}
+SAMPLING = {"temperature": 0, "seed": 0}   # A-21
+CHARS_PER_TOKEN = 3                      # Inventory F2: qwen counts 10,030 tokens for 30,122 chars
 LLM_IDS = ("LLM-01", "LLM-02", "LLM-03", "LLM-04", "LLM-05", "LLM-06")
+# A-24 (Amin, 2026-09-25, P-8.05): the judge is withdrawn in the local configuration.
+JUDGE_WITHDRAWN = "judge withdrawn (P-8.05): the local model failed the Q13 control"
 
 
 class LLMError(Exception):
-    """A call that did not yield a parsed, schema-valid object. `calls` carries the usage
-    and stop reason of every API call made before the failure (ruling G)."""
+    """A call that did not yield a parsed, schema-valid object. `calls` carries the record of
+    every call made before the failure (ruling G)."""
 
     def __init__(self, message: str, calls: list[dict] | None = None):
         super().__init__(message)
@@ -185,28 +179,39 @@ ITEM_MODELS = dict(zip(LLM_IDS, (Item01, Item02, Item03, Item04, Item05, Item06)
 
 
 class Criterion(_Strict):
-    """Rubric 2.1's criterion. Amin's ruling (A) a1, 2026-09-14: `items` travel as JSON
-    strings - the typed union compiled to a grammar the API refused - and each is
-    validated after parsing against its criterion's printed schema (`ITEM_MODELS`)."""
+    """Rubric 2.1's criterion. P-8.04 Q4: items are typed objects (the Ollama grammar takes
+    them); the Claude-era JSON-string form (ruling (A) a1) stays readable for the recorded
+    fixtures. Each item is validated against its criterion's printed schema (`ITEM_MODELS`)."""
 
     id: Literal["LLM-01", "LLM-02", "LLM-03", "LLM-04", "LLM-05", "LLM-06"]
     pass_: bool = Field(alias="pass")
-    items: list[str]
+    items: list[dict[str, Any] | str]
     defects: list[Defect]
 
 
+def _item(raw: dict | str) -> dict:
+    return json.loads(raw) if isinstance(raw, str) else raw
+
+
 def item_errors(env: JudgeEnvelope) -> dict[str, str]:
-    """`{criterion id: reason}` for every criterion with an item that is not JSON or not
-    its printed schema - an invalid item is `error` on that criterion's row."""
+    """`{criterion id: reason}` for every criterion with an item that is not its printed
+    schema - an invalid item is `error` on that criterion's row."""
     out = {}
     for c in env.criteria:
         for i, raw in enumerate(c.items):
             try:
-                ITEM_MODELS[c.id].model_validate(json.loads(raw))
+                ITEM_MODELS[c.id].model_validate(_item(raw))
             except Exception as exc:                       # JSON or schema
                 out[c.id] = f"item {i}: {type(exc).__name__}: {str(exc)[:160]}"
                 break
     return out
+
+
+# A-22: one call per criterion; its output is that criterion's items and defects, the typed
+# item model generated from `ITEM_MODELS` (F5: one source).
+CRITERION_OUT = {cid: create_model(f"Out{cid.replace('-', '')}", __base__=_Strict,
+                                   items=(list[m], ...), defects=(list[Defect], ...))
+                 for cid, m in ITEM_MODELS.items()}
 
 
 class JudgeEnvelope(_Strict):
@@ -251,15 +256,15 @@ def sha(*parts: str) -> str:
 
 
 def prompt_hash(repo: pathlib.Path) -> str:
-    """One hash over the three prompt files, the slot table, the three schemas and the six
-    typed item schemas (shown to the judge since the sixth live run) - the value recorded
+    """One hash over the prompt files, the slot table, the output schemas, the six typed
+    item schemas and the six per-criterion output schemas (P-8.04) - the value recorded
     beside every recorded fixture (a prompt edit visibly stales them)."""
     tpl = repo / "templates/prompts"
     files = [(tpl / n).read_bytes().replace(b"\r\n", b"\n").decode("utf-8")
              for n in ("generate.md", "judge.md", "remediate.md", "revise.md", "slots.toml")]
     schemas = [json.dumps(m.model_json_schema(), sort_keys=True)
                for m in (SlotProse, SlotRevision, JudgeEnvelope, Remediation,
-                         *ITEM_MODELS.values())]
+                         *ITEM_MODELS.values(), *CRITERION_OUT.values())]
     return sha(*files, *schemas)
 
 
@@ -274,20 +279,25 @@ def rubric_criteria(rubric_text: str) -> str:
     return "\n\n".join(out)
 
 
+def printed_shape(rubric_text: str, cid: str) -> str:
+    """The rubric's printed `Schema ...: `{...}`` span for one criterion, verbatim."""
+    text = dict(zip(LLM_IDS, rubric_criteria(rubric_text).split("\n\n"), strict=True))[cid]
+    m = re.search(r"Schema[^`]*`[^`]*`", text)
+    if m is None:
+        raise LLMError(f"rubric entry {cid}: no printed item shape")
+    return m.group(0)
+
+
+def item_shape(rubric_text: str, cid: str) -> str:
+    """Ruling 4 on the fourth live run and ruling 2 (b) on the sixth: the printed shape with
+    the typed item schema the harness validates against."""
+    typed = json.dumps(ITEM_MODELS[cid].model_json_schema(), ensure_ascii=False,
+                       separators=(",", ":"))
+    return f"- {cid}: {printed_shape(rubric_text, cid)}\n  typed item schema: {typed}"
+
+
 def item_shapes(rubric_text: str) -> str:
-    """Ruling 4 on the fourth live run: each criterion's printed item shape, verbatim (the
-    rubric's `Schema ...: `{...}`` span), one line per criterion."""
-    crit = rubric_criteria(rubric_text).split("\n\n")
-    out = []
-    for cid, text in zip(LLM_IDS, crit, strict=True):
-        m = re.search(r"Schema[^`]*`[^`]*`", text)
-        if m is None:
-            raise LLMError(f"rubric entry {cid}: no printed item shape")
-        typed = json.dumps(ITEM_MODELS[cid].model_json_schema(), ensure_ascii=False,
-                           separators=(",", ":"))
-        # sixth live run, ruling 2 (b): the typed item schema beside the rubric's shape
-        out.append(f"- {cid}: {m.group(0)}\n  typed item schema: {typed}")
-    return "\n".join(out)
+    return "\n".join(item_shape(rubric_text, cid) for cid in LLM_IDS)
 
 
 def defects_by_slot(defects: list[dict], prose: dict[str, str], sections: dict[str, str]
@@ -405,47 +415,73 @@ def drop_outside_prose(env: JudgeEnvelope, sections: dict[str, list[str]], prose
 # ---- the calls ----------------------------------------------------------------------------
 
 
-def make_client(repo: pathlib.Path):
-    from anthropic import Anthropic
+class OllamaClient:
+    """The local model behind `POST /api/chat` (P-8.04 Q1). Built once per run: the server
+    version and the model digest are read at construction, and an unreachable server or an
+    absent model is an `LLMError` before any work (fail-closed)."""
 
-    from factory.logs_pointer import env
-    key = env(repo, "ANTHROPIC_API_KEY")
-    if not key:
-        raise LLMError("ANTHROPIC_API_KEY is not set (environment or .env)")
-    return Anthropic(api_key=key)
+    def __init__(self, base: str = OLLAMA_URL, model: str = MODEL, timeout: float = 3600):
+        import requests
+        self.base, self.model, self.timeout, self._requests = base, model, timeout, requests
+        try:
+            self.version = requests.get(f"{base}/api/version", timeout=10).json()["version"]
+            tags = requests.get(f"{base}/api/tags", timeout=10).json()["models"]
+        except Exception as exc:
+            msg = f"ollama unreachable at {base}: {type(exc).__name__}: {exc}"
+            raise LLMError(msg[:300]) from exc
+        hit = [m["digest"] for m in tags if m["name"] == model]
+        if not hit:
+            raise LLMError(f"model {model} not present in ollama at {base}")
+        self.digest = hit[0]
+
+    def chat(self, body: dict) -> dict:
+        r = self._requests.post(f"{self.base}/api/chat", json=body, timeout=self.timeout)
+        r.raise_for_status()
+        return r.json()
 
 
-def _call(client, *, model: str, max_tokens: int, system: str, user: str | list, output: type,
-          phash: str, effort: str | None = None) -> tuple[Any, dict]:
-    """One streamed call (ruling D): the JSON schema goes as `output_config.format` (the
-    SDK's own `transform_schema`), the final message's text is validated here, and the
-    usage and stop reason are recorded on every path - a `max_tokens` stop, a refusal or
-    an invalid text is an `LLMError` that carries them."""
-    from anthropic.lib._parse._transform import transform_schema
-    meta = {"model": model, **CALL_RECORD, "effort": effort or "default", "prompt_hash": phash,
-            "input_hash": sha(system, user if isinstance(user, str) else json.dumps(user)),
-            "stop_reason": None, "usage": None}
-    if not isinstance(user, str):
-        meta["cache"] = [b.get("cache_control") for b in user if b.get("cache_control")]
-    config: dict = {"format": {"type": "json_schema", "schema": transform_schema(output)}}
-    if effort:
-        config["effort"] = effort
+def llm_header(client) -> dict:
+    """The gate record's `llm` header (P-8.04 Q6); the manifest stays R3's."""
+    return {"backend": "ollama", "version": client.version, "model": MODEL,
+            "digest": client.digest}
+
+
+def _call(client, *, kind: str, system: str, user: str, output: type, phash: str
+          ) -> tuple[Any, dict]:
+    """One `/api/chat` call, recorded on every path; see the module docstring for the
+    fail-closed rules."""
+    num_predict = NUM_PREDICT[kind]
+    meta = {"model": MODEL, "digest": client.digest, "ollama_version": client.version,
+            "think": False, "sampling": dict(SAMPLING), "num_ctx": NUM_CTX,
+            "num_predict": num_predict, "prompt_hash": phash, "input_hash": sha(system, user),
+            "done_reason": None}
+    est = (len(system) + len(user)) // CHARS_PER_TOKEN
+    if est + num_predict > NUM_CTX:
+        meta["estimated_prompt_tokens"] = est
+        raise LLMError(f"input too long: ~{est} tokens + {num_predict} > num_ctx {NUM_CTX}",
+                       [meta])
+    body = {"model": MODEL, "think": False, "stream": False,
+            "format": output.model_json_schema(),
+            "messages": [{"role": "system", "content": system},
+                         {"role": "user", "content": user}],
+            "options": {"num_ctx": NUM_CTX, "num_predict": num_predict, **SAMPLING}}
+    t0 = time.perf_counter()
     try:
-        with client.messages.stream(model=model, max_tokens=max_tokens, system=system,
-                                    thinking=THINKING, output_config=config,
-                                    messages=[{"role": "user", "content": user}]) as stream:
-            msg = stream.get_final_message()
-    except Exception as exc:                          # transport, request refused
-        raise LLMError(f"{type(exc).__name__}: {exc}"[:300], [meta]) from exc
-    usage = getattr(msg, "usage", None)
-    meta.update(stop_reason=getattr(msg, "stop_reason", None),
-                usage={k: getattr(usage, k, None) for k in
-                       ("input_tokens", "output_tokens", "cache_read_input_tokens",
-                        "cache_creation_input_tokens")} if usage is not None else None)
-    if meta["stop_reason"] in ("refusal", "max_tokens"):
-        raise LLMError(f"stop_reason {meta['stop_reason']}", [meta])
-    text = "".join(getattr(b, "text", "") for b in getattr(msg, "content", [])
-                   if getattr(b, "type", None) == "text")
+        resp = client.chat(body)
+    except Exception as exc:                          # unreachable, HTTP error
+        meta["wall_s"] = round(time.perf_counter() - t0, 1)
+        raise LLMError(f"ollama call failed: {type(exc).__name__}: {exc}"[:300],
+                       [meta]) from exc
+    meta["wall_s"] = round(time.perf_counter() - t0, 1)
+    meta.update({k: resp.get(k) for k in ("done_reason", "prompt_eval_count", "eval_count",
+                                           "prompt_eval_duration", "eval_duration",
+                                           "total_duration")})
+    if meta["done_reason"] == "length":
+        raise LLMError(f"done_reason length at num_predict {num_predict}", [meta])
+    if (meta["prompt_eval_count"] or 0) + num_predict > NUM_CTX:
+        raise LLMError(f"prompt truncated: prompt_eval_count {meta['prompt_eval_count']} + "
+                       f"{num_predict} > num_ctx {NUM_CTX}", [meta])
+    text = (resp.get("message") or {}).get("content") or ""
     try:
         return output.model_validate_json(text), meta
     except Exception as exc:
@@ -588,6 +624,39 @@ def guard(prose: SlotProse, rows: list[dict], bounds: tuple[int, int] | None = N
                               ("paragraph_count", wrong)) if v}
 
 
+_PCT = re.compile(r"^(-?\d[\d,]*(?:\.\d+)?)%$")
+
+
+def _pct(tok: str) -> Decimal | None:
+    m = _PCT.match(tok.replace("\u2212", "-"))
+    try:
+        return Decimal(m.group(1).replace(",", "")) if m else None
+    except InvalidOperation:
+        return None
+
+
+def substitute_percents(text: str, rows: list[dict]) -> tuple[str, list[dict]]:
+    """P-8.04 Q8 (2), option (i): a percentage the rows do not print, numerically equal to
+    exactly one printed percentage of another precision ("5%" for "5.0%"), is replaced by
+    that printed form - the page then carries DET-89's string. Recorded per substitution."""
+    printed = _printed(rows)
+    forms = {t for t in printed if _pct(t) is not None}
+    subs = []
+    for tok in sorted(set(number_tokens(text))):
+        v = _pct(tok)
+        if v is None or tok in printed:
+            continue
+        equal = sorted(f for f in forms if _pct(f) == v)
+        if len(equal) == 1:
+            text = re.sub(rf"(?<![\w.$\-\u2212]){re.escape(tok)}(?![\w%])", equal[0], text)
+            subs.append({"from": tok, "to": equal[0]})
+    return text, subs
+
+
+def _counters(metas: list[dict]) -> dict:
+    return {k: sum(m.get(k) or 0 for m in metas) for k in ("prompt_eval_count", "eval_count")}
+
+
 def generate(slot: str, user: str, client, repo: pathlib.Path, obligations: str,
              bounds: tuple[int, int] | None = None) -> tuple[SlotProse, dict]:
     """One slot, with at most one re-ask on a guard violation; a second slip is an
@@ -598,21 +667,21 @@ def generate(slot: str, user: str, client, repo: pathlib.Path, obligations: str,
     metas, content = [], user
     for attempt in (0, 1):
         try:
-            prose, meta = _call(client, model=GENERATOR_MODEL, max_tokens=MAX_TOKENS["generate"],
-                                system=system, user=content, output=SlotProse,
-                                phash=prompt_hash(repo), effort=EFFORT["generate"])
+            prose, meta = _call(client, kind="generate", system=system, user=content,
+                                output=SlotProse, phash=prompt_hash(repo))
         except LLMError as exc:
             raise LLMError(f"{slot}: {exc}", [*metas, *exc.calls]) from exc
         metas.append(meta)
+        text, subs = substitute_percents(prose.text, rows)
+        if subs:
+            meta["substituted"] = subs
+            prose = SlotProse(text=text, references_field_ids=prose.references_field_ids)
         bad = guard(prose, rows, bounds) if prose.text.strip() else {"empty_text": True}
         if not bad:
             prose, added = fill_references(prose, rows)
-            usage = {k: sum((m["usage"] or {}).get(k) or 0 for m in metas)
-                     for k in ("input_tokens", "output_tokens")}
-            return prose, {**meta, "slot": slot, "reasks": attempt, "usage": usage,
-                           "calls": [m["usage"] for m in metas],
-                           "rejected": [m["rejected"] for m in metas if "rejected" in m],
-                           "references_added": added}
+            return prose, {**meta, "slot": slot, "reasks": attempt, **_counters(metas),
+                           "calls": metas, "references_added": added,
+                           "rejected": [m["rejected"] for m in metas if "rejected" in m]}
         # ruling 2 on the fourth live run: a guard-rejected answer is kept in the record
         meta["rejected"] = {"text": prose.text,
                             "references_field_ids": prose.references_field_ids,
@@ -654,13 +723,15 @@ def revise(slot: str, user: str, client, repo: pathlib.Path, obligations: str,
     bad: dict = {}
     for attempt in (0, 1):
         try:
-            rev, meta = _call(client, model=GENERATOR_MODEL, max_tokens=MAX_TOKENS["generate"],
-                              system=system, user=content, output=SlotRevision,
-                              phash=prompt_hash(repo), effort=EFFORT["generate"])
+            rev, meta = _call(client, kind="generate", system=system, user=content,
+                              output=SlotRevision, phash=prompt_hash(repo))
         except LLMError as exc:
             raise LLMError(f"{slot}: {exc}", [*metas, *exc.calls]) from exc
         metas.append(meta)
         text, errors = apply_replacements(pass1, rev, defects)
+        text, subs = substitute_percents(text, rows)
+        if subs:
+            meta["substituted"] = subs
         refs = list(dict.fromkeys([*pass1_refs, *rev.references_field_ids]))
         prose = SlotProse(text=text, references_field_ids=refs)
         bad = guard(prose, rows, bounds)
@@ -668,12 +739,9 @@ def revise(slot: str, user: str, client, repo: pathlib.Path, obligations: str,
             bad["replacement_errors"] = errors
         if not bad:
             prose, added = fill_references(prose, rows)
-            usage = {k: sum((m["usage"] or {}).get(k) or 0 for m in metas)
-                     for k in ("input_tokens", "output_tokens")}
-            return prose, {**meta, "slot": slot, "reasks": attempt, "usage": usage,
-                           "calls": [m["usage"] for m in metas],
+            return prose, {**meta, "slot": slot, "reasks": attempt, **_counters(metas),
+                           "calls": metas, "references_added": added,
                            "rejected": [m["rejected"] for m in metas if "rejected" in m],
-                           "references_added": added,
                            "replacements": [r.model_dump() for r in rev.replacements]}
         meta["rejected"] = {"text": text, "references_field_ids": refs, "guard_violations": bad,
                             "replacements": [r.model_dump() for r in rev.replacements],
@@ -685,35 +753,131 @@ def revise(slot: str, user: str, client, repo: pathlib.Path, obligations: str,
     raise LLMError(f"{slot}: guard failed after one re-ask {bad}", metas)
 
 
-def judge(text: str, table: dict, client, repo: pathlib.Path, rubric_text: str,
+def judge_calls(sections: dict[str, list[str]], slot_users: dict[str, str],
+                prose: dict[str, str], slots: dict) -> list[dict]:
+    """A-22: the scoped calls of one judgment, `{criterion, scope, page, body}`, each input a
+    subset of 2.1's (P-8.04 Q3). LLM-03 first, over the whole page text and no table; LLM-01
+    and LLM-04 per filled slot, with the slot's section and the rows its generator received;
+    LLM-02 per member slot; LLM-05 on the oracle and counterfactual sections with the open
+    Level-1 flags and the `headline.cf.*` rows; LLM-06 on member2's section and rows. A
+    section keeps its full paragraph list, so every index is the page's own."""
+    def page(*sids: str) -> str:
+        return page_text({sid: sections[sid] for sid in sids if sid in sections})
+
+    def rows_of(slot: str) -> dict:
+        u = json.loads(slot_users[slot])
+        return {k: u[k] for k in ("rows", "assumptions", "open_level1_flags") if k in u}
+
+    filled = [s for s in slot_users if (prose.get(s) or "").strip()]
+    out = [{"criterion": "LLM-03", "scope": "page", "page": page(*sections), "body": {}}]
+    for cid in ("LLM-01", "LLM-02", "LLM-04"):
+        for slot in filled:
+            if cid == "LLM-02" and slot not in ("member1_opening", "member2_opening"):
+                continue
+            out.append({"criterion": cid, "scope": slot,
+                        "page": page(slots[slot]["page_section"]), "body": rows_of(slot)})
+    flags = (json.loads(slot_users["flag_explanations"]).get("open_level1_flags", [])
+             if "flag_explanations" in slot_users else [])
+    cf = {r["field_id"]: r for u in slot_users.values() for r in json.loads(u)["rows"]
+          if r["field_id"].startswith("headline.cf.")}
+    out.append({"criterion": "LLM-05", "scope": "oracle+counterfactuals",
+                "page": page("oracle", "counterfactuals"),
+                "body": {"rows": list(cf.values()), "open_level1_flags": flags}})
+    if "member2_opening" in filled:
+        out.append({"criterion": "LLM-06", "scope": "member2_opening",
+                    "page": page(slots["member2_opening"]["page_section"]),
+                    "body": rows_of("member2_opening")})
+    return out
+
+
+def guard_verified(cid: str, out, rows: list[dict], displays: dict[str, list[str]]
+                   ) -> tuple[list, list[dict]]:
+    """A-23: an LLM-01 `untraceable` defect whose span's number tokens are all printed forms
+    of the rows its slot was generated from (the guard's own test), or a `mismatch` whose
+    `matched_field_id` row prints the span's number tokens, is discarded and recorded."""
+    if cid != "LLM-01":
+        return list(out.defects), []
+    printed = _printed(rows)
+    matched = {i.quoted_span: i.matched_field_id for i in out.items}
+    keep, gone = [], []
+    for d in out.defects:
+        toks = number_tokens(d.location.quoted_span)
+        fid = matched.get(d.location.quoted_span) or d.table_ref
+        row_forms = {t for f in displays.get(fid or "", []) for t in [*number_tokens(f), f]}
+        hit = bool(toks) and (
+            (d.kind == "untraceable" and all(t in printed for t in toks)) or
+            (d.kind == "mismatch" and all(t in row_forms for t in toks)))
+        if hit:
+            gone.append({"event": "guard_verified", "criterion": cid, "kind": d.kind,
+                         "section_id": d.location.section_id,
+                         "paragraph_index": d.location.paragraph_index,
+                         "quoted_span": d.location.quoted_span, "matched_field_id": fid})
+        else:
+            keep.append(d)
+    return keep, gone
+
+
+def judge(sections: dict[str, list[str]], slot_users: dict[str, str], prose: dict[str, str],
+          displays: dict[str, list[str]], client, repo: pathlib.Path, rubric_text: str,
           header: dict) -> tuple[JudgeEnvelope, dict]:
+    """A-22: every scoped call, then 2.1's envelope assembled by the harness - the header
+    filled here, items and defects concatenated per criterion, A-23's discards applied; the
+    caller computes `pass` / `overall_pass` after its own discards (`computed_pass`). A
+    criterion whose call fails is recorded under `criterion_errors` (its row reads `error`);
+    every criterion failing is an `LLMError`."""
     p = prompts(repo)
-    system = (p["judge"].replace("{criteria}", rubric_criteria(rubric_text))
-              .replace("{item_shapes}", item_shapes(rubric_text))
-              .replace("{rubric_version}", header["rubric_version"])
-              .replace("{report_id}", header["report_id"])
-              .replace("{bundle_hash}", header["bundle_hash"])
-              .replace("{judge_model}", JUDGE_MODEL)
-              .replace("{prompt_schema_version}", header["prompt_schema_version"]))
-    # (7): the table block first, cached, so pass 2's judgment reads it; the page after it
-    user = [{"type": "text", "cache_control": JUDGE_CACHE,
-             "text": json.dumps({"table": table}, ensure_ascii=False, default=str)},
-            {"type": "text", "text": json.dumps({"page": text}, ensure_ascii=False)}]
-    env, meta = _call(client, model=JUDGE_MODEL, max_tokens=MAX_TOKENS["judge"], system=system,
-                      user=user, output=JudgeEnvelope, phash=prompt_hash(repo),
-                      effort=EFFORT["judge"])
-    if sorted(c.id for c in env.criteria) != list(LLM_IDS):
-        raise LLMError(f"envelope criteria {sorted(c.id for c in env.criteria)}")
-    return env, meta
+    phash = prompt_hash(repo)
+    crit_text = dict(zip(LLM_IDS, rubric_criteria(rubric_text).split("\n\n"), strict=True))
+    items: dict[str, list] = {c: [] for c in LLM_IDS}
+    defects: dict[str, list] = {c: [] for c in LLM_IDS}
+    metas, errors, verified = [], {}, []
+    for c in judge_calls(sections, slot_users, prose, p["slots"]):
+        cid = c["criterion"]
+        system = (p["judge"].replace("{criterion_id}", cid)
+                  .replace("{criterion}", crit_text[cid])
+                  .replace("{item_shape}", item_shape(rubric_text, cid)))
+        user = json.dumps({**c["body"], "page": c["page"]}, ensure_ascii=False, default=str)
+        try:
+            out, meta = _call(client, kind="judge", system=system, user=user,
+                              output=CRITERION_OUT[cid], phash=phash)
+        except LLMError as exc:
+            errors.setdefault(cid, f"{c['scope']}: {exc}")
+            metas.extend({**m, "criterion": cid, "scope": c["scope"], "error": str(exc)}
+                         for m in exc.calls)
+            continue
+        keep, gone = guard_verified(cid, out, c["body"].get("rows", []), displays)
+        verified += [{**g, "scope": c["scope"]} for g in gone]
+        items[cid] += [i.model_dump() for i in out.items]
+        defects[cid] += keep
+        metas.append({**meta, "criterion": cid, "scope": c["scope"],
+                      "items": len(out.items), "defects": len(out.defects),
+                      "raw_defects": [d.model_dump() for d in out.defects]})
+    if len(errors) == len(LLM_IDS):
+        raise LLMError(next(iter(errors.values())), metas)
+    env = JudgeEnvelope(**header, judge_model=MODEL, overall_pass=False, criteria=[
+        Criterion(id=cid, items=items[cid], defects=defects[cid], **{"pass": False})
+        for cid in LLM_IDS])
+    return env, {"model": MODEL, "digest": client.digest, "ollama_version": client.version,
+                 "calls": metas, "criterion_errors": errors, "guard_verified": verified,
+                 "wall_s": round(sum(m.get("wall_s") or 0 for m in metas), 1),
+                 **_counters(metas)}
+
+
+def computed_pass(env: JudgeEnvelope, errors: dict[str, str]) -> JudgeEnvelope:
+    """A-22: each criterion's `pass` is "no surviving defect" (and no failed call);
+    `overall_pass` is every criterion passing - computed after every discard."""
+    crit = [c.model_copy(update={"pass_": not c.defects and c.id not in errors})
+            for c in env.criteria]
+    return env.model_copy(update={"criteria": crit,
+                                  "overall_pass": all(c.pass_ for c in crit)})
 
 
 def remediate(defects: list[dict], text: str, client, repo: pathlib.Path
               ) -> tuple[Remediation, dict]:
     p = prompts(repo)
     user = json.dumps({"pass1_defects": defects, "page": text}, ensure_ascii=False)
-    rem, meta = _call(client, model=JUDGE_MODEL, max_tokens=MAX_TOKENS["remediate"],
-                      system=p["remediate"], user=user, output=Remediation,
-                      phash=prompt_hash(repo))
+    rem, meta = _call(client, kind="remediate", system=p["remediate"], user=user,
+                      output=Remediation, phash=prompt_hash(repo))
     if sorted(a.defect_index for a in rem.items) != list(range(len(defects))):
-        raise LLMError("remediation does not answer every pass-1 defect once")
+        raise LLMError("remediation does not answer every pass-1 defect once", [meta])
     return rem, meta

@@ -7,7 +7,7 @@ structural_only = "This report is the structural tier only: what backs the token
 reference_prices = "Independent market reference prices are not available from a pinned source in this pilot ({n} collaterals)."
 why_scenario = "The headline scenario is a 50% fall in the price of volatile collateral, with no extra discount on liquid-staking tokens and liquidity providers staying put — the one scenario the archetype memo names as the headline (memo §6.2.6)."
 headline_sentence = "In that scenario liquidations leave {bad_debt} of bad debt ({pct} of supply) and require selling {sold} into {exit} of exit liquidity."
-structural_zero_sentence = "Bad debt is structurally zero on the whole grid: {reason}"
+structural_zero_sentence = "In that scenario liquidations leave {bad_debt} of bad debt ({pct} of supply) — structurally zero on this grid, because {reason} — and require selling {sold} into {exit} of exit liquidity."
 oracle_lag = "Prices may lag the market by up to {x}: the largest update threshold among this token's price feeds ({feed})."
 oracle_lag_ema = "Prices follow exponential moving averages of pool prices, so they lag the market by design; the window per market is in the oracle table."
 check_this = "Every figure on this page comes from one data table built from on-chain reads at a single block. Reproduce any of them from the verify page."
@@ -157,6 +157,8 @@ bar_terminal_other_layer = "backing held in wrapped assets whose value can be ch
 node_bar = "the backing class this collateral is counted in (terminal: checkable on-chain; terminal_other_layer: checkable one layer down, through the wrapper; disclosure_dependent: checked through published disclosures)"
 bar_disclosure_dependent = "backing whose value is checked through an issuer's or custodian's published disclosures"
 ema_lag_readings = "collateral coverage after the shock under instant vs lagged prices, per shock level"
+# Amin, P-8.06 review: the total is every DEX venue, not only the off-venue share
+dex_liquidity_total_discovered = "all DEX liquidity discovered for the token, every venue"
 supply = "Supply"
 originated = "originated"
 residual = "residual"
@@ -211,6 +213,10 @@ shock_grid_fixed = "The shock grid is fixed by the archetype memo, not tuned per
 lst_discount_grid = "Liquid-staking tokens take an additional discount of 0%, 5% or 10%."
 member2_target = "The depeg scenario targets the paired stablecoin named in the frozen pool set."
 freeze_reference = "Exit venues are the pool set frozen on the freeze date shown."
+ema_lag_readings = "The oracle's smoothed price lags the market; this line recomputes collateral coverage after the shock as if that lagged price were the one in use, beside the primary result."
+lp_flight = "Liquidity providers' capital is assumed to stay in the exit pools in the headline cell; other cells of the grid show what happens when part of the paired asset is withdrawn."
+structural_insulation = "A depeg of the paired stablecoin forces no collateral sales for this token by construction, so the ratio is zero; the exposure runs through exit venues and is shown as recomputed depth curves."
+undefined_ratio = "Where the exit pool holds no depth at all, the forced-sales ratio has no value and the cell is marked rather than computed."
 additional = "An additional modelling disclosure carried by the stress model; its full text is in the appendix."
 
 [summaries]

@@ -10,15 +10,15 @@
    "DET-64"
   ]
  },
- "behavioral_as_of": "2026-09-24",
+ "behavioral_as_of": "2026-09-25",
  "branch": "master",
  "log_rows": 11,
  "repo_url": "https://github.com/amohazab/stablecoin_dashboard",
  "tokens": {
   "GHO": {
    "behavioral": {
-    "age_days": 0,
-    "as_of": "2026-09-24",
+    "age_days": 1,
+    "as_of": "2026-09-25",
     "block_sha256": "cd349b58d645315894a123e385ad764512cacc50e1336ceb11efaa2a937e3ceb",
     "captions": [
      "7-day max |deviation|: 16.8 bp",
@@ -106,8 +106,8 @@
   },
   "LUSD": {
    "behavioral": {
-    "age_days": 0,
-    "as_of": "2026-09-24",
+    "age_days": 1,
+    "as_of": "2026-09-25",
     "block_sha256": "f4a5a73aeb475e75287d788e02c61b7275b5dca37696bf7c7c927a17201d7f6a",
     "captions": [
      "7-day max |deviation|: 225.6 bp",
@@ -147,15 +147,15 @@
     "supply_shown": true,
     "unknown_notes": []
    },
-   "figures": "Supply $26.2M · Bad debt, headline scenario $0, structurally zero · Exit liquidity, headline scenario $8.8M",
-   "finding": "Every LUSD in supply, $26.2M, is accounted for as trove debt, so the residual is $0: there is no unexplained gap between what's issued and what's backed.",
+   "figures": "Supply $26.2M · Bad debt, headline scenario $0, structurally zero · Exit liquidity, headline scenario $8.3M",
+   "finding": "The token is backed by collateral whose value can be checked directly on-chain, accounting for 100.0% of the total backing held in assets verifiable on the chain.",
    "outcome": "published",
    "pill": "<span class=\"pill green\">No warnings this run</span>",
-   "report_hash": "003b4fcd0638ac8ecc7f5b741c212bd3945356560174af11409c36a9c03e7da7",
+   "report_hash": "d771e7be2544ec7e32db42560a3a33a40a2ac1a43f6f31b82669eccebf6dbbdd",
    "rewrites": {
     "index.html": {
-     "after": "423bd796c2851822f10fa45f7e6e616dd74a00884d7d69dc8a203b27030deb95",
-     "before": "75a2882f5c90d0e194750a1f61f90128456961e14c948395d3a23298bf526e43",
+     "after": "dedf6bea33adab74226fa4e3335d22d7bc29c4a84cb51ef831e79593845cb315",
+     "before": "9122c2a78bcc7875cb1f3a3bf6e5d686d67597885e21f926e58cce69bcdf2f38",
      "substitutions": [
       {
        "new": "href=\"https://github.com/amohazab/stablecoin_dashboard/blob/master/docs/context/archetype-memo-1-cdp.md\"",
@@ -184,12 +184,12 @@
      ]
     }
    },
-   "run_block": 25974949
+   "run_block": 26052560
   },
   "crvUSD": {
    "behavioral": {
-    "age_days": 0,
-    "as_of": "2026-09-24",
+    "age_days": 1,
+    "as_of": "2026-09-25",
     "block_sha256": "bd66689ace1431806ee09680b2851c21cfee425f45bd5be4835c26c336c9d53b",
     "captions": [
      "7-day max |deviation|: 19.1 bp",

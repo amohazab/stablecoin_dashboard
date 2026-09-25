@@ -13,7 +13,7 @@ from factory import eventlog
 from factory.eventlog import QuarantineEvent
 from factory.report.__main__ import gate_triggers, s3_page
 from factory.rubric import read_trigger_table
-from factory.schema import GateResult
+from factory.schema import Bundle, GateResult, VerifiabilityTree
 from factory.validate.harness import (
     CHECKS,
     TRIGGER_SECTION,
@@ -103,6 +103,11 @@ def runs():
     out = {}
     for tok, blk in BLOCKS.items():
         inp = load_inputs(REPO, tok)
+        # P-8.06: the recorded block, not the token's newest run (LUSD 26052560)
+        inp["bundle"] = Bundle.model_validate_json((REPO / f"out/bundles/{tok}/{blk}.json")
+                                                   .read_text(encoding="utf-8"))
+        inp["tree"] = VerifiabilityTree.model_validate_json(
+            (REPO / f"out/trees/{tok}/{blk}.json").read_text(encoding="utf-8"))
         s = StressReport.model_validate_json((REPO / f"out/stress/{tok}/{blk}.json")
                                              .read_text(encoding="utf-8"))
         rep = REPO / f"out/report/{tok}/{blk}"
@@ -112,6 +117,9 @@ def runs():
         rec = json.loads((REPO / f"out/evaluation/{tok}/{blk}.json").read_text(encoding="utf-8"))
         stage = REPO / f"out/rehearsal/{tok}/{blk}"
         files = {k: stage / f"{k}.html" for k in ("index", "appendix", "verify")}
+        # P-8.06: the manifest of the rehearsal set these pages were rendered with (LUSD's
+        # was re-rendered at B-17 step 1; the committed manifest stays the Claude-era one)
+        man = json.loads((stage / "data/manifest.json").read_text(encoding="utf-8"))
         page = s3_page(REPO, doc, grid, json.loads(json.dumps(inp["cfg"].sheet, default=str)),
                        files)
         entries = eventlog.read(REPO / f"out/logs/events_{tok.lower()}.jsonl")

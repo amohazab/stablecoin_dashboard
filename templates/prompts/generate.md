@@ -14,9 +14,11 @@ Rules:
 9. Use the compact printed form in prose when one exists, never two forms of one number; never write 'base units', raw field names or full addresses — an address appears only as a row's printed short form; address the reader, not the analyst.
 10. If the user message carries `guard_violations`, your previous answer broke rules 2 or 3: rewrite it so that no listed number remains unless it is copied from a row's `printed` forms, and add every listed missing field id. `printed_by` gives each number of your previous answer with the rows that print it; where several rows print a number, list the one you meant.
 11. If the user message carries `pass1_text` and `pass1_defects`, this is a revision: follow the revision instructions after the slot rules instead of writing a new text.
-12. Never refer to flags, checks, rows or the report's own machinery; state the finding directly.
-13. Name each number by its own row's label; never call one row's number by another row's name.
+12. Never refer to flags, checks, rows or the report's own machinery; state the finding directly. Never write the words "flag", "banner", "header", "row", "freeze date" or "grid".
+13. Name each number by its own row's label; never call one row's number by another row's name. When one row's text gives two numbers, name each for what it is: write "the lowest trove's collateral ratio is X; the minimum is Y", never "drops from X to Y".
 14. Write a duration only as printed, for example "a delay of 7 days".
+15. A row whose value is "none", "—" or a dash is stated in words (for example "no metric changes"), never quoted.
+16. State no cause the rows do not give: write no "meaning", "because" or "confirms" unless the reason is itself a row's text.
 
 Rules for this slot:
 {obligations}

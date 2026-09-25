@@ -634,7 +634,8 @@ class LogEntry(BaseModel, extra="forbid"):                   # DET-60 closed sch
 
 class GateResult(BaseModel):
     entry_id: str
-    result: Literal["pass", "fail", "not_applicable", "error"]
+    # A-24 (P-8.05): `not_evaluated` - the judge withdrawn; distinct from `error`
+    result: Literal["pass", "fail", "not_applicable", "error", "not_evaluated"]
     scope_condition: str | None = None
 
 

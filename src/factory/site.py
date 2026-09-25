@@ -244,6 +244,7 @@ def token_card(repo: pathlib.Path, token: str, w: dict, mf: dict, pairs, as_of: 
         "ruling": (rec.get("publication") or {}).get("ruling"),
         "passed": sum(1 for x in rec["results"] if x["result"] == "pass"),
         "total": len(rec["results"]), "unregistered": rec["unregistered"],
+        "checks": checks_line(rec["results"]),
         "index_after": after, "block": block, "behavioral": beh_rec,
         "rewrite": {"before": _sha(original.encode("utf-8")), "after": _sha(after.encode("utf-8")),
                     "substitutions": [{"old": o, "new": n} for o, n in subs]},
@@ -282,6 +283,16 @@ def log_rows(repo: pathlib.Path, tt: dict) -> tuple[list[dict], dict[str, list[d
 def _possessive(names: list[str]) -> str:
     s = [f"{n}'s" for n in names]
     return s[0] if len(s) == 1 else ", ".join(s[:-1]) + " and " + s[-1]
+
+
+def checks_line(results: list[dict]) -> str:
+    """A-24 (P-8.05): the count is over the evaluated rows, and the not-evaluated rows are
+    named - "90 of 90 evaluated, 6 not evaluated (judge withdrawn)", never "90 of 96"."""
+    done = [x for x in results if x["result"] != "not_evaluated"]
+    passed = sum(1 for x in done if x["result"] == "pass")
+    skipped = len(results) - len(done)
+    return (f"{passed} of {len(done)} evaluated"
+            + (f", {skipped} not evaluated (judge withdrawn)" if skipped else ""))
 
 
 def notices_sentence(cards: list[dict]) -> str:
@@ -341,7 +352,7 @@ def plan(repo: pathlib.Path, as_of: dt.date | None = None) -> dict[str, bytes]:
     repo_url = w["repo"]["url"]
     blob = f"{repo_url}/blob/{w['repo']['branch']}"
     outcomes = [{**{k: c[k] for k in ("token", "run_block", "report_hash", "outcome",
-                                      "passed", "total")},
+                                      "passed", "total", "checks")},
                  "open": opened[c["token"]],
                  "record_url": f"{blob}/out/evaluation/{c['token']}/{c['run_block']}.json"}
                 for c in cards]

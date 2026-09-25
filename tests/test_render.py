@@ -147,13 +147,29 @@ def test_m4_maps_render_as_tables_never_as_key_address_rows():
 
 
 @pytest.mark.parametrize("token,flag", [("crvUSD", True), ("GHO", False), ("LUSD", True)])
-def test_structural_zero_branch_on_each_page(token, flag):
+def test_structural_zero_branch_on_each_page(token, flag, tmp_path):
     import json
+    import shutil
+
+    from factory.report.__main__ import build
     stress = json.loads((REPO / f"out/stress/{token}/{BLOCKS[token]}.json").read_text(
         encoding="utf-8"))
     assert stress["structural_zero"]["flag"] is flag
-    page = (pages(token) / "index.html").read_text(encoding="utf-8")
-    assert ("Bad debt is structurally zero on the whole grid" in page) is flag
+    # P-8.04 Q8 (1): rendered now from the current templates, in a copy of the repo (a
+    # rehearsal render, nothing in the working tree changes)
+    for sub in ("out/bundles", "out/trees", "out/stress", "out/logs", "config", "docs/context",
+                "templates"):
+        shutil.copytree(REPO / sub, tmp_path / sub)
+    for code in ("src/factory/report/render.py", "src/factory/report/svg.py",
+                 f"out/raw/{BLOCKS[token]}.json"):
+        (tmp_path / code).parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(REPO / code, tmp_path / code)
+    from tests.llm_fake import pin_to_recorded
+    build(pin_to_recorded(tmp_path), token)
+    page = (tmp_path / f"out/rehearsal/{token}/{BLOCKS[token]}/index.html").read_text(
+        encoding="utf-8")
+    assert ("structurally zero on this grid, because" in page) is flag       # P-8.04 Q8 (1)
+    assert "Bad debt is structurally zero on the whole grid" not in page
     assert ('aria-label="bad debt as the collateral price falls"' in page.lower()) is (not flag)
     assert ("<h4>PegKeepers</h4>" in page) is (token == "crvUSD")
     assert not re.search(r"<td>[a-z_ ]+ · 0x[0-9a-f]{6}", page)          # no key · address rows

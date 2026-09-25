@@ -10,4 +10,5 @@
 {% endif %}
 <p class="meta">The sheet's figures are raw base units and recorded call arguments — the reproduction recipe — shown verbatim and not reformatted. Older Vyper pools return a padded buffer: decode the first 32-byte word.</p>
 <pre class="sheet">{{ sheet }}</pre>
+<p class="meta">The raw dump cited above is not committed to the repository; it can be regenerated from any Ethereum archive node by repeating the listed reads at block {{ v('header.run_block') }}.</p>
 {% endblock %}

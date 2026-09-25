@@ -52,10 +52,10 @@
 <h2>What could break it {{ tip('break') }}</h2>
 {{ flags('break') }}
 <p class="prose">{{ w.why_scenario }}</p>
-<p class="prose">{{ w.headline_sentence.format(bad_debt=c('headline.m2.bad_debt'), pct=c('headline.m2.pct_supply'), sold=c('headline.m3.forced_sell_volume'), exit=c('headline.m3.exit_depth')) }}</p>
 {% if sz_flag %}
-<p class="prose callout">{{ w.structural_zero_sentence.format(reason=sz_reason) }}</p>
+<p class="prose">{{ w.structural_zero_sentence.format(bad_debt=c('headline.m2.bad_debt'), pct=c('headline.m2.pct_supply'), reason=sz_reason, sold=c('headline.m3.forced_sell_volume'), exit=c('headline.m3.exit_depth')) }}</p>
 {% else %}
+<p class="prose">{{ w.headline_sentence.format(bad_debt=c('headline.m2.bad_debt'), pct=c('headline.m2.pct_supply'), sold=c('headline.m3.forced_sell_volume'), exit=c('headline.m3.exit_depth')) }}</p>
 <figure class="wide">{{ chart_a | safe }}</figure>
 {% endif %}
 <table class="grid wide">
@@ -176,7 +176,7 @@
 <table class="striped"><tr><th>assumption</th><th>what it means</th><th>data</th><th>source</th></tr>
 {% for a in doc.assumptions %}
 <tr><td><code>{{ a.id }}</code></td>
-<td>{{ w.assumption[a.id] if a.required else w.assumption.additional }}</td>
+<td>{{ w.assumption[a.id] if a.id in w.assumption else w.assumption.additional }}</td>
 <td>{% if a.data_ref %}{% for f in a.data_ref[:4] %}<span title="{{ f }}">{{ rows[f].label | replace('_', ' ') }}: {{ v(f) if rows[f].unit != 'literal' else 'see appendix' }}</span>{% if not loop.last %}<br>{% endif %}{% endfor %}{% if a.data_ref | length > 4 %}<br>… {{ a.data_ref | length - 4 }} more in table.json{% endif %}{% else %}—{% endif %}</td>
 <td>{{ a.rule_ref or '—' }}</td></tr>
 {% endfor %}
