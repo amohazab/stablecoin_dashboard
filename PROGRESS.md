@@ -9141,3 +9141,57 @@ Status: DONE (opened 2026-09-14; done-condition met 2026-09-15, P-9.03).
   clean dry run; Amin creates the four tasks; the done-condition (Q12): the weekly run and each
   monthly task once forced and once fired by its trigger, each logged, pushed and deployed, the
   pages opened by Amin.
+
+## P-8.09 — The wrapper fix; all four tasks forced once and deployed; Q12's first half met
+
+- **Date:** 2026-09-26
+- **Type:** implementation
+- **Confirmed by:** Amin
+- **Content:**
+  **P-8.08 COMMITTED** at `0586d04` and pushed `157fbbc..0586d04` (11 files, no `out/site/`
+  change); slice and scratch diff empty, sha256 `56615c69…026b` on both and on the committed
+  blob. **Amin's rulings:** the first deploy goes ahead as the whole current site; crvUSD's
+  and GHO's monthly runs stay as built. Amin ran the clean dry run and created the four tasks.
+  **FORCED WEEKLY, RUNS 1 AND 2.** Both fetched 7/7, built the site, committed 8 files and
+  pushed (`0586d04..8eb7cef`, `8eb7cef..3fe6ae9`); both chain logs end `exit 0`.
+  - Run 1 reported 0x1. After the push and the log write, `print(log)` to the cp1252-redirected
+    wrapper output raised `UnicodeEncodeError` on a U+FFFD: the site stage's "·", written as
+    cp1252 into a pipe the chain read as UTF-8. `wrapper.log` holds the traceback once per run.
+  - Run 2 stayed "Running" 13 minutes after the chain ended, until Amin ended it. The cause is
+    not provable after the fact: no process survived, and git started no background work (no
+    fsmonitor; 1,497 loose objects, under auto-gc's 6,700). Covered: the wrapper's `exit /b`,
+    which can leave `cmd.exe` alive, and the Task Scheduler display, which needs F5.
+  **FIX** at `3ed690c` (4 files, no deploy):
+  - the stages run with `PYTHONUTF8=1` and `PYTHONIOENCODING=utf-8`; the chain's stdout and
+    stderr are reconfigured `errors="replace"`;
+  - the wrappers set `chcp 65001` and Python UTF-8, take stdin from `nul` and end `exit %RC%`;
+  - 368 tests (+1).
+  **FORCED RUNS, all four 0x0** (template `d5f6ad13`, which includes the "Gates" clause):
+  | task | block | outcome | push | Pages run |
+  |---|---|---|---|---|
+  | weekly `093246Z` | — | site refresh, 8 files | `3ed690c..45e84f7` | 36233132827 ✓ |
+  | monthly LUSD `094321Z` | 26060799 | **published `1c3b2d38`**, 90 + 6 not_evaluated, 1,487 s | `45e84f7..f782c86` | 36234911751 ✓ |
+  | monthly crvUSD `101127Z` | 26060939 | blocked_S3, 2 slots empty, 3,258 s | `f782c86..23d298f` | 36237896665 ✓ |
+  | monthly GHO `111211Z` | 26061241 | blocked_S3, 5 slots empty, 5,340 s | `23d298f..c475208` | 36242967516 ✓ |
+  - New promoted sets, all 26/26, trees 14/14, stress 26/26:
+    - LUSD bundle `05e07023`, tree `29bda5b2`, stress `c70e5bb3`;
+    - crvUSD `14d4b318`, `11c4d993`, `41a09f8e`;
+    - GHO `1026a56e`, `3e0111bc`, `ea727f72` (T-20 and T-02 L1).
+  - Log: 13 → 15 rows, a T-28 L2 line each for crvUSD and GHO dated 2026-09-26; LUSD gains a
+    `published` line (bundle `05e07023`). No new traceback in `wrapper.log`.
+  **DEPLOYS.** Six push-triggered Pages runs, all green (`8eb7cef`, `3fe6ae9` and the four
+  above). The first, `8eb7cef`, was the ruled first deploy of the whole site. The live
+  `site.json` (`79c3792c`), selector, methodology and three token pages equal HEAD `c475208`.
+  **Q12, FIRST HALF MET:** the weekly task and each monthly task, forced once from Run, each
+  logged, pushed and deployed. LUSD's prose at 26060799 is in `out/reports/step8-lusd-26060799.md`
+  for Amin's review.
+  **AS-COUNTED.** Builder: the chain's final print crashed on a cp1252 console after its
+  push, and the wrappers ended `exit /b` (both fixed at `3ed690c`); the first wrapper write
+  broke on `printf` escapes, caught before any run. Design layer: none new.
+- **Artifacts:** `src/factory/chain.py` · `tests/test_chain.py` ·
+  `tools/scheduler/run_{monthly,weekly}.cmd` (at `3ed690c`); the chain commits `8eb7cef`,
+  `3fe6ae9`, `45e84f7`, `f782c86`, `23d298f`, `c475208` (`out/behavioral/`,
+  `out/{bundles,trees,stress,evaluation,report}/`, `out/logs/`, `out/site/`); `PROGRESS.md`.
+- **Follow-ups spawned:** the trigger-fired runs (weekly Sunday 03:00; monthly 1–3 October);
+  P-8.10 closes Step 8 when they have landed, been pushed and deployed, and the pages have been
+  opened.
