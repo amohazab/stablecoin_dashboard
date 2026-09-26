@@ -76,6 +76,12 @@ PROFILES["8"] = [
     ("site-index.html", "out/site/index.html"),
     ("site-methodology.html", "out/site/methodology.html"),
     ("site-appendix-crvUSD.html", "out/site/crvUSD/appendix.html"),
+    # P-8.04 Q14: the scheduler block
+    ("chain.py", "src/factory/chain.py"),
+    ("run_monthly.cmd", "tools/scheduler/run_monthly.cmd"),
+    ("run_weekly.cmd", "tools/scheduler/run_weekly.cmd"),
+    ("scheduler.md", "docs/scheduler.md"),
+    ("test_ollama.py", "tests/test_ollama.py"),
 ]
 
 KEY_VALUE = re.compile(r"\b(ANTHROPIC_API_KEY|ETH_RPC_URL|WEBACY_API_KEY)=[^\s\"'`]+")

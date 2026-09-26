@@ -91,7 +91,8 @@ def test_a_row_count_mismatch_stops_the_build(tmp_path):
 def test_the_pages_workflow_publishes_out_site():
     text = (REPO / ".github/workflows/pages.yml").read_text(encoding="utf-8")
     lines = [x.rstrip() for x in text.splitlines()]
-    for want in ("on: { workflow_dispatch: {} }",
+    trigger = 'on: { workflow_dispatch: {}, push: { branches: [master], paths: ["out/site/**"] } }'
+    for want in (trigger,
                  "permissions: { contents: read, pages: write, id-token: write }",
                  "    environment:", "      name: github-pages",
                  "      url: ${{ steps.deployment.outputs.page_url }}",

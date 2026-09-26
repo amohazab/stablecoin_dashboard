@@ -18,3 +18,5 @@ out/logs/*.jsonl    text eol=lf
 templates/**         text eol=lf
 out/site/**          text eol=lf
 tests/fixtures/**/*.json  text eol=lf
+# Windows batch wrappers keep CRLF (P-8.08).
+tools/scheduler/*.cmd  text eol=crlf

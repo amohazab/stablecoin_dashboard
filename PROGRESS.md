@@ -9090,3 +9090,54 @@ Status: DONE (opened 2026-09-14; done-condition met 2026-09-15, P-9.03).
   `out/site/` (LUSD, index, methodology, site.json); `PROGRESS.md`.
 - **Follow-ups spawned:** commit and push (Pages manual, nothing deploys); the scheduler
   block (Q9, Q10, Q14).
+
+## P-8.08 — The scheduler block: factory.chain, the wrappers, docs/scheduler.md, the Pages push trigger
+
+- **Date:** 2026-09-26
+- **Type:** implementation
+- **Confirmed by:** Amin
+- **Content:**
+  **P-8.07 COMMITTED** at `157fbbc` (40 files) and pushed `13296b3..157fbbc`; slice and scratch
+  diff empty, sha256 `f3273b35…5b24` on both and on the committed blob; key scan clean, with
+  `ANTHROPIC_API_KEY` not read. **AS-COUNTED:** P-8.07 was confirmed at 54 content lines and
+  appended at 55 after Amin's two edits (the "Gates" clause added a line). The clause is live
+  in `methodology.html.j2`: the prose was written by Anthropic's API models in the September
+  evaluation runs. Methodology `fb601704`, `site.json` unchanged at `99aa318a`.
+  **BUILT (Q9).** `uv run python -m factory.chain --monthly --token <T> | --weekly [--dry-run]`:
+  - monthly: run → tree → stress → report `--llm`, then behavioral → site → key scan →
+    `git add -A out/` → commit "chain <mode> <UTC stamp>: <outcomes>" → push, last;
+  - weekly: behavioral → site → commit → push;
+  - a stage that exits non-zero skips the later token stages; the tail still commits and pushes
+    the evidence. A non-published report outcome is an outcome, not a failure;
+  - fail-closed and logged: a dirty tree (refused before anything runs); a held lock ("busy";
+    named default `out/logs/scheduler/chain.lock`, stale after 12 h); the model server
+    unreachable (monthly only, `/api/version`, no auto-start); a key value or any `*_KEY=` /
+    `*_URL=` assignment in a staged file (no commit, `git reset`);
+  - one log per run, `out/logs/scheduler/<stamp>-<mode>.log` (gitignored, +1 line); a failure
+    exits non-zero;
+  - `--dry-run`: no stage, no model call, no push. It checks the tree, the lock and the server
+    and logs the plan. On the uncommitted block it refused the dirty tree, as built.
+  **WRAPPERS** `tools/scheduler/run_{monthly,weekly}.cmd` (CRLF, `.gitattributes` +1 line):
+  `cd /d D:\projects\stable_dashboard`, `uv` by its full path, output appended to
+  `out\logs\scheduler\wrapper.log`.
+  **`docs/scheduler.md`** (64 lines): the four tasks (weekly Sunday 03:00; monthly crvUSD, GHO
+  and LUSD on days 1, 2, 3 at 01:00), the dry run, the two Ollama variables, the Task Scheduler
+  click-through, and how to check a run.
+  **Q10:** `pages.yml` also runs on a push to master that changes `out/site/**`.
+  **Q14:** the `--step 8` export set gains `chain.py`, both wrappers, `docs/scheduler.md` and
+  `tests/test_ollama.py`.
+  **TESTS** 357 → 367 (`tests/test_chain.py`, 10: the plan, a published monthly run, a failed
+  stage, a blocked outcome, the server down, a dirty tree, busy and stale locks, a key in a
+  staged file, the dry run, the wrappers and workflow); ruff clean. The key pattern is generic
+  so `src/` carries no `ANTHROPIC_API_KEY` literal (P2).
+  **FOR AMIN'S RULING, noted:** the first push that changes `out/site/` deploys the whole
+  current site, LUSD's local-model page included; crvUSD's and GHO's monthly runs will each
+  spend about 1–2 h producing a blocked_S3 record while their pages stay.
+- **Artifacts:** `src/factory/chain.py` (new); `tools/scheduler/run_monthly.cmd`,
+  `tools/scheduler/run_weekly.cmd`, `docs/scheduler.md`, `tests/test_chain.py` (new);
+  `.github/workflows/pages.yml`; `tools/export_context.py`; `.gitignore` (+2 lines);
+  `.gitattributes` (+2 lines); `tests/test_site.py`; `PROGRESS.md`.
+- **Follow-ups spawned:** commit and push this block (no `out/site/` change, so no deploy); the
+  clean dry run; Amin creates the four tasks; the done-condition (Q12): the weekly run and each
+  monthly task once forced and once fired by its trigger, each logged, pushed and deployed, the
+  pages opened by Amin.

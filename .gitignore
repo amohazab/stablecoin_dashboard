@@ -18,3 +18,5 @@ out/context-*/
 # Full Webacy envelopes: ToS bars redistributing Webacy Data; trimmed copies are committed (P-8.01 P5)
 out/behavioral-raw/
 tests/fixtures/webacy-raw/
+# Scheduler run logs and the chain lock (P-8.04 Q9)
+out/logs/scheduler/
