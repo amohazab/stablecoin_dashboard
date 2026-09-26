@@ -53,6 +53,12 @@ def inputs():
     out = {}
     for tok, blk in BLOCKS.items():
         inp = load_inputs(REPO, tok)
+        # P-8.06: the recorded block, not the token's newest run
+        from factory.schema import Bundle, VerifiabilityTree
+        inp["bundle"] = Bundle.model_validate_json((REPO / f"out/bundles/{tok}/{blk}.json")
+                                                   .read_text(encoding="utf-8"))
+        inp["tree"] = VerifiabilityTree.model_validate_json(
+            (REPO / f"out/trees/{tok}/{blk}.json").read_text(encoding="utf-8"))
         s = StressReport.model_validate_json((REPO / f"out/stress/{tok}/{blk}.json")
                                              .read_text(encoding="utf-8"))
         rep = REPO / f"out/report/{tok}/{blk}"

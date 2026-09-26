@@ -3004,6 +3004,21 @@ def _num_tokens(s: str) -> list[str]:
     return out
 
 
+# P-8.06 (Amin): generate.md rule 4 as code - a snake_case or camelCase token in prose is a
+# field name or a code identifier, never reader English. camelCase means a lowercase run
+# followed by capitalised words to the end of the token ("fetchPrice"); token symbols end in
+# a ticker run ("crvUSD", "wstETH", "sUSDe", "waEthUSDC") and names such as "PegKeepers"
+# start with a capital, so neither is an identifier.
+_SNAKE = re.compile(r"(?<![\w/.])[A-Za-z][A-Za-z0-9]*(?:_[A-Za-z0-9]+)+(?![\w/])")
+_CAMEL = re.compile(r"(?<![\w/.])[a-z]+(?:[A-Z][a-z0-9]+)+(?![\w])")
+
+
+def _identifiers(s: str) -> list[str]:
+    """Code identifiers in prose (one owner; the generation guard reads it)."""
+    s = _HEX.sub(" ", s)
+    return [*_SNAKE.findall(s), *_CAMEL.findall(s)]
+
+
 def det_89(b: Bundle, t: VerifiabilityTree, r: StressReport, page: dict) -> str:
     """Rendered-figure formatting and units (D-9), S3. (i) The display rule is
     emitted with the template (thousands ","; 2 decimals >= 1k; 4 below 1).

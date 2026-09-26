@@ -6,51 +6,47 @@
     {
      "digest": "6488c96fa5faab64bb65cbd30d4289e20e6130ef535a93ef9a49f42eda893ea7",
      "done_reason": "stop",
-     "eval_count": 272,
-     "eval_duration": 34474526000,
-     "input_hash": "241c4e8547a0ce9f920ce1d2d2ffc99d89f890c0896d0b11e933b445d51ac42a",
+     "eval_count": 206,
+     "eval_duration": 26711621000,
+     "input_hash": "53c2cfabab4283205baae52bfb5473596344c8f5ea8619b22dfae112221e2a82",
      "model": "qwen3.5:9b",
      "num_ctx": 32768,
      "num_predict": 2000,
      "ollama_version": "0.34.4",
-     "prompt_eval_count": 3000,
-     "prompt_eval_duration": 75309210000,
-     "prompt_hash": "5ab8766823e27360e73a758844cde41283507c022316a9c5dc4bcf496eb48ab0",
+     "prompt_eval_count": 3016,
+     "prompt_eval_duration": 85162844000,
+     "prompt_hash": "b0a0ae85491ab391e5b1aeca2f7125da61d48ce3636b887a5fb0fe1f25ee5db2",
      "sampling": {
       "seed": 0,
       "temperature": 0
      },
      "think": false,
-     "total_duration": 119982005800,
-     "wall_s": 122.0
+     "total_duration": 112047889000,
+     "wall_s": 114.1
     }
    ],
    "digest": "6488c96fa5faab64bb65cbd30d4289e20e6130ef535a93ef9a49f42eda893ea7",
    "done_reason": "stop",
-   "eval_count": 272,
-   "eval_duration": 34474526000,
-   "input_hash": "241c4e8547a0ce9f920ce1d2d2ffc99d89f890c0896d0b11e933b445d51ac42a",
+   "eval_count": 206,
+   "eval_duration": 26711621000,
+   "input_hash": "53c2cfabab4283205baae52bfb5473596344c8f5ea8619b22dfae112221e2a82",
    "model": "qwen3.5:9b",
    "num_ctx": 32768,
    "num_predict": 2000,
    "ollama_version": "0.34.4",
    "pass": 1,
-   "prompt_eval_count": 3000,
-   "prompt_eval_duration": 75309210000,
-   "prompt_hash": "5ab8766823e27360e73a758844cde41283507c022316a9c5dc4bcf496eb48ab0",
+   "prompt_eval_count": 3016,
+   "prompt_eval_duration": 85162844000,
+   "prompt_hash": "b0a0ae85491ab391e5b1aeca2f7125da61d48ce3636b887a5fb0fe1f25ee5db2",
    "reasks": 0,
    "references_added": [],
    "references_field_ids": [
     "verif.bar.terminal",
     "verif.bar.terminal_other_layer",
     "verif.bar.disclosure_dependent",
-    "verif.staleness.status",
-    "verif.banner",
     "tree.node.0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee.symbol",
-    "tree.node.0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee.label",
-    "tree.node.0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee.bar",
     "tree.node.0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee.share",
-    "tree.root.backed_supply"
+    "verif.banner"
    ],
    "rejected": [],
    "sampling": {
@@ -58,108 +54,420 @@
     "temperature": 0
    },
    "slot": "verifiability_narrative",
-   "text": "The token's backing is held entirely in assets whose value can be checked directly on-chain, representing 100.0% of the total reserve. This single class comprises the entire collateral pool, with Ethereum (ETH) being the only asset counted within this checkable category.\n\nNo portion of the reserve relies on wrappers for one-layer verification or depends on issuer disclosures, as both those categories hold 0. Consequently, there are no disclosure-dependent nodes to monitor for staleness, and the system reports no disclosure-dependent staleness status.\n\nGovernance rules regarding the backing structure are immutable; no admin power can alter the backing composition. The entire supply of $26.2M is backed by this traced collateral, which includes all troves with an exact identity.",
+   "text": "The token's backing is held entirely in assets whose value can be checked directly on-chain, representing 100.0% of the total collateral pool. The largest asset within this class is ETH, which accounts for the full 100.0% share of the backing value.\n\nThere are no assets classified as checkable one layer down or dependent on issuer disclosures, meaning the entire reserve structure relies solely on direct on-chain verification without any reliance on stale reports or external wrappers.\n\nThe admin qualifier banner states that no admin power can alter backing — immutable. This rule ensures that the classification of collateral and its verifiability status cannot be changed by governance actions.",
    "think": false,
-   "total_duration": 119982005800,
-   "wall_s": 122.0
+   "total_duration": 112047889000,
+   "wall_s": 114.1
   },
   {
    "calls": [
     {
      "digest": "6488c96fa5faab64bb65cbd30d4289e20e6130ef535a93ef9a49f42eda893ea7",
      "done_reason": "stop",
-     "eval_count": 277,
-     "eval_duration": 47202337000,
-     "input_hash": "e9abed5c76f5274324379c38ceb2d7184653ad546552eef5435ff65d32abd662",
+     "eval_count": 1253,
+     "eval_duration": 220661497000,
+     "input_hash": "dd49ff8de96ee32a050c9ae7b7adc74df648e979aa1a706c45c497076f67d486",
      "model": "qwen3.5:9b",
      "num_ctx": 32768,
      "num_predict": 2000,
      "ollama_version": "0.34.4",
-     "prompt_eval_count": 10163,
-     "prompt_eval_duration": 349930038000,
-     "prompt_hash": "5ab8766823e27360e73a758844cde41283507c022316a9c5dc4bcf496eb48ab0",
+     "prompt_eval_count": 10179,
+     "prompt_eval_duration": 385312988000,
+     "prompt_hash": "b0a0ae85491ab391e5b1aeca2f7125da61d48ce3636b887a5fb0fe1f25ee5db2",
+     "rejected": {
+      "guard_violations": {
+       "identifiers": [
+        "Tellor_fallback"
+       ]
+      },
+      "printed_by": {
+       "$0": [
+        "headline.m2.bad_debt",
+        "headline.m3.forced_sell_volume",
+        "headline.m4.redemption_capacity.value",
+        "headline.m4.redistributed_debt",
+        "headline.m4.redistributed_positions_below_100",
+        "panel.M1-s20-d0-lp0.m2.bad_debt",
+        "panel.M1-s20-d0-lp30.m2.bad_debt",
+        "panel.M1-s20-d0-lp60.m2.bad_debt",
+        "panel.M1-s35-d0-lp0.m2.bad_debt",
+        "panel.M1-s35-d0-lp30.m2.bad_debt",
+        "panel.M1-s35-d0-lp60.m2.bad_debt",
+        "panel.M1-s50-d0-lp0.m2.bad_debt",
+        "panel.M1-s50-d0-lp30.m2.bad_debt",
+        "panel.M1-s50-d0-lp60.m2.bad_debt",
+        "panel.M1-s70-d0-lp0.m2.bad_debt",
+        "panel.M1-s70-d0-lp30.m2.bad_debt",
+        "panel.M1-s70-d0-lp60.m2.bad_debt"
+       ],
+       "$2.0M": [
+        "panel.M1-s20-d0-lp60.m3.exit_depth",
+        "panel.M1-s35-d0-lp60.m3.exit_depth",
+        "panel.M1-s50-d0-lp60.m3.exit_depth",
+        "panel.M1-s70-d0-lp60.m3.exit_depth"
+       ],
+       "$5.1M": [
+        "panel.M1-s20-d0-lp30.m3.exit_depth",
+        "panel.M1-s35-d0-lp30.m3.exit_depth",
+        "panel.M1-s50-d0-lp30.m3.exit_depth",
+        "panel.M1-s70-d0-lp30.m3.exit_depth"
+       ],
+       "$7.6M": [
+        "headline.m4.sp_effective_cell"
+       ],
+       "$8.3M": [
+        "headline.m3.exit_depth",
+        "headline.m4.exit_depth_cell",
+        "panel.M1-s20-d0-lp0.m3.exit_depth",
+        "panel.M1-s35-d0-lp0.m3.exit_depth",
+        "panel.M1-s50-d0-lp0.m3.exit_depth",
+        "panel.M1-s70-d0-lp0.m3.exit_depth"
+       ],
+       "-79.79%": [
+        "assumption.engagement_thresholds",
+        "stress.structural_zero.reason"
+       ],
+       "-82.66%": [
+        "assumption.engagement_thresholds",
+        "stress.structural_zero.reason"
+       ],
+       "100%": [
+        "assumption.bad_debt_definition"
+       ],
+       "2.23": [
+        "panel.M1-s70-d0-lp0.m1.post.ratio",
+        "panel.M1-s70-d0-lp30.m1.post.ratio",
+        "panel.M1-s70-d0-lp60.m1.post.ratio"
+       ],
+       "3.71": [
+        "headline.m1.post.ratio",
+        "headline.m1.pre.ratio",
+        "headline.m4.tcr_post",
+        "panel.M1-s50-d0-lp0.m1.post.ratio",
+        "panel.M1-s50-d0-lp30.m1.post.ratio",
+        "panel.M1-s50-d0-lp60.m1.post.ratio"
+       ],
+       "5.94": [
+        "panel.M1-s20-d0-lp0.m1.post.ratio",
+        "panel.M1-s20-d0-lp30.m1.post.ratio",
+        "panel.M1-s20-d0-lp60.m1.post.ratio"
+       ]
+      },
+      "references_field_ids": [
+       "headline.m1.pre.ratio",
+       "headline.m1.post.ratio",
+       "headline.m1.pre.share_below_100",
+       "headline.m1.post.share_below_100",
+       "headline.m2.bad_debt",
+       "headline.m3.forced_sell_volume",
+       "headline.m3.exit_depth",
+       "headline.m3.ratio",
+       "panel.M1-s20-d0-lp0.m1.post.ratio",
+       "panel.M1-s20-d0-lp0.m2.bad_debt",
+       "panel.M1-s20-d0-lp0.m3.ratio",
+       "panel.M1-s20-d0-lp0.m3.exit_depth",
+       "panel.M1-s20-d0-lp30.m1.post.ratio",
+       "panel.M1-s20-d0-lp30.m2.bad_debt",
+       "panel.M1-s20-d0-lp30.m3.ratio",
+       "panel.M1-s20-d0-lp30.m3.exit_depth",
+       "panel.M1-s20-d0-lp60.m1.post.ratio",
+       "panel.M1-s20-d0-lp60.m2.bad_debt",
+       "panel.M1-s20-d0-lp60.m3.ratio",
+       "panel.M1-s20-d0-lp60.m3.exit_depth",
+       "panel.M1-s35-d0-lp0.m1.post.ratio",
+       "panel.M1-s35-d0-lp0.m2.bad_debt",
+       "panel.M1-s35-d0-lp0.m3.ratio",
+       "panel.M1-s35-d0-lp0.m3.exit_depth",
+       "panel.M1-s35-d0-lp30.m1.post.ratio",
+       "panel.M1-s35-d0-lp30.m2.bad_debt",
+       "panel.M1-s35-d0-lp30.m3.ratio",
+       "panel.M1-s35-d0-lp30.m3.exit_depth",
+       "panel.M1-s35-d0-lp60.m1.post.ratio",
+       "panel.M1-s35-d0-lp60.m2.bad_debt",
+       "panel.M1-s35-d0-lp60.m3.ratio",
+       "panel.M1-s35-d0-lp60.m3.exit_depth",
+       "panel.M1-s50-d0-lp0.m1.post.ratio",
+       "panel.M1-s50-d0-lp0.m2.bad_debt",
+       "panel.M1-s50-d0-lp0.m3.ratio",
+       "panel.M1-s50-d0-lp0.m3.exit_depth",
+       "panel.M1-s50-d0-lp30.m1.post.ratio",
+       "panel.M1-s50-d0-lp30.m2.bad_debt",
+       "panel.M1-s50-d0-lp30.m3.ratio",
+       "panel.M1-s50-d0-lp30.m3.exit_depth",
+       "panel.M1-s50-d0-lp60.m1.post.ratio",
+       "panel.M1-s50-d0-lp60.m2.bad_debt",
+       "panel.M1-s50-d0-lp60.m3.ratio",
+       "panel.M1-s50-d0-lp60.m3.exit_depth",
+       "panel.M1-s70-d0-lp0.m1.post.ratio",
+       "panel.M1-s70-d0-lp0.m2.bad_debt",
+       "panel.M1-s70-d0-lp0.m3.ratio",
+       "panel.M1-s70-d0-lp0.m3.exit_depth",
+       "panel.M1-s70-d0-lp30.m1.post.ratio",
+       "panel.M1-s70-d0-lp30.m2.bad_debt",
+       "panel.M1-s70-d0-lp30.m3.ratio",
+       "panel.M1-s70-d0-lp30.m3.exit_depth",
+       "panel.M1-s70-d0-lp60.m1.post.ratio",
+       "panel.M1-s70-d0-lp60.m2.bad_debt",
+       "panel.M1-s70-d0-lp60.m3.ratio",
+       "panel.M1-s70-d0-lp60.m3.exit_depth",
+       "headline.m4.sp_effective_cell",
+       "stress.structural_zero.flag",
+       "stress.structural_zero.reason",
+       "assumption.engagement_thresholds",
+       "headline.m4.counterfactual_ref"
+      ],
+      "text": "The Liquity protocol relies on the Stability Pool and pro rata debt redistribution to handle liquidations, a mechanism that prevents forced sales against exit liquidity under normal conditions. In this scenario, no collateral coverage drops below 100% before or after the shock, so bad debt remains $0 across all tested stress levels. The system maintains a collateral ratio of 3.71 before the event and sustains it at 3.71 after the shock for the baseline case, while other scenarios show post-shock ratios ranging from 2.23 to 5.94 depending on liquidity-provider flight shares.\n\nBecause no trove reaches its minimum collateral ratio on the ruled grid, the first liquidation would only occur at an ETH shock of -82.66%, and recovery mode activates at -79.79%. The Stability Pool balance available to absorb liquidations is $7.6M in the baseline case, with exit liquidity standing at $8.3M. Even as liquidity providers withdraw, reducing exit depth to $5.1M or $2.0M, the forced sales ratio remains zero since the absorption path does not trigger a sale.\n\nThe structural-zero flag is set for this token, confirming that bad debt is structurally zero because no trove reaches MCR on the ruled grid. Liquity v1 is wound down to 70 troves, and the system remains insulated from sell-side pressure except through exit venues. The counterfactual reference used here is Tellor_fallback, which provides the price basis for these calculations."
+     },
      "sampling": {
       "seed": 0,
       "temperature": 0
      },
      "think": false,
-     "total_duration": 397207575800,
-     "wall_s": 399.3
+     "total_duration": 606096188000,
+     "wall_s": 608.1
+    },
+    {
+     "digest": "6488c96fa5faab64bb65cbd30d4289e20e6130ef535a93ef9a49f42eda893ea7",
+     "done_reason": "stop",
+     "eval_count": 318,
+     "eval_duration": 56883059000,
+     "input_hash": "7f8acd6ceb71bb17530fff0f8d6be4666207d9d41aac8d4cf50410c9cd02ae0c",
+     "model": "qwen3.5:9b",
+     "num_ctx": 32768,
+     "num_predict": 2000,
+     "ollama_version": "0.34.4",
+     "prompt_eval_count": 11007,
+     "prompt_eval_duration": 98449102000,
+     "prompt_hash": "b0a0ae85491ab391e5b1aeca2f7125da61d48ce3636b887a5fb0fe1f25ee5db2",
+     "sampling": {
+      "seed": 0,
+      "temperature": 0
+     },
+     "think": false,
+     "total_duration": 155363879500,
+     "wall_s": 157.4
     }
    ],
    "digest": "6488c96fa5faab64bb65cbd30d4289e20e6130ef535a93ef9a49f42eda893ea7",
    "done_reason": "stop",
-   "eval_count": 277,
-   "eval_duration": 47202337000,
-   "input_hash": "e9abed5c76f5274324379c38ceb2d7184653ad546552eef5435ff65d32abd662",
+   "eval_count": 1571,
+   "eval_duration": 56883059000,
+   "input_hash": "7f8acd6ceb71bb17530fff0f8d6be4666207d9d41aac8d4cf50410c9cd02ae0c",
    "model": "qwen3.5:9b",
    "num_ctx": 32768,
    "num_predict": 2000,
    "ollama_version": "0.34.4",
    "pass": 1,
-   "prompt_eval_count": 10163,
-   "prompt_eval_duration": 349930038000,
-   "prompt_hash": "5ab8766823e27360e73a758844cde41283507c022316a9c5dc4bcf496eb48ab0",
-   "reasks": 0,
+   "prompt_eval_count": 21186,
+   "prompt_eval_duration": 98449102000,
+   "prompt_hash": "b0a0ae85491ab391e5b1aeca2f7125da61d48ce3636b887a5fb0fe1f25ee5db2",
+   "reasks": 1,
    "references_added": [],
    "references_field_ids": [
     "headline.m1.pre.ratio",
     "headline.m1.post.ratio",
     "headline.m2.bad_debt",
-    "headline.m4.tcr_post",
-    "headline.m4.redemption_capacity.reason",
+    "headline.m3.forced_sell_volume",
     "headline.m4.sp_effective_cell",
+    "headline.m3.exit_depth",
     "headline.m4.lp_flight_share",
-    "headline.m3.exit_depth"
+    "stress.structural_zero.flag",
+    "stress.structural_zero.reason",
+    "assumption.engagement_thresholds"
    ],
-   "rejected": [],
+   "rejected": [
+    {
+     "guard_violations": {
+      "identifiers": [
+       "Tellor_fallback"
+      ]
+     },
+     "printed_by": {
+      "$0": [
+       "headline.m2.bad_debt",
+       "headline.m3.forced_sell_volume",
+       "headline.m4.redemption_capacity.value",
+       "headline.m4.redistributed_debt",
+       "headline.m4.redistributed_positions_below_100",
+       "panel.M1-s20-d0-lp0.m2.bad_debt",
+       "panel.M1-s20-d0-lp30.m2.bad_debt",
+       "panel.M1-s20-d0-lp60.m2.bad_debt",
+       "panel.M1-s35-d0-lp0.m2.bad_debt",
+       "panel.M1-s35-d0-lp30.m2.bad_debt",
+       "panel.M1-s35-d0-lp60.m2.bad_debt",
+       "panel.M1-s50-d0-lp0.m2.bad_debt",
+       "panel.M1-s50-d0-lp30.m2.bad_debt",
+       "panel.M1-s50-d0-lp60.m2.bad_debt",
+       "panel.M1-s70-d0-lp0.m2.bad_debt",
+       "panel.M1-s70-d0-lp30.m2.bad_debt",
+       "panel.M1-s70-d0-lp60.m2.bad_debt"
+      ],
+      "$2.0M": [
+       "panel.M1-s20-d0-lp60.m3.exit_depth",
+       "panel.M1-s35-d0-lp60.m3.exit_depth",
+       "panel.M1-s50-d0-lp60.m3.exit_depth",
+       "panel.M1-s70-d0-lp60.m3.exit_depth"
+      ],
+      "$5.1M": [
+       "panel.M1-s20-d0-lp30.m3.exit_depth",
+       "panel.M1-s35-d0-lp30.m3.exit_depth",
+       "panel.M1-s50-d0-lp30.m3.exit_depth",
+       "panel.M1-s70-d0-lp30.m3.exit_depth"
+      ],
+      "$7.6M": [
+       "headline.m4.sp_effective_cell"
+      ],
+      "$8.3M": [
+       "headline.m3.exit_depth",
+       "headline.m4.exit_depth_cell",
+       "panel.M1-s20-d0-lp0.m3.exit_depth",
+       "panel.M1-s35-d0-lp0.m3.exit_depth",
+       "panel.M1-s50-d0-lp0.m3.exit_depth",
+       "panel.M1-s70-d0-lp0.m3.exit_depth"
+      ],
+      "-79.79%": [
+       "assumption.engagement_thresholds",
+       "stress.structural_zero.reason"
+      ],
+      "-82.66%": [
+       "assumption.engagement_thresholds",
+       "stress.structural_zero.reason"
+      ],
+      "100%": [
+       "assumption.bad_debt_definition"
+      ],
+      "2.23": [
+       "panel.M1-s70-d0-lp0.m1.post.ratio",
+       "panel.M1-s70-d0-lp30.m1.post.ratio",
+       "panel.M1-s70-d0-lp60.m1.post.ratio"
+      ],
+      "3.71": [
+       "headline.m1.post.ratio",
+       "headline.m1.pre.ratio",
+       "headline.m4.tcr_post",
+       "panel.M1-s50-d0-lp0.m1.post.ratio",
+       "panel.M1-s50-d0-lp30.m1.post.ratio",
+       "panel.M1-s50-d0-lp60.m1.post.ratio"
+      ],
+      "5.94": [
+       "panel.M1-s20-d0-lp0.m1.post.ratio",
+       "panel.M1-s20-d0-lp30.m1.post.ratio",
+       "panel.M1-s20-d0-lp60.m1.post.ratio"
+      ]
+     },
+     "references_field_ids": [
+      "headline.m1.pre.ratio",
+      "headline.m1.post.ratio",
+      "headline.m1.pre.share_below_100",
+      "headline.m1.post.share_below_100",
+      "headline.m2.bad_debt",
+      "headline.m3.forced_sell_volume",
+      "headline.m3.exit_depth",
+      "headline.m3.ratio",
+      "panel.M1-s20-d0-lp0.m1.post.ratio",
+      "panel.M1-s20-d0-lp0.m2.bad_debt",
+      "panel.M1-s20-d0-lp0.m3.ratio",
+      "panel.M1-s20-d0-lp0.m3.exit_depth",
+      "panel.M1-s20-d0-lp30.m1.post.ratio",
+      "panel.M1-s20-d0-lp30.m2.bad_debt",
+      "panel.M1-s20-d0-lp30.m3.ratio",
+      "panel.M1-s20-d0-lp30.m3.exit_depth",
+      "panel.M1-s20-d0-lp60.m1.post.ratio",
+      "panel.M1-s20-d0-lp60.m2.bad_debt",
+      "panel.M1-s20-d0-lp60.m3.ratio",
+      "panel.M1-s20-d0-lp60.m3.exit_depth",
+      "panel.M1-s35-d0-lp0.m1.post.ratio",
+      "panel.M1-s35-d0-lp0.m2.bad_debt",
+      "panel.M1-s35-d0-lp0.m3.ratio",
+      "panel.M1-s35-d0-lp0.m3.exit_depth",
+      "panel.M1-s35-d0-lp30.m1.post.ratio",
+      "panel.M1-s35-d0-lp30.m2.bad_debt",
+      "panel.M1-s35-d0-lp30.m3.ratio",
+      "panel.M1-s35-d0-lp30.m3.exit_depth",
+      "panel.M1-s35-d0-lp60.m1.post.ratio",
+      "panel.M1-s35-d0-lp60.m2.bad_debt",
+      "panel.M1-s35-d0-lp60.m3.ratio",
+      "panel.M1-s35-d0-lp60.m3.exit_depth",
+      "panel.M1-s50-d0-lp0.m1.post.ratio",
+      "panel.M1-s50-d0-lp0.m2.bad_debt",
+      "panel.M1-s50-d0-lp0.m3.ratio",
+      "panel.M1-s50-d0-lp0.m3.exit_depth",
+      "panel.M1-s50-d0-lp30.m1.post.ratio",
+      "panel.M1-s50-d0-lp30.m2.bad_debt",
+      "panel.M1-s50-d0-lp30.m3.ratio",
+      "panel.M1-s50-d0-lp30.m3.exit_depth",
+      "panel.M1-s50-d0-lp60.m1.post.ratio",
+      "panel.M1-s50-d0-lp60.m2.bad_debt",
+      "panel.M1-s50-d0-lp60.m3.ratio",
+      "panel.M1-s50-d0-lp60.m3.exit_depth",
+      "panel.M1-s70-d0-lp0.m1.post.ratio",
+      "panel.M1-s70-d0-lp0.m2.bad_debt",
+      "panel.M1-s70-d0-lp0.m3.ratio",
+      "panel.M1-s70-d0-lp0.m3.exit_depth",
+      "panel.M1-s70-d0-lp30.m1.post.ratio",
+      "panel.M1-s70-d0-lp30.m2.bad_debt",
+      "panel.M1-s70-d0-lp30.m3.ratio",
+      "panel.M1-s70-d0-lp30.m3.exit_depth",
+      "panel.M1-s70-d0-lp60.m1.post.ratio",
+      "panel.M1-s70-d0-lp60.m2.bad_debt",
+      "panel.M1-s70-d0-lp60.m3.ratio",
+      "panel.M1-s70-d0-lp60.m3.exit_depth",
+      "headline.m4.sp_effective_cell",
+      "stress.structural_zero.flag",
+      "stress.structural_zero.reason",
+      "assumption.engagement_thresholds",
+      "headline.m4.counterfactual_ref"
+     ],
+     "text": "The Liquity protocol relies on the Stability Pool and pro rata debt redistribution to handle liquidations, a mechanism that prevents forced sales against exit liquidity under normal conditions. In this scenario, no collateral coverage drops below 100% before or after the shock, so bad debt remains $0 across all tested stress levels. The system maintains a collateral ratio of 3.71 before the event and sustains it at 3.71 after the shock for the baseline case, while other scenarios show post-shock ratios ranging from 2.23 to 5.94 depending on liquidity-provider flight shares.\n\nBecause no trove reaches its minimum collateral ratio on the ruled grid, the first liquidation would only occur at an ETH shock of -82.66%, and recovery mode activates at -79.79%. The Stability Pool balance available to absorb liquidations is $7.6M in the baseline case, with exit liquidity standing at $8.3M. Even as liquidity providers withdraw, reducing exit depth to $5.1M or $2.0M, the forced sales ratio remains zero since the absorption path does not trigger a sale.\n\nThe structural-zero flag is set for this token, confirming that bad debt is structurally zero because no trove reaches MCR on the ruled grid. Liquity v1 is wound down to 70 troves, and the system remains insulated from sell-side pressure except through exit venues. The counterfactual reference used here is Tellor_fallback, which provides the price basis for these calculations."
+    }
+   ],
    "sampling": {
     "seed": 0,
     "temperature": 0
    },
    "slot": "member1_opening",
-   "text": "A price crash fits LUSD's liquidation mechanism because the Stability Pool absorbs debt from troves that fall below their maintenance collateral ratio, and any remaining shortfall is redistributed pro rata to surviving troves rather than sold. In this scenario, no forced sales occur against exit liquidity because the absorption path eliminates the need for a sell-side bound.\n\nCollateral coverage remains at 3.71 before and after the shock, with zero bad debt reported. The system collateral ratio stays at 3.71, well above the Recovery Mode threshold, so no recovery mode is triggered.\n\nThe Stability Pool balance available to absorb liquidations in this scenario is $7.6M, which is the balance less the scenario's liquidity-provider flight share. Liquidity providers leave a share of zero in this scenario, and the exit liquidity remains at $8.3M.",
+   "text": "LUSD relies on the Stability Pool and pro rata debt redistribution to handle liquidations, a path that avoids forced sales. In this scenario, collateral coverage before the shock is 3.71 and remains 3.71 after the shock because no trove reaches the minimum collateral ratio on the ruled grid. The system therefore records $0 in bad debt and $0 in collateral that must be sold.\n\nThe Stability Pool balance available to absorb liquidations in this scenario is $7.6M, which is the pool balance less the liquidity-provider flight share. Exit liquidity stands at $8.3M, meaning the ratio of forced sales to exit liquidity is 0. Liquidity providers do not leave in this scenario, so the share of liquidity providers leaving is 0.\n\nThe structural-zero flag is set, and the reason row states that no trove reaches MCR on the ruled grid; first liquidation occurs at an ETH shock of -82.66%, recovery mode activates at -79.79%, and TCR falls below MCR at -85.18%. Liquity v1 is wound down to 70 troves.",
    "think": false,
-   "total_duration": 397207575800,
-   "wall_s": 399.3
+   "total_duration": 155363879500,
+   "wall_s": 157.4
   },
   {
    "calls": [
     {
      "digest": "6488c96fa5faab64bb65cbd30d4289e20e6130ef535a93ef9a49f42eda893ea7",
      "done_reason": "stop",
-     "eval_count": 371,
-     "eval_duration": 50757731000,
-     "input_hash": "1f94c2e03b8fec5b4b9b5d77955cfa7ea91c6df3884c965c28ccbd57636ac9d1",
+     "eval_count": 364,
+     "eval_duration": 49967506000,
+     "input_hash": "cd35b810aa175db1b6e19d57c8cc4542695cbced20cc4b0302a819fc27aa5b29",
      "model": "qwen3.5:9b",
      "num_ctx": 32768,
      "num_predict": 2000,
      "ollama_version": "0.34.4",
-     "prompt_eval_count": 4995,
-     "prompt_eval_duration": 150433103000,
-     "prompt_hash": "5ab8766823e27360e73a758844cde41283507c022316a9c5dc4bcf496eb48ab0",
+     "prompt_eval_count": 5011,
+     "prompt_eval_duration": 150411683000,
+     "prompt_hash": "b0a0ae85491ab391e5b1aeca2f7125da61d48ce3636b887a5fb0fe1f25ee5db2",
      "sampling": {
       "seed": 0,
       "temperature": 0
      },
      "think": false,
-     "total_duration": 201271962000,
-     "wall_s": 203.3
+     "total_duration": 200474171100,
+     "wall_s": 202.5
     }
    ],
    "digest": "6488c96fa5faab64bb65cbd30d4289e20e6130ef535a93ef9a49f42eda893ea7",
    "done_reason": "stop",
-   "eval_count": 371,
-   "eval_duration": 50757731000,
-   "input_hash": "1f94c2e03b8fec5b4b9b5d77955cfa7ea91c6df3884c965c28ccbd57636ac9d1",
+   "eval_count": 364,
+   "eval_duration": 49967506000,
+   "input_hash": "cd35b810aa175db1b6e19d57c8cc4542695cbced20cc4b0302a819fc27aa5b29",
    "model": "qwen3.5:9b",
    "num_ctx": 32768,
    "num_predict": 2000,
    "ollama_version": "0.34.4",
    "pass": 1,
-   "prompt_eval_count": 4995,
-   "prompt_eval_duration": 150433103000,
-   "prompt_hash": "5ab8766823e27360e73a758844cde41283507c022316a9c5dc4bcf496eb48ab0",
+   "prompt_eval_count": 5011,
+   "prompt_eval_duration": 150411683000,
+   "prompt_hash": "b0a0ae85491ab391e5b1aeca2f7125da61d48ce3636b887a5fb0fe1f25ee5db2",
    "reasks": 0,
    "references_added": [
     "exit.curve.s0.005.s",
@@ -171,7 +479,7 @@
    "references_field_ids": [
     "m2.headline.m3.forced_sell_volume",
     "m2.headline.m3.ratio",
-    "exit.member2_target",
+    "m2.headline.m3.exit_depth",
     "m2.curve.t0.88.s0.005",
     "m2.curve.t0.88.s0.05",
     "m2.curve.t0.93.s0.005",
@@ -191,10 +499,10 @@
     "temperature": 0
    },
    "slot": "member2_opening",
-   "text": "A depeg of the paired stablecoin fits this token's mechanism because it is structurally insulated; exposure arises only through recomputed exit-liquidity curves. In the Member-2 headline scenario, forced sales are $0 and the ratio of forced sales to exit liquidity is 0.\n\nWhen the paired stablecoin trades at 0.88, exit liquidity totals $6.1M at a 0.5% price impact, rising to $7.8M at a 5.0% price impact. At 0.93, liquidity is $6.5M at 0.5% and $8.2M at 5.0%. At 0.97, liquidity reaches $6.8M at 0.5% and $8.6M at 5.0%.\n\nThese figures show that while the token avoids forced sales by construction, its resilience depends on the depth of these exit venues under stress.",
+   "text": "A depeg of the paired stablecoin fits this token's mechanism because it is structurally insulated; exposure arises only through exit venues. In the Member-2 headline scenario, forced sales total $0 and the ratio of forced sales to exit liquidity is 0. Exit liquidity in that same scenario is $7.7M.\n\nWhen the paired stablecoin trades at 0.88, exit liquidity ranges from $6.1M at a 0.5% price impact to $7.8M at a 5.0% price impact. At 0.93, liquidity spans $6.5M to $8.2M across the same impacts. At 0.97, it spans $6.8M to $8.6M.\n\nThese figures show that while no forced sales occur, the available exit depth varies with the stablecoin's price and the assumed impact level.",
    "think": false,
-   "total_duration": 201271962000,
-   "wall_s": 203.3
+   "total_duration": 200474171100,
+   "wall_s": 202.5
   },
   {
    "calls": [
@@ -202,37 +510,37 @@
      "digest": "6488c96fa5faab64bb65cbd30d4289e20e6130ef535a93ef9a49f42eda893ea7",
      "done_reason": "stop",
      "eval_count": 28,
-     "eval_duration": 3358896000,
-     "input_hash": "d93db4120c9f14bf52f3e9233f882e50a4e32acee53e978a7234ec143c03d8ea",
+     "eval_duration": 3366116000,
+     "input_hash": "4e8c45d0e68336559eb9366608f15c175222e974fce33ed399b65ef2b254bbc0",
      "model": "qwen3.5:9b",
      "num_ctx": 32768,
      "num_predict": 2000,
      "ollama_version": "0.34.4",
-     "prompt_eval_count": 1707,
-     "prompt_eval_duration": 44191715000,
-     "prompt_hash": "5ab8766823e27360e73a758844cde41283507c022316a9c5dc4bcf496eb48ab0",
+     "prompt_eval_count": 1723,
+     "prompt_eval_duration": 44669739000,
+     "prompt_hash": "b0a0ae85491ab391e5b1aeca2f7125da61d48ce3636b887a5fb0fe1f25ee5db2",
      "sampling": {
       "seed": 0,
       "temperature": 0
      },
      "think": false,
-     "total_duration": 47626215600,
-     "wall_s": 49.7
+     "total_duration": 48100089200,
+     "wall_s": 50.2
     }
    ],
    "digest": "6488c96fa5faab64bb65cbd30d4289e20e6130ef535a93ef9a49f42eda893ea7",
    "done_reason": "stop",
    "eval_count": 28,
-   "eval_duration": 3358896000,
-   "input_hash": "d93db4120c9f14bf52f3e9233f882e50a4e32acee53e978a7234ec143c03d8ea",
+   "eval_duration": 3366116000,
+   "input_hash": "4e8c45d0e68336559eb9366608f15c175222e974fce33ed399b65ef2b254bbc0",
    "model": "qwen3.5:9b",
    "num_ctx": 32768,
    "num_predict": 2000,
    "ollama_version": "0.34.4",
    "pass": 1,
-   "prompt_eval_count": 1707,
-   "prompt_eval_duration": 44191715000,
-   "prompt_hash": "5ab8766823e27360e73a758844cde41283507c022316a9c5dc4bcf496eb48ab0",
+   "prompt_eval_count": 1723,
+   "prompt_eval_duration": 44669739000,
+   "prompt_hash": "b0a0ae85491ab391e5b1aeca2f7125da61d48ce3636b887a5fb0fe1f25ee5db2",
    "reasks": 0,
    "references_added": [],
    "references_field_ids": [],
@@ -244,54 +552,53 @@
    "slot": "flag_explanations",
    "text": "No notices are open for this token this run.",
    "think": false,
-   "total_duration": 47626215600,
-   "wall_s": 49.7
+   "total_duration": 48100089200,
+   "wall_s": 50.2
   },
   {
    "calls": [
     {
      "digest": "6488c96fa5faab64bb65cbd30d4289e20e6130ef535a93ef9a49f42eda893ea7",
      "done_reason": "stop",
-     "eval_count": 222,
-     "eval_duration": 28025543000,
-     "input_hash": "336ee31680f2119028db185dbfbc844887991a887394b6a0f2780ddc8f6482af",
+     "eval_count": 121,
+     "eval_duration": 15545501000,
+     "input_hash": "354411749f09473c0996f313b433923a2a168ddade0f9e016cdf2eb595c1a5da",
      "model": "qwen3.5:9b",
      "num_ctx": 32768,
      "num_predict": 2000,
      "ollama_version": "0.34.4",
-     "prompt_eval_count": 2220,
-     "prompt_eval_duration": 59387763000,
-     "prompt_hash": "5ab8766823e27360e73a758844cde41283507c022316a9c5dc4bcf496eb48ab0",
+     "prompt_eval_count": 2236,
+     "prompt_eval_duration": 59398317000,
+     "prompt_hash": "b0a0ae85491ab391e5b1aeca2f7125da61d48ce3636b887a5fb0fe1f25ee5db2",
      "sampling": {
       "seed": 0,
       "temperature": 0
      },
      "think": false,
-     "total_duration": 87459112800,
-     "wall_s": 89.5
+     "total_duration": 74994684800,
+     "wall_s": 77.0
     }
    ],
    "digest": "6488c96fa5faab64bb65cbd30d4289e20e6130ef535a93ef9a49f42eda893ea7",
    "done_reason": "stop",
-   "eval_count": 222,
-   "eval_duration": 28025543000,
-   "input_hash": "336ee31680f2119028db185dbfbc844887991a887394b6a0f2780ddc8f6482af",
+   "eval_count": 121,
+   "eval_duration": 15545501000,
+   "input_hash": "354411749f09473c0996f313b433923a2a168ddade0f9e016cdf2eb595c1a5da",
    "model": "qwen3.5:9b",
    "num_ctx": 32768,
    "num_predict": 2000,
    "ollama_version": "0.34.4",
    "pass": 1,
-   "prompt_eval_count": 2220,
-   "prompt_eval_duration": 59387763000,
-   "prompt_hash": "5ab8766823e27360e73a758844cde41283507c022316a9c5dc4bcf496eb48ab0",
+   "prompt_eval_count": 2236,
+   "prompt_eval_duration": 59398317000,
+   "prompt_hash": "b0a0ae85491ab391e5b1aeca2f7125da61d48ce3636b887a5fb0fe1f25ee5db2",
    "reasks": 0,
    "references_added": [],
    "references_field_ids": [
     "headline.cf.Tellor_fallback.value_primary",
     "headline.cf.Tellor_fallback.value_counterfactual",
     "headline.cf.Tellor_fallback.metric_affected",
-    "headline.cf.Tellor_fallback.description",
-    "assumption.oracle_assumption"
+    "headline.cf.Tellor_fallback.description"
    ],
    "rejected": [],
    "sampling": {
@@ -299,96 +606,78 @@
     "temperature": 0
    },
    "slot": "counterfactual_explanations",
-   "text": "The counterfactual scenario shows the price feed falling back from Chainlink to the Tellor oracle, which changes how the system observes market prices. This shift means the metric affected is none, indicating that no computed value exists for this specific fallback line because it records only the feed's constants and scope rather than a calculated result. The reader should take from this difference that the mechanism relies on instant observation of the PriceFeed at run_block without an EMA lag, as Liquity v1 lacks both LLAMMA and per-market price EMAs. Consequently, the price basis remains the bundle's own external collateral value divided by the external collateral sum, not a re-simulated fetchPrice call.",
+   "text": "The price feed falls back from Chainlink to the Tellor oracle, which changes how the system observes market prices for LUSD. This shift means the metric affected is none, so no computed value appears in the report. The reader should take from this difference that the fallback constants and scope are recorded instead of a calculated price.",
    "think": false,
-   "total_duration": 87459112800,
-   "wall_s": 89.5
+   "total_duration": 74994684800,
+   "wall_s": 77.0
   },
   {
    "calls": [
     {
      "digest": "6488c96fa5faab64bb65cbd30d4289e20e6130ef535a93ef9a49f42eda893ea7",
      "done_reason": "stop",
-     "eval_count": 555,
-     "eval_duration": 108060981000,
-     "input_hash": "a4cce7897b7dfd070f366c6fc3e12a3c7d539f057905f7b57747b008c0d70889",
+     "eval_count": 395,
+     "eval_duration": 77598534000,
+     "input_hash": "18e8f6bae9a790e2b5f54ac38a7b5e06fa4d09a1e72d93a1ba94e668342d735b",
      "model": "qwen3.5:9b",
      "num_ctx": 32768,
      "num_predict": 2000,
      "ollama_version": "0.34.4",
-     "prompt_eval_count": 12834,
-     "prompt_eval_duration": 544630150999,
-     "prompt_hash": "5ab8766823e27360e73a758844cde41283507c022316a9c5dc4bcf496eb48ab0",
+     "prompt_eval_count": 11999,
+     "prompt_eval_duration": 483521265000,
+     "prompt_hash": "b0a0ae85491ab391e5b1aeca2f7125da61d48ce3636b887a5fb0fe1f25ee5db2",
      "sampling": {
       "seed": 0,
       "temperature": 0
      },
      "think": false,
-     "total_duration": 652762251600,
-     "wall_s": 654.8
+     "total_duration": 561221831800,
+     "wall_s": 563.2
     }
    ],
    "digest": "6488c96fa5faab64bb65cbd30d4289e20e6130ef535a93ef9a49f42eda893ea7",
    "done_reason": "stop",
-   "eval_count": 555,
-   "eval_duration": 108060981000,
-   "input_hash": "a4cce7897b7dfd070f366c6fc3e12a3c7d539f057905f7b57747b008c0d70889",
+   "eval_count": 395,
+   "eval_duration": 77598534000,
+   "input_hash": "18e8f6bae9a790e2b5f54ac38a7b5e06fa4d09a1e72d93a1ba94e668342d735b",
    "model": "qwen3.5:9b",
    "num_ctx": 32768,
    "num_predict": 2000,
    "ollama_version": "0.34.4",
    "pass": 1,
-   "prompt_eval_count": 12834,
-   "prompt_eval_duration": 544630150999,
-   "prompt_hash": "5ab8766823e27360e73a758844cde41283507c022316a9c5dc4bcf496eb48ab0",
+   "prompt_eval_count": 11999,
+   "prompt_eval_duration": 483521265000,
+   "prompt_hash": "b0a0ae85491ab391e5b1aeca2f7125da61d48ce3636b887a5fb0fe1f25ee5db2",
    "reasks": 0,
    "references_added": [],
    "references_field_ids": [
     "verif.banner",
     "admin.mint.None.holder_type",
-    "admin.mint.None.delay_seconds",
-    "admin.mint.None.delay_bucket",
-    "admin.mint.None.veto_address",
-    "admin.mint.None.upgradeability",
     "admin.set_ceiling.None.holder_type",
-    "admin.set_ceiling.None.delay_seconds",
-    "admin.set_ceiling.None.delay_bucket",
-    "admin.set_ceiling.None.veto_address",
-    "admin.set_ceiling.None.upgradeability",
     "admin.upgrade.None.holder_type",
-    "admin.upgrade.None.delay_seconds",
-    "admin.upgrade.None.delay_bucket",
-    "admin.upgrade.None.veto_address",
-    "admin.upgrade.None.upgradeability",
     "admin.pause.None.holder_type",
-    "admin.pause.None.delay_seconds",
-    "admin.pause.None.delay_bucket",
-    "admin.pause.None.veto_address",
-    "admin.pause.None.upgradeability",
     "admin.freeze_asset.None.holder_type",
-    "admin.freeze_asset.None.delay_seconds",
-    "admin.freeze_asset.None.delay_bucket",
-    "admin.freeze_asset.None.veto_address",
-    "admin.freeze_asset.None.upgradeability",
     "admin.blacklist_address.None.holder_type",
-    "admin.blacklist_address.None.delay_seconds",
-    "admin.blacklist_address.None.delay_bucket",
-    "admin.blacklist_address.None.veto_address",
-    "admin.blacklist_address.None.upgradeability",
     "admin.set_oracle.None.holder_type",
-    "admin.set_oracle.None.delay_seconds",
-    "admin.set_oracle.None.delay_bucket",
-    "admin.set_oracle.None.veto_address",
-    "admin.set_oracle.None.upgradeability",
     "admin.set_parameters.None.holder_type",
-    "admin.set_parameters.None.delay_seconds",
-    "admin.set_parameters.None.delay_bucket",
-    "admin.set_parameters.None.veto_address",
-    "admin.set_parameters.None.upgradeability",
     "admin.seize.None.holder_type",
-    "admin.seize.None.delay_seconds",
+    "admin.mint.None.delay_bucket",
+    "admin.set_ceiling.None.delay_bucket",
+    "admin.upgrade.None.delay_bucket",
+    "admin.pause.None.delay_bucket",
+    "admin.freeze_asset.None.delay_bucket",
+    "admin.blacklist_address.None.delay_bucket",
+    "admin.set_oracle.None.delay_bucket",
+    "admin.set_parameters.None.delay_bucket",
     "admin.seize.None.delay_bucket",
-    "admin.seize.None.veto_address",
+    "admin.mint.None.upgradeability",
+    "admin.set_ceiling.None.upgradeability",
+    "admin.upgrade.None.upgradeability",
+    "admin.pause.None.upgradeability",
+    "admin.freeze_asset.None.upgradeability",
+    "admin.blacklist_address.None.upgradeability",
+    "admin.set_oracle.None.upgradeability",
+    "admin.set_parameters.None.upgradeability",
     "admin.seize.None.upgradeability"
    ],
    "rejected": [],
@@ -397,67 +686,195 @@
     "temperature": 0
    },
    "slot": "admin_surface_narrative",
-   "text": "The system states that no admin power can alter backing — immutable. Every function, including minting, setting ceilings, upgrading code, pausing operations, freezing assets, blacklisting addresses, setting oracles, changing parameters, and seizing funds, is marked as immutable with a delay of 0 seconds and no veto address.\n\nEach capability has an owner that reads contract data but cannot change the underlying rules. The absence_read status applies to minting ceilings, upgrades, pauses, asset freezes, blacklists, oracle settings, parameter changes, and seizures for specific owners, while contract_read applies to others. No holder type exists beyond none, and no bucket or delay modifies the immediate effect of any action.\n\nBecause all admin functions are immutable and execute instantly without veto, the backing cannot be changed by any entity listed in the rows. The only way to alter these conditions would be a change to the contract itself, which is also marked as immutable.",
+   "text": "No admin power can alter backing — immutable. The protocol lacks any holder for minting, debt ceilings, contract upgrades, pausing, freezing assets, blacklisting addresses, oracle settings, risk parameters, or seizing assets. Each of these powers is held by no one and marked as immutable.\n\nAny change to these functions would require a modification that does not exist in the current code. The delay for every potential action is listed as no delay because the authority to act is absent. No veto address exists to block a change, and no owner contract holds the keys to alter the system.\n\nThe structure remains fixed at the report's block. Because no entity controls minting or backing adjustments, the collateral ratio cannot be changed by an administrator. The absence of these powers means the token's value relies entirely on market forces rather than administrative intervention.",
    "think": false,
-   "total_duration": 652762251600,
-   "wall_s": 654.8
+   "total_duration": 561221831800,
+   "wall_s": 563.2
   },
   {
    "calls": [
     {
      "digest": "6488c96fa5faab64bb65cbd30d4289e20e6130ef535a93ef9a49f42eda893ea7",
      "done_reason": "stop",
-     "eval_count": 164,
-     "eval_duration": 21856358000,
-     "input_hash": "34340451e2a921a274de28788c58956598ee571c53b1c48528cb7b6cec14beac",
+     "eval_count": 246,
+     "eval_duration": 33728303999,
+     "input_hash": "31299c75e38cd923aad5a4f0890441b56e3f9a63eebee42e792dc240c87a8a42",
      "model": "qwen3.5:9b",
      "num_ctx": 32768,
      "num_predict": 2000,
      "ollama_version": "0.34.4",
-     "prompt_eval_count": 4005,
-     "prompt_eval_duration": 116057945000,
-     "prompt_hash": "5ab8766823e27360e73a758844cde41283507c022316a9c5dc4bcf496eb48ab0",
+     "prompt_eval_count": 4021,
+     "prompt_eval_duration": 122392443000,
+     "prompt_hash": "b0a0ae85491ab391e5b1aeca2f7125da61d48ce3636b887a5fb0fe1f25ee5db2",
+     "rejected": {
+      "guard_violations": {
+       "numbers_not_printed": [
+        "$100.0%"
+       ]
+      },
+      "printed_by": {
+       "$0": [
+        "headline.m2.bad_debt",
+        "headline.m3.forced_sell_volume",
+        "stabilizer.slice.ceiling_aggregate",
+        "stabilizer.slice.debt",
+        "supply.residual",
+        "supply.residual_unexplained"
+       ],
+       "$194.1M": [
+        "tree.root.backing_value"
+       ],
+       "$8.3M": [
+        "headline.m3.exit_depth"
+       ],
+       "-79.79%": [
+        "stress.structural_zero.reason"
+       ],
+       "-82.66%": [
+        "stress.structural_zero.reason"
+       ],
+       "-85.18%": [
+        "stress.structural_zero.reason"
+       ],
+       "1.1": [
+        "stress.structural_zero.reason"
+       ],
+       "1.5": [
+        "stress.structural_zero.reason"
+       ],
+       "6.3428": [
+        "stress.structural_zero.reason"
+       ],
+       "7.4222": [
+        "stress.structural_zero.reason"
+       ]
+      },
+      "references_field_ids": [
+       "tree.root.backing_value",
+       "verif.bar.terminal",
+       "supply.residual.description",
+       "headline.m3.forced_sell_volume",
+       "headline.m3.exit_depth",
+       "stress.structural_zero.flag",
+       "stress.structural_zero.reason"
+      ],
+      "text": "The token is backed by $194.1M of collateral, of which $100.0% can be checked directly on-chain and the remaining $0 relies on disclosures or wrapped wrappers. On the ruled grid there is no bad debt because every LUSD is minted as trove debt that includes gas compensation, so forced sales are $0 against $8.3M of exit liquidity. The structural-zero flag confirms this state: no trove reaches its maintenance collateral ratio on the ruled grid; the first liquidation occurs at an ETH shock of -82.66% (minimum ICR 6.3428 -> 1.1), recovery mode activates at -79.79% (TCR 7.4222 -> 1.5), and TCR falls below MCR at -85.18%, while Liquity v1 is wound down to 70 troves."
+     },
      "sampling": {
       "seed": 0,
       "temperature": 0
      },
      "think": false,
-     "total_duration": 138004497500,
-     "wall_s": 140.1
+     "total_duration": 156346252800,
+     "wall_s": 158.4
+    },
+    {
+     "digest": "6488c96fa5faab64bb65cbd30d4289e20e6130ef535a93ef9a49f42eda893ea7",
+     "done_reason": "stop",
+     "eval_count": 152,
+     "eval_duration": 20854292000,
+     "input_hash": "9667abe7ee8b5640e981bb714d94c714da2d1490fb952bad8bad6b5982306d5d",
+     "model": "qwen3.5:9b",
+     "num_ctx": 32768,
+     "num_predict": 2000,
+     "ollama_version": "0.34.4",
+     "prompt_eval_count": 4226,
+     "prompt_eval_duration": 42347517000,
+     "prompt_hash": "b0a0ae85491ab391e5b1aeca2f7125da61d48ce3636b887a5fb0fe1f25ee5db2",
+     "sampling": {
+      "seed": 0,
+      "temperature": 0
+     },
+     "think": false,
+     "total_duration": 63224479200,
+     "wall_s": 65.3
     }
    ],
    "digest": "6488c96fa5faab64bb65cbd30d4289e20e6130ef535a93ef9a49f42eda893ea7",
    "done_reason": "stop",
-   "eval_count": 164,
-   "eval_duration": 21856358000,
-   "input_hash": "34340451e2a921a274de28788c58956598ee571c53b1c48528cb7b6cec14beac",
+   "eval_count": 398,
+   "eval_duration": 20854292000,
+   "input_hash": "9667abe7ee8b5640e981bb714d94c714da2d1490fb952bad8bad6b5982306d5d",
    "model": "qwen3.5:9b",
    "num_ctx": 32768,
    "num_predict": 2000,
    "ollama_version": "0.34.4",
    "pass": 1,
-   "prompt_eval_count": 4005,
-   "prompt_eval_duration": 116057945000,
-   "prompt_hash": "5ab8766823e27360e73a758844cde41283507c022316a9c5dc4bcf496eb48ab0",
-   "reasks": 0,
+   "prompt_eval_count": 8247,
+   "prompt_eval_duration": 42347517000,
+   "prompt_hash": "b0a0ae85491ab391e5b1aeca2f7125da61d48ce3636b887a5fb0fe1f25ee5db2",
+   "reasks": 1,
    "references_added": [],
    "references_field_ids": [
     "verif.bar.terminal",
-    "headline.m3.forced_sell_volume",
-    "headline.m3.exit_depth",
     "stress.structural_zero.flag",
     "stress.structural_zero.reason"
    ],
-   "rejected": [],
+   "rejected": [
+    {
+     "guard_violations": {
+      "numbers_not_printed": [
+       "$100.0%"
+      ]
+     },
+     "printed_by": {
+      "$0": [
+       "headline.m2.bad_debt",
+       "headline.m3.forced_sell_volume",
+       "stabilizer.slice.ceiling_aggregate",
+       "stabilizer.slice.debt",
+       "supply.residual",
+       "supply.residual_unexplained"
+      ],
+      "$194.1M": [
+       "tree.root.backing_value"
+      ],
+      "$8.3M": [
+       "headline.m3.exit_depth"
+      ],
+      "-79.79%": [
+       "stress.structural_zero.reason"
+      ],
+      "-82.66%": [
+       "stress.structural_zero.reason"
+      ],
+      "-85.18%": [
+       "stress.structural_zero.reason"
+      ],
+      "1.1": [
+       "stress.structural_zero.reason"
+      ],
+      "1.5": [
+       "stress.structural_zero.reason"
+      ],
+      "6.3428": [
+       "stress.structural_zero.reason"
+      ],
+      "7.4222": [
+       "stress.structural_zero.reason"
+      ]
+     },
+     "references_field_ids": [
+      "tree.root.backing_value",
+      "verif.bar.terminal",
+      "supply.residual.description",
+      "headline.m3.forced_sell_volume",
+      "headline.m3.exit_depth",
+      "stress.structural_zero.flag",
+      "stress.structural_zero.reason"
+     ],
+     "text": "The token is backed by $194.1M of collateral, of which $100.0% can be checked directly on-chain and the remaining $0 relies on disclosures or wrapped wrappers. On the ruled grid there is no bad debt because every LUSD is minted as trove debt that includes gas compensation, so forced sales are $0 against $8.3M of exit liquidity. The structural-zero flag confirms this state: no trove reaches its maintenance collateral ratio on the ruled grid; the first liquidation occurs at an ETH shock of -82.66% (minimum ICR 6.3428 -> 1.1), recovery mode activates at -79.79% (TCR 7.4222 -> 1.5), and TCR falls below MCR at -85.18%, while Liquity v1 is wound down to 70 troves."
+    }
+   ],
    "sampling": {
     "seed": 0,
     "temperature": 0
    },
    "slot": "structural_summary",
-   "text": "The token is backed by collateral whose value can be checked directly on-chain, accounting for 100.0% of the total backing held in assets verifiable on the chain.\n\nA stress scenario shows no forced sales are required against available exit liquidity, resulting in a ratio of 0. This outcome occurs because no trove reaches its minimum collateral ratio on the ruled grid; the first liquidation would occur at an ETH shock of -82.66%, while recovery mode activates at -79.79% and TCR falls below MCR at -85.18%.",
+   "text": "The token is backed by collateral whose value can be checked directly on-chain, and the structural-zero flag indicates that bad debt is zero because no trove reaches its minimum collateral ratio on the ruled grid. The first liquidation occurs at an ETH shock of -82.66%, where the minimum internal collateral ratio falls to 1.1, while recovery mode activates at a shock of -79.79% when the total collateral ratio drops to 1.5; TCR falls below MCR at -85.18% and Liquity v1 is wound down to 70 troves.",
    "think": false,
-   "total_duration": 138004497500,
-   "wall_s": 140.1
+   "total_duration": 63224479200,
+   "wall_s": 65.3
   }
  ],
  "judge": [
@@ -476,7 +893,7 @@
  "pass2_skipped": null,
  "pipeline_version": "0.1.0",
  "publication": null,
- "report_hash": "d771e7be2544ec7e32db42560a3a33a40a2ac1a43f6f31b82669eccebf6dbbdd",
+ "report_hash": "94217af8067c83ada225264f5952a33f1d437fcbdb7fea0f1654a7290534553e",
  "results": [
   {
    "entry_id": "DET-02",
@@ -1062,7 +1479,7 @@
  "sheet_hash": "29682310",
  "stress_hash": "505aa927ef0803230dc2db409c172989712ef97363311845fcb9604b7f0c06be",
  "table_hash": "1869bb45db2f01afe54aba5d65c882aa5ca375bd4937050e93ceeb916e0f5875",
- "template_hash": "9ed62a141938c50f9600e297d9adf72b5e588f42cc40c4ec384cb6b78618d30d",
+ "template_hash": "b0cc349d00ffdae1a2e1cc6d854a3d5e494334706cf6063cb5fe17a776eb6332",
  "token": "LUSD",
  "tree_hash": "65129970080791f3ccb20a3548541d0fcd332f45a71f96208783484f37d8e804",
  "triggers": [],

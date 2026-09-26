@@ -414,6 +414,31 @@ def build(repo: pathlib.Path, token: str, client=None, extra_fired: tuple = (),
             inputs_memo[slot] = llm.slot_input(slot, sp, doc, displays, flags, wording)
         return inputs_memo
 
+    def slot_parts(slot: str) -> list[str] | None:
+        """P-8.07: a split slot's per-part inputs - one per counterfactual line (table order)
+        or one per open Level-1 flag (log order, each with its own trigger's owners); None
+        for an unsplit slot or a flag slot with no open flag."""
+        sp = llm.prompts(repo)["slots"][slot]
+        if not sp.get("split"):
+            return None
+        displays = row_displays(repo, doc)
+        if sp["split"] == "counterfactual_line":
+            lines = llm.counterfactual_lines(doc)
+            return [llm.slot_input(slot, {**sp, "owners": []}, doc, displays, [], wording,
+                                   {"line": ln, "index": i, "of": len(lines)})
+                    for i, ln in enumerate(lines)] or None
+        opened = eventlog.open_entries([*entries, *eventlog.plan_quarantine(
+            entries, token, date, [(x["trigger"], x["level"]) for x in fired_checks])], token)
+        l1 = [(eid, e) for eid, e in opened if e.level == 1]
+        return [llm.slot_input(slot, {**sp, "owners": ttable[e.trigger]["owners"]}, doc,
+                               displays, [{"entry_id": eid,
+                                           "trigger_literal": ttable[e.trigger]["name"],
+                                           "section": ttable[e.trigger]["section"],
+                                           "fire_date": e.date, "meaning": wording.get(
+                                               "flag_meaning", {}).get(e.trigger)}],
+                               wording, {"flag": eid, "index": i, "of": len(l1)})
+                for i, (eid, e) in enumerate(l1)] or None
+
     def generate_all(pass_no: int, own: dict[str, list[dict]] | None = None,
                      carry: dict[str, str] | None = None, pass1: dict[str, str] | None = None
                      ) -> dict:
@@ -445,6 +470,8 @@ def build(repo: pathlib.Path, token: str, client=None, extra_fired: tuple = (),
                                        "pass1_defects": own[slot]}, ensure_ascii=False)
                     out, meta = llm.revise(slot, user, client, repo, sp["obligations"], bounds,
                                            g1.get("references_field_ids", []))
+                elif (parts := slot_parts(slot)) is not None:      # P-8.07: per part
+                    out, meta = llm.generate_parts(slot, parts, client, repo, sp["obligations"])
                 else:
                     out, meta = llm.generate(slot, user, client, repo, sp["obligations"], bounds)
                 prose[slot] = out.text

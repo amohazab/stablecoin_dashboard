@@ -31,6 +31,8 @@ def built(tmp_path_factory):
     for code in manifest.TEMPLATE_CODE:                     # B-11c: inside template_hash
         (root / code).parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(REPO / code, root / code)
+    from tests.llm_fake import pin_to_recorded  # P-8.06: the recorded blocks
+    pin_to_recorded(root)
     return {t: build(root, t) for t in TOKENS}
 
 
@@ -54,10 +56,14 @@ def test_every_row_replays_and_the_committed_table_matches(built):
 
 
 def _det84(token, doc):
-    from factory.schema import StressReport
+    from factory.schema import Bundle, StressReport, VerifiabilityTree
     from factory.stress import load_inputs
     inp = load_inputs(REPO, token)
-    blk = inp["bundle"].header.run_block
+    blk = doc["run_block"]                        # P-8.06: the table's own (recorded) block
+    inp["bundle"] = Bundle.model_validate_json((REPO / f"out/bundles/{token}/{blk}.json")
+                                               .read_text(encoding="utf-8"))
+    inp["tree"] = VerifiabilityTree.model_validate_json(
+        (REPO / f"out/trees/{token}/{blk}.json").read_text(encoding="utf-8"))
     s = StressReport.model_validate_json((REPO / f"out/stress/{token}/{blk}.json")
                                          .read_text(encoding="utf-8"))
     mirror = json.loads(json.dumps(inp["cfg"].sheet, default=str))

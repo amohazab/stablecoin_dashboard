@@ -153,6 +153,53 @@ def test_a_leading_minus_is_part_of_the_figure():
         "-81.63%", "−50%", "-$5", "5.9", "1.1"]
 
 
+def test_identifiers_are_read_and_the_guard_rejects_them():
+    text = ("The absence_read status and a fetchPrice call at run_block; crvUSD, wstETH, sUSDe, "
+            "cbBTC, waEthUSDC and the PegKeepers are names; 0x3d32e8…5521 is an address; "
+            "Member-1.")
+    assert sorted(llm.identifiers(text)) == ["absence_read", "fetchPrice", "run_block"]
+    bad = llm.guard(llm.SlotProse(text="The owner read is contract_read.",
+                                  references_field_ids=[]), [])
+    assert bad == {"identifiers": ["contract_read"]}
+
+
+def test_an_identifier_costs_one_reask_then_publishes(tmp_path):
+    import shutil
+
+    from factory.report.__main__ import build
+    from tests.llm_fake import FIXTURES, FakeClient
+    from tests.test_b13 import tmp_repo
+    case = tmp_path / "case"
+    shutil.copytree(FIXTURES / "k8_positive_control", case)
+    gen = json.loads((case / "generation.json").read_text(encoding="utf-8"))
+    first = {"admin_surface_narrative": {**gen["admin_surface_narrative"],
+             "text": gen["admin_surface_narrative"]["text"] + " The status is absence_read."}}
+    (case / "generation_first.json").write_text(json.dumps(first), encoding="utf-8")
+    fake = FakeClient("k8_positive_control")
+    fake.dir = case
+    r = build(tmp_repo(tmp_path / "repo"), "LUSD", client=fake)
+    g = next(x for x in r["record"].generation if x["slot"] == "admin_surface_narrative")
+    assert g["reasks"] == 1 and fake.slot_calls["admin_surface_narrative"] == 2
+    assert g["rejected"][0]["guard_violations"] == {"identifiers": ["absence_read"]}
+    assert r["record"].outcome == "published"
+
+
+def test_admin_rows_reach_the_generator_in_plain_words():
+    import tomllib
+    doc = json.loads((REPO / "out/report/LUSD/26052560/table.json").read_text(encoding="utf-8"))
+    w = tomllib.loads((REPO / "templates/wording.toml").read_text(encoding="utf-8"))
+    spec = llm.prompts(REPO)["slots"]["admin_surface_narrative"]
+    rows = {r["field_id"]: r for r in json.loads(llm.slot_input(
+        "admin_surface_narrative", {**spec, "owners": [], "max_entities_per_group": None}, doc, {},
+        [], w))["rows"]}
+    assert rows["admin.mint.None.holder_type"]["label"] == "minting: who holds it"
+    assert rows["admin.mint.None.holder_type"]["printed"] == ["no one holds this power"]
+    assert rows["admin.mint.None.delay_bucket"]["printed"] == ["no delay"]
+    assert rows["admin.mint.None.A8"]["printed"] == [w["evidence"]["absence_read"]]
+    blob = json.dumps([{k: r[k] for k in ("label", "value", "printed")} for r in rows.values()])
+    assert "absence_read" not in blob and "contract_read" not in blob and "bucket" not in blob
+
+
 def test_percent_substitution_carries_the_printed_form():
     rows = [{"field_id": "a", "printed": ["5.0%"]}, {"field_id": "b", "printed": ["25.0%"]}]
     text, subs = llm.substitute_percents("a 5% fall and 25% of 5.0%", rows)
@@ -191,3 +238,89 @@ def test_judge_calls_are_scoped_subsets_and_pass_is_computed():
     done = llm.computed_pass(env, {})
     assert done.overall_pass and all(c.pass_ for c in done.criteria)
     assert not llm.computed_pass(env, {"LLM-02": "x"}).overall_pass
+
+
+def test_code_words_leave_no_identifier_in_any_slot_input():
+    # P-8.07 (b'): every code name in a label, value, printed form or assumption id is worded
+    import tomllib
+
+    from factory.report.__main__ import row_displays
+    w = tomllib.loads((REPO / "templates/wording.toml").read_text(encoding="utf-8"))
+    spec = llm.prompts(REPO)["slots"]
+    left = set()
+    for t, b in (("crvUSD", 26053560), ("GHO", 26053568), ("LUSD", 26052560)):
+        doc = json.loads((REPO / f"out/report/{t}/{b}/table.json").read_text(encoding="utf-8"))
+        d = row_displays(REPO, doc)
+        for slot in spec:
+            u = json.loads(llm.slot_input(slot, {**spec[slot], "owners": [],
+                                                 "max_entities_per_group": None}, doc, d, [], w))
+            for r in u["rows"]:
+                left |= set(llm.identifiers(json.dumps([r["label"], r["value"], r["printed"]],
+                                                       ensure_ascii=False)))
+            left |= {i for a in u["assumptions"] for i in llm.identifiers(a["id"])}
+    assert left == set()
+
+
+class _Paras:
+    """Answers each generation call with the next queued text."""
+    version, digest = "0", "sha256:x"
+
+    def __init__(self, texts):
+        self.texts = list(texts)
+
+    def chat(self, body):
+        return {"message": {"content": json.dumps({"text": self.texts.pop(0),
+                                                   "references_field_ids": []})},
+                "done_reason": "stop", "prompt_eval_count": 10, "eval_count": 5}
+
+
+def test_generate_parts_joins_one_paragraph_per_part_and_fails_closed():
+    users = [json.dumps({"rows": [], "part": {"line": x}}) for x in ("A", "B")]
+    out, meta = llm.generate_parts("counterfactual_explanations", users, _Paras(["one.", "two."]),
+                                   REPO, "obligations")
+    assert out.text == "one.\n\ntwo." and [p["part"]["line"] for p in meta["parts"]] == ["A", "B"]
+    assert meta["sampling"] == {"temperature": 0, "seed": 0} and len(meta["calls"]) == 2
+    with pytest.raises(llm.LLMError, match="part 2 of 2") as e:       # 2 paragraphs, twice
+        llm.generate_parts("counterfactual_explanations", users,
+                           _Paras(["one.", "a.\n\nb.", "a.\n\nb."]), REPO, "obligations")
+    assert len(e.value.calls) == 3
+
+
+def test_a_length_stop_keeps_its_content():
+    client = Replay(message={"content": '{"text": "loop loop'}, done_reason="length",
+                    prompt_eval_count=10)
+    with pytest.raises(llm.LLMError, match="length") as e:
+        llm._call(client, kind="generate", system="s", user="u", output=llm.SlotProse, phash="p")
+    assert e.value.calls[0]["rejected"]["text"] == '{"text": "loop loop'
+
+
+def test_split_slots_run_one_call_per_part_through_the_report_stage(tmp_path):
+    from factory.report.__main__ import build
+    from tests.llm_fake import FakeClient
+    from tests.test_b13 import tmp_repo
+    fake = FakeClient("k8_positive_control")
+    r = build(tmp_repo(tmp_path), "LUSD", client=fake, extra_fired=(("T-22", 1),))
+    gen = {g["slot"]: g for g in r["record"].generation}
+    assert [p["part"]["line"] for p in gen["counterfactual_explanations"]["parts"]] == \
+        ["Tellor_fallback"]
+    assert len(gen["flag_explanations"]["parts"]) == 1
+    assert fake.slot_calls["counterfactual_explanations"] == 1
+    assert r["record"].outcome == "published"
+
+
+def test_the_entity_cap_keeps_whole_entities_and_exempts_admin_and_member2():
+    import tomllib
+
+    from factory.report.__main__ import row_displays
+    w = tomllib.loads((REPO / "templates/wording.toml").read_text(encoding="utf-8"))
+    spec = llm.prompts(REPO)["slots"]
+    assert "max_entities_per_group" not in spec["admin_surface_narrative"]
+    assert "max_entities_per_group" not in spec["member2_opening"]
+    assert spec["verifiability_narrative"]["max_entities_per_group"] == 8
+    doc = json.loads((REPO / "out/report/GHO/26053568/table.json").read_text(encoding="utf-8"))
+    u = json.loads(llm.slot_input("verifiability_narrative",
+                                  {**spec["verifiability_narrative"], "owners": []}, doc,
+                                  row_displays(REPO, doc), [], w))
+    nodes = {r["field_id"].rsplit(".", 1)[0] for r in u["rows"]
+             if r["field_id"].startswith("tree.node.")}
+    assert len(nodes) == 8 and all(f"{n}.bar" in {r["field_id"] for r in u["rows"]} for n in nodes)

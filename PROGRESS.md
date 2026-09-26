@@ -9019,3 +9019,74 @@ Status: DONE (opened 2026-09-14; done-condition met 2026-09-15, P-9.03).
   `PROGRESS.md`.
 - **Follow-ups spawned:** Amin's review of the LUSD page; crvUSD and GHO at fresh blocks the
   same way; then the push, Q9/Q10/Q14 (R8) and the scheduled runs.
+
+## P-8.07 — crvUSD and GHO at fresh blocks, two batches; no further generator tuning; LUSD stands
+
+- **Date:** 2026-09-26
+- **Type:** implementation
+- **Confirmed by:** Amin
+- **Content:**
+  **P-8.06 COMMITTED** with P-8.04–P-8.05 and the build at `13296b3` (46 files), after
+  `161be4f`; pushed `cb71180..13296b3`. All three slices equal their drafts (sha256
+  `72bdeb46` / `8ca7d73f` / `ac6ae454`); no key in any staged file.
+  **BEFORE BATCH 1 (ruled 2026-09-25).**
+  - The guard rejects snake_case and camelCase tokens (`harness._identifiers`, one owner
+    beside `_num_tokens`), recorded as `identifiers`; one re-ask. `generate.md` rule 10
+    names them.
+  - Admin rows reach the generator in plain words (`[admin_row]`, `[evidence]`,
+    `llm.admin_words`).
+  **FRESH BLOCKS:** crvUSD **26053560** (bundle `168371c8`, tree `a64493e5` linking
+  `GHO@26053568`, stress `fa128db7`); GHO **26053568** (bundle `d90f8ddd`, tree `e331dee5`
+  linking `crvUSD@26053560`, stress `f6b039c4`); all 26/26, trees 14/14. GHO carries T-20 and
+  T-02 (L1).
+  **BATCH 1** (template `b0cc349d`), cold, 13,734 s:
+  - crvUSD blocked_S3, 3 slots empty, 4,852 s;
+  - GHO blocked_S3, 4 slots empty, 6,886 s (member1 `length` at 2,000 output tokens);
+  - LUSD published **`94217af8`**, 1,996 s.
+  The caught identifiers were all code names from the inputs, none a real symbol.
+  **THE FIXES (ruled 2026-09-25):**
+  - (b′) `[code_words]`: 68 plain-word entries, plus `[holders]` and `[powers]`, for every
+    code name in a label, value, printed form or assumption id (`llm.code_words`); none left.
+  - (c) the entity cap: `max_entities_per_group = 8` (named default), admin and member2
+    exempt. crvUSD structural ×0.43 and member1 ×0.77; GHO verifiability ×0.68 and member1
+    ×0.70.
+  - One generation call per counterfactual line and per open flag, bound [1, 1], joined in
+    order.
+  - `_call` keeps the content on a `length` stop, under `rejected`. Numbers copied from field
+    ids are accepted.
+  **BATCH 2** (template `09612201`): crvUSD blocked_S3, 3 empty, 3,406 s; GHO blocked_S3, 3
+  empty, 5,052 s.
+  - Failures: paragraph counts, rule 2 ("7 days", "0.00%", "$260") and references outside
+    the rows. No identifier; no `length`.
+  - The log gained no line (the same fire tuple on the same block date).
+  **FINDING:** the empty-slot rate on crvUSD and GHO is unchanged (3/7 and 4/7 → 3/7 and 3/7);
+  the fixes moved which slots fail, not how many. **RULED (Amin, 2026-09-26): no further
+  generator tuning.** crvUSD and GHO keep their last published pages (Q7); LUSD stands at
+  `94217af8`.
+  **METHODOLOGY**, the "Gates" sentence, read back and applied: LUSD's summaries come from
+  the local model under the guard with no second reviewer; crvUSD's and GHO's drafts did not
+  pass it, so their pages carry the prose of their last published run, written by Anthropic's
+  API models in the September evaluation runs before the local configuration, and the log
+  records each attempt; the deterministic checks run on every page.
+  **SITE ×2** byte-identical, 26 files: LUSD rewrite `a80f7d37` → `e46ee3c5`, crvUSD and GHO
+  unchanged, `site.json` `99aa318a`, methodology `fb601704`, selector `3ea6814a`. The log
+  holds 13 rows.
+  **TESTS** 349 → 357; ruff clean. prompt_hash `2afbd11f`, template_hash `09612201`. Tests
+  pinned to the recorded blocks after each new block (`test_b10`, `test_s3`).
+  **FORWARD NOTE:** a larger local model or a GPU reopens crvUSD and GHO.
+  **AS-COUNTED.**
+  - Design layer: the row cap, proposed by the design layer and ruled on its proposal. It
+    broke the admin and verifiability obligations and was caught by the check before any run.
+  - Amin: both `.env.example` deletions; the file stays.
+  - Builder: the key scan read `ANTHROPIC_API_KEY`'s value; the first camelCase pattern
+    caught `waEthUSDC` (fixed before any run); the batch estimate was ~1.5 h against 3.8 h
+    cold; four tests read the newest block before they were pinned.
+- **Artifacts:** `src/factory/report/{llm,__main__}.py` · `src/factory/validate/harness.py`;
+  `templates/prompts/{generate.md,slots.toml}` · `templates/wording.toml` ·
+  `templates/site/methodology.html.j2`; `tests/{test_ollama,test_b10,test_s3,test_behavioral,
+  test_site}.py`; `out/{bundles,trees,stress,evaluation}/{crvUSD/26053560,GHO/26053568}.json` ·
+  `out/report/{crvUSD/26053560,GHO/26053568}/` · `out/evaluation/LUSD/26052560.json` ·
+  `out/report/LUSD/26052560/manifest.json` · `out/logs/events_{crvusd,gho,lusd}.jsonl` ·
+  `out/site/` (LUSD, index, methodology, site.json); `PROGRESS.md`.
+- **Follow-ups spawned:** commit and push (Pages manual, nothing deploys); the scheduler
+  block (Q9, Q10, Q14).

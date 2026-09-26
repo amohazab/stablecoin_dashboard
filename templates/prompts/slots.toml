@@ -5,6 +5,12 @@
 # `paragraphs` (previews ruling 4): the count the guard enforces - [min, max], or one per
 # open flag / counterfactual line - matching the obligations' last line.
 
+# P-8.07 (Amin, (c), ruled (i)) NAMED DEFAULT: each prefix group of a slot's input keeps its 8
+# largest ENTITIES - an entity is a row's parent field id (one node, one cause, one cell, one
+# map key) - ranked by their largest |value|, with all their rows (a node keeps its class
+# row). Slots marked `cap = false` are exempt. The page is unchanged.
+max_entities_per_group = 8
+
 [slot.structural_summary]
 paragraphs = [1, 2]
 page_section = "finding"
@@ -39,6 +45,7 @@ obligations = """- Open with why a collateral price crash fits this token's liqu
 - Two to four paragraphs."""
 
 [slot.member2_opening]
+cap = false                     # P-8.07: exempt from the entity cap
 paragraphs = [2, 3]
 page_section = "exit-liquidity"
 prefixes = ["exit.member2_target", "m2.headline.", "m2.target.", "m2.curve.", "exit.gsm.", "mech.h2_routing.", "exit.curve.", "assumption.structural_insulation", "headline.m4.paired_units_held", "headline.m4.effective", "headline.m4.burn_capacity", "headline.m4.withdraw_allowed", "headline.m4.pool_tilt_post_cell"]
@@ -48,6 +55,8 @@ obligations = """- Open with why a depeg of the paired stablecoin fits this toke
 - Two to three paragraphs."""
 
 [slot.flag_explanations]
+# P-8.07 (Amin): one generation call per open flag, one paragraph each, joined in order
+split = "flag"
 paragraphs = "per_flag"
 page_section = "oracle"
 prefixes = []
@@ -57,6 +66,9 @@ obligations = """- For every entry in `open_level1_flags`, explain what fired (u
 - One short paragraph per open flag."""
 
 [slot.counterfactual_explanations]
+# P-8.07 (Amin): one generation call per counterfactual line, one paragraph each, joined in
+# table order
+split = "counterfactual_line"
 paragraphs = "per_counterfactual_line"
 page_section = "counterfactuals"
 prefixes = ["headline.cf.", "assumption.ema_lag_readings", "assumption.oracle_assumption"]
@@ -65,6 +77,7 @@ obligations = """- For every counterfactual line in the rows, explain what the l
 - One paragraph per counterfactual line."""
 
 [slot.admin_surface_narrative]
+cap = false                     # P-8.07: exempt from the entity cap
 paragraphs = [2, 3]
 page_section = "admin"
 prefixes = ["admin.", "verif.banner"]

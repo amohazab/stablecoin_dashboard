@@ -245,7 +245,16 @@ def prompts(repo: pathlib.Path) -> dict[str, Any]:
             "judge": (tpl / "judge.md").read_text(encoding="utf-8"),
             "remediate": (tpl / "remediate.md").read_text(encoding="utf-8"),
             "revise": (tpl / "revise.md").read_text(encoding="utf-8"),
-            "slots": tomllib.loads((tpl / "slots.toml").read_text(encoding="utf-8"))["slot"]}
+            "slots": _slots(tpl / "slots.toml")}
+
+
+def _slots(path: pathlib.Path) -> dict:
+    """slots.toml's `[slot.*]` tables, each carrying the file's `max_entities_per_group`
+    unless the slot sets `cap = false`."""
+    doc = tomllib.loads(path.read_text(encoding="utf-8"))
+    cap = doc.get("max_entities_per_group")
+    return {k: ({**v, "max_entities_per_group": cap} if cap and v.get("cap", True) else v)
+            for k, v in doc["slot"].items()}
 
 
 def sha(*parts: str) -> str:
@@ -476,7 +485,9 @@ def _call(client, *, kind: str, system: str, user: str, output: type, phash: str
     meta.update({k: resp.get(k) for k in ("done_reason", "prompt_eval_count", "eval_count",
                                            "prompt_eval_duration", "eval_duration",
                                            "total_duration")})
-    if meta["done_reason"] == "length":
+    if meta["done_reason"] == "length":           # P-8.07: the content is kept
+        meta["rejected"] = {"text": (resp.get("message") or {}).get("content") or "",
+                            "guard_violations": {"done_reason": "length"}}
         raise LLMError(f"done_reason length at num_predict {num_predict}", [meta])
     if (meta["prompt_eval_count"] or 0) + num_predict > NUM_CTX:
         raise LLMError(f"prompt truncated: prompt_eval_count {meta['prompt_eval_count']} + "
@@ -512,8 +523,49 @@ def _family_labels(doc: dict, families: dict) -> dict[str, str]:
     return out
 
 
+def _magnitude(v: Any) -> Decimal:
+    if isinstance(v, bool) or v is None:
+        return Decimal(-1)
+    try:
+        return abs(Decimal(str(v)))
+    except (InvalidOperation, ValueError):
+        return Decimal(-1)
+
+
+def cap_groups(rows: list[dict], spec: dict) -> list[dict]:
+    """P-8.07 (c), ruled (i): each prefix group (the slots.toml prefix, or the owner entry,
+    that selected the row) keeps its `max_entities_per_group` largest entities - an entity
+    is a row's parent field id - ranked by their largest |value| (non-numeric ranks last,
+    then table order), with all their rows; the kept rows stay in table order."""
+    cap = spec.get("max_entities_per_group")
+    if not cap:
+        return rows
+    groups: dict[str, dict[str, list[int]]] = {}
+    for i, r in enumerate(rows):
+        g = next((p for p in spec["prefixes"] if r["field_id"].startswith(p)),
+                 f"owner:{r.get('owner_entry')}")
+        groups.setdefault(g, {}).setdefault(r["field_id"].rsplit(".", 1)[0], []).append(i)
+    keep: set[int] = set()
+    for ents in groups.values():
+        ranked = sorted(ents.values(),
+                        key=lambda idx: (-max(_magnitude(rows[i]["value"]) for i in idx), idx[0]))
+        for idx in ranked[:cap]:
+            keep.update(idx)
+    return [r for i, r in enumerate(rows) if i in keep]
+
+
+def counterfactual_lines(doc: dict) -> list[str]:
+    """The counterfactual line ids, in table order."""
+    out: list[str] = []
+    for r in doc["rows"]:
+        m = re.match(r"headline\.cf\.([^.]+)\.", r["field_id"])
+        if m and m[1] not in out:
+            out.append(m[1])
+    return out
+
+
 def slot_input(slot: str, spec: dict, doc: dict, displays: dict, flags: list[dict],
-               wording: dict | None = None) -> str:
+               wording: dict | None = None, part: dict | None = None) -> str:
     """The user content for one slot: that slot's rows (each with its plain label and the
     printed forms the page uses - the only forms a number may be cited in, compact
     first), the assumptions block, and - for flag explanations - the open Level-1
@@ -537,18 +589,72 @@ def slot_input(slot: str, spec: dict, doc: dict, displays: dict, flags: list[dic
         pre = next((p for p in fam if r["field_id"].startswith(p)), None)
         return fam[pre] if pre else plain_label(r["field_id"], r["label"], labels)
 
+    chosen = [r for r in doc["rows"]
+              if any(r["field_id"].startswith(p) for p in spec["prefixes"])
+              or r.get("owner_entry") in spec.get("owners", [])]
+    if part and "line" in part:           # P-8.07: one counterfactual line's rows only
+        chosen = [r for r in chosen if not r["field_id"].startswith("headline.cf.")
+                  or r["field_id"].startswith(f"headline.cf.{part['line']}.")]
     rows = [{"field_id": r["field_id"], "label": label(r),
              "value": r["value"], "unit": r["unit"], "denominator": r["denominator"],
              "printed": sorted(displays.get(r["field_id"], []), key=lambda x: (len(x), x))}
-            for r in doc["rows"]
-            if any(r["field_id"].startswith(p) for p in spec["prefixes"])
-            or r.get("owner_entry") in spec.get("owners", [])]
-    body = {"token": doc["token"], "slot": slot, "rows": rows, "assumptions": doc["assumptions"]}
+            for r in cap_groups(chosen, spec)]
+    admin_words(rows, wording)
+    assumptions = code_words(rows, doc["assumptions"], wording)
+    body = {"token": doc["token"], "slot": slot, "rows": rows, "assumptions": assumptions}
     if slot == "flag_explanations":
         body["open_level1_flags"] = flags
+    if part:
+        body["part"] = part
     return json.dumps(body, ensure_ascii=False, sort_keys=True, default=str)
 
 
+
+
+def admin_words(rows: list[dict], wording: dict) -> None:
+    """P-8.06 (Amin): an admin row reaches the generator in plain words - its label is the
+    power's name and `[admin_row]`'s kind, and a holder type, delay bucket or evidence kind
+    its `[holders]` / `[delay_short]` / `[evidence]` words (an unmapped value stays)."""
+    kinds = wording.get("admin_row", {})
+    tables = {"holder_type": wording.get("holders", {}), "delay_bucket":
+              wording.get("delay_short", {}), "A8": wording.get("evidence", {}),
+              "reads": wording.get("evidence", {})}
+    for r in rows:
+        parts = r["field_id"].split(".")
+        if parts[0] != "admin" or len(parts) < 4:
+            continue
+        kind = "reads" if "reads" in parts[3:] else parts[-1]
+        if kind not in kinds:
+            continue
+        r["label"] = f"{wording.get('powers', {}).get(parts[1], parts[1])}: {kinds[kind]}"
+        v = "none" if r["value"] is None else str(r["value"])
+        if v in tables[kind]:
+            r["value"] = tables[kind][v]
+            r["printed"] = [tables[kind][v]]
+
+
+def code_words(rows: list[dict], assumptions: list[dict], wording: dict) -> list[dict]:
+    """P-8.07 (b'): every identifier token in a row's label, string value or printed forms,
+    and in an assumption's id, becomes its plain words - `[code_words]`, then `[holders]` and
+    `[powers]`; an unmapped identifier stays (the guard rejects it if copied). Field ids are
+    never touched. Returns the assumptions block with its ids worded."""
+    table = {**wording.get("holders", {}), **wording.get("powers", {}),
+             **wording.get("code_words", {})}
+
+    def sub(text: str) -> str:
+        for tok in sorted(set(identifiers(text)), key=len, reverse=True):
+            if tok in table:
+                text = re.sub(rf"(?<![\w.]){re.escape(tok)}(?!\w)", table[tok], text)
+        return text
+    for r in rows:
+        r["label"] = sub(r["label"])
+        if isinstance(r["value"], str):
+            r["value"] = sub(r["value"])
+        elif isinstance(r["value"], list):
+            r["value"] = [sub(x) if isinstance(x, str) else x for x in r["value"]]
+        r["printed"] = [sub(p) for p in r["printed"]]
+    return [{**a, "id": sub(a["id"])} if isinstance(a.get("id"), str) else a
+            for a in assumptions]
 
 
 def number_tokens(text: str) -> list[str]:
@@ -556,6 +662,12 @@ def number_tokens(text: str) -> list[str]:
     (dates, addresses and bare integers below 1,000 are not figures)."""
     from factory.validate.harness import _num_tokens
     return _num_tokens(text)
+
+
+def identifiers(text: str) -> list[str]:
+    """P-8.06: snake_case and camelCase tokens - rule 4 as code (harness owns the regexes)."""
+    from factory.validate.harness import _identifiers
+    return _identifiers(text)
 
 
 def _printed(rows: list[dict]) -> dict[str, set[str]]:
@@ -619,9 +731,10 @@ def guard(prose: SlotProse, rows: list[dict], bounds: tuple[int, int] | None = N
     count = paragraphs_of(prose.text)
     wrong = ({"have": count, "want": list(bounds)}
              if bounds and not bounds[0] <= count <= bounds[1] else None)
+    idents = sorted(set(identifiers(prose.text)))          # P-8.06: rule 4 as code
     return {k: v for k, v in (("numbers_not_printed", stray), ("missing_field_ids", missing),
                               ("references_outside_rows", outside),
-                              ("paragraph_count", wrong)) if v}
+                              ("paragraph_count", wrong), ("identifiers", idents)) if v}
 
 
 _PCT = re.compile(r"^(-?\d[\d,]*(?:\.\d+)?)%$")
@@ -692,6 +805,32 @@ def generate(slot: str, user: str, client, repo: pathlib.Path, obligations: str,
                                   "printed_by": meta["rejected"]["printed_by"]},
                                  ensure_ascii=False)
     raise LLMError(f"{slot}: guard failed after one re-ask {bad}", metas)
+
+
+def generate_parts(slot: str, users: list[str], client, repo: pathlib.Path,
+                   obligations: str) -> tuple[SlotProse, dict]:
+    """P-8.07 (Amin): one generation call per counterfactual line or open flag, each bounded
+    to one paragraph, joined in order; any part that fails after its re-ask empties the
+    slot (an `LLMError` carrying every call)."""
+    texts, refs, parts, metas = [], [], [], []
+    for i, user in enumerate(users):
+        try:
+            out, meta = generate(slot, user, client, repo, obligations, (1, 1))
+        except LLMError as exc:
+            raise LLMError(f"part {i + 1} of {len(users)}: {exc}",
+                           [*metas, *exc.calls]) from exc
+        metas += meta["calls"]
+        texts.append(out.text.strip())
+        refs += out.references_field_ids
+        parts.append({"part": json.loads(user).get("part"), "reasks": meta["reasks"],
+                      "text": out.text})
+    joined = SlotProse(text="\n\n".join(texts), references_field_ids=list(dict.fromkeys(refs)))
+    first = {k: metas[0].get(k) for k in ("digest", "ollama_version", "think", "sampling",
+                                           "num_ctx", "num_predict", "prompt_hash")}
+    return joined, {"model": MODEL, **first, "slot": slot,
+                    "reasks": sum(p["reasks"] for p in parts),
+                    "parts": parts, "calls": metas, **_counters(metas),
+                    "rejected": [m["rejected"] for m in metas if "rejected" in m]}
 
 
 def apply_replacements(text: str, rev: SlotRevision, defects: list[dict]

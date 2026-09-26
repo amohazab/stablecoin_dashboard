@@ -28,7 +28,7 @@ SOURCE = {"crvUSD_depeg.json": "503c5df3", "GHO_depeg.json": "4592b784",
 FETCHED = dt.date(2026, 9, 15)
 # P-9.02's befores; LUSD's is the recorded re-render at 26052560 (P-8.06's second run, as
 # site.json records)
-P902_BEFORE = {"crvUSD": "996a25d1", "GHO": "f0e396e3", "LUSD": "9122c2a7"}
+P902_BEFORE = {"crvUSD": "996a25d1", "GHO": "f0e396e3", "LUSD": "a80f7d37"}   # P-8.07 batch
 
 # ---- the trimmed schema (P5): nothing outside it is ever committed ------------------------
 REQ = {"fetched_at": None, "url": None, "status": None, "seconds": None, "body_sha256": None,
