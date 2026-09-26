@@ -57,8 +57,10 @@ def plan(mode: str, token: str | None) -> list[tuple[str, list[str]]]:
 
 
 def _run(repo: pathlib.Path, argv: list[str]) -> tuple[int, str]:
+    # P-8.09: the stages write UTF-8 into the pipe, whatever the console's code page
+    env = {**os.environ, "PYTHONUTF8": "1", "PYTHONIOENCODING": "utf-8"}
     p = subprocess.run([sys.executable, "-m", *argv], cwd=repo, capture_output=True,
-                       text=True, encoding="utf-8", errors="replace")
+                       text=True, encoding="utf-8", errors="replace", env=env)
     return p.returncode, (p.stdout or "") + (p.stderr or "")
 
 
@@ -205,6 +207,10 @@ def chain(repo: pathlib.Path, mode: str, token: str | None, dry_run: bool = Fals
 
 
 if __name__ == "__main__":
+    # P-8.09: printing the log can never fail the run after its push (a cp1252 console
+    # raised UnicodeEncodeError and turned a pushed run into exit 1)
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
     args = sys.argv[1:]
     mode = "monthly" if "--monthly" in args else "weekly" if "--weekly" in args else None
     tok = args[args.index("--token") + 1] if "--token" in args else None

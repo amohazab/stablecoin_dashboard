@@ -133,10 +133,27 @@ def test_the_wrappers_and_the_workflow():
     for name, arg in (("run_monthly.cmd", "--monthly --token %1"), ("run_weekly.cmd", "--weekly")):
         text = (REPO / "tools/scheduler" / name).read_bytes().decode("ascii")
         assert "cd /d D:\\projects\\stable_dashboard" in text and "\r\n" in text
-        assert f"-m factory.chain {arg} >> out\\logs\\scheduler\\wrapper.log 2>&1" in text
-        assert "exit /b %ERRORLEVEL%" in text
+        assert f"-m factory.chain {arg} < nul >> out\\logs\\scheduler\\wrapper.log 2>&1" in text
+        assert "chcp 65001 >nul" in text and "set PYTHONUTF8=1" in text
+        assert text.rstrip().endswith("exit %RC%") and "exit /b" not in text
     wf = (REPO / ".github/workflows/pages.yml").read_text(encoding="utf-8")
     assert 'push: { branches: [master], paths: ["out/site/**"] }' in wf
     assert "out/logs/scheduler/" in (REPO / ".gitignore").read_text(encoding="utf-8")
     assert len((REPO / "docs/scheduler.md").read_text(encoding="utf-8").splitlines()) <= 80
     assert time.time() > 0
+
+
+def test_stages_write_utf8_and_the_final_print_cannot_fail(tmp_path, monkeypatch):
+    # P-8.09: run 1 pushed, then crashed printing a U+FFFD to a cp1252 console (exit 1)
+    import subprocess
+    seen = {}
+
+    def fake_run(cmd, **kw):
+        seen.update(kw)
+        return subprocess.CompletedProcess(cmd, 0, "site built \u00b7 ok", "")
+    monkeypatch.setattr(subprocess, "run", fake_run)
+    rc, out = chain._run(tmp_path, ["factory.site"])
+    assert rc == 0 and "\u00b7" in out
+    assert seen["env"]["PYTHONUTF8"] == "1" and seen["env"]["PYTHONIOENCODING"] == "utf-8"
+    src = (REPO / "src/factory/chain.py").read_text(encoding="utf-8")
+    assert 'sys.stdout.reconfigure(encoding="utf-8", errors="replace")' in src
