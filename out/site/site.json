@@ -19,7 +19,7 @@
    "behavioral": {
     "age_days": 0,
     "as_of": "2026-09-26",
-    "block_sha256": "a05c2aabe73989a7e3141001a4b353db24251310cf9bc7a45f58f5060aca0afc",
+    "block_sha256": "2cc79347893221ada689fd0071e56387d0e42dc8b3010ff89100844139800013",
     "captions": [
      "7-day max |deviation|: 13.9 bp",
      "Share of liquidity among the 10 Ethereum pools Webacy lists, $6.9M",
@@ -31,8 +31,8 @@
     "donut_caption": "Share of liquidity among the 10 Ethereum pools Webacy lists, $6.9M",
     "donut_excluded": 0,
     "donut_slices": 6,
-    "fetched": "2026-09-26 09:32",
-    "fetched_at": "2026-09-26T09:32:58+00:00",
+    "fetched": "2026-09-26 10:08",
+    "fetched_at": "2026-09-26T10:08:46+00:00",
     "hci_found": true,
     "hci_page": 1,
     "hci_stale": false,
@@ -53,8 +53,8 @@
     "notes_line": [
      "Webacy counts the largest holders as protocol contracts, so it rates concentration as low."
     ],
-    "snapshot": "out/behavioral/GHO/20260926T093246Z.json",
-    "snapshot_sha256": "7143c876d1ff858a1c7d20ba95bc434396adf5a6367db0653d27b0442adadce1",
+    "snapshot": "out/behavioral/GHO/20260926T100834Z.json",
+    "snapshot_sha256": "73b837c69c1eda247f6803dc2bf4470756857485acab2ae52c3a3ec2ac1cc88d",
     "state": "rendered",
     "suffixes": [],
     "supply_bars": 3,
@@ -71,7 +71,7 @@
    "report_hash": "447281cb4b87dcd40bd17e9fd0a8b9db741d4fd2c825262d5e1a0a15dd6183d1",
    "rewrites": {
     "index.html": {
-     "after": "a892ae915bfc25faea7149e4fe12310bfb39c6a0c310efcf8b430f49b85124ad",
+     "after": "34146a30d03ea4d85effc0a4f4fa48cbfe63a48b0afb7ccb3628dd59b67ec5fc",
      "before": "f0e396e3fe7610c496b50601593f1eea012a1c044df4f068ec2f259b9cf628db",
      "substitutions": [
       {
@@ -95,7 +95,7 @@
        "old": "<h2 class=\"specialists\">Detail for specialists</h2>\n<p class=\"meta\">behavioral tier: pending</p>\n"
       },
       {
-       "new": "<behavioral block, sha256 a05c2aabe73989a7e3141001a4b353db24251310cf9bc7a45f58f5060aca0afc><section id=\"check\">",
+       "new": "<behavioral block, sha256 2cc79347893221ada689fd0071e56387d0e42dc8b3010ff89100844139800013><section id=\"check\">",
        "old": "<section id=\"check\">"
       }
      ]
@@ -107,7 +107,7 @@
    "behavioral": {
     "age_days": 0,
     "as_of": "2026-09-26",
-    "block_sha256": "4e18bf64cb291a400532f30c25082acfcabfbf2d34028b5a03406a1956369ea3",
+    "block_sha256": "0d175296ca0f2c1d2fc5fcef701f0705f8fc4608879ac77a6b3a8b76d4fe52be",
     "captions": [
      "7-day max |deviation|: 185.9 bp",
      "Net supply change, per Webacy",
@@ -117,8 +117,8 @@
     "depeg_stale": false,
     "donut_excluded": 0,
     "donut_slices": 0,
-    "fetched": "2026-09-26 09:33",
-    "fetched_at": "2026-09-26T09:33:05+00:00",
+    "fetched": "2026-09-26 10:08",
+    "fetched_at": "2026-09-26T10:08:52+00:00",
     "hci_found": true,
     "hci_page": 1,
     "hci_stale": false,
@@ -135,8 +135,8 @@
     "max_abs_bp": "185.9",
     "notes": [],
     "notes_line": [],
-    "snapshot": "out/behavioral/LUSD/20260926T093246Z.json",
-    "snapshot_sha256": "203362181ff3d81a7f3f1300d23230e865d4e885aa7ddb01cc1a5dc7530c9036",
+    "snapshot": "out/behavioral/LUSD/20260926T100834Z.json",
+    "snapshot_sha256": "15073cf7dd447c0e5716ff9fc619740c43e4ece55c6b61b0b437c8e3627c63a2",
     "state": "rendered",
     "suffixes": [],
     "supply_bars": 3,
@@ -147,14 +147,14 @@
     "unknown_notes": []
    },
    "figures": "Supply $26.2M · Bad debt, headline scenario $0, structurally zero · Exit liquidity, headline scenario $8.3M",
-   "finding": "The token is backed by collateral whose value can be checked directly on-chain, and the structural-zero flag indicates that bad debt is zero because no trove reaches its minimum collateral ratio on the ruled grid.",
+   "finding": "The token is backed by collateral whose full value can be checked directly on-chain, and the stress scenario shows no forced sales against exit liquidity.",
    "outcome": "published",
    "pill": "<span class=\"pill green\">No warnings this run</span>",
-   "report_hash": "94217af8067c83ada225264f5952a33f1d437fcbdb7fea0f1654a7290534553e",
+   "report_hash": "1c3b2d387b2f2e6468651b6212b17dd5f6b3f89799fb36152d972783764a16a4",
    "rewrites": {
     "index.html": {
-     "after": "74a62534501176dc321d0a0c445920593c403a225b05f2cff8e7b6f34292bc5f",
-     "before": "a80f7d374421651cf2016ef0f8b64d2c31379d2b7bd2fdbec47ebc2419f2db36",
+     "after": "9a50c1eb60f535d802e64f99f0cfa494f387eeb4f20ea8aa7e20440f5a01c44b",
+     "before": "2ea000b0855434ede277072f968ceb2f3ed2bc1ea3505223773535d54d6e8bda",
      "substitutions": [
       {
        "new": "href=\"https://github.com/amohazab/stablecoin_dashboard/blob/master/docs/context/archetype-memo-1-cdp.md\"",
@@ -177,32 +177,32 @@
        "old": "<h2 class=\"specialists\">Detail for specialists</h2>\n<p class=\"meta\">behavioral tier: pending</p>\n"
       },
       {
-       "new": "<behavioral block, sha256 4e18bf64cb291a400532f30c25082acfcabfbf2d34028b5a03406a1956369ea3><section id=\"check\">",
+       "new": "<behavioral block, sha256 0d175296ca0f2c1d2fc5fcef701f0705f8fc4608879ac77a6b3a8b76d4fe52be><section id=\"check\">",
        "old": "<section id=\"check\">"
       }
      ]
     }
    },
-   "run_block": 26052560
+   "run_block": 26060799
   },
   "crvUSD": {
    "behavioral": {
     "age_days": 0,
     "as_of": "2026-09-26",
-    "block_sha256": "6a3093fe93810d787b21bc0cb89a50d109f7bd16e0ab75065afed7948db8a2fa",
+    "block_sha256": "1b11318117d5fe5f49c69db484eba825983f7baa2dd9b0c2b75be13a477c8ce4",
     "captions": [
      "7-day max |deviation|: 19.1 bp",
-     "Share of liquidity among the 10 Ethereum pools Webacy lists, $324.1M",
+     "Share of liquidity among the 10 Ethereum pools Webacy lists, $323.6M",
      "Net supply change, per Webacy",
      "Share of supply held, 94,926 holders"
     ],
     "daggers": 0,
     "depeg_stale": false,
-    "donut_caption": "Share of liquidity among the 10 Ethereum pools Webacy lists, $324.1M",
+    "donut_caption": "Share of liquidity among the 10 Ethereum pools Webacy lists, $323.6M",
     "donut_excluded": 0,
     "donut_slices": 6,
-    "fetched": "2026-09-26 09:32",
-    "fetched_at": "2026-09-26T09:32:51+00:00",
+    "fetched": "2026-09-26 10:08",
+    "fetched_at": "2026-09-26T10:08:40+00:00",
     "hci_found": true,
     "hci_page": 1,
     "hci_stale": false,
@@ -223,8 +223,8 @@
     "notes_line": [
      "Webacy counts the largest holders as protocol contracts, so it rates concentration as low."
     ],
-    "snapshot": "out/behavioral/crvUSD/20260926T093246Z.json",
-    "snapshot_sha256": "a414c1f098d6f2cd5f099399086455286f0f3c68171684584de21c0cb1ccf913",
+    "snapshot": "out/behavioral/crvUSD/20260926T100834Z.json",
+    "snapshot_sha256": "9e060035786a2ad3f63ac9f9c36f98fabd10e64ded554819ca75c752f89074b1",
     "state": "rendered",
     "suffixes": [],
     "supply_bars": 3,
@@ -241,7 +241,7 @@
    "report_hash": "8ac6132bc407aad7549f4d9f7ab127e229b521c03c58f5a8a66f03576c4f2912",
    "rewrites": {
     "index.html": {
-     "after": "f9052ecd6441fbfad20d48be5e819f31fc80395aa7c272d2056cabd89cb13473",
+     "after": "3bd05147d7198928af9dd4bce1eb1f92b5fda53abdf6a8b24cf8a8535534a1a5",
      "before": "996a25d10a522f2aaa6da730f85dbed525590be7265ef3dae4fd59a905acb37a",
      "substitutions": [
       {
@@ -265,7 +265,7 @@
        "old": "<h2 class=\"specialists\">Detail for specialists</h2>\n<p class=\"meta\">behavioral tier: pending</p>\n"
       },
       {
-       "new": "<behavioral block, sha256 6a3093fe93810d787b21bc0cb89a50d109f7bd16e0ab75065afed7948db8a2fa><section id=\"check\">",
+       "new": "<behavioral block, sha256 1b11318117d5fe5f49c69db484eba825983f7baa2dd9b0c2b75be13a477c8ce4><section id=\"check\">",
        "old": "<section id=\"check\">"
       }
      ]
