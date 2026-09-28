@@ -1,5 +1,5 @@
 {% extends "site/site_base.html.j2" %}
-{% block lede %}  <p class="lede">{{ s.lede }}</p>
+{% block lede %}  <p class="lede">{{ s.lede }} <a href="methodology.html">{{ s.lede_methodology }}</a> and <a href="{{ repo_url }}">{{ s.lede_repository }}</a>.</p>
 {% endblock %}
 {% block body %}
 <div class="token-cards">

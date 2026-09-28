@@ -421,7 +421,9 @@ all_tokens = "all tokens"
 [site]
 title = "Stablecoin Dashboard"
 author = "structural risk reports for CDP stablecoins · Amin Mohazab · github.com/amohazab"
-lede = "Automated structural risk reports: every figure is read from Ethereum at one fixed block and traces to the contract call that produced it — see the methodology page."
+lede = "Automated structural risk reports: every figure is read from Ethereum at one fixed block and traces to the contract call that produced it — see"
+lede_methodology = "the methodology page"
+lede_repository = "the repository"
 
 # Step 8 (P-8.01): the behavioral tier, rendered at the site stage from the latest
 # Webacy snapshot. Every figure arrives formatted from factory.behavioral (A-20).

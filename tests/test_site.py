@@ -43,8 +43,8 @@ def test_build_on_the_committed_state(tmp_path):
     assert all(f"<code>{i}</code>" in method for i in ids) and rec["a16"]["ids"] == ids
     lines = sum(len(eventlog.quarantine_lines(
         eventlog.read(root / f"out/logs/events_{t.lower()}.jsonl"), t)) for t in site.TOKEN_ORDER)
-    # P-8.07: + T-28 x2 (the batch)
-    assert method.count('<tr class="log-row">') == lines == rec["log_rows"] == 13
+    # the recorded state: every scheduled run can add a line, so the count is the logs' own
+    assert method.count('<tr class="log-row">') == lines == rec["log_rows"] >= 13
 
 
 def test_rewrites_are_applied_once_and_a_second_build_is_byte_identical(tmp_path):
@@ -83,7 +83,9 @@ def test_a_row_count_mismatch_stops_the_build(tmp_path):
                                                        "{% for r in log_rows[1:] %}"),
                  encoding="utf-8", newline="")
     before = snapshot(root)
-    with pytest.raises(site.SiteStop, match="log rows 12 != quarantine lines 13"):
+    n = sum(len(eventlog.quarantine_lines(
+        eventlog.read(root / f"out/logs/events_{t.lower()}.jsonl"), t)) for t in site.TOKEN_ORDER)
+    with pytest.raises(site.SiteStop, match=f"log rows {n - 1} != quarantine lines {n}"):
         site.build(root)
     assert snapshot(root) == before                                     # nothing written
 
