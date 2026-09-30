@@ -221,7 +221,7 @@
 </details>
 
 <details id="audits"><summary>{{ w.summaries.audits }}</summary>
-<ul class="plain">{% for f in ids('audit.') if f.endswith('.firm') %}<li>{{ v(f) }} {{ v(f[:-5] ~ '.date') }} — {{ v(f[:-5] ~ '.scope') }}</li>{% endfor %}</ul>
+<ul class="plain">{% for f in ids('audit.') if f.endswith('.firm') %}<li>{{ v(f) }} {{ v(f[:-5] ~ '.date') }}: {{ v(f[:-5] ~ '.scope') }}</li>{% endfor %}</ul>
 {% if 'audit.tag_date.audits' in rows %}<p class="meta">Audit list {{ w.rubric.tag_date.format(date=v('audit.tag_date.audits')) }}</p>{% endif %}
 <p class="meta">Bug bounty: {{ v('audit.bug_bounty.platform') }}, max {{ v('audit.bug_bounty.max') }}{% if 'audit.tag_date.bug_bounty' in rows %} {{ w.rubric.tag_date.format(date=v('audit.tag_date.bug_bounty')) }}{% endif %}. Last material change audited: {{ v('audit.last_material_change_audited') }}{% if 'audit.tag_date.last_material_change_audited' in rows %} {{ w.rubric.tag_date.format(date=v('audit.tag_date.last_material_change_audited')) }}{% endif %}. {{ w.rubric.audit_status.format(date=v('audit.staleness_date')) }} Counterparties: {{ v('audit.counterparties') }}</p>
 </details>

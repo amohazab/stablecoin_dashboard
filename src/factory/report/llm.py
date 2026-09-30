@@ -601,6 +601,7 @@ def slot_input(slot: str, spec: dict, doc: dict, displays: dict, flags: list[dic
             for r in cap_groups(chosen, spec)]
     admin_words(rows, wording)
     assumptions = code_words(rows, doc["assumptions"], wording)
+    undash(rows)
     body = {"token": doc["token"], "slot": slot, "rows": rows, "assumptions": assumptions}
     if slot == "flag_explanations":
         body["open_level1_flags"] = flags
@@ -633,6 +634,22 @@ def admin_words(rows: list[dict], wording: dict) -> None:
             r["printed"] = [tables[kind][v]]
 
 
+SPACED_DASH = re.compile(" [—–] ")
+
+
+def undash(rows: list[dict]) -> None:
+    """Polish (Amin): the generator's copy of each label, string value and printed form reads
+    " — " and " – " as ", " (rule 17 bans both dashes in its text); the page and the
+    literals themselves are untouched."""
+    def sub(x):
+        return SPACED_DASH.sub(", ", x) if isinstance(x, str) else x
+    for r in rows:
+        r["label"] = sub(r["label"])
+        v = r["value"]
+        r["value"] = [sub(x) for x in v] if isinstance(v, list) else sub(v)
+        r["printed"] = [sub(p) for p in r["printed"]]
+
+
 def code_words(rows: list[dict], assumptions: list[dict], wording: dict) -> list[dict]:
     """P-8.07 (b'): every identifier token in a row's label, string value or printed forms,
     and in an assumption's id, becomes its plain words - `[code_words]`, then `[holders]` and
@@ -662,6 +679,9 @@ def number_tokens(text: str) -> list[str]:
     (dates, addresses and bare integers below 1,000 are not figures)."""
     from factory.validate.harness import _num_tokens
     return _num_tokens(text)
+
+
+DASHES = "\u2014\u2013"     # the em dash and the en dash, never written in a slot (rule 17)
 
 
 def identifiers(text: str) -> list[str]:
@@ -732,9 +752,11 @@ def guard(prose: SlotProse, rows: list[dict], bounds: tuple[int, int] | None = N
     wrong = ({"have": count, "want": list(bounds)}
              if bounds and not bounds[0] <= count <= bounds[1] else None)
     idents = sorted(set(identifiers(prose.text)))          # P-8.06: rule 4 as code
+    dashes = sorted({c for c in prose.text if c in DASHES})  # polish: generate.md rule 17
     return {k: v for k, v in (("numbers_not_printed", stray), ("missing_field_ids", missing),
                               ("references_outside_rows", outside),
-                              ("paragraph_count", wrong), ("identifiers", idents)) if v}
+                              ("paragraph_count", wrong), ("identifiers", idents),
+                              ("dashes", dashes)) if v}
 
 
 _PCT = re.compile(r"^(-?\d[\d,]*(?:\.\d+)?)%$")

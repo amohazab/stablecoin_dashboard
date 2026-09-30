@@ -10,15 +10,15 @@
    "DET-64"
   ]
  },
- "behavioral_as_of": "2026-09-28",
+ "behavioral_as_of": "2026-09-30",
  "branch": "master",
  "log_rows": 15,
  "repo_url": "https://github.com/amohazab/stablecoin_dashboard",
  "tokens": {
   "GHO": {
    "behavioral": {
-    "age_days": 1,
-    "as_of": "2026-09-28",
+    "age_days": 3,
+    "as_of": "2026-09-30",
     "block_sha256": "2e1c910e5290c639bf82bccc026ed87ff10aea5c4d6ba80d505a665091674070",
     "captions": [
      "7-day max |deviation|: 13.9 bp",
@@ -105,8 +105,8 @@
   },
   "LUSD": {
    "behavioral": {
-    "age_days": 1,
-    "as_of": "2026-09-28",
+    "age_days": 3,
+    "as_of": "2026-09-30",
     "block_sha256": "da526fe94e2d462c19f0b57e97bff81b0a3137d6c7189c7a4a45bebdc882967b",
     "captions": [
      "7-day max |deviation|: 194.2 bp",
@@ -187,8 +187,8 @@
   },
   "crvUSD": {
    "behavioral": {
-    "age_days": 1,
-    "as_of": "2026-09-28",
+    "age_days": 3,
+    "as_of": "2026-09-30",
     "block_sha256": "2e159ba4415334a2ef316d08f6fe56697dba272ba3263d9dd83d6abf9cd43651",
     "captions": [
      "7-day max |deviation|: 17.0 bp",

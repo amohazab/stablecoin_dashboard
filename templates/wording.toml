@@ -5,14 +5,14 @@ what_this_is = "An automated structural risk report on {token}: every number bel
 behavioral_tier = "The behavioral tier — how the token trades: peg deviation, liquidity, holder concentration and flows — will come from an external monitoring service and is pending."
 structural_only = "This report is the structural tier only: what backs the token, how far that backing can be checked on-chain, and how it holds up under stress."
 reference_prices = "Independent market reference prices are not available from a pinned source in this pilot ({n} collaterals)."
-why_scenario = "The headline scenario is a 50% fall in the price of volatile collateral, with no extra discount on liquid-staking tokens and liquidity providers staying put — the one scenario the archetype memo names as the headline (memo §6.2.6)."
+why_scenario = "The headline scenario is a 50% fall in the price of volatile collateral, with no extra discount on liquid-staking tokens and liquidity providers staying put: the one scenario the archetype memo names as the headline (memo §6.2.6)."
 headline_sentence = "In that scenario liquidations leave {bad_debt} of bad debt ({pct} of supply) and require selling {sold} into {exit} of exit liquidity."
-structural_zero_sentence = "In that scenario liquidations leave {bad_debt} of bad debt ({pct} of supply) — structurally zero on this grid, because {reason} — and require selling {sold} into {exit} of exit liquidity."
+structural_zero_sentence = "In that scenario liquidations leave {bad_debt} of bad debt ({pct} of supply), structurally zero on this grid because {reason}, and require selling {sold} into {exit} of exit liquidity."
 oracle_lag = "Prices may lag the market by up to {x}: the largest update threshold among this token's price feeds ({feed})."
 oracle_lag_ema = "Prices follow exponential moving averages of pool prices, so they lag the market by design; the window per market is in the oracle table."
 check_this = "Every figure on this page comes from one data table built from on-chain reads at a single block. Reproduce any of them from the verify page."
 specialists = "Detail for specialists"
-flag = "Notice: {name} — entry {id}, first fired {date}"
+flag = "Notice: {name} (entry {id}, first fired {date})"
 behavioral_pending = "behavioral tier: pending"
 
 [pills]
@@ -33,8 +33,8 @@ T-02 = "off-venue share {exit.offvenue.x}"
 # B-11c: the rubric's literals, placed where their clauses name them, inside the
 # specialist layer (R-B11.1 keeps the reader layer plain).
 [rubric]
-lp_sticky_line = "Headline exit liquidity {exit} — LP capital assumed sticky."
-lp_grid_line = "LP-flight grid 0% / 30% / 60% — assumed scenario modifier, not data-derived."
+lp_sticky_line = "Headline exit liquidity {exit}; LP capital assumed sticky."
+lp_grid_line = "LP-flight grid 0% / 30% / 60%: assumed scenario modifier, not data-derived."
 lp_rule_line = "Modeling rule: single-sided withdrawal of the paired asset."
 freeze_line = "modeled pools: the largest pools covering 90% of the frozen set, which itself covered 95% of discovered on-Curve liquidity at freeze time ({date})."
 k_share = "K-subset share of the frozen set: {share}"
@@ -48,7 +48,7 @@ scope_sequencer = "sequencer/infra risk n/a — mainnet only."
 audit_status = "Audit status as of {date}."
 tag_date = "(analyst-supplied {date})"
 slice_row = "protocol stabilizer debt"
-ceiling_row = "ceiling aggregate — the upper bound of the protocol stabilizer slice"
+ceiling_row = "ceiling aggregate: the upper bound of the protocol stabilizer slice"
 net_position_line = "Net position of each stabilizer operation: pro-cyclical, non-credited; valued at par."
 
 # B-12 (DET-58): the page place a flag renders in, per rubric §3 `section`. NAMED
@@ -86,13 +86,13 @@ none = "no one holds this power"
 [delays]
 none = "with no delay"
 "<24h" = "with a delay under a day"
-"1–7d" = "with a 1–7 day delay"
+"1–7d" = "with a 1 to 7 day delay"
 ">7d" = "with a delay of more than a week"
 
 [delay_short]
 none = "no delay"
 "<24h" = "under a day"
-"1–7d" = "1–7 day delay"
+"1–7d" = "1 to 7 day delay"
 ">7d" = "more than a week"
 
 [powers]
@@ -109,7 +109,7 @@ gsm_freeze = "pausing GSM swaps"
 
 [tree]
 caption = "Where the backing sits and how far it can be checked on-chain; shares are of the value of all backing collateral."
-off_mainnet = "minted for other chains — not traced here ({share})"
+off_mainnet = "minted for other chains, not traced here ({share})"
 truncated_pill = "truncated"
 days_pill = "{days} old"
 days_pill_zero = "same day"
@@ -349,7 +349,7 @@ Tellor_fallback = "the price feed falls back from Chainlink to the Tellor oracle
 EMA_lag = "upper bound on collateral value eroded by the oracle lag (USD)"
 H1_kill = "bad debt with the PegKeepers alive vs switched off (USD)"
 H2_freezer = "exit liquidity with the GSM freezer acting vs not acting (USD)"
-Tellor_fallback = "no computed value — the line records the price feed's fallback constants and scope"
+Tellor_fallback = "no computed value: the line records the price feed's fallback constants and scope"
 
 # Ruling on the third live run: the residual in words, per token (the table's
 # `supply.residual.description` row). NAMED DEFAULT: keyed by token; a token without
@@ -366,10 +366,10 @@ LUSD = "residual is supply minus originated debt; 0 here because every LUSD is m
 label = "exit liquidity when the paired stablecoin trades at {target}, at a price impact of {impact}"
 
 [residual_families]
-"mint-controller pre-mint inventory" = "crvUSD minted into controllers but not yet borrowed — held by the protocol's own contracts, not in circulation"
-"PegKeeper undrawn inventory" = "crvUSD a PegKeeper may mint into its pool but has not deployed — held by the protocol, not in circulation"
-"mint-market AMM float" = "crvUSD held inside the mint markets' soft-liquidation AMMs — part of borrower positions being converted"
-"non-mint-market minting facilitators" = "crvUSD minted by protocol contracts outside the mint markets this report traces — lending factories, the flash lender and the bridge vaults"
+"mint-controller pre-mint inventory" = "crvUSD minted into controllers but not yet borrowed, held by the protocol's own contracts, not in circulation"
+"PegKeeper undrawn inventory" = "crvUSD a PegKeeper may mint into its pool but has not deployed, held by the protocol, not in circulation"
+"mint-market AMM float" = "crvUSD held inside the mint markets' soft-liquidation AMMs, part of borrower positions being converted"
+"non-mint-market minting facilitators" = "crvUSD minted by protocol contracts outside the mint markets this report traces: lending factories, the flash lender and the bridge vaults"
 
 # Run 8 ruling 5: what each Level-1 flag means, passed with the open flag to
 # flag_explanations (keyed by trigger; rubric §3 owns the trigger's name).
@@ -421,7 +421,7 @@ all_tokens = "all tokens"
 [site]
 title = "Stablecoin Dashboard"
 author = "structural risk reports for CDP stablecoins · Amin Mohazab · github.com/amohazab"
-lede = "Automated structural risk reports: every figure is read from Ethereum at one fixed block and traces to the contract call that produced it — see"
+lede = "Automated structural risk reports: every figure is read from Ethereum at one fixed block and traces to the contract call that produced it. See"
 lede_methodology = "the methodology page"
 lede_repository = "the repository"
 
@@ -437,10 +437,10 @@ not_reported = "not reported by Webacy"
 donut_title = "Liquidity by Ethereum DEX pool"
 donut_other = "other listed pools"
 donut_caption = "Share of liquidity among the {n} Ethereum pools Webacy lists, {sum}"
-donut_excluded = " — excludes {k} pool{s} whose reported liquidity exceeds the token's supply"
+donut_excluded = " (excludes {k} pool{s} whose reported liquidity exceeds the token's supply)"
 supply_title = "Net supply change by window"
 supply_caption = "Net supply change, per Webacy"
-supply_missing = " — no figure for {windows}"
+supply_missing = " (no figure for {windows})"
 supply_windows = [["net_7d", "7 days"], ["net_30d", "30 days"], ["net_90d", "90 days"]]
 holder_title = "Share of supply by holder group"
 holder_segments = ["top 10", "holders 11–30", "all others"]
@@ -453,8 +453,8 @@ chart_title = "Peg deviation over seven days, in basis points"
 chart_caption = "7-day max |deviation|: {n} bp"
 attribution = "Behavioral data: Webacy, fetched {date} UTC. Fetched, not computed or verified by this pipeline."
 stale_days = 14
-suffix_old = " — snapshot is older than {days} days"
-suffix_webacy = " — Webacy marks this data stale"
+suffix_old = " The snapshot is older than {days} days."
+suffix_webacy = " Webacy marks this data stale."
 methodology_heading = "The behavioral tier"
 methodology_reader = "The behavioral tier shows how each token trades: how far its price has strayed from the peg over the last seven days, how much DEX liquidity Webacy counts for it, how its supply changed over seven days, and how concentrated its holders are. It comes from Webacy, an external monitoring service, and is fetched at a timestamp printed on each page. Unlike the structural figures, it is not read at the report's block, and this pipeline neither computes nor verifies it."
 methodology_sources = "Sources for the behavioral tier"

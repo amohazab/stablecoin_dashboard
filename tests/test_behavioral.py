@@ -224,7 +224,7 @@ def test_block_contents_and_the_not_covered_card():
 
 
 def test_a_snapshot_older_than_14_days_gets_the_staleness_suffix():
-    old = " — snapshot is older than 14 days"
+    old = " The snapshot is older than 14 days."
     html14, _ = blk(fixture_snapshot("crvUSD"), FETCHED + dt.timedelta(days=14))
     html15, st = blk(fixture_snapshot("crvUSD"), FETCHED + dt.timedelta(days=15))
     assert old not in html14 and st["age_days"] == 15
@@ -232,7 +232,7 @@ def test_a_snapshot_older_than_14_days_gets_the_staleness_suffix():
 
 
 def test_webacy_stale_flags_get_the_webacy_suffix():
-    suffix = " — Webacy marks this data stale"
+    suffix = " Webacy marks this data stale."
     fresh, _ = blk(fixture_snapshot("LUSD"))
     assert suffix not in fresh
     for kw in ({"stale": True}, {"hci_stale": True}):
@@ -530,8 +530,8 @@ def test_donut_excludes_daggered_pools_and_caps_at_six_slices():
     assert st["donut_slices"] == 6 and st["donut_excluded"] == 1
     assert "other listed pools" in html and "X/P0" not in re.sub(r"<table.*</table>", "", html,
                                                                  flags=re.S)
-    assert "Share of liquidity among the 8 Ethereum pools Webacy lists, $36.0k — excludes 1 " \
-           "pool whose reported liquidity exceeds the token&#x27;s supply" in html
+    assert "Share of liquidity among the 8 Ethereum pools Webacy lists, $36.0k (excludes 1 " \
+           "pool whose reported liquidity exceeds the token&#x27;s supply)" in html
     snap["depeg"]["body"]["token"]["markets"] = pools(4)
     html, st = blk(snap)
     assert st["donut_slices"] == 4 and "other listed pools" not in html
@@ -558,7 +558,7 @@ def test_supply_bars_omit_a_null_window_and_name_it():
     unit["body"]["token"]["net_30d"] = None
     html, st = blk(fixture_snapshot("crvUSD", supply=unit))
     assert st["supply_bars"] == 2
-    assert "Net supply change, per Webacy — no figure for 30 days</figcaption>" in html
+    assert "Net supply change, per Webacy (no figure for 30 days)</figcaption>" in html
 
 
 def test_holder_bar_three_segments_or_skipped_without_top30():

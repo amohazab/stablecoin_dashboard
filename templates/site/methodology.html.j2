@@ -1,5 +1,5 @@
 {% extends "site/site_base.html.j2" %}
-{% block title %}Methodology — {{ s.title }}{% endblock %}
+{% block title %}Methodology: {{ s.title }}{% endblock %}
 {% block heading %}How these reports are made{% endblock %}
 {% block nav %}<nav class="links meta"><a href="index.html">{{ w.nav.all_tokens }}</a><a href="{{ repo_url }}">repository</a></nav>
 {% endblock %}
@@ -14,7 +14,7 @@
 
 <section>
 <h2>Gates, and why their log is public</h2>
-<p class="prose">A gate is a check that must pass before a report is published. A minor finding publishes with a visible notice; a serious one withholds the report, except where a recorded ruling published a page regardless — the two cases on this site are stated under Open notices. Every time a gate fires, a public log records the date, the token, what kind of check fired, how serious it was, and how it was resolved. Anyone can say their work is checked; a log of checks stopping reports is the evidence. The log below holds {{ n_log }} entries.</p>
+<p class="prose">A gate is a check that must pass before a report is published. A minor finding publishes with a visible notice; a serious one withholds the report, except where a recorded ruling published a page regardless. The two cases on this site are stated under Open notices. Every time a gate fires, a public log records the date, the token, what kind of check fired, how serious it was, and how it was resolved. Anyone can say their work is checked; a log of checks stopping reports is the evidence. The log below holds {{ n_log }} entries.</p>
 <p class="prose">LUSD's written summaries come from a local language model under a guard that only lets through figures printed in the data table; no second model reviews them. For crvUSD and GHO the local model's drafts did not pass that guard, so their pages carry the prose of their last published run, written by Anthropic's API models in the September evaluation runs before the local configuration, and the log records each attempt. The deterministic checks run on every page.</p>
 </section>
 
@@ -83,7 +83,7 @@
 
 {% if beh.snapshots %}<details>
 <summary>{{ w.behavioral.methodology_sources }}</summary>
-<ul class="plain">{% for path, what in w.behavioral.endpoints %}<li><code>{{ path }}</code> — {{ what }}</li>{% endfor %}</ul>
+<ul class="plain">{% for path, what in w.behavioral.endpoints %}<li><code>{{ path }}</code>: {{ what }}</li>{% endfor %}</ul>
 <p class="prose">Latest snapshot per token, committed trimmed to the fields the page uses (and the undocumented cost-to-move pair, stored only), with the sha256 of every full response: {% for s in beh.snapshots %}<a href="{{ blob }}/{{ s.path }}"><code>{{ s.path }}</code></a>{% if not loop.last %} · {% endif %}{% endfor %}. Each token page's block is rebuilt from its snapshot when the site is built (rubric amendment A-20).</p>
 <p class="prose">{{ w.behavioral.hci_history }}</p>
 </details>

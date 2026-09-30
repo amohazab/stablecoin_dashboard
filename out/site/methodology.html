@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Methodology — Stablecoin Dashboard</title>
+<title>Methodology: Stablecoin Dashboard</title>
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="site.css">
 </head>
@@ -27,7 +27,7 @@
 
 <section>
 <h2>Gates, and why their log is public</h2>
-<p class="prose">A gate is a check that must pass before a report is published. A minor finding publishes with a visible notice; a serious one withholds the report, except where a recorded ruling published a page regardless — the two cases on this site are stated under Open notices. Every time a gate fires, a public log records the date, the token, what kind of check fired, how serious it was, and how it was resolved. Anyone can say their work is checked; a log of checks stopping reports is the evidence. The log below holds 15 entries.</p>
+<p class="prose">A gate is a check that must pass before a report is published. A minor finding publishes with a visible notice; a serious one withholds the report, except where a recorded ruling published a page regardless. The two cases on this site are stated under Open notices. Every time a gate fires, a public log records the date, the token, what kind of check fired, how serious it was, and how it was resolved. Anyone can say their work is checked; a log of checks stopping reports is the evidence. The log below holds 15 entries.</p>
 <p class="prose">LUSD's written summaries come from a local language model under a guard that only lets through figures printed in the data table; no second model reviews them. For crvUSD and GHO the local model's drafts did not pass that guard, so their pages carry the prose of their last published run, written by Anthropic's API models in the September evaluation runs before the local configuration, and the log records each attempt. The deterministic checks run on every page.</p>
 </section>
 
@@ -103,7 +103,7 @@
 
 <details>
 <summary>Sources for the behavioral tier</summary>
-<ul class="plain"><li><code>/rwa/{address}?chain=eth&amp;hours=168</code> — the depeg snapshot, its seven-day history, DEX liquidity (total and depth tier) and the Ethereum DEX pools list</li><li><code>/rwa/hci?chain=eth&amp;pageSize=500</code> — holder concentration, matched by contract address</li><li><code>/rwa/supply/{symbol}</code> — the net supply change over 7, 30 and 90 days, used only when the returned row&#39;s Ethereum address is the token&#39;s</li></ul>
+<ul class="plain"><li><code>/rwa/{address}?chain=eth&amp;hours=168</code>: the depeg snapshot, its seven-day history, DEX liquidity (total and depth tier) and the Ethereum DEX pools list</li><li><code>/rwa/hci?chain=eth&amp;pageSize=500</code>: holder concentration, matched by contract address</li><li><code>/rwa/supply/{symbol}</code>: the net supply change over 7, 30 and 90 days, used only when the returned row&#39;s Ethereum address is the token&#39;s</li></ul>
 <p class="prose">Latest snapshot per token, committed trimmed to the fields the page uses (and the undocumented cost-to-move pair, stored only), with the sha256 of every full response: <a href="https://github.com/amohazab/stablecoin_dashboard/blob/master/out/behavioral/crvUSD/20260927T000000Z.json"><code>out/behavioral/crvUSD/20260927T000000Z.json</code></a> · <a href="https://github.com/amohazab/stablecoin_dashboard/blob/master/out/behavioral/GHO/20260927T000000Z.json"><code>out/behavioral/GHO/20260927T000000Z.json</code></a> · <a href="https://github.com/amohazab/stablecoin_dashboard/blob/master/out/behavioral/LUSD/20260927T000000Z.json"><code>out/behavioral/LUSD/20260927T000000Z.json</code></a>. Each token page's block is rebuilt from its snapshot when the site is built (rubric amendment A-20).</p>
 <p class="prose">Holder-concentration history is not offered by Webacy&#39;s API: its OpenAPI specification (v1.7.3) has no history endpoint or parameter for /rwa/hci, so no concentration chart is drawn.</p>
 </details>

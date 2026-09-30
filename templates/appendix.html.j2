@@ -1,6 +1,6 @@
 {% extends "base.html.j2" %}
-{% block title %}{{ token }} — appendix{% endblock %}
-{% block heading %}{{ token }} — appendix{% endblock %}
+{% block title %}{{ token }}: appendix{% endblock %}
+{% block heading %}{{ token }}: appendix{% endblock %}
 {% block body %}
 <p class="prose">Every stress scenario ({{ grid.cells | length }} cells) from <a href="data/grid.json">grid.json</a>, the artifact literals the report body paraphrases, and the map from every table field to the rubric entry that owns it. The judge never receives this page's grid.</p>
 
@@ -21,7 +21,7 @@
 
 <h2>Metric 4 per scenario</h2>
 {% for c in grid.cells %}{% set t = cell_m4(c) %}
-<details><summary><code>{{ c.id }}</code> — {{ c.m4 | length }} keys</summary>
+<details><summary><code>{{ c.id }}</code> ({{ c.m4 | length }} keys)</summary>
 {% if t.scalars %}<table class="striped">{% for lab, text, title in t.scalars %}<tr><td>{{ lab }}</td><td class="num">{{ text }}</td></tr>{% endfor %}</table>{% endif %}
 {% for m in t.maps %}<h4>{{ m.title }}</h4>
 <table class="striped"><tr><th>{{ m.key_label }}</th>{% for col in m.columns %}<th class="num">{{ col }}</th>{% endfor %}</tr>
@@ -43,7 +43,7 @@
 <h2>Denominators</h2>
 <table class="striped">{% for f in ids('denominator.') %}<tr><td><code>{{ f[12:] }}</code></td><td>{{ v(f) }}</td></tr>{% endfor %}</table>
 
-<h2>Rubric map — every table field and its owner</h2>
+<h2>Rubric map: every table field and its owner</h2>
 <div class="scroll">
 <table class="striped"><tr><th>field</th><th>owner</th><th>denominator</th><th>section</th></tr>
 {% for r in doc.rows %}<tr><td><code>{{ r.field_id }}</code></td><td>{{ r.owner_entry }}</td><td>{{ r.denominator or '' }}</td><td>{{ r.section }}</td></tr>{% endfor %}

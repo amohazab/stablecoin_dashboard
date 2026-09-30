@@ -116,7 +116,7 @@ def test_governance_sentence_in_words():
                 f"{p}.upgradeability": {"value": None}}
     rows = {**row("mint", "dao_governance", "1–7d"), **row("set_oracle", "dao_governance", "1–7d")}
     assert governance_sentence(rows, W) == ("The DAO can change minting and oracle settings "
-                                            "with a 1–7 day delay.")
+                                            "with a 1 to 7 day delay.")
 
 
 @pytest.mark.parametrize("token", ["crvUSD", "GHO", "LUSD"])
@@ -168,7 +168,7 @@ def test_structural_zero_branch_on_each_page(token, flag, tmp_path):
     build(pin_to_recorded(tmp_path), token)
     page = (tmp_path / f"out/rehearsal/{token}/{BLOCKS[token]}/index.html").read_text(
         encoding="utf-8")
-    assert ("structurally zero on this grid, because" in page) is flag       # P-8.04 Q8 (1)
+    assert ("structurally zero on this grid because" in page) is flag        # P-8.04 Q8 (1)
     assert "Bad debt is structurally zero on the whole grid" not in page
     assert ('aria-label="bad debt as the collateral price falls"' in page.lower()) is (not flag)
     assert ("<h4>PegKeepers</h4>" in page) is (token == "crvUSD")

@@ -16,9 +16,9 @@ paragraphs = [1, 2]
 page_section = "finding"
 prefixes = ["supply.", "stabilizer.slice.", "tree.root.", "verif.bar.", "headline.m2.", "headline.m3.", "stress.structural_zero.", "exit.offvenue."]
 obligations = """- The first paragraph states the single structural fact a reader must know; when the structural-zero flag is set, that finding appears in the summary with its reason.
-- The backing classes describe how backing can be checked, not whether it exists — never describe a class as unbacked.
-- Never write "not backed", "unbacked" or "untraced" for the residual — say what it is.
-- The exit-liquidity ratio is forced sales ÷ exit liquidity — never described as bad debt ÷ exit liquidity.
+- The backing classes describe how backing can be checked, not whether it exists; never describe a class as unbacked.
+- Never write "not backed", "unbacked" or "untraced" for the residual; say what it is.
+- The exit-liquidity ratio is forced sales ÷ exit liquidity, never bad debt ÷ exit liquidity.
 - Summarise what backs the token, how much of that backing can be checked on-chain, and what the headline stress scenario shows, in that order.
 - State no conclusion the rows do not support; no grades, scores or verdicts.
 - One to two paragraphs."""
@@ -41,7 +41,7 @@ obligations = """- Open with why a collateral price crash fits this token's liqu
 - Explain each mechanism-state figure given, using only what its label says it measures; if no effective/naive pair is given, do not invent one; when the structural-zero flag is unset, state the bad-debt amount and never mention a flag.
 - When the structural-zero flag is set, state the zero finding in the reason row's own terms (structurally zero, and why); no paraphrase such as 'near zero' or 'reprices the book'.
 - Where the rows show exit-exhausted cells, explain what they mean for this token.
-- The exit-liquidity ratio is forced sales ÷ exit liquidity — never described as bad debt ÷ exit liquidity.
+- The exit-liquidity ratio is forced sales ÷ exit liquidity, never bad debt ÷ exit liquidity.
 - Two to four paragraphs."""
 
 [slot.member2_opening]

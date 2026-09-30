@@ -200,6 +200,34 @@ def test_admin_rows_reach_the_generator_in_plain_words():
     assert "absence_read" not in blob and "contract_read" not in blob and "bucket" not in blob
 
 
+def test_the_guard_rejects_em_and_en_dashes():
+    bad = llm.guard(llm.SlotProse(text="Supply is steady \u2014 and 1\u20137 days.",
+                                  references_field_ids=[]), [])
+    assert bad["dashes"] == ["\u2013", "\u2014"]
+    assert "dashes" not in llm.guard(llm.SlotProse(text="Supply is steady, and holds.",
+                                                   references_field_ids=[]), [])
+
+
+def test_a_dash_costs_one_reask_then_publishes(tmp_path):
+    import shutil
+
+    from factory.report.__main__ import build
+    from tests.llm_fake import FIXTURES, FakeClient
+    from tests.test_b13 import tmp_repo
+    case = tmp_path / "case"
+    shutil.copytree(FIXTURES / "k8_positive_control", case)
+    gen = json.loads((case / "generation.json").read_text(encoding="utf-8"))
+    first = {"admin_surface_narrative": {**gen["admin_surface_narrative"],
+             "text": gen["admin_surface_narrative"]["text"] + " Nothing changes \u2014 ever."}}
+    (case / "generation_first.json").write_text(json.dumps(first), encoding="utf-8")
+    fake = FakeClient("k8_positive_control")
+    fake.dir = case
+    r = build(tmp_repo(tmp_path / "repo"), "LUSD", client=fake)
+    g = next(x for x in r["record"].generation if x["slot"] == "admin_surface_narrative")
+    assert g["reasks"] == 1 and g["rejected"][0]["guard_violations"] == {"dashes": ["\u2014"]}
+    assert r["record"].outcome == "published"
+
+
 def test_percent_substitution_carries_the_printed_form():
     rows = [{"field_id": "a", "printed": ["5.0%"]}, {"field_id": "b", "printed": ["25.0%"]}]
     text, subs = llm.substitute_percents("a 5% fall and 25% of 5.0%", rows)
@@ -324,3 +352,20 @@ def test_the_entity_cap_keeps_whole_entities_and_exempts_admin_and_member2():
     nodes = {r["field_id"].rsplit(".", 1)[0] for r in u["rows"]
              if r["field_id"].startswith("tree.node.")}
     assert len(nodes) == 8 and all(f"{n}.bar" in {r["field_id"] for r in u["rows"]} for n in nodes)
+
+
+def test_the_generator_copy_carries_no_spaced_dash_and_the_page_keeps_its_literals():
+    import tomllib
+
+    from factory.report.__main__ import row_displays
+    rows = [{"label": "a — b", "value": ["x – y", 3], "printed": ["p — q", "—"]}]
+    llm.undash(rows)
+    assert rows == [{"label": "a, b", "value": ["x, y", 3], "printed": ["p, q", "—"]}]
+    w = tomllib.loads((REPO / "templates/wording.toml").read_text(encoding="utf-8"))
+    doc = json.loads((REPO / "out/report/LUSD/26060799/table.json").read_text(encoding="utf-8"))
+    spec = llm.prompts(REPO)["slots"]
+    for slot in spec:
+        u = llm.slot_input(slot, {**spec[slot], "owners": []}, doc, row_displays(REPO, doc), [], w)
+        assert " — " not in u and " – " not in u, slot
+    banner = next(r for r in doc["rows"] if r["field_id"] == "verif.banner")
+    assert banner["value"] == "No admin power can alter backing — immutable."   # untouched
