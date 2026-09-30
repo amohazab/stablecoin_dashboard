@@ -12,7 +12,7 @@
  },
  "behavioral_as_of": "2026-09-30",
  "branch": "master",
- "log_rows": 15,
+ "log_rows": 17,
  "repo_url": "https://github.com/amohazab/stablecoin_dashboard",
  "tokens": {
   "GHO": {

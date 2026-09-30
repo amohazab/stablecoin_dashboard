@@ -1,0 +1,12 @@
+{
+ "bundle_hash": "1ebd47073bd0f073f8312688c0f8f3d26342a1351c7349a107d7f9904fea3719",
+ "pipeline_version": "0.1.0",
+ "report_hash": "274a64512ae075fc69a2b1dcffa691755b3217a69c09944347256997b7737e6c",
+ "run_block": 26093136,
+ "sheet_hash": "29682310",
+ "stress_hash": "6911387c8ad52b1702f8697f76871cca33b7c956783febcfaad0d1a725c6dd82",
+ "table_hash": "f62a02c576011f1d173097f9603ee87edbdd03f507940b702312c4e6411d2093",
+ "template_hash": "770857761796d9da72bc613dc826fc79c17c0ad8d5da526c4dd0517563d8e5f9",
+ "token": "crvUSD",
+ "tree_hash": "32b9675c5c0cac2d08c2c01d91ed5ab4547078d7033767b9ea440c3412e69d78"
+}
