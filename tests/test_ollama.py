@@ -358,14 +358,16 @@ def test_the_generator_copy_carries_no_spaced_dash_and_the_page_keeps_its_litera
     import tomllib
 
     from factory.report.__main__ import row_displays
-    rows = [{"label": "a — b", "value": ["x – y", 3], "printed": ["p — q", "—"]}]
+    rows = [{"label": "a — b", "value": ["x – y", 3], "printed": ["p — q", "—"]},
+            {"label": "c", "value": "—", "printed": ["—"]}]
     llm.undash(rows)
-    assert rows == [{"label": "a, b", "value": ["x, y", 3], "printed": ["p, q", "—"]}]
+    assert rows == [{"label": "a, b", "value": ["x, y", 3], "printed": ["p, q", "none"]},
+                    {"label": "c", "value": "none", "printed": ["none"]}]
     w = tomllib.loads((REPO / "templates/wording.toml").read_text(encoding="utf-8"))
     doc = json.loads((REPO / "out/report/LUSD/26060799/table.json").read_text(encoding="utf-8"))
     spec = llm.prompts(REPO)["slots"]
     for slot in spec:
         u = llm.slot_input(slot, {**spec[slot], "owners": []}, doc, row_displays(REPO, doc), [], w)
-        assert " — " not in u and " – " not in u, slot
+        assert "—" not in u and " – " not in u, slot        # no U+2014 at all
     banner = next(r for r in doc["rows"] if r["field_id"] == "verif.banner")
     assert banner["value"] == "No admin power can alter backing — immutable."   # untouched

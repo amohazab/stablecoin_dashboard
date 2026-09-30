@@ -97,10 +97,13 @@ def test_the_pages_workflow_publishes_out_site():
     for want in (trigger,
                  "permissions: { contents: read, pages: write, id-token: write }",
                  "    environment:", "      name: github-pages",
-                 "      url: ${{ steps.deployment.outputs.page_url }}",
+                 "      url: ${{ steps.deployment.outputs.page_url"
+                 " || steps.deployment_retry.outputs.page_url }}",
                  "      - uses: actions/checkout@v4", "      - uses: actions/configure-pages@v5",
                  "      - uses: actions/upload-pages-artifact@v3",
                  "        with: { path: out/site }",
                  "        uses: actions/deploy-pages@v4"):
         assert want in lines, want
-    assert "secrets." not in text and "run:" not in text
+    # no build on the runner (P-9.01): the one run step is the deploy retry's 60 s wait (polish)
+    runs = [x.strip() for x in text.splitlines() if x.strip().startswith("run:")]
+    assert "secrets." not in text and runs == ["run: sleep 60"]

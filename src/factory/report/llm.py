@@ -639,10 +639,12 @@ SPACED_DASH = re.compile(" [—–] ")
 
 def undash(rows: list[dict]) -> None:
     """Polish (Amin): the generator's copy of each label, string value and printed form reads
-    " — " and " – " as ", " (rule 17 bans both dashes in its text); the page and the
-    literals themselves are untouched."""
+    " — " and " – " as ", ", and a standalone "—" (a null placeholder) as "none" (rule 17
+    bans both dashes in its text); the page and the literals themselves are untouched."""
     def sub(x):
-        return SPACED_DASH.sub(", ", x) if isinstance(x, str) else x
+        if not isinstance(x, str):
+            return x
+        return "none" if x.strip() == "—" else SPACED_DASH.sub(", ", x)
     for r in rows:
         r["label"] = sub(r["label"])
         v = r["value"]

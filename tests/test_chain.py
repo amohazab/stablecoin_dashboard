@@ -138,6 +138,9 @@ def test_the_wrappers_and_the_workflow():
         assert text.rstrip().endswith("exit %RC%") and "exit /b" not in text
     wf = (REPO / ".github/workflows/pages.yml").read_text(encoding="utf-8")
     assert 'push: { branches: [master], paths: ["out/site/**"] }' in wf
+    assert "continue-on-error: true" in wf and "run: sleep 60" in wf
+    assert wf.count("uses: actions/deploy-pages@v4") == 2
+    assert "if: steps.deployment.outcome == 'failure'" in wf
     assert "out/logs/scheduler/" in (REPO / ".gitignore").read_text(encoding="utf-8")
     assert len((REPO / "docs/scheduler.md").read_text(encoding="utf-8").splitlines()) <= 80
     assert time.time() > 0
