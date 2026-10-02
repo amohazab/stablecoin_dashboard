@@ -27,7 +27,7 @@
 
 <section>
 <h2>Gates, and why their log is public</h2>
-<p class="prose">A gate is a check that must pass before a report is published. A minor finding publishes with a visible notice; a serious one withholds the report, except where a recorded ruling published a page regardless. The two cases on this site are stated under Open notices. Every time a gate fires, a public log records the date, the token, what kind of check fired, how serious it was, and how it was resolved. Anyone can say their work is checked; a log of checks stopping reports is the evidence. The log below holds 19 entries.</p>
+<p class="prose">A gate is a check that must pass before a report is published. A minor finding publishes with a visible notice; a serious one withholds the report, except where a recorded ruling published a page regardless. The two cases on this site are stated under Open notices. Every time a gate fires, a public log records the date, the token, what kind of check fired, how serious it was, and how it was resolved. Anyone can say their work is checked; a log of checks stopping reports is the evidence. The log below holds 20 entries.</p>
 <p class="prose">LUSD's written summaries come from a local language model under a guard that only lets through figures printed in the data table; no second model reviews them. For crvUSD and GHO the local model's drafts did not pass that guard, so their pages carry the prose of their last published run, written by Anthropic's API models in the September evaluation runs before the local configuration, and the log records each attempt. The deterministic checks run on every page.</p>
 </section>
 
@@ -95,7 +95,7 @@
 <tr><th>token</th><th>block</th><th>report</th><th class="num">checks passed</th><th>outcome</th><th>open log entries</th><th>gate record</th></tr>
 <tr><td><a href="crvUSD/index.html">crvUSD</a></td><td>25974925</td><td><code title="8ac6132bc407aad7549f4d9f7ab127e229b521c03c58f5a8a66f03576c4f2912">8ac6132b</code></td><td class="num">94 of 96 evaluated</td><td><code>published_without_banner_by_ruling</code></td><td><code>crvUSD:10</code> T-28, <code>crvUSD:11</code> T-25, <code>crvUSD:12</code> T-24, <code>crvUSD:13</code> T-28, <code>crvUSD:14</code> T-28, <code>crvUSD:15</code> T-23, <code>crvUSD:16</code> T-28</td><td><a href="https://github.com/amohazab/stablecoin_dashboard/blob/master/out/evaluation/crvUSD/25974925.json">committed record</a></td></tr>
 <tr><td><a href="GHO/index.html">GHO</a></td><td>25974932</td><td><code title="447281cb4b87dcd40bd17e9fd0a8b9db741d4fd2c825262d5e1a0a15dd6183d1">447281cb</code></td><td class="num">87 of 96 evaluated</td><td><code>published_without_banner_by_ruling</code></td><td><code>GHO:9</code> T-02, <code>GHO:10</code> T-20, <code>GHO:11</code> T-28, <code>GHO:12</code> T-25, <code>GHO:13</code> T-28, <code>GHO:14</code> T-28, <code>GHO:15</code> T-23, <code>GHO:16</code> T-28</td><td><a href="https://github.com/amohazab/stablecoin_dashboard/blob/master/out/evaluation/GHO/25974932.json">committed record</a></td></tr>
-<tr><td><a href="LUSD/index.html">LUSD</a></td><td>26060799</td><td><code title="1c3b2d387b2f2e6468651b6212b17dd5f6b3f89799fb36152d972783764a16a4">1c3b2d38</code></td><td class="num">90 of 90 evaluated, 6 not evaluated (judge withdrawn)</td><td><code>published</code></td><td>none</td><td><a href="https://github.com/amohazab/stablecoin_dashboard/blob/master/out/evaluation/LUSD/26060799.json">committed record</a></td></tr>
+<tr><td><a href="LUSD/index.html">LUSD</a></td><td>26060799</td><td><code title="1c3b2d387b2f2e6468651b6212b17dd5f6b3f89799fb36152d972783764a16a4">1c3b2d38</code></td><td class="num">90 of 90 evaluated, 6 not evaluated (judge withdrawn)</td><td><code>published</code></td><td><code>LUSD:16</code> T-28</td><td><a href="https://github.com/amohazab/stablecoin_dashboard/blob/master/out/evaluation/LUSD/26060799.json">committed record</a></td></tr>
 
 </table>
 <p class="prose">Each page's <code>data/evaluation-&lt;block&gt;.json</code> is the gate record as rendered; the ruled outcome is in the committed record, linked in the last column.</p>
@@ -109,7 +109,7 @@
 </details>
 
 <details>
-<summary>The public log (19 rows)</summary>
+<summary>The public log (20 rows)</summary>
 <table class="striped">
 <tr><th>entry</th><th>date</th><th>token</th><th>category</th><th>trigger</th><th class="num">level</th><th>resolution type</th><th>resolution date</th><th>status</th></tr>
 <tr class="log-row"><td><code>crvUSD:10</code></td><td>2026-09-14</td><td>crvUSD</td><td>gate failure</td><td>T-28</td><td class="num">2</td><td>—</td><td>—</td><td>open</td></tr>
@@ -131,9 +131,10 @@
 <tr class="log-row"><td><code>LUSD:8</code></td><td>2026-09-14</td><td>LUSD</td><td>judge instability</td><td>T-24</td><td class="num">2</td><td>—</td><td>—</td><td>resolved by LUSD:10</td></tr>
 <tr class="log-row"><td><code>LUSD:9</code></td><td>2026-09-14</td><td>LUSD</td><td>gate failure</td><td>T-28</td><td class="num">2</td><td>template change</td><td>2026-09-14</td><td>resolution of LUSD:7</td></tr>
 <tr class="log-row"><td><code>LUSD:10</code></td><td>2026-09-14</td><td>LUSD</td><td>judge instability</td><td>T-24</td><td class="num">2</td><td>template change</td><td>2026-09-14</td><td>resolution of LUSD:8</td></tr>
+<tr class="log-row"><td><code>LUSD:16</code></td><td>2026-10-02</td><td>LUSD</td><td>gate failure</td><td>T-28</td><td class="num">2</td><td>—</td><td>—</td><td>open</td></tr>
 
 </table>
-<p class="meta">19 rows, one per quarantine line in the three token logs.</p>
+<p class="meta">20 rows, one per quarantine line in the three token logs.</p>
 </details>
 
 <nav class="links">

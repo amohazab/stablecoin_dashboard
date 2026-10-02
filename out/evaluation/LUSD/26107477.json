@@ -1,0 +1,1313 @@
+{
+ "bundle_hash": "0ab3ea7cf50bb03d6e48b044c2c24a190a4aab3e2bd7208196e6cb5ac6b6164f",
+ "generation": [
+  {
+   "calls": [
+    {
+     "digest": "6488c96fa5faab64bb65cbd30d4289e20e6130ef535a93ef9a49f42eda893ea7",
+     "done_reason": "stop",
+     "eval_count": 236,
+     "eval_duration": 30608419000,
+     "input_hash": "fe071614fbe07670ba9e443debc0acb27082f21fc8795840908586ed37e8ce7e",
+     "model": "qwen3.5:9b",
+     "num_ctx": 32768,
+     "num_predict": 2000,
+     "ollama_version": "0.34.4",
+     "prompt_eval_count": 3105,
+     "prompt_eval_duration": 90643754000,
+     "prompt_hash": "3f449168c0f1fbca035b0570748f09629e2ce0f67c4df6558de00b6431c4aaa2",
+     "sampling": {
+      "seed": 0,
+      "temperature": 0
+     },
+     "think": false,
+     "total_duration": 131169705700,
+     "wall_s": 133.3
+    }
+   ],
+   "digest": "6488c96fa5faab64bb65cbd30d4289e20e6130ef535a93ef9a49f42eda893ea7",
+   "done_reason": "stop",
+   "eval_count": 236,
+   "eval_duration": 30608419000,
+   "input_hash": "fe071614fbe07670ba9e443debc0acb27082f21fc8795840908586ed37e8ce7e",
+   "model": "qwen3.5:9b",
+   "num_ctx": 32768,
+   "num_predict": 2000,
+   "ollama_version": "0.34.4",
+   "pass": 1,
+   "prompt_eval_count": 3105,
+   "prompt_eval_duration": 90643754000,
+   "prompt_hash": "3f449168c0f1fbca035b0570748f09629e2ce0f67c4df6558de00b6431c4aaa2",
+   "reasks": 0,
+   "references_added": [],
+   "references_field_ids": [
+    "verif.bar.terminal",
+    "verif.bar.terminal_other_layer",
+    "verif.bar.disclosure_dependent",
+    "verif.staleness.status",
+    "verif.banner",
+    "tree.node.0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee.symbol",
+    "tree.node.0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee.label"
+   ],
+   "rejected": [],
+   "sampling": {
+    "seed": 0,
+    "temperature": 0
+   },
+   "slot": "verifiability_narrative",
+   "text": "The token's backing is held entirely in assets whose value can be checked directly on-chain, accounting for 100.0% of the total reserve. This single class contains all collateral, with Ethereum being the only asset listed in the node details.\n\nNo portion of the reserve relies on wrappers that require checking one layer down or depends on issuer disclosures to verify its value. Consequently, there are no disclosure-dependent nodes and no staleness metrics to report for this structure.\n\nThe admin qualifier banner states that no admin power can alter backing, making it immutable. The entire perimeter covers all troves with an exact identity.",
+   "think": false,
+   "total_duration": 131169705700,
+   "wall_s": 133.3
+  },
+  {
+   "calls": [
+    {
+     "digest": "6488c96fa5faab64bb65cbd30d4289e20e6130ef535a93ef9a49f42eda893ea7",
+     "done_reason": "stop",
+     "eval_count": 285,
+     "eval_duration": 41359007000,
+     "input_hash": "55a96f8fe18b68c61b2ade3b487285257e50f958bcfc40a1898cdc981bcedb1b",
+     "model": "qwen3.5:9b",
+     "num_ctx": 32768,
+     "num_predict": 2000,
+     "ollama_version": "0.34.4",
+     "prompt_eval_count": 7635,
+     "prompt_eval_duration": 221433042000,
+     "prompt_hash": "3f449168c0f1fbca035b0570748f09629e2ce0f67c4df6558de00b6431c4aaa2",
+     "sampling": {
+      "seed": 0,
+      "temperature": 0
+     },
+     "think": false,
+     "total_duration": 262862533100,
+     "wall_s": 264.9
+    }
+   ],
+   "digest": "6488c96fa5faab64bb65cbd30d4289e20e6130ef535a93ef9a49f42eda893ea7",
+   "done_reason": "stop",
+   "eval_count": 285,
+   "eval_duration": 41359007000,
+   "input_hash": "55a96f8fe18b68c61b2ade3b487285257e50f958bcfc40a1898cdc981bcedb1b",
+   "model": "qwen3.5:9b",
+   "num_ctx": 32768,
+   "num_predict": 2000,
+   "ollama_version": "0.34.4",
+   "pass": 1,
+   "prompt_eval_count": 7635,
+   "prompt_eval_duration": 221433042000,
+   "prompt_hash": "3f449168c0f1fbca035b0570748f09629e2ce0f67c4df6558de00b6431c4aaa2",
+   "reasks": 0,
+   "references_added": [
+    "assumption.bad_debt_definition"
+   ],
+   "references_field_ids": [
+    "headline.m1.pre.ratio",
+    "headline.m1.post.ratio",
+    "headline.m1.pre.share_below_100",
+    "headline.m1.post.share_below_100",
+    "headline.m1.gap",
+    "headline.m2.bad_debt",
+    "headline.m3.forced_sell_volume",
+    "headline.m3.exit_depth",
+    "headline.m3.ratio",
+    "stress.structural_zero.flag",
+    "stress.structural_zero.reason",
+    "assumption.bad_debt_definition"
+   ],
+   "rejected": [],
+   "sampling": {
+    "seed": 0,
+    "temperature": 0
+   },
+   "slot": "member1_opening",
+   "text": "The LUSD system uses the Stability Pool and redemptions to handle liquidations, a mechanism that prevents forced sales on the absorption path. Because no trove reaches the minimum collateral ratio on the ruled grid, bad debt is structurally zero; the first liquidation occurs only at an ETH shock of -82.55%, where the minimum internal collateral ratio drops from 6.3044 to 1.1.\n\nCollateral coverage remains at 3.69 before and after the shock, with no share of assets falling below 100% in either state. The system collateral ratio after the shock is also 3.69, which stays well above the Recovery Mode threshold.\n\nExit liquidity stands at $8.3M, while the volume of collateral that must be sold is $0. Consequently, the ratio of forced sales to exit liquidity is 0, indicating no pressure on the exit venues in this scenario.",
+   "think": false,
+   "total_duration": 262862533100,
+   "wall_s": 264.9
+  },
+  {
+   "calls": [
+    {
+     "digest": "6488c96fa5faab64bb65cbd30d4289e20e6130ef535a93ef9a49f42eda893ea7",
+     "done_reason": "stop",
+     "eval_count": 399,
+     "eval_duration": 54858138000,
+     "input_hash": "0bb6e8b0c5186c71a453754cd58e386f12a51ae72514b01086452e3f348e0ccd",
+     "model": "qwen3.5:9b",
+     "num_ctx": 32768,
+     "num_predict": 2000,
+     "ollama_version": "0.34.4",
+     "prompt_eval_count": 5093,
+     "prompt_eval_duration": 155720626000,
+     "prompt_hash": "3f449168c0f1fbca035b0570748f09629e2ce0f67c4df6558de00b6431c4aaa2",
+     "sampling": {
+      "seed": 0,
+      "temperature": 0
+     },
+     "think": false,
+     "total_duration": 210654762500,
+     "wall_s": 212.7
+    }
+   ],
+   "digest": "6488c96fa5faab64bb65cbd30d4289e20e6130ef535a93ef9a49f42eda893ea7",
+   "done_reason": "stop",
+   "eval_count": 399,
+   "eval_duration": 54858138000,
+   "input_hash": "0bb6e8b0c5186c71a453754cd58e386f12a51ae72514b01086452e3f348e0ccd",
+   "model": "qwen3.5:9b",
+   "num_ctx": 32768,
+   "num_predict": 2000,
+   "ollama_version": "0.34.4",
+   "pass": 1,
+   "prompt_eval_count": 5093,
+   "prompt_eval_duration": 155720626000,
+   "prompt_hash": "3f449168c0f1fbca035b0570748f09629e2ce0f67c4df6558de00b6431c4aaa2",
+   "reasks": 0,
+   "references_added": [
+    "exit.curve.s0.005.s",
+    "exit.curve.s0.01.s",
+    "exit.curve.s0.02.s",
+    "exit.curve.s0.05.s",
+    "m2.curve.t0.97.s0.01",
+    "m2.curve.t0.97.s0.02",
+    "m2.target.t0.88",
+    "m2.target.t0.93",
+    "m2.target.t0.97"
+   ],
+   "references_field_ids": [
+    "m2.headline.m3.forced_sell_volume",
+    "m2.headline.m3.exit_depth",
+    "m2.headline.m3.ratio",
+    "exit.member2_target",
+    "m2.curve.t0.88.s0.005",
+    "m2.curve.t0.88.s0.05",
+    "m2.curve.t0.93.s0.005",
+    "m2.curve.t0.93.s0.05",
+    "m2.curve.t0.97.s0.005",
+    "m2.curve.t0.97.s0.05",
+    "assumption.structural_insulation",
+    "exit.curve.s0.005.s",
+    "exit.curve.s0.01.s",
+    "exit.curve.s0.02.s",
+    "exit.curve.s0.05.s",
+    "m2.curve.t0.97.s0.01",
+    "m2.curve.t0.97.s0.02",
+    "m2.target.t0.88",
+    "m2.target.t0.93",
+    "m2.target.t0.97"
+   ],
+   "rejected": [],
+   "sampling": {
+    "seed": 0,
+    "temperature": 0
+   },
+   "slot": "member2_opening",
+   "text": "A depeg of the paired stablecoin fits this token's mechanism because it is structurally insulated by construction, meaning its internal collateral ratio remains zero while exposure flows through exit venues. In the Member-2 headline scenario where the paired stablecoin trades at its middle target of 0.93, forced sales total $0 and the resulting ratio is 0. The available exit liquidity in this baseline case is $7.7M.\n\nWhen the paired stablecoin price drops to 0.88, the exit liquidity curve shows $6.1M at a 0.5% price impact, rising to $7.8M at a 5.0% price impact. At a price of 0.97, the corresponding depths are $6.8M at 0.5%, $7.5M at 1.0%, $8.1M at 2.0%, and $8.6M at 5.0%. These figures illustrate how liquidity availability shifts as the paired asset price moves away from parity.",
+   "think": false,
+   "total_duration": 210654762500,
+   "wall_s": 212.7
+  },
+  {
+   "calls": [
+    {
+     "digest": "6488c96fa5faab64bb65cbd30d4289e20e6130ef535a93ef9a49f42eda893ea7",
+     "done_reason": "stop",
+     "eval_count": 28,
+     "eval_duration": 3367881000,
+     "input_hash": "78ac1d7ce13ba92d86ed55b77770796225a31e9b27d976f562e926fcab6a15d1",
+     "model": "qwen3.5:9b",
+     "num_ctx": 32768,
+     "num_predict": 2000,
+     "ollama_version": "0.34.4",
+     "prompt_eval_count": 1805,
+     "prompt_eval_duration": 46422824000,
+     "prompt_hash": "3f449168c0f1fbca035b0570748f09629e2ce0f67c4df6558de00b6431c4aaa2",
+     "sampling": {
+      "seed": 0,
+      "temperature": 0
+     },
+     "think": false,
+     "total_duration": 49897074500,
+     "wall_s": 52.0
+    }
+   ],
+   "digest": "6488c96fa5faab64bb65cbd30d4289e20e6130ef535a93ef9a49f42eda893ea7",
+   "done_reason": "stop",
+   "eval_count": 28,
+   "eval_duration": 3367881000,
+   "input_hash": "78ac1d7ce13ba92d86ed55b77770796225a31e9b27d976f562e926fcab6a15d1",
+   "model": "qwen3.5:9b",
+   "num_ctx": 32768,
+   "num_predict": 2000,
+   "ollama_version": "0.34.4",
+   "pass": 1,
+   "prompt_eval_count": 1805,
+   "prompt_eval_duration": 46422824000,
+   "prompt_hash": "3f449168c0f1fbca035b0570748f09629e2ce0f67c4df6558de00b6431c4aaa2",
+   "reasks": 0,
+   "references_added": [],
+   "references_field_ids": [],
+   "rejected": [],
+   "sampling": {
+    "seed": 0,
+    "temperature": 0
+   },
+   "slot": "flag_explanations",
+   "text": "No notices are open for this token this run.",
+   "think": false,
+   "total_duration": 49897074500,
+   "wall_s": 52.0
+  },
+  {
+   "calls": [
+    {
+     "digest": "6488c96fa5faab64bb65cbd30d4289e20e6130ef535a93ef9a49f42eda893ea7",
+     "done_reason": "stop",
+     "eval_count": 163,
+     "eval_duration": 20644377000,
+     "input_hash": "ef9d9ff0282c33a761b556644791e9aa40809fc0f5ca6a7bbc61f6a3a64983bf",
+     "model": "qwen3.5:9b",
+     "num_ctx": 32768,
+     "num_predict": 2000,
+     "ollama_version": "0.34.4",
+     "prompt_eval_count": 2373,
+     "prompt_eval_duration": 63253403000,
+     "prompt_hash": "3f449168c0f1fbca035b0570748f09629e2ce0f67c4df6558de00b6431c4aaa2",
+     "sampling": {
+      "seed": 0,
+      "temperature": 0
+     },
+     "think": false,
+     "total_duration": 83979255500,
+     "wall_s": 86.0
+    }
+   ],
+   "digest": "6488c96fa5faab64bb65cbd30d4289e20e6130ef535a93ef9a49f42eda893ea7",
+   "eval_count": 163,
+   "model": "qwen3.5:9b",
+   "num_ctx": 32768,
+   "num_predict": 2000,
+   "ollama_version": "0.34.4",
+   "parts": [
+    {
+     "part": {
+      "index": 0,
+      "line": "Tellor_fallback",
+      "of": 1
+     },
+     "reasks": 0,
+     "text": "The counterfactual where the price feed falls back from Chainlink to the Tellor oracle affects the measure that relies on instant observation of the PriceFeed at the report's block. This change alters how the price basis is calculated, shifting it from a bundle's own total collateral value divided by the total collateral amount to a re-simulated fresh price-feed read. The metric changes because only a fresh price-feed read rewrites the last good price, whereas the fallback introduces a lagged moving-average price line that does not exist in Liquity v1."
+    }
+   ],
+   "pass": 1,
+   "prompt_eval_count": 2373,
+   "prompt_hash": "3f449168c0f1fbca035b0570748f09629e2ce0f67c4df6558de00b6431c4aaa2",
+   "reasks": 0,
+   "references_field_ids": [
+    "headline.cf.Tellor_fallback.value_counterfactual",
+    "headline.cf.Tellor_fallback.metric_affected",
+    "headline.cf.Tellor_fallback.description",
+    "assumption.oracle_assumption"
+   ],
+   "rejected": [],
+   "sampling": {
+    "seed": 0,
+    "temperature": 0
+   },
+   "slot": "counterfactual_explanations",
+   "text": "The counterfactual where the price feed falls back from Chainlink to the Tellor oracle affects the measure that relies on instant observation of the PriceFeed at the report's block. This change alters how the price basis is calculated, shifting it from a bundle's own total collateral value divided by the total collateral amount to a re-simulated fresh price-feed read. The metric changes because only a fresh price-feed read rewrites the last good price, whereas the fallback introduces a lagged moving-average price line that does not exist in Liquity v1.",
+   "think": false
+  },
+  {
+   "calls": [
+    {
+     "digest": "6488c96fa5faab64bb65cbd30d4289e20e6130ef535a93ef9a49f42eda893ea7",
+     "done_reason": "stop",
+     "eval_count": 421,
+     "eval_duration": 79027413000,
+     "input_hash": "ce4eec0c976e14e94608a2ea30bff859ba39ff081407123d0db9da8beb2d3b26",
+     "model": "qwen3.5:9b",
+     "num_ctx": 32768,
+     "num_predict": 2000,
+     "ollama_version": "0.34.4",
+     "prompt_eval_count": 12081,
+     "prompt_eval_duration": 488172948000,
+     "prompt_hash": "3f449168c0f1fbca035b0570748f09629e2ce0f67c4df6558de00b6431c4aaa2",
+     "rejected": {
+      "guard_violations": {
+       "dashes": [
+        "—"
+       ]
+      },
+      "printed_by": {},
+      "references_field_ids": [
+       "verif.banner",
+       "admin.mint.None.holder_type",
+       "admin.mint.None.delay_bucket",
+       "admin.mint.None.upgradeability",
+       "admin.set_ceiling.None.holder_type",
+       "admin.set_ceiling.None.delay_bucket",
+       "admin.set_ceiling.None.upgradeability",
+       "admin.upgrade.None.holder_type",
+       "admin.upgrade.None.delay_bucket",
+       "admin.upgrade.None.upgradeability",
+       "admin.pause.None.holder_type",
+       "admin.pause.None.delay_bucket",
+       "admin.pause.None.upgradeability",
+       "admin.freeze_asset.None.holder_type",
+       "admin.freeze_asset.None.delay_bucket",
+       "admin.freeze_asset.None.upgradeability",
+       "admin.blacklist_address.None.holder_type",
+       "admin.blacklist_address.None.delay_bucket",
+       "admin.blacklist_address.None.upgradeability",
+       "admin.set_oracle.None.holder_type",
+       "admin.set_oracle.None.delay_bucket",
+       "admin.set_oracle.None.upgradeability",
+       "admin.set_parameters.None.holder_type",
+       "admin.set_parameters.None.delay_bucket",
+       "admin.set_parameters.None.upgradeability",
+       "admin.seize.None.holder_type",
+       "admin.seize.None.delay_bucket",
+       "admin.seize.None.upgradeability"
+      ],
+      "text": "No admin power can alter backing, immutable. The system shows no one holds this power, and any change would take no delay because the code is immutable. No one can veto a minting action, nor can anyone adjust debt ceilings, contract upgrades, pausing, asset freezing, address blacklisting, oracle settings, risk parameters, or seizing assets.\n\nEvery admin function listed—minting, debt ceilings, upgrades, pauses, freezes, blacklists, oracles, parameters, and seizures—is held by no one. Each of these powers is immutable, applies instantly with no delay, and lacks a veto address. The contract reads confirm that no owner exists for any of these controls.\n\nThe exit-pool freeze reference remains fixed at the report's block, and liquidity providers staying put are unaffected by admin intervention since no holder can alter backing or minting. The depeg target stands without administrative override, and the sell-side limit cannot be shifted by an absent authority."
+     },
+     "sampling": {
+      "seed": 0,
+      "temperature": 0
+     },
+     "think": false,
+     "total_duration": 567316819300,
+     "wall_s": 569.4
+    },
+    {
+     "digest": "6488c96fa5faab64bb65cbd30d4289e20e6130ef535a93ef9a49f42eda893ea7",
+     "done_reason": "stop",
+     "eval_count": 434,
+     "eval_duration": 82122504000,
+     "input_hash": "74806136121d75cdbbb8c870a334db6a971b78545f5868909ce39504caa75dd5",
+     "model": "qwen3.5:9b",
+     "num_ctx": 32768,
+     "num_predict": 2000,
+     "ollama_version": "0.34.4",
+     "prompt_eval_count": 12101,
+     "prompt_eval_duration": 64591928000,
+     "prompt_hash": "3f449168c0f1fbca035b0570748f09629e2ce0f67c4df6558de00b6431c4aaa2",
+     "rejected": {
+      "guard_violations": {
+       "numbers_not_printed": [
+        "1.00"
+       ],
+       "references_outside_rows": [
+        "assumption.absorption",
+        "assumption.bad_debt_definition",
+        "assumption.engagement_thresholds",
+        "exit.base_virtual_price.0xed279fdd11ca84beef15af5d39bb4d4bee23f0ca",
+        "exit.lp_flight_literal",
+        "exit.member2_target",
+        "header.freeze_date",
+        "node.0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee.sell_side"
+       ]
+      },
+      "printed_by": {},
+      "references_field_ids": [
+       "verif.banner",
+       "admin.mint.None.holder_type",
+       "admin.mint.None.delay_bucket",
+       "admin.set_ceiling.None.holder_type",
+       "admin.set_ceiling.None.delay_bucket",
+       "admin.upgrade.None.holder_type",
+       "admin.upgrade.None.delay_bucket",
+       "admin.pause.None.holder_type",
+       "admin.pause.None.delay_bucket",
+       "admin.freeze_asset.None.holder_type",
+       "admin.freeze_asset.None.delay_bucket",
+       "admin.blacklist_address.None.holder_type",
+       "admin.blacklist_address.None.delay_bucket",
+       "admin.set_oracle.None.holder_type",
+       "admin.set_oracle.None.delay_bucket",
+       "admin.set_parameters.None.holder_type",
+       "admin.set_parameters.None.delay_bucket",
+       "admin.seize.None.holder_type",
+       "admin.seize.None.delay_bucket",
+       "header.freeze_date",
+       "exit.lp_flight_literal",
+       "node.0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee.sell_side",
+       "exit.base_virtual_price.0xed279fdd11ca84beef15af5d39bb4d4bee23f0ca",
+       "exit.member2_target",
+       "assumption.engagement_thresholds",
+       "assumption.absorption",
+       "assumption.bad_debt_definition"
+      ],
+      "text": "No admin power can alter backing, immutable. The contract is immutable and no one holds this power for minting, debt ceilings, upgrades, pausing, freezing assets, blacklisting addresses, oracle settings, risk parameters, or seizing assets. Any change to these functions would require a delay of 0 seconds and faces no veto address.\n\nThe exit-pool freeze reference is the only administrative date recorded in the header. Liquidity providers staying put or flight levels are not governed by an admin holder that can intervene instantly. The sell-side limit and paired assets counted at 1.00 operate without an admin who can shift them within a delay of 0 seconds.\n\nThe depeg target is fixed by construction, and the shock levels at which liquidations begin do not rely on an admin who holds pause or upgrade power. Absorption and how bad debt is defined are set such that no one holds this power to alter them with a delay of 0 seconds."
+     },
+     "sampling": {
+      "seed": 0,
+      "temperature": 0
+     },
+     "think": false,
+     "total_duration": 146758466400,
+     "wall_s": 148.8
+    }
+   ],
+   "error": "admin_surface_narrative: guard failed after one re-ask {'numbers_not_printed': ['1.00'], 'references_outside_rows': ['assumption.absorption', 'assumption.bad_debt_definition', 'assumption.engagement_thresholds', 'exit.base_virtual_price.0xed279fdd11ca84beef15af5d39bb4d4bee23f0ca', 'exit.lp_flight_literal', 'exit.member2_target', 'header.freeze_date', 'node.0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee.sell_side']}",
+   "eval_count": 855,
+   "model": "qwen3.5:9b",
+   "pass": 1,
+   "prompt_eval_count": 24182,
+   "reasks": 1,
+   "slot": "admin_surface_narrative"
+  },
+  {
+   "calls": [
+    {
+     "digest": "6488c96fa5faab64bb65cbd30d4289e20e6130ef535a93ef9a49f42eda893ea7",
+     "done_reason": "stop",
+     "eval_count": 225,
+     "eval_duration": 29945533000,
+     "input_hash": "2521832982d7f4614778f317bc3c69aff2241997bee1d52e6d099e5dab73d362",
+     "model": "qwen3.5:9b",
+     "num_ctx": 32768,
+     "num_predict": 2000,
+     "ollama_version": "0.34.4",
+     "prompt_eval_count": 4099,
+     "prompt_eval_duration": 116526032000,
+     "prompt_hash": "3f449168c0f1fbca035b0570748f09629e2ce0f67c4df6558de00b6431c4aaa2",
+     "rejected": {
+      "guard_violations": {
+       "missing_field_ids": [
+        "exit.offvenue.curve_mainnet_liquidity",
+        "exit.offvenue.literal"
+       ]
+      },
+      "printed_by": {
+       "$12.6M": [
+        "exit.offvenue.curve_mainnet_liquidity",
+        "exit.offvenue.dex_liquidity_total_discovered"
+       ],
+       "$192.9M": [
+        "tree.root.backing_value"
+       ],
+       "$26.2M": [
+        "supply.origination_sum",
+        "supply.supply_ruled",
+        "supply.total_supply",
+        "tree.root.backed_supply"
+       ],
+       "-79.66%": [
+        "stress.structural_zero.reason"
+       ],
+       "-82.55%": [
+        "stress.structural_zero.reason"
+       ],
+       "-85.08%": [
+        "stress.structural_zero.reason"
+       ],
+       "0.4%": [
+        "exit.offvenue.literal",
+        "exit.offvenue.x"
+       ],
+       "1.1": [
+        "stress.structural_zero.reason"
+       ],
+       "1.5": [
+        "stress.structural_zero.reason"
+       ],
+       "100.0%": [
+        "verif.bar.terminal"
+       ],
+       "6.3044": [
+        "stress.structural_zero.reason"
+       ],
+       "7.3744": [
+        "stress.structural_zero.reason"
+       ]
+      },
+      "references_field_ids": [
+       "tree.root.backing_value",
+       "verif.bar.terminal",
+       "supply.total_supply",
+       "stress.structural_zero.flag",
+       "stress.structural_zero.reason",
+       "headline.m3.forced_sell_volume",
+       "headline.m3.exit_depth"
+      ],
+      "text": "The token is backed by $192.9M of collateral, all of which can be checked directly on-chain at 100.0%. The supply totals $26.2M and the model shows no bad debt because no trove reaches its minimum collateral ratio; the first liquidation occurs only after an ETH shock of -82.55% (minimum ICR 6.3044 -> 1.1), recovery mode activates at -79.66% (TCR 7.3744 -> 1.5), and TCR falls below MCR at -85.08%. Forced sales are zero, so the exit-liquidity ratio is zero, while off-venue DEX liquidity totals $12.6M with 0.4% lying outside modeled venues."
+     },
+     "sampling": {
+      "seed": 0,
+      "temperature": 0
+     },
+     "think": false,
+     "total_duration": 146585605600,
+     "wall_s": 148.7
+    },
+    {
+     "digest": "6488c96fa5faab64bb65cbd30d4289e20e6130ef535a93ef9a49f42eda893ea7",
+     "done_reason": "stop",
+     "eval_count": 273,
+     "eval_duration": 36585017000,
+     "input_hash": "6ca96ba78d4ea03b80ba97f8102021be08796790abf8d738c820b7f08d641b4f",
+     "model": "qwen3.5:9b",
+     "num_ctx": 32768,
+     "num_predict": 2000,
+     "ollama_version": "0.34.4",
+     "prompt_eval_count": 4343,
+     "prompt_eval_duration": 41289723000,
+     "prompt_hash": "3f449168c0f1fbca035b0570748f09629e2ce0f67c4df6558de00b6431c4aaa2",
+     "sampling": {
+      "seed": 0,
+      "temperature": 0
+     },
+     "think": false,
+     "total_duration": 77890473300,
+     "wall_s": 80.0
+    }
+   ],
+   "digest": "6488c96fa5faab64bb65cbd30d4289e20e6130ef535a93ef9a49f42eda893ea7",
+   "done_reason": "stop",
+   "eval_count": 498,
+   "eval_duration": 36585017000,
+   "input_hash": "6ca96ba78d4ea03b80ba97f8102021be08796790abf8d738c820b7f08d641b4f",
+   "model": "qwen3.5:9b",
+   "num_ctx": 32768,
+   "num_predict": 2000,
+   "ollama_version": "0.34.4",
+   "pass": 1,
+   "prompt_eval_count": 8442,
+   "prompt_eval_duration": 41289723000,
+   "prompt_hash": "3f449168c0f1fbca035b0570748f09629e2ce0f67c4df6558de00b6431c4aaa2",
+   "reasks": 1,
+   "references_added": [],
+   "references_field_ids": [
+    "stress.structural_zero.flag",
+    "stress.structural_zero.reason",
+    "tree.root.backing_value",
+    "supply.origination_sum",
+    "supply.supply_ruled",
+    "supply.total_supply",
+    "verif.bar.terminal",
+    "headline.m3.forced_sell_volume",
+    "headline.m3.exit_depth",
+    "exit.offvenue.dex_liquidity_total_discovered",
+    "exit.offvenue.literal"
+   ],
+   "rejected": [
+    {
+     "guard_violations": {
+      "missing_field_ids": [
+       "exit.offvenue.curve_mainnet_liquidity",
+       "exit.offvenue.literal"
+      ]
+     },
+     "printed_by": {
+      "$12.6M": [
+       "exit.offvenue.curve_mainnet_liquidity",
+       "exit.offvenue.dex_liquidity_total_discovered"
+      ],
+      "$192.9M": [
+       "tree.root.backing_value"
+      ],
+      "$26.2M": [
+       "supply.origination_sum",
+       "supply.supply_ruled",
+       "supply.total_supply",
+       "tree.root.backed_supply"
+      ],
+      "-79.66%": [
+       "stress.structural_zero.reason"
+      ],
+      "-82.55%": [
+       "stress.structural_zero.reason"
+      ],
+      "-85.08%": [
+       "stress.structural_zero.reason"
+      ],
+      "0.4%": [
+       "exit.offvenue.literal",
+       "exit.offvenue.x"
+      ],
+      "1.1": [
+       "stress.structural_zero.reason"
+      ],
+      "1.5": [
+       "stress.structural_zero.reason"
+      ],
+      "100.0%": [
+       "verif.bar.terminal"
+      ],
+      "6.3044": [
+       "stress.structural_zero.reason"
+      ],
+      "7.3744": [
+       "stress.structural_zero.reason"
+      ]
+     },
+     "references_field_ids": [
+      "tree.root.backing_value",
+      "verif.bar.terminal",
+      "supply.total_supply",
+      "stress.structural_zero.flag",
+      "stress.structural_zero.reason",
+      "headline.m3.forced_sell_volume",
+      "headline.m3.exit_depth"
+     ],
+     "text": "The token is backed by $192.9M of collateral, all of which can be checked directly on-chain at 100.0%. The supply totals $26.2M and the model shows no bad debt because no trove reaches its minimum collateral ratio; the first liquidation occurs only after an ETH shock of -82.55% (minimum ICR 6.3044 -> 1.1), recovery mode activates at -79.66% (TCR 7.3744 -> 1.5), and TCR falls below MCR at -85.08%. Forced sales are zero, so the exit-liquidity ratio is zero, while off-venue DEX liquidity totals $12.6M with 0.4% lying outside modeled venues."
+    }
+   ],
+   "sampling": {
+    "seed": 0,
+    "temperature": 0
+   },
+   "slot": "structural_summary",
+   "text": "The structural-zero flag is set because no trove reaches the minimum collateral ratio on the ruled grid; the first liquidation occurs at an ETH shock of -82.55% (minimum ICR 6.3044 -> 1.1), recovery mode activates at -79.66% (TCR 7.3744 -> 1.5), and TCR falls below MCR at -85.08%, while Liquity v1 is wound down to 70 troves.\n\nThe token is backed by $192.9M of collateral, of which $26.2M backs the supply; all backing can be checked directly on-chain (100.0%). Forced sales are zero relative to exit liquidity of $8.3M, and off-venue DEX liquidity totals $12.6M, with 0.4% lying outside modeled venues.",
+   "think": false,
+   "total_duration": 77890473300,
+   "wall_s": 80.0
+  }
+ ],
+ "judge": [
+  {
+   "not_evaluated": "judge withdrawn (P-8.05): the local model failed the Q13 control",
+   "pass": 1
+  }
+ ],
+ "llm": {
+  "backend": "ollama",
+  "digest": "6488c96fa5faab64bb65cbd30d4289e20e6130ef535a93ef9a49f42eda893ea7",
+  "model": "qwen3.5:9b",
+  "version": "0.34.4"
+ },
+ "outcome": "blocked_S3",
+ "pass2_skipped": null,
+ "pipeline_version": "0.1.0",
+ "publication": null,
+ "report_hash": "d63a4915f68f99c9cb894fd768863ef23f68c341824a0b1bfdb9a1fd0d31f309",
+ "results": [
+  {
+   "entry_id": "DET-02",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S0"
+  },
+  {
+   "entry_id": "DET-12",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S0"
+  },
+  {
+   "entry_id": "DET-77",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S0"
+  },
+  {
+   "entry_id": "DET-83",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S1"
+  },
+  {
+   "entry_id": "DET-86",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S1"
+  },
+  {
+   "entry_id": "DET-01",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S1"
+  },
+  {
+   "entry_id": "DET-03",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S1"
+  },
+  {
+   "entry_id": "DET-04",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S1"
+  },
+  {
+   "entry_id": "DET-07",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S1"
+  },
+  {
+   "entry_id": "DET-20",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S1"
+  },
+  {
+   "entry_id": "DET-21",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S1"
+  },
+  {
+   "entry_id": "DET-33",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S1"
+  },
+  {
+   "entry_id": "DET-55",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S1"
+  },
+  {
+   "entry_id": "DET-61",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S1"
+  },
+  {
+   "entry_id": "DET-62",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S1"
+  },
+  {
+   "entry_id": "DET-63",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S1"
+  },
+  {
+   "entry_id": "DET-65",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S1"
+  },
+  {
+   "entry_id": "DET-66",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S1"
+  },
+  {
+   "entry_id": "DET-68",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S1"
+  },
+  {
+   "entry_id": "DET-08",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S1"
+  },
+  {
+   "entry_id": "DET-10",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S1"
+  },
+  {
+   "entry_id": "DET-29a",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S1"
+  },
+  {
+   "entry_id": "DET-71",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S1"
+  },
+  {
+   "entry_id": "DET-76e",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S1"
+  },
+  {
+   "entry_id": "DET-82",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S1"
+  },
+  {
+   "entry_id": "DET-52",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S1"
+  },
+  {
+   "entry_id": "DET-14",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-19",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-70",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-11",
+   "result": "pass",
+   "scope_condition": "composite constituent sum skipped: constituents owed (F4, C4)",
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-06",
+   "result": "pass",
+   "scope_condition": "(c)'s base-state CR replay is dormant: no printed base-CR field until B-10's table",
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-16",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-22",
+   "result": "pass",
+   "scope_condition": "no stabilizer operations: slice 0, ceiling 0 (R-9)",
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-28",
+   "result": "pass",
+   "scope_condition": "gsm_count = 0 explicit; no GSM class on this token",
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-34",
+   "result": "pass",
+   "scope_condition": "0 above-floor non-F rows reasoned; below_dust_floor at freeze is the set file's (freeze.build_freeze)",
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-67",
+   "result": "pass",
+   "scope_condition": "1 paths derive exactly",
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-72",
+   "result": "pass",
+   "scope_condition": "1 on-chain paths consistent",
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-05",
+   "result": "pass",
+   "scope_condition": "no stabilizer operations: (c)/(d) not applicable",
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-15",
+   "result": "pass",
+   "scope_condition": "residual 0 = 0 named causes 0 + unexplained 0 (0.000000% of supply_ruled)",
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-32",
+   "result": "pass",
+   "scope_condition": "X 0.003691 (12588392 / 12635025), no trigger; fetched 2026-10-02",
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-24",
+   "result": "pass",
+   "scope_condition": "DET-24(a) asserted as provenance, not value equality: `pool_composition_at_block` does not exist on the bundle (R-B2.5)",
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-29bc",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-30",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-31",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-35",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-50",
+   "result": "pass",
+   "scope_condition": "target 0xdac17f958d2ee523a2206206994597c13d831ec7 at share 0.5084668259442442773460273094 via composite_constituent; compound-tail and joint-cell limbs dormant until the cells exist (B-4/5/6)",
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-45",
+   "result": "pass",
+   "scope_condition": "no stabilizer: H1 does not apply to this token",
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-26",
+   "result": "pass",
+   "scope_condition": "no stabilizer: Member 1's trajectory has no crvUSD-shaped term",
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-27",
+   "result": "pass",
+   "scope_condition": "no stabilizer: no burn capacity term",
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-69",
+   "result": "pass",
+   "scope_condition": "marked == consumed == none",
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-23c",
+   "result": "pass",
+   "scope_condition": "no stabilizer_* in any of 23 cell lineages",
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-32-lineage",
+   "result": "pass",
+   "scope_condition": "no offvenue_* in 23 cell lineages or exit_depth reads",
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-25",
+   "result": "pass",
+   "scope_condition": "Member-1 forced_sell == bad_debt on every cell; no stabilizer source",
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-37",
+   "result": "pass",
+   "scope_condition": "23 cells; LST axis collapsed",
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-38",
+   "result": "pass",
+   "scope_condition": "m4 key set exact on 23 cells (9 keys)",
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-39",
+   "result": "pass",
+   "scope_condition": "gap = post - pre on every cell; both readings present",
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-40",
+   "result": "pass",
+   "scope_condition": "bad_debt >= 0, pct_supply replays, monotone on shock / LST / LP",
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-41",
+   "result": "pass",
+   "scope_condition": "LP-0 identity holds; 0 undefined ratio(s) treated as +infinity (R-B4.14)",
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-42",
+   "result": "pass",
+   "scope_condition": "structurally_insulated: every Member-2 numerator is 0 by construction",
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-43",
+   "result": "pass",
+   "scope_condition": "ten exact zeros, the literal, twelve curve values on DET-31's grid with s = 2% marked, and 5 LP-0 cell replays",
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-44",
+   "result": "pass",
+   "scope_condition": "required IDs on every cell; 0 EMA_lag lines flagged; 23 Tellor_fallback lines",
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-48",
+   "result": "pass",
+   "scope_condition": "grid exact; 1 reference rows carrying R14's literal",
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-49",
+   "result": "pass",
+   "scope_condition": "no LST node: the axis is absent, every Member-1 cell at d = 0",
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-46",
+   "result": "pass",
+   "scope_condition": "no GSM: H2 routing does not apply to this token",
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-47",
+   "result": "pass",
+   "scope_condition": "no GSM: H5's two-sided capacity does not apply to this token",
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-51",
+   "result": "pass",
+   "scope_condition": "sp_effective_cell, the bad-debt identity, recovery_mode_flag and H4's gate asserted on 23 cells",
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-84",
+   "result": "pass",
+   "scope_condition": "376 rows replay from their owners; table_hash a37d490d",
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-14cd",
+   "result": "pass",
+   "scope_condition": "3 segments printed, sum 100.0",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "DET-22-S3",
+   "result": "pass",
+   "scope_condition": "slice row, ceiling bound, 0 operation row(s)",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "DET-29c",
+   "result": "pass",
+   "scope_condition": "K90 share 1; one-liner printed",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "DET-17",
+   "result": "pass",
+   "scope_condition": "three bars in order; 0 truncated reason(s)",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "DET-18",
+   "result": "pass",
+   "scope_condition": "D = 0 node(s)",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "DET-36",
+   "result": "pass",
+   "scope_condition": "LP-flight lines printed",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "DET-53",
+   "result": "pass",
+   "scope_condition": "9 rows rendered; four literals present; capacity lineage entries: 0",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "DET-54",
+   "result": "pass",
+   "scope_condition": "X = 50 bps",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "DET-56",
+   "result": "pass",
+   "scope_condition": "scope-out sentences printed",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "DET-57",
+   "result": "pass",
+   "scope_condition": "9 required IDs",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "DET-73",
+   "result": "pass",
+   "scope_condition": "2 audits; bounty; lmc yes; staleness_date 2026-09-13",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "DET-74",
+   "result": "pass",
+   "scope_condition": "class I 6 value(s) dated; class D dates printed; class S absent (M1 is a memo tag)",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "DET-79",
+   "result": "fail",
+   "scope_condition": "DET-79: 1 leak(s): index '[slot:' x1",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "DET-88",
+   "result": "pass",
+   "scope_condition": "no grade, score, letter or verdict field",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "DET-89",
+   "result": "pass",
+   "scope_condition": "display rule emitted; decimals() read; every figure a fmt output",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "DET-12-S3",
+   "result": "pass",
+   "scope_condition": "1 trigger(s) on the flags line; log entries on the printed table",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "DET-58",
+   "result": "pass",
+   "scope_condition": "0 open Level-1 entr(ies) flagged",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "DET-59",
+   "result": "pass",
+   "scope_condition": "banner: Current run: quarantined — gate failure; consecutive quarantined runs 1",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "DET-60",
+   "result": "pass",
+   "scope_condition": "5 quarantine line(s); every fired trigger has one entry",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "DET-87",
+   "result": "pass",
+   "scope_condition": "manifest hashes present; 2 resolution(s) evidenced",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "DET-80",
+   "result": "fail",
+   "scope_condition": "DET-80: slot(s) absent or empty ['admin_surface_narrative']",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "LLM-01",
+   "result": "not_evaluated",
+   "scope_condition": "judge withdrawn (P-8.05): the local model failed the Q13 control",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "LLM-02",
+   "result": "not_evaluated",
+   "scope_condition": "judge withdrawn (P-8.05): the local model failed the Q13 control",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "LLM-03",
+   "result": "not_evaluated",
+   "scope_condition": "judge withdrawn (P-8.05): the local model failed the Q13 control",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "LLM-04",
+   "result": "not_evaluated",
+   "scope_condition": "judge withdrawn (P-8.05): the local model failed the Q13 control",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "LLM-05",
+   "result": "not_evaluated",
+   "scope_condition": "judge withdrawn (P-8.05): the local model failed the Q13 control",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "LLM-06",
+   "result": "not_evaluated",
+   "scope_condition": "judge withdrawn (P-8.05): the local model failed the Q13 control",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "DET-85",
+   "result": "pass",
+   "scope_condition": "94 results, no error",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "DET-13",
+   "result": "pass",
+   "scope_condition": "(a)-(e), (g) hold over 95 results; (f) vacuous: DET-09 unregistered (A-16)",
+   "stage": "S3"
+  }
+ ],
+ "revision_cause": [],
+ "revision_count": 0,
+ "rubric_hash": "ae79f798",
+ "run_block": 26107477,
+ "sheet_hash": "29682310",
+ "stress_hash": "015d9a4d679992f86c0b28f4ec0518cbbd9b4ebc938beb0586ecbe6db52b69c4",
+ "table_hash": "a37d490d212402ca4b870b1fa0f79315886b955fd676105b39f2b9f8e2c5e118",
+ "template_hash": "770857761796d9da72bc613dc826fc79c17c0ad8d5da526c4dd0517563d8e5f9",
+ "token": "LUSD",
+ "tree_hash": "43316e2a51a21080feff46ec7d448f21fc3b8b55d9f16ce11c83240e95de6822",
+ "triggers": [
+  {
+   "level": 2,
+   "source_entry": "DET-79",
+   "trigger": "T-28"
+  },
+  {
+   "level": 2,
+   "source_entry": "DET-80",
+   "trigger": "T-28"
+  }
+ ],
+ "unregistered": [
+  {
+   "entry_id": "DET-09",
+   "queue_item": "P-4.01 (DET-09 set-file inputs: GHO discovery_m absent, LUSD 0.4459 - ruling)"
+  },
+  {
+   "entry_id": "DET-75",
+   "queue_item": "P-4.01 #25/#26 (field-existence clause; FR-14 fields)"
+  },
+  {
+   "entry_id": "DET-76abcd",
+   "queue_item": "P-4.01 (DET-76 limbs a-d beside the registered DET-76e)"
+  },
+  {
+   "entry_id": "DET-81",
+   "queue_item": "P-4.01 (GHO [[reference_feed]] rows, gap column - P-7.05)"
+  },
+  {
+   "entry_id": "DET-23abd",
+   "queue_item": "P-4.01 (DET-23 limbs a/b/d beside the registered DET-23c)"
+  },
+  {
+   "entry_id": "DET-64",
+   "queue_item": "P-4.01 (GHO attribution cross-check: aggregate reads)"
+  }
+ ]
+}
