@@ -595,3 +595,61 @@ def test_methodology_records_that_hci_history_is_not_offered(tmp_path):
     from markupsafe import escape
     out = site.build(tmp_repo(tmp_path, {t: fixture_snapshot(t) for t in TOKENS}), FETCHED)
     assert str(escape(wording()["hci_history"])) in out["methodology.html"].decode()
+
+
+# ---- Amin, 4 Oct: scoped HCI validation; Ruling 1, failures disclosed --------------------
+
+def test_hci_validation_reads_only_our_three_rows():
+    import pydantic
+    hmeta = {"generatedAt": "2026-10-04T00:00:00Z", "stale": False, "page": 1, "totalPages": 1}
+    ours = {"chain": "eth", "address": "0xAbC", "symbol": "X", "name": "x",
+            "holderConcentration": {"top10": {"index": 1, "topSharePct": 50, "riskBand": "low"},
+                                    "top30": {"index": 1, "topSharePct": 60, "riskBand": "low"},
+                                    "holderCount": 10}}
+    foreign = {**ours, "address": "0xdef",
+               "holderConcentration": {**ours["holderConcentration"], "top30": None}}
+    body = {"meta": hmeta, "data": [foreign, ours]}
+    assert [e.address for e in behavioral.validate_hci(body, ["0xabc"])] == ["0xAbC"]
+    bad = {"meta": hmeta, "data": [{**ours, "holderConcentration": {
+        **ours["holderConcentration"], "top30": None}}]}
+    with pytest.raises(pydantic.ValidationError):
+        behavioral.validate_hci(bad, ["0xabc"])                 # our own row stays strict
+
+
+def test_status_is_written_with_a_plain_reason(tmp_path):
+    msg = ("HCI page 1: ValidationError: 1 validation error for HciEntry\n"
+           "holderConcentration.top30\n  Input should be a valid dictionary or instance of "
+           "Cohort [type=model_type, input_value=None, input_type=NoneType]")
+    reason = behavioral.plain_reason(msg)
+    assert reason == ("holderConcentration.top30: Input should be a valid dictionary or "
+                      "instance of Cohort")
+    assert behavioral.plain_reason("x -> HTTP 503: <html>secret</html>") == \
+        "the request returned HTTP 503"
+    for t in TOKENS:
+        (tmp_path / "out/behavioral" / t).mkdir(parents=True)
+        (tmp_path / "out/behavioral" / t / "20260927T000000Z.json").write_text("{}")
+    st = behavioral.write_status(tmp_path, False, reason,
+                                 dt.datetime(2026, 10, 4, 7, tzinfo=dt.UTC))
+    assert st == {"fetched_at": "2026-10-04T07:00:00+00:00", "ok": False, "reason": reason,
+                  "snapshot_stamp": "20260927T000000Z"}
+    assert behavioral.read_status(tmp_path) == st
+
+
+def test_a_failed_refresh_is_disclosed_on_every_page_and_absent_when_ok(tmp_path):
+    root = tmp_repo(tmp_path, {t: fixture_snapshot(t) for t in TOKENS})
+    behavioral.write_status(root, False, "holderConcentration.top30: Input should be a "
+                            "valid dictionary", dt.datetime(2026, 10, 4, 7, tzinfo=dt.UTC))
+    out = site.build(root, FETCHED)
+    notice = ("Behavioral data was not refreshed on 2026-10-04: Webacy&#39;s response failed "
+              "validation (holderConcentration.top30: Input should be a valid dictionary). "
+              "Showing the snapshot fetched 2026-09-15.")
+    for t in TOKENS:
+        page = out[f"{t}/index.html"].decode()
+        block = page[page.index(behavioral.MARK_BEGIN):page.index(behavioral.MARK_END)]
+        assert block.count(notice) == 1, t
+    for n in ("index.html", "methodology.html"):
+        assert out[n].decode().count("Behavioral data was not refreshed on 2026-10-04") == 1
+    assert json.loads(out["site.json"])["behavioral_status"]["ok"] is False
+    behavioral.write_status(root, True, None, dt.datetime(2026, 10, 4, 7, tzinfo=dt.UTC))
+    ok = site.build(root, FETCHED)
+    assert not any(b"not refreshed" in v for k, v in ok.items() if k.endswith(".html"))

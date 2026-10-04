@@ -148,9 +148,28 @@ def apply_rewrites(page: str, pairs: list[tuple[str, str]], token: str,
     return original, after
 
 
-def either_or(page: str, w: dict, landed: bool, token: str) -> None:
+def notice_of(repo: pathlib.Path, w: dict) -> str | None:
+    """Ruling 1: the not-refreshed sentence when status.json says the last fetch failed."""
+    st = behavioral.read_status(repo)
+    if not st or st.get("ok"):
+        return None
+    snap = st.get("snapshot_stamp")
+    shown = f"{snap[:4]}-{snap[4:6]}-{snap[6:8]}" if snap else "never"
+    return w["behavioral"]["not_refreshed"].format(date=st["fetched_at"][:10],
+                                                   reason=st.get("reason"), snapshot=shown)
+
+
+def either_or(page: str, w: dict, landed: bool, token: str, notice: str | None = None) -> None:
     """A-20: the pending literal or the block with its attribution line - never both,
-    never neither; which one follows whether the tier has landed."""
+    never neither; which one follows whether the tier has landed. Ruling 1: when the last
+    refresh failed, the block carries the not-refreshed notice exactly once, else never."""
+    blocks_ = MARKED.findall(page)
+    if blocks_:
+        want = 1 if notice else 0
+        got = blocks_[0].count(_html_escape(notice)) if notice else blocks_[0].count(
+            w["behavioral"]["not_refreshed"].split("{")[0])
+        if got != want:
+            raise SiteStop(f"{token}: not-refreshed notice x{got}, expected x{want}")
     lit = page.count(w["behavioral_pending"])
     blocks = MARKED.findall(page)
     attr = w["behavioral"]["attribution"].split("{")[0]
@@ -164,7 +183,12 @@ def either_or(page: str, w: dict, landed: bool, token: str) -> None:
                    f"snapshot {'present' if landed else 'absent'}")
 
 
-def token_card(repo: pathlib.Path, token: str, w: dict, mf: dict, pairs, as_of: dt.date) -> dict:
+def _html_escape(s: str) -> str:
+    return str(Markup.escape(s))
+
+
+def token_card(repo: pathlib.Path, token: str, w: dict, mf: dict, pairs, as_of: dt.date,
+               notice: str | None = None) -> dict:
     site = repo / "out/site" / token
     missing = [n for n in PAGE_SET if not (site / n).exists()]
     if missing:
@@ -179,16 +203,25 @@ def token_card(repo: pathlib.Path, token: str, w: dict, mf: dict, pairs, as_of: 
 
     # D5: the rendered structural_summary equals the record's highest-pass text
     m = SLOT.search(page)
-    if m is None:
-        raise SiteStop(f"{token}: no structural_summary slot on index.html")
-    shown = "\n\n".join(_html.unescape(p) for p in re.findall(r"<p>(.*?)</p>", m.group(1), re.S))
     gens = [g for g in rec["generation"] if g.get("slot") == "structural_summary" and g.get("text")]
-    if not gens:
-        raise SiteStop(f"{token}: the record carries no structural_summary text")
-    top = max(gens, key=lambda g: g["pass"])
-    if shown != top["text"].strip():
-        raise SiteStop(f"{token}: structural_summary on the page differs from pass "
-                       f"{top['pass']}'s text")
+    if "structural_summary" in (rec.get("slots_missing") or []):        # A-25: the notice
+        if m is not None or 'class="slot-missing" data-slot="structural_summary"' not in page:
+            raise SiteStop(f"{token}: structural_summary missing in the record but not shown "
+                           "as the A-25 notice")
+        top = {"text": w["site"]["no_summary"]}
+        finding = w["site"]["no_summary"]
+    else:
+        if m is None:
+            raise SiteStop(f"{token}: no structural_summary slot on index.html")
+        shown = "\n\n".join(_html.unescape(p)
+                            for p in re.findall(r"<p>(.*?)</p>", m.group(1), re.S))
+        if not gens:
+            raise SiteStop(f"{token}: the record carries no structural_summary text")
+        top = max(gens, key=lambda g: g["pass"])
+        if shown != top["text"].strip():
+            raise SiteStop(f"{token}: structural_summary on the page differs from pass "
+                           f"{top['pass']}'s text")
+        finding = first_sentence(top["text"])
 
     # D5's addition: the three stat-card figures, compact, from the cards' own rows
     sz_flag, _ = structural_zero(rows)
@@ -223,6 +256,10 @@ def token_card(repo: pathlib.Path, token: str, w: dict, mf: dict, pairs, as_of: 
         except Exception as exc:                                        # P6: shape mismatch
             raise SiteStop(f"{token}: snapshot {snap_path.name} does not validate: "
                            f"{type(exc).__name__}: {exc}"[:400]) from exc
+        if notice:                                                      # Ruling 1
+            head = block.index(">", block.index("<section")) + 1
+            block = (block[:head] + f'\n<p class="meta notice">{_html_escape(notice)}</p>'
+                     + block[head:])
         beh_rec = {"state": "rendered", "snapshot": snap_path.relative_to(repo).as_posix(),
                    "snapshot_sha256": _sha(snap_path.read_bytes()),
                    "block_sha256": _sha(block.encode("utf-8")), **st}
@@ -235,11 +272,11 @@ def token_card(repo: pathlib.Path, token: str, w: dict, mf: dict, pairs, as_of: 
     original, after = apply_rewrites(page, pairs, token, {
         "pending": pending, "spec": spec, "check": '<section id="check">',
         "readers": (wb["reader"], wb["reader_full"]), "reader": reader, "block": block})
-    either_or(after, w, block is not None, token)                             # A-20
+    either_or(after, w, block is not None, token, notice)                     # A-20
     return {
         "token": token, "run_block": blk, "report_hash": man["report_hash"],
         "read": fmt(ts["value"], ts["unit"], ts["denominator"]),
-        "finding": first_sentence(top["text"]), "figures": " · ".join(figures),
+        "finding": finding, "figures": " · ".join(figures),
         "pill": Markup(spans[-1]), "outcome": rec["outcome"],
         "ruling": (rec.get("publication") or {}).get("ruling"),
         "passed": sum(1 for x in rec["results"] if x["result"] == "pass"),
@@ -340,7 +377,8 @@ def plan(repo: pathlib.Path, as_of: dt.date | None = None) -> dict[str, bytes]:
     if dirs != sorted(TOKEN_ORDER):
         raise SiteStop(f"token directories {dirs} != {sorted(TOKEN_ORDER)}")
     pairs = rewrites(w)
-    cards = [token_card(repo, t, w, mf, pairs, as_of) for t in TOKEN_ORDER]
+    notice = notice_of(repo, w)                                               # Ruling 1
+    cards = [token_card(repo, t, w, mf, pairs, as_of, notice) for t in TOKEN_ORDER]
 
     unreg = [c["unregistered"] for c in cards]                                 # D2
     if any(u != unreg[0] for u in unreg):
@@ -360,7 +398,7 @@ def plan(repo: pathlib.Path, as_of: dt.date | None = None) -> dict[str, bytes]:
     snaps = [{"token": c["token"], "path": c["behavioral"]["snapshot"]} for c in cards
              if c["behavioral"]["snapshot"]]
     beh = {"landed": len(snaps) == len(cards), "snapshots": snaps}                # P4
-    ctx = dict(s=w["site"], w=w, repo_url=repo_url, blob=blob, beh=beh)
+    ctx = dict(s=w["site"], w=w, repo_url=repo_url, blob=blob, beh=beh, beh_notice=notice)
     index = env.get_template("site/index.html.j2").render(**ctx, cards=cards)
     method = env.get_template("site/methodology.html.j2").render(
         **ctx, log_rows=rows, n_log=len(rows), outcomes=outcomes,
@@ -378,6 +416,7 @@ def plan(repo: pathlib.Path, as_of: dt.date | None = None) -> dict[str, bytes]:
     record = {
         "repo_url": repo_url, "branch": w["repo"]["branch"], "log_rows": len(rows),
         "behavioral_as_of": as_of.isoformat(),
+        "behavioral_status": behavioral.read_status(repo),
         "a16": {"count": len(unreg[0]), "ids": [x["entry_id"] for x in unreg[0]]},
         "tokens": {c["token"]: {"run_block": c["run_block"], "report_hash": c["report_hash"],
                                 "outcome": c["outcome"], "pill": str(c["pill"]),

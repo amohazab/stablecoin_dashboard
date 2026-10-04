@@ -85,6 +85,7 @@ def s3_page(repo: pathlib.Path, doc: dict, grid: dict, mirror: dict, files: dict
 
 
 NOT_JUDGED = "not judged: deterministic S3 failure"         # sixth live run, ruling 5
+LEVEL1_CHECKS = ("DET-80",)   # A-25 (P-8.10): a missing prose slot notices, never blocks
 GATE_OWNERS = {"DET-13": "T-23", "DET-87": "T-23", "DET-59": "T-23", "DET-85": "T-25"}
 EVIDENCE_ORDER = (("template_hash", "template_change"), ("sheet_hash", "intake_change"),
                   ("pipeline_version", "code_fix"), ("rubric_hash", "rubric_change"),
@@ -104,7 +105,9 @@ def gate_triggers(results, instability: bool = False) -> list[dict]:
             continue
         trig = ("T-24" if instability and g.entry_id.startswith("LLM-")
                 else GATE_OWNERS.get(g.entry_id, "T-28"))
-        out.append({"trigger": trig, "level": 2, "source_entry": g.entry_id})
+        # A-25: a failed DET-80 (a slot shown as the notice) is T-28 at Level 1
+        level = 1 if g.entry_id in LEVEL1_CHECKS and g.result == "fail" else 2
+        out.append({"trigger": trig, "level": level, "source_entry": g.entry_id})
     return out
 
 
@@ -300,6 +303,16 @@ def build(repo: pathlib.Path, token: str, client=None, extra_fired: tuple = (),
         return [x for x in found if not (rehearsal and (x["source_entry"].startswith("LLM-")
                                                         or x["source_entry"] == "DET-85"))]
 
+    last_prose: list = [{}]
+
+    def slots_missing(prose: dict) -> list[str]:
+        """A-25: the prose slots a model run left empty (shown as the notice); a rehearsal
+        (no client) keeps its placeholders and reports none."""
+        last_prose[0] = prose
+        if client is None:
+            return []
+        return [x["id"] for x in mf["prose_slots"] if not (prose.get(x["id"]) or "").strip()]
+
     def evaluate(prose: dict, judge_state: dict, instability: bool, pass_no: int):
         """Render and run S3 until the failing set is stable (the B-12 loop), then - with a
         client, once per pass - judge the first-rendered page only when every deterministic
@@ -315,7 +328,8 @@ def build(repo: pathlib.Path, token: str, client=None, extra_fired: tuple = (),
         judge_state["error"] = "judgment pending: deterministic S3 rows first"
         settle(prose, judge_state, instability)
         det = sorted(g.entry_id for g in s3 if g.result != "pass" and
-                     not g.entry_id.startswith("LLM-") and g.entry_id not in ("DET-85", "DET-13"))
+                     not g.entry_id.startswith("LLM-") and g.entry_id not in ("DET-85", "DET-13")
+                     and g.entry_id not in LEVEL1_CHECKS)                       # A-25
         if det:
             judge_state.update(envelope=None, error=NOT_JUDGED, lost=[], not_judged=det)
             llm_rec["judge"].append({"pass": pass_no, "error": NOT_JUDGED, "failing": det})
@@ -352,8 +366,9 @@ def build(repo: pathlib.Path, token: str, client=None, extra_fired: tuple = (),
             rec_triggers = [*fired_checks, *record.triggers_of(s3), *gate]
             planned = eventlog.plan_quarantine(entries, token, date,
                                                [(x["trigger"], x["level"]) for x in rec_triggers])
-            green = seen is None or not seen
-            if green and not gate:
+            # A-25: a Level-1 failure (DET-80) neither blocks nor stops the resolutions
+            green = seen is None or not {x for x in seen if x[0] not in LEVEL1_CHECKS}
+            if green and not [x for x in gate if x["level"] > 1]:
                 planned = [*planned, *plan_resolutions([*entries, *planned], token, date,
                                                        hashes, current)]
             evidence = [x for x in (evidence_of(ln, hashes, current, blk) for ln in planned
@@ -362,7 +377,7 @@ def build(repo: pathlib.Path, token: str, client=None, extra_fired: tuple = (),
             if stage.exists():
                 shutil.rmtree(stage)
             pre = {"triggers": rec_triggers, "log": log_view(after, token, ttable, wording),
-                   "prose": prose}
+                   "prose": prose, "slots_missing": slots_missing(prose)}
             pages = render_token(repo, token, doc, grid, man, pre, b, s, stage)
             index_html = pages["index"].read_text(encoding="utf-8")
             if client is not None and not judge_state.get("sections") \
@@ -497,7 +512,8 @@ def build(repo: pathlib.Path, token: str, client=None, extra_fired: tuple = (),
                     "generation": llm_rec["generation"], "prose": prose1}
         evaluate(prose1, j1, False, 1)
         llm_fail = [g.entry_id for g in s3 if g.entry_id.startswith("LLM-") and g.result == "fail"]
-        det_fail = [g for g in s3 if not g.entry_id.startswith("LLM-") and g.result != "pass"]
+        det_fail = [g for g in s3 if not g.entry_id.startswith("LLM-") and g.result != "pass"
+                    and g.entry_id not in LEVEL1_CHECKS]                       # A-25
         surviving = [(c["id"], d) for c in (j1.get("envelope") or {}).get("criteria", [])
                      for d in c["defects"]]
         paras = j1.get("sections", {})
@@ -560,7 +576,8 @@ def build(repo: pathlib.Path, token: str, client=None, extra_fired: tuple = (),
     after = [*entries, *planned]
     heavy = [e for _, e in eventlog.open_entries(after, token) if e.level in (2, 3)]
     det_fail = [g for g in s3 if not g.entry_id.startswith("LLM-") and g.result != "pass"
-                and g.entry_id not in ("DET-85", "DET-13")]
+                and g.entry_id not in ("DET-85", "DET-13", *LEVEL1_CHECKS)]   # A-25
+    llm_rec["slots_missing"] = slots_missing(last_prose[0]) if client is not None else []
     # A-24: `not_evaluated` rows are ignored by the outcome rule
     llm_bad = [g for g in s3 if g.entry_id.startswith("LLM-") and g.result in ("fail", "error")]
     tail_bad = [g for g in s3 if g.entry_id in ("DET-85", "DET-13") and g.result != "pass"]

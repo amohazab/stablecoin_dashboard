@@ -75,6 +75,11 @@ def _server(url: str = "http://localhost:11434") -> str:
     return requests.get(f"{url}/api/version", timeout=10).json()["version"]
 
 
+def _status(repo: pathlib.Path) -> dict | None:
+    p = repo / "out/behavioral/status.json"
+    return json.loads(p.read_text(encoding="utf-8")) if p.exists() else None
+
+
 def key_hits(repo: pathlib.Path, names: list[str]) -> list[str]:
     """The staged files carrying a key assignment or a key value (the export scan's rule)."""
     from factory.logs_pointer import env
@@ -92,6 +97,25 @@ def key_hits(repo: pathlib.Path, names: list[str]) -> list[str]:
     return hits
 
 
+def _pid_alive(pid: int) -> bool:
+    """Whether a process with this id exists (Windows: OpenProcess and its exit code)."""
+    if os.name == "nt":
+        import ctypes
+        k = ctypes.windll.kernel32
+        h = k.OpenProcess(0x1000, False, pid)                 # PROCESS_QUERY_LIMITED_INFORMATION
+        if not h:
+            return False
+        code = ctypes.c_ulong()
+        ok = k.GetExitCodeProcess(h, ctypes.byref(code))
+        k.CloseHandle(h)
+        return bool(ok) and code.value == 259                  # STILL_ACTIVE
+    try:
+        os.kill(pid, 0)
+        return True
+    except OSError:
+        return False
+
+
 class Lock:
     def __init__(self, path: pathlib.Path, now: float):
         self.path, self.now, self.held = path, now, False
@@ -101,9 +125,16 @@ class Lock:
         self.path.parent.mkdir(parents=True, exist_ok=True)
         if self.path.exists():
             age = self.now - self.path.stat().st_mtime
-            if age < STALE_LOCK_S:
+            try:
+                pid = json.loads(self.path.read_text())["pid"]
+            except Exception:
+                pid = None
+            if pid is not None and not _pid_alive(pid):       # Amin, 4 Oct: a dead holder
+                self.path.unlink()
+                age = STALE_LOCK_S
+            if age < STALE_LOCK_S and self.path.exists():
                 return f"busy: {self.path.name} held for {age:.0f} s ({self.path.read_text()})"
-            self.path.unlink()                                  # stale: a killed run
+            self.path.unlink(missing_ok=True)                   # stale: a killed run
         self.path.write_text(json.dumps({"pid": os.getpid(), "since": self.now}))
         self.held = True
         return None
@@ -170,6 +201,10 @@ def chain(repo: pathlib.Path, mode: str, token: str | None, dry_run: bool = Fals
             log.append(f"{'ok' if rc == 0 else 'FAIL'} {name} (exit {rc})\n{tail}")
             if name.startswith("report"):
                 outcomes.append(f"{token} {outcome_of(out) or 'no outcome'}")
+            if name == "behavioral":                            # Ruling 1: the disclosed reason
+                st = _status(repo)
+                if st and not st.get("ok"):
+                    log.append(f"behavioral not refreshed: {st.get('reason')}")
             if rc != 0:
                 failed.append(name)
                 stop_token = stop_token or is_token_stage
@@ -201,8 +236,11 @@ def chain(repo: pathlib.Path, mode: str, token: str | None, dry_run: bool = Fals
                         failed.append("push")
     finally:
         lock.release()
-    code = 1 if failed else 0
-    log.append(f"exit {code}{': failed ' + ', '.join(failed) if failed else ''}")
+    # Amin, 4 Oct: a failed behavioral stage alone is a partial run, exit 2 (0x2); any other
+    # failure is exit 1
+    code = 0 if not failed else 2 if failed == ["behavioral"] else 1
+    label = {0: "", 1: ": failed ", 2: ": partial, failed "}[code]
+    log.append(f"exit {code}{label + ', '.join(failed) if failed else ''}")
     return done()
 
 

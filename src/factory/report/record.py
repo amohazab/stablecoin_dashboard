@@ -74,6 +74,8 @@ class GateRecord(BaseModel):
     rubric_hash: str | None = None
     # P-8.04: "outside_prose" when pass 2 was skipped (every surviving defect outside prose)
     pass2_skipped: str | None = None
+    # A-25 (P-8.10): the prose slots shown as the notice this run
+    slots_missing: list[str] = []
     revision_count: Literal[0, 1] = 0
     revision_cause: list[str] = []
     outcome: Literal["published", "quarantined", "template_defect", "judge_instability",
@@ -143,6 +145,7 @@ def build(parts: dict, manifest: dict, s01, tree_checks, stress_checks, report_c
                       judge=llm.get("judge", []), generation=llm.get("generation", []),
                       revision_count=llm.get("revision_count", 0),
                       pass2_skipped=llm.get("pass2_skipped"),
+                      slots_missing=llm.get("slots_missing", []),
                       revision_cause=llm.get("revision_cause", []),
                       report_hash=manifest["report_hash"],
                       **{k: parts[k] for k in ("bundle_hash", "tree_hash", "stress_hash",

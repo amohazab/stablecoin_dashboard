@@ -195,12 +195,30 @@ def test_guard_reasks_once_then_publishes(tmp_path):
     assert reasks["structural_summary"] == 1 and reasks["admin_surface_narrative"] == 0
 
 
-def test_a_second_slip_leaves_the_slot_empty_and_det80_blocks(tmp_path):
-    _root, fake, r, rec = run(tmp_path, "double_slip")
+def test_a_second_slip_shows_the_a25_notice_and_publishes(tmp_path):
+    # A-25 (P-8.10): the slot renders the wording-owned notice, DET-80 is T-28 at Level 1
+    root, fake, r, rec = run(tmp_path, "double_slip")
     assert fake.slot_calls["structural_summary"] == 2
     bad = [g for g in rec.generation if g["slot"] == "structural_summary"]
     assert bad[0]["reasks"] == 1 and "guard failed" in bad[0]["error"]
-    assert results(rec)["DET-80"] == "fail" and rec.outcome == "blocked_S3" and r["site"] is None
+    res = results(rec)
+    assert res["DET-80"] == "fail" and res["DET-79"] == "pass"
+    assert rec.slots_missing == ["structural_summary"] and rec.outcome == "published"
+    assert [(x["trigger"], x["level"]) for x in rec.triggers] == [("T-28", 1)]
+    page = (root / "out/site/LUSD/index.html").read_text(encoding="utf-8")
+    assert '<div class="slot-missing" data-slot="structural_summary"><p>No written summary ' \
+           "for this section this run" in page and "[slot:" not in page
+    assert page.count('<p class="flag"') == 1
+    # the selector card quotes the A-25 literal; D5 compares accordingly
+    import shutil
+
+    from factory import site
+    from tests.test_b13 import REPO
+    for t in ("crvUSD", "GHO"):
+        shutil.copytree(REPO / "out/site" / t, root / "out/site" / t)
+    out = site.plan(root)
+    rec_site = __import__("json").loads(out["site.json"])
+    assert rec_site["tokens"]["LUSD"]["finding"] == "No written summary this run."
 
 
 def test_an_invalid_item_errors_its_criterion_only(tmp_path):
@@ -304,11 +322,11 @@ def test_printed_forms_for_rulings_e_f_h():
 
 def test_rulings_on_the_sixth_live_run(tmp_path):
     from factory.report.__main__ import NOT_JUDGED
-    # ruling 5: a deterministic S3 failure ends the pass with no judge call
+    # ruling 5: a deterministic S3 failure ends the pass with no judge call. A-25: a failed
+    # DET-80 alone is Level 1, so it no longer stops the judgment
     _root, fake, _r, rec = run(tmp_path / "a", "double_slip")
-    assert fake.judgments == 0 and results(rec)["DET-80"] == "fail"
-    assert {x.result for x in rec.results if x.entry_id.startswith("LLM-")} == {"error"}
-    assert rec.judge == [{"pass": 1, "error": NOT_JUDGED, "failing": ["DET-79", "DET-80"]}]
+    assert fake.judgments == 1 and results(rec)["DET-80"] == "fail"
+    assert not [j for j in rec.judge if j.get("error") == NOT_JUDGED]
     # ruling 3: pass 2 regenerates only the slot carrying the pass-1 defect
     _root, fake, _r, rec = run(tmp_path / "b", "pass2_green")
     p2 = {g["slot"]: g for g in rec.generation if g["pass"] == 2}

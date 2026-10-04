@@ -790,6 +790,18 @@ def substitute_percents(text: str, rows: list[dict]) -> tuple[str, list[dict]]:
     return text, subs
 
 
+def normalise_dashes(text: str) -> tuple[str, int]:
+    """Amin, 4 Oct: the generated text's dashes are normalised, not re-asked - a digit range
+    "1–7" reads "1 to 7", a spaced or bare em/en dash reads ", "; the count is recorded.
+    NAMED DEFAULT: the guard's `dashes` check stays as the backstop."""
+    n = len(re.findall("[\u2014\u2013]", text))
+    if not n:
+        return text, 0
+    text = re.sub("(\\d)\\s*\u2013\\s*(\\d)", r"\1 to \2", text)
+    text = re.sub("\\s*[\u2014\u2013]\\s*", ", ", text)
+    return text, n
+
+
 def _counters(metas: list[dict]) -> dict:
     return {k: sum(m.get(k) or 0 for m in metas) for k in ("prompt_eval_count", "eval_count")}
 
@@ -812,6 +824,10 @@ def generate(slot: str, user: str, client, repo: pathlib.Path, obligations: str,
         text, subs = substitute_percents(prose.text, rows)
         if subs:
             meta["substituted"] = subs
+        text, nd = normalise_dashes(text)                       # Amin, 4 Oct
+        if nd:
+            meta["dashes_normalised"] = nd
+        if subs or nd:
             prose = SlotProse(text=text, references_field_ids=prose.references_field_ids)
         bad = guard(prose, rows, bounds) if prose.text.strip() else {"empty_text": True}
         if not bad:
@@ -895,6 +911,9 @@ def revise(slot: str, user: str, client, repo: pathlib.Path, obligations: str,
         text, subs = substitute_percents(text, rows)
         if subs:
             meta["substituted"] = subs
+        text, nd = normalise_dashes(text)                       # Amin, 4 Oct
+        if nd:
+            meta["dashes_normalised"] = nd
         refs = list(dict.fromkeys([*pass1_refs, *rev.references_field_ids]))
         prose = SlotProse(text=text, references_field_ids=refs)
         bad = guard(prose, rows, bounds)

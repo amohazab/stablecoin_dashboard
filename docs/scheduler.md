@@ -36,7 +36,8 @@ Before the first run, check the chain without running anything (no model, no pus
 1. Press Start, type **Task Scheduler**, open it.
 2. In the right pane click **Create Task…** (not "Create Basic Task").
 3. **General** tab: Name, for example `stablecoin weekly`. Choose **Run only when user is
-   logged on**. Leave "Run with highest privileges" unticked.
+   logged on**, and tick **Hidden** at the bottom, so no console window is left open to
+   close by mistake. Leave "Run with highest privileges" unticked.
 4. **Triggers** tab → **New…**:
    - weekly: **Weekly**, start today at **03:00:00**, recur every 1 week, tick **Sunday**;
    - monthly: **Monthly**, start at **01:00:00**, Months: **Select all months**, Days: **1**

@@ -108,6 +108,24 @@ def test_a_second_chain_is_busy_and_a_stale_lock_is_taken(tmp_path):
     assert code == 0 and ran == ["factory.behavioral", "factory.site"]
 
 
+def test_a_lock_whose_holder_is_dead_is_stale_at_once(tmp_path, monkeypatch):
+    # Amin, 4 Oct: a run killed mid-way (0xC000013A) left a lock; its pid is gone
+    lock = tmp_path / "out/logs/scheduler/chain.lock"
+    lock.parent.mkdir(parents=True)
+    lock.write_text('{"pid": 1400, "since": 0}')
+    os.utime(lock, (NOW.timestamp() - 60, NOW.timestamp() - 60))
+    monkeypatch.setattr(chain, "_pid_alive", lambda pid: False)
+    git, (run, ran) = Git(), runner_with()
+    code, _log = chain.chain(tmp_path, "weekly", None, runner=run, git=git, now=NOW)
+    assert code == 0 and ran == ["factory.behavioral", "factory.site"]
+    monkeypatch.setattr(chain, "_pid_alive", lambda pid: True)
+    lock.write_text('{"pid": 1400, "since": 0}')
+    os.utime(lock, (NOW.timestamp() - 60, NOW.timestamp() - 60))
+    code, log = chain.chain(tmp_path, "weekly", None, runner=run, git=git, now=NOW)
+    assert code == 1 and log[-1].startswith("FAIL: busy")
+    assert chain._pid_alive(os.getpid()) is True
+
+
 def test_a_key_in_a_staged_file_blocks_the_commit(tmp_path):
     leak = tmp_path / "out/site/leak.html"
     leak.parent.mkdir(parents=True)
@@ -160,3 +178,19 @@ def test_stages_write_utf8_and_the_final_print_cannot_fail(tmp_path, monkeypatch
     assert seen["env"]["PYTHONUTF8"] == "1" and seen["env"]["PYTHONIOENCODING"] == "utf-8"
     src = (REPO / "src/factory/chain.py").read_text(encoding="utf-8")
     assert 'sys.stdout.reconfigure(encoding="utf-8", errors="replace")' in src
+
+
+def test_a_failed_behavioral_stage_alone_is_a_partial_run(tmp_path):
+    # Amin, 4 Oct: exit 2 (0x2) when only the behavioral stage failed; its reason is logged
+    st = tmp_path / "out/behavioral/status.json"
+    st.parent.mkdir(parents=True)
+    st.write_text('{"ok": false, "reason": "the request returned HTTP 503"}')
+    git, (run, _ran) = Git(), runner_with(fail="factory.behavioral")
+    code, log = chain.chain(tmp_path, "monthly", "LUSD", runner=run, git=git,
+                            server=lambda: "0.34.4", now=NOW)
+    assert code == 2 and log[-1] == "exit 2: partial, failed behavioral"
+    assert "behavioral not refreshed: the request returned HTTP 503" in log
+    git2, (run2, _r) = Git(), runner_with(fail="factory.tree")
+    code2, _l = chain.chain(tmp_path, "monthly", "LUSD", runner=run2, git=git2,
+                            server=lambda: "0.34.4", now=NOW)
+    assert code2 == 1

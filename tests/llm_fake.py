@@ -24,6 +24,32 @@ import re
 
 FIXTURES = pathlib.Path(__file__).resolve().parent / "fixtures" / "llm"
 RECORDED = {"crvUSD": 25974925, "GHO": 25974932, "LUSD": 25974949}   # the Claude-era runs
+RECORDED_DATE = "2026-09-14"          # the three recorded blocks' date (block timestamps)
+
+
+def recorded_lines(text: str) -> str:
+    """A log or resolutions file as it stood at the recorded runs: every line dated after
+    RECORDED_DATE (the scheduled runs of September and October) is dropped."""
+    import json as _json
+    keep = []
+    for ln in text.splitlines():
+        if not ln.strip():
+            continue
+        d = _json.loads(ln)
+        if max(d.get("date") or "", d.get("resolution_date") or "") <= RECORDED_DATE:
+            keep.append(ln)
+    return "\n".join(keep) + ("\n" if keep else "")
+
+
+def recorded_log(path: pathlib.Path) -> list:
+    """`eventlog.read` over the recorded state of one token's log."""
+    import tempfile
+
+    from factory import eventlog
+    with tempfile.TemporaryDirectory() as d:
+        p = pathlib.Path(d) / path.name
+        p.write_text(recorded_lines(path.read_text(encoding="utf-8")), encoding="utf-8")
+        return eventlog.read(p)
 
 
 def pin_to_recorded(root: pathlib.Path) -> pathlib.Path:
@@ -39,6 +65,12 @@ def pin_to_recorded(root: pathlib.Path) -> pathlib.Path:
         for d in (root / "out/report" / tok).glob("*"):
             if d.name.isdigit() and int(d.name) > blk:
                 shutil.rmtree(d)
+        # the logs as they stood at the recorded runs (the October runs added lines)
+        for f in [root / f"out/logs/events_{tok.lower()}.jsonl",
+                  root / "out/evaluation" / tok / "resolutions.jsonl"]:
+            if f.exists():
+                f.write_text(recorded_lines(f.read_text(encoding="utf-8")), encoding="utf-8",
+                             newline="")
     return root
 
 

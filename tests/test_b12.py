@@ -27,6 +27,7 @@ from factory.validate.harness import (
     det_60,
     det_87,
 )
+from tests.llm_fake import recorded_log
 
 REPO = pathlib.Path(__file__).resolve().parents[1]
 BLOCKS = {"crvUSD": 25974925, "GHO": 25974932, "LUSD": 25974949}
@@ -38,7 +39,7 @@ BLOCKS = {"crvUSD": 25974925, "GHO": 25974932, "LUSD": 25974949}
 def test_section3_parses_every_row_with_split_levels_and_sections():
     t = read_trigger_table(REPO)
     assert len(t) == 28 and set(t) == set(TRIGGER_TABLE)
-    assert t["T-18"]["levels"] == [2, 1] and t["T-28"] == {"name": "gate failure", "levels": [2],
+    assert t["T-18"]["levels"] == [2, 1] and t["T-28"] == {"name": "gate failure", "levels": [2, 1],
                                                           "section": "—", "owners": []}
     assert t["T-20"]["owners"] == ["DET-29"] and t["T-23"]["owners"] == ["DET-13", "DET-59",
                                                                           "DET-87"]
@@ -122,7 +123,7 @@ def runs():
         man = json.loads((stage / "data/manifest.json").read_text(encoding="utf-8"))
         page = s3_page(REPO, doc, grid, json.loads(json.dumps(inp["cfg"].sheet, default=str)),
                        files)
-        entries = eventlog.read(REPO / f"out/logs/events_{tok.lower()}.jsonl")
+        entries = recorded_log(REPO / f"out/logs/events_{tok.lower()}.jsonl")
         page.update(trigger_table=read_trigger_table(REPO), log_entries=entries,
                     log_raw=[e.model_dump() for e in entries], log_date="2026-09-14",
                     record_triggers=rec["triggers"], report_manifest=man,
@@ -236,12 +237,12 @@ def test_det13(runs):
 
 def test_the_recorded_run_logged_t28_and_the_gho_flags():
     for tok in BLOCKS:
-        log = eventlog.read(REPO / f"out/logs/events_{tok.lower()}.jsonl")
+        log = recorded_log(REPO / f"out/logs/events_{tok.lower()}.jsonl")
         lines = eventlog.quarantine_lines(log, tok)
         got = {(e.trigger, e.level, e.date) for _, e in lines}
         assert ("T-28", 2, "2026-09-14") in got
     gho = {e.trigger for _, e in eventlog.open_entries(
-        eventlog.read(REPO / "out/logs/events_gho.jsonl"), "GHO")}
+        recorded_log(REPO / "out/logs/events_gho.jsonl"), "GHO")}
     assert gho == {"T-20", "T-02", "T-28", "T-25"}                 # T-25: P-7.10's final spend
 
 

@@ -14,6 +14,8 @@ check_this = "Every figure on this page comes from one data table built from on-
 specialists = "Detail for specialists"
 flag = "Notice: {name} (entry {id}, first fired {date})"
 behavioral_pending = "behavioral tier: pending"
+# A-25 (P-8.10): a prose slot whose draft failed the guard after its re-ask; no figure in it
+slot_missing = "No written summary for this section this run: the local model's draft did not pass the figure guard."
 
 [pills]
 fresh_days = 30
@@ -62,6 +64,7 @@ supply = "finding"
 "stress (Member 2)" = "chart_b"
 header = "pills"
 "oracle table" = "oracle"
+"—" = "finding"                 # A-25 (P-8.10): T-28 at Level 1 (a missing prose slot)
 
 # B-12 (DET-59): the rubric's banner literals; "none yet" until a report publishes (R16).
 [banner]
@@ -424,6 +427,7 @@ author = "structural risk reports for CDP stablecoins · Amin Mohazab · github.
 lede = "Automated structural risk reports: every figure is read from Ethereum at one fixed block and traces to the contract call that produced it. See"
 lede_methodology = "the methodology page"
 lede_repository = "the repository"
+no_summary = "No written summary this run."   # A-25: the card when structural_summary is missing
 
 # Step 8 (P-8.01): the behavioral tier, rendered at the site stage from the latest
 # Webacy snapshot. Every figure arrives formatted from factory.behavioral (A-20).
@@ -433,6 +437,8 @@ tip = "Webacy's view of how this token trades, fetched at the time shown under t
 reader = "The behavioral tier — how the token trades — is shown under \"How it trades\", from Webacy's data fetched at a timestamp rather than read at this report's block."
 reader_full = "The behavioral tier — how the token trades: peg deviation, liquidity, holder concentration and supply flows — is shown under \"How it trades\", from Webacy's data fetched at a timestamp rather than read at this report's block."
 not_covered_value = "not covered by Webacy"
+# Amin, 4 Oct (Ruling 1): a failed refresh is disclosed on every page, never silent
+not_refreshed = "Behavioral data was not refreshed on {date}: Webacy's response failed validation ({reason}). Showing the snapshot fetched {snapshot}."
 not_reported = "not reported by Webacy"
 donut_title = "Liquidity by Ethereum DEX pool"
 donut_other = "other listed pools"

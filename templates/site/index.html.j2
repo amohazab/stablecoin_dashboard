@@ -2,7 +2,8 @@
 {% block lede %}  <p class="lede">{{ s.lede }} <a href="methodology.html">{{ s.lede_methodology }}</a> and <a href="{{ repo_url }}">{{ s.lede_repository }}</a>.</p>
 {% endblock %}
 {% block body %}
-<div class="token-cards">
+{% if beh_notice %}<p class="meta notice">{{ beh_notice }}</p>
+{% endif %}<div class="token-cards">
 {% for c in cards %}
 <article class="token-card">
   <h2><a href="{{ c.token }}/index.html">{{ c.token }}</a></h2>

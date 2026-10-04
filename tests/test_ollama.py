@@ -208,7 +208,8 @@ def test_the_guard_rejects_em_and_en_dashes():
                                                    references_field_ids=[]), [])
 
 
-def test_a_dash_costs_one_reask_then_publishes(tmp_path):
+def test_a_dash_is_normalised_without_a_reask(tmp_path):
+    # Amin, 4 Oct: dashes in a draft are normalised (", " / "1 to 7"), not re-asked
     import shutil
 
     from factory.report.__main__ import build
@@ -224,8 +225,11 @@ def test_a_dash_costs_one_reask_then_publishes(tmp_path):
     fake.dir = case
     r = build(tmp_repo(tmp_path / "repo"), "LUSD", client=fake)
     g = next(x for x in r["record"].generation if x["slot"] == "admin_surface_narrative")
-    assert g["reasks"] == 1 and g["rejected"][0]["guard_violations"] == {"dashes": ["\u2014"]}
-    assert r["record"].outcome == "published"
+    assert g["reasks"] == 0 and fake.slot_calls["admin_surface_narrative"] == 1
+    assert g["dashes_normalised"] == 1 and g["text"].endswith("Nothing changes, ever.")
+    assert "\u2014" not in g["text"] and r["record"].outcome == "published"
+    assert llm.normalise_dashes("a 1\u20137 day delay \u2014 or not")[0] == \
+        "a 1 to 7 day delay, or not"
 
 
 def test_percent_substitution_carries_the_printed_form():

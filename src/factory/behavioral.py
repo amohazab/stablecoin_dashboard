@@ -29,6 +29,7 @@ import datetime as dt
 import hashlib
 import json
 import pathlib
+import re
 import sys
 import time
 import tomllib
@@ -155,6 +156,23 @@ class HciBody(_M):
     meta: HciMeta
 
 
+def validate_hci(body: dict, addresses) -> list[HciEntry]:
+    """Amin, 4 Oct (B): the HCI page's meta and the entries of OUR three addresses are
+    validated strictly; the other tokens' entries only need an address. Webacy began
+    returning `top30: null` for some other tokens (1-3 Oct), which failed the whole page."""
+    HciMeta.model_validate(body["meta"])
+    want = {a.lower() for a in addresses}
+    if not isinstance(body.get("data"), list):
+        raise ValueError("HCI data is not a list")
+    out = []
+    for e in body["data"]:
+        if not isinstance(e, dict) or not isinstance(e.get("address"), str):
+            raise ValueError("HCI entry without an address")
+        if e["address"].lower() in want:
+            out.append(HciEntry.model_validate(e))
+    return out
+
+
 # ---- trimming (P5): the one function for live fetches and fixtures ---------------------
 
 def body_sha256(body) -> str:
@@ -201,7 +219,7 @@ def trim_entry(e: dict) -> dict:
 def trim_hci(env: dict, addresses) -> dict:
     """One HCI page: meta {generatedAt, stale, page} and only the entries of
     `addresses` (lowercase) - the other tokens' entries are not carried."""
-    HciBody.model_validate(env["body"])
+    validate_hci(env["body"], addresses)                       # Amin, 4 Oct (B)
     m = env["body"]["meta"]
     want = {a.lower() for a in addresses}
     return {"request": trim_request(env), "body": {
@@ -598,9 +616,13 @@ def fetch(repo: pathlib.Path, key: str, get=_get, sleep=time.sleep, now=None) ->
     while True:
         env = call(f"{BASE}/rwa/hci?chain=eth&pageSize={HCI_PAGE_SIZE}&page={page}")
         hci_envs.append(env)
-        body = HciBody.model_validate(env["body"])
-        found |= {e.address.lower() for e in body.data} & {a.lower() for a in addr.values()}
-        if len(found) == len(addr) or page >= body.meta.totalPages or page >= HCI_PAGE_CAP:
+        try:
+            ours = validate_hci(env["body"], addr.values())        # Amin, 4 Oct (B)
+        except Exception as exc:
+            raise BehavioralStop(f"HCI page {page}: {type(exc).__name__}: {exc}"[:400]) from exc
+        found |= {e.address.lower() for e in ours}
+        meta = HciMeta.model_validate(env["body"]["meta"])
+        if len(found) == len(addr) or page >= meta.totalPages or page >= HCI_PAGE_CAP:
             break
         page += 1
     try:
@@ -623,18 +645,63 @@ def fetch(repo: pathlib.Path, key: str, get=_get, sleep=time.sleep, now=None) ->
             "statuses": [e["status"] for e in [*depeg.values(), *supply.values(), *hci_envs]]}
 
 
+STATUS = "out/behavioral/status.json"
+
+
+def plain_reason(msg: str) -> str:
+    """Amin, 4 Oct (Ruling 1): the failure in one plain sentence - an HTTP status or the
+    first failing field and its message; never a key, never a raw payload."""
+    m = re.search(r"HTTP (\d{3})", msg)
+    if m:
+        return f"the request returned HTTP {m[1]}"
+    lines = [x.strip() for x in msg.splitlines() if x.strip()]
+    field = next((x for x in lines if re.fullmatch(r"[\w.\[\]]+", x)), None)
+    what = next((x.split(" [type=")[0] for x in lines if x.startswith("Input ")
+                 or x.startswith("Field ")), None)
+    if field and what:
+        return f"{field}: {what}"[:200]
+    return (lines[0] if lines else "unknown error").split(" [type=")[0][:200]
+
+
+def latest_stamp(repo: pathlib.Path) -> str | None:
+    """The snapshot stamp in use: the newest stamp every token has a snapshot for."""
+    stamps = [{p.stem for p in (repo / "out/behavioral" / t).glob("*.json")} for t in ROOTS]
+    common = set.intersection(*stamps) if stamps and all(stamps) else set()
+    return max(common) if common else None
+
+
+def write_status(repo: pathlib.Path, ok: bool, reason: str | None, now=None) -> dict:
+    """Ruling 1: out/behavioral/status.json (committed) on every run."""
+    now = now or dt.datetime.now(dt.UTC)
+    st = {"fetched_at": now.isoformat(timespec="seconds"), "ok": ok, "reason": reason,
+          "snapshot_stamp": latest_stamp(repo)}
+    p = repo / STATUS
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text(json.dumps(st, indent=1, sort_keys=True) + "\n", encoding="utf-8", newline="")
+    return st
+
+
+def read_status(repo: pathlib.Path) -> dict | None:
+    p = repo / STATUS
+    return json.loads(p.read_text(encoding="utf-8")) if p.exists() else None
+
+
 if __name__ == "__main__":
     from factory.logs_pointer import env as _env
     _repo = pathlib.Path(__file__).resolve().parents[2]
     _key = _env(_repo, "WEBACY_API_KEY")
     if not _key:
+        write_status(_repo, False, "the WEBACY_API_KEY setting is missing")
         print("WEBACY_API_KEY is not set (environment or .env)")
         sys.exit(2)
     try:
         _r = fetch(_repo, _key)
     except BehavioralStop as exc:
+        _st = write_status(_repo, False, plain_reason(str(exc)))
         print(f"BEHAVIORAL STOPPED: {exc}")
+        print(f"behavioral not refreshed: {_st['reason']}")
         sys.exit(1)
+    write_status(_repo, True, None)
     print(f"fetched {len(_r['requests'])} requests | statuses {_r['statuses']} | "
           f"stamp {_r['stamp']}")
     for _t, _w in _r["written"].items():

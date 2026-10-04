@@ -4,7 +4,8 @@
 {% block nav %}<nav class="links meta"><a href="index.html">{{ w.nav.all_tokens }}</a><a href="{{ repo_url }}">repository</a></nav>
 {% endblock %}
 {% block body %}
-<div class="method">
+{% if beh_notice %}<p class="meta notice">{{ beh_notice }}</p>
+{% endif %}<div class="method">
 <p class="lede">{{ s.title }} publishes structural risk reports for stablecoins backed by collateralised debt positions: what backs each token, how much of that backing can be checked on-chain, and how it holds up under stress. An automated pipeline produces them; this page explains the rules it follows.</p>
 
 <section>
@@ -15,7 +16,7 @@
 <section>
 <h2>Gates, and why their log is public</h2>
 <p class="prose">A gate is a check that must pass before a report is published. A minor finding publishes with a visible notice; a serious one withholds the report, except where a recorded ruling published a page regardless. The two cases on this site are stated under Open notices. Every time a gate fires, a public log records the date, the token, what kind of check fired, how serious it was, and how it was resolved. Anyone can say their work is checked; a log of checks stopping reports is the evidence. The log below holds {{ n_log }} entries.</p>
-<p class="prose">LUSD's written summaries come from a local language model under a guard that only lets through figures printed in the data table; no second model reviews them. For crvUSD and GHO the local model's drafts did not pass that guard, so their pages carry the prose of their last published run, written by Anthropic's API models in the September evaluation runs before the local configuration, and the log records each attempt. The deterministic checks run on every page.</p>
+<p class="prose">The written summaries on each page come from a local language model under a guard that only lets through figures printed in the data table; no second model reviews them. When a draft does not pass that guard, its section shows a notice in place of the summary and the page still publishes, so the figures stay current. The deterministic checks run on every page.</p>
 </section>
 
 <section>

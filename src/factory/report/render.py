@@ -478,6 +478,9 @@ def render_token(repo: pathlib.Path, token: str, doc: dict, grid: dict, man: dic
         """B-13: a generated slot renders as its own `prose-slot` block, paragraph per
         blank-line break (DET-80's boundary); an unfilled slot keeps its placeholder."""
         text = (prose.get(name) or "").strip()
+        if not text and name in (rec.get("slots_missing") or []):        # A-25
+            return Markup('<div class="slot-missing" data-slot="{}"><p>{}</p></div>').format(
+                name, w["slot_missing"])
         if not text:
             return Markup('<div class="slot">{}</div>').format(f"[slot: {name} — pending B-13]")
         paras = [x.strip() for x in re.split(r"\n\s*\n", text) if x.strip()]
