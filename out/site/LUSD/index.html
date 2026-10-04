@@ -3,17 +3,17 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>LUSD — structural risk report</title>
+<title>LUSD: structural risk report</title>
 <link rel="stylesheet" href="../style.css">
 </head>
 <body>
 <main>
 <header class="page">
   <h1>LUSD</h1>
-  <p class="lede">An automated structural risk report on LUSD: every number below is read from Ethereum at block 26060799 and can be reproduced (see the verify page).</p>
+  <p class="lede">An automated structural risk report on LUSD: every number below is read from Ethereum at block 26107477 and can be reproduced (see the verify page).</p>
   <div class="meta">
-    read 2026-09-26 09:42 UTC · block 26060799 ·
-    report <code title="1c3b2d387b2f2e6468651b6212b17dd5f6b3f89799fb36152d972783764a16a4">1c3b2d38</code> · intake sheet <code>29682310</code>
+    read 2026-10-02 21:58 UTC · block 26107477 ·
+    report <code title="ba9b2bb87138655e43907ea7fd7b6233e34e33c8be41c5c5ce690f8d66fbdecb">ba9b2bb8</code> · intake sheet <code>29682310</code>
   </div>
   <nav class="links meta">
     <a href="../index.html">all tokens</a><a href="index.html">report</a><a href="appendix.html">appendix</a><a href="verify.html">verify</a>
@@ -25,43 +25,44 @@
 
 
 <div class="pills">
-<span class="pill green">No collateral depends on off-chain disclosures</span><span class="pill green">Rules cannot be changed: immutable contracts</span><span class="pill green">No warnings this run</span>
+<span class="pill green">No collateral depends on off-chain disclosures</span><span class="pill green">Rules cannot be changed: immutable contracts</span><span class="pill amber">1 notice(s): gate failure</span>
 </div>
 
 <section class="finding" id="finding">
-<h2>The finding <span class="tip" tabindex="0" role="button" aria-label="The three figures that summarise this report, read at block 26060799; the written summary arrives with the prose stage.">?<span class="tip-text" role="tooltip">The three figures that summarise this report, read at block 26060799; the written summary arrives with the prose stage.</span></span></h2>
+<h2>The finding <span class="tip" tabindex="0" role="button" aria-label="The three figures that summarise this report, read at block 26107477; the written summary arrives with the prose stage.">?<span class="tip-text" role="tooltip">The three figures that summarise this report, read at block 26107477; the written summary arrives with the prose stage.</span></span></h2>
+<p class="flag" data-section="—" data-entry="LUSD:17">Notice: gate failure (entry LUSD:17, first fired 2026-10-02)</p>
 
-<div class="prose-slot" data-slot="structural_summary"><p>The token is backed by collateral whose full value can be checked directly on-chain, and the stress scenario shows no forced sales against exit liquidity. The headline stress scenario produces zero bad debt because no trove reaches its minimum collateral ratio on the ruled grid; the first liquidation occurs at an ETH shock of -82.72% (minimum ICR 6.3645 -&gt; 1.1), recovery mode activates at -79.85% (TCR 7.4447 -&gt; 1.5), and TCR falls below MCR at -85.22%, while Liquity v1 is wound down to 70 troves.</p></div>
+<div class="prose-slot" data-slot="structural_summary"><p>The structural-zero flag is set because no trove reaches the minimum collateral ratio on the ruled grid; the first liquidation occurs at an ETH shock of -82.55% (minimum ICR 6.3044 -&gt; 1.1), recovery mode activates at -79.66% (TCR 7.3744 -&gt; 1.5), and TCR falls below MCR at -85.08%, while Liquity v1 is wound down to 70 troves.</p><p>The token is backed by $192.9M of collateral, of which $26.2M backs the supply; all backing can be checked directly on-chain (100.0%). Forced sales are zero relative to exit liquidity of $8.3M, and off-venue DEX liquidity totals $12.6M, with 0.4% lying outside modeled venues.</p></div>
 <div class="cards">
-  <div class="card"><div class="card-label">Supply <span class="tip" tabindex="0" role="button" aria-label="Every LUSD in existence at block 26060799: total supply plus any supply bridged by burning on another chain.">?<span class="tip-text" role="tooltip">Every LUSD in existence at block 26060799: total supply plus any supply bridged by burning on another chain.</span></span></div><div class="card-value" title="supply.supply_ruled">$26.2M</div></div>
-  <div class="card"><div class="card-label">Bad debt, headline scenario <span class="tip" tabindex="0" role="button" aria-label="Shortfall left after liquidations in the headline scenario (−50% collateral crash, no LP flight), across all Liquity troves, at block 26060799.">?<span class="tip-text" role="tooltip">Shortfall left after liquidations in the headline scenario (−50% collateral crash, no LP flight), across all Liquity troves, at block 26060799.</span></span></div>
+  <div class="card"><div class="card-label">Supply <span class="tip" tabindex="0" role="button" aria-label="Every LUSD in existence at block 26107477: total supply plus any supply bridged by burning on another chain.">?<span class="tip-text" role="tooltip">Every LUSD in existence at block 26107477: total supply plus any supply bridged by burning on another chain.</span></span></div><div class="card-value" title="supply.supply_ruled">$26.2M</div></div>
+  <div class="card"><div class="card-label">Bad debt, headline scenario <span class="tip" tabindex="0" role="button" aria-label="Shortfall left after liquidations in the headline scenario (−50% collateral crash, no LP flight), across all Liquity troves, at block 26107477.">?<span class="tip-text" role="tooltip">Shortfall left after liquidations in the headline scenario (−50% collateral crash, no LP flight), across all Liquity troves, at block 26107477.</span></span></div>
     <div class="card-value" title="headline.m2.bad_debt">$0</div><div class="card-note">structurally zero</div>
     
   </div>
-  <div class="card"><div class="card-label">Exit liquidity, headline scenario <span class="tip" tabindex="0" role="button" aria-label="LUSD that could be sold into the frozen set of exit pools before its price falls 2%, in the headline scenario, at block 26060799.">?<span class="tip-text" role="tooltip">LUSD that could be sold into the frozen set of exit pools before its price falls 2%, in the headline scenario, at block 26060799.</span></span></div><div class="card-value" title="headline.m3.exit_depth">$8.3M</div></div>
+  <div class="card"><div class="card-label">Exit liquidity, headline scenario <span class="tip" tabindex="0" role="button" aria-label="LUSD that could be sold into the frozen set of exit pools before its price falls 2%, in the headline scenario, at block 26107477.">?<span class="tip-text" role="tooltip">LUSD that could be sold into the frozen set of exit pools before its price falls 2%, in the headline scenario, at block 26107477.</span></span></div><div class="card-value" title="headline.m3.exit_depth">$8.3M</div></div>
 </div>
 </section>
 
 <section id="backing">
-<h2>Where the backing sits <span class="tip" tabindex="0" role="button" aria-label="The collateral behind LUSD, across all Liquity troves, split by how far its value can be checked on-chain, at block 26060799.">?<span class="tip-text" role="tooltip">The collateral behind LUSD, across all Liquity troves, split by how far its value can be checked on-chain, at block 26060799.</span></span></h2>
+<h2>Where the backing sits <span class="tip" tabindex="0" role="button" aria-label="The collateral behind LUSD, across all Liquity troves, split by how far its value can be checked on-chain, at block 26107477.">?<span class="tip-text" role="tooltip">The collateral behind LUSD, across all Liquity troves, split by how far its value can be checked on-chain, at block 26107477.</span></span></h2>
 
 <figure class="wide tree"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 438" width="100%" role="img" aria-label="verifiability tree" font-family="system-ui, -apple-system, Segoe UI, Roboto, sans-serif"><title>verifiability tree</title><rect x="290" y="10" width="420" height="60" fill="#ffffff" rx="10" stroke="#1f5fa8" stroke-width="1.5"/><text x="500" y="34" font-size="16" text-anchor="middle" fill="#1b2430" font-weight="600">Supply $26.2M</text><text x="500" y="54" font-size="13" text-anchor="middle" fill="#1b2430" font-weight="normal">originated $26.2M · residual $0</text><line x1="500" y1="70" x2="500" y2="100" stroke="#6b7886"/><rect x="20" y="100" width="960" height="36" fill="#1f5fa8"/><rect x="980" y="100" width="0" height="36" fill="#5f9ad6"/><rect x="980" y="100" width="0" height="36" fill="#c7a35a"/><rect x="20" y="148" width="14" height="14" fill="#1f5fa8" rx="3"/><text x="42" y="160" font-size="14" text-anchor="start" fill="#1b2430" font-weight="600">Checkable on-chain — 100.0%</text><rect x="20" y="176" width="304" height="30" fill="#f5f7fa" rx="6" stroke="#d9dee4"/><text x="30" y="196" font-size="13" text-anchor="start" fill="#1b2430" font-weight="600">ETH</text><text x="314" y="196" font-size="13" text-anchor="end" fill="#1b2430" font-weight="normal">100.0%</text><rect x="340" y="148" width="14" height="14" fill="#5f9ad6" rx="3"/><text x="362" y="160" font-size="14" text-anchor="start" fill="#1b2430" font-weight="600">Checkable one layer down — 0</text><rect x="660" y="148" width="14" height="14" fill="#c7a35a" rx="3"/><text x="682" y="160" font-size="14" text-anchor="start" fill="#1b2430" font-weight="600">Depends on disclosures — 0</text><text x="20" y="432" font-size="13" text-anchor="start" fill="#6b7886" font-weight="normal">Where the backing sits and how far it can be checked on-chain; shares are of the value of all backing collateral.</text></svg></figure>
 <p class="prose">No one can change the rules: the contracts are immutable.</p>
-<div class="prose-slot" data-slot="verifiability_narrative"><p>The token&#39;s backing is held entirely in assets whose value can be checked directly on-chain, accounting for 100.0% of the total reserve. This single class comprises all collateral, with Ethereum (ETH) being the only asset present and representing the full 100.0% share of the backing.</p><p>There is no backing held in wrapped assets that require checking one layer down, nor is there any portion verified solely through issuer disclosures. Consequently, the reserve contains no disclosure-dependent nodes, meaning the entire value is transparent without relying on external reports or stale data.</p><p>The system&#39;s administration banner states that no admin power can alter backing — immutable. This rule ensures that the composition of the collateral cannot be changed by governance, preserving the integrity of the 100.0% on-chain checkable structure.</p></div>
+<div class="prose-slot" data-slot="verifiability_narrative"><p>The token&#39;s backing is held entirely in assets whose value can be checked directly on-chain, accounting for 100.0% of the total reserve. This single class contains all collateral, with Ethereum being the only asset listed in the node details.</p><p>No portion of the reserve relies on wrappers that require checking one layer down or depends on issuer disclosures to verify its value. Consequently, there are no disclosure-dependent nodes and no staleness metrics to report for this structure.</p><p>The admin qualifier banner states that no admin power can alter backing, making it immutable. The entire perimeter covers all troves with an exact identity.</p></div>
 </section>
 
 <section id="break">
-<h2>What could break it <span class="tip" tabindex="0" role="button" aria-label="The headline stress scenario and the grid around it: collateral price falls of 20–70% with liquidity-provider flight of 0–60%, across all Liquity troves, at block 26060799.">?<span class="tip-text" role="tooltip">The headline stress scenario and the grid around it: collateral price falls of 20–70% with liquidity-provider flight of 0–60%, across all Liquity troves, at block 26060799.</span></span></h2>
+<h2>What could break it <span class="tip" tabindex="0" role="button" aria-label="The headline stress scenario and the grid around it: collateral price falls of 20–70% with liquidity-provider flight of 0–60%, across all Liquity troves, at block 26107477.">?<span class="tip-text" role="tooltip">The headline stress scenario and the grid around it: collateral price falls of 20–70% with liquidity-provider flight of 0–60%, across all Liquity troves, at block 26107477.</span></span></h2>
 
-<p class="prose">The headline scenario is a 50% fall in the price of volatile collateral, with no extra discount on liquid-staking tokens and liquidity providers staying put — the one scenario the archetype memo names as the headline (memo §6.2.6).</p>
+<p class="prose">The headline scenario is a 50% fall in the price of volatile collateral, with no extra discount on liquid-staking tokens and liquidity providers staying put: the one scenario the archetype memo names as the headline (memo §6.2.6).</p>
 
-<p class="prose">In that scenario liquidations leave $0 of bad debt (0 of supply) — structurally zero on this grid, because no trove reaches MCR on the ruled grid; first liquidation at an ETH shock of -82.72% (min ICR 6.3645 -&gt; 1.1), recovery mode at -79.85% (TCR 7.4447 -&gt; 1.5), TCR below MCR at -85.22%; Liquity v1 is wound down to 70 troves — and require selling $0 into $8.3M of exit liquidity.</p>
+<p class="prose">In that scenario liquidations leave $0 of bad debt (0 of supply), structurally zero on this grid because no trove reaches MCR on the ruled grid; first liquidation at an ETH shock of -82.55% (min ICR 6.3044 -&gt; 1.1), recovery mode at -79.66% (TCR 7.3744 -&gt; 1.5), TCR below MCR at -85.08%; Liquity v1 is wound down to 70 troves, and require selling $0 into $8.3M of exit liquidity.</p>
 
 <table class="grid wide">
 <tr><th>price fall</th><th>no LP flight</th><th>30% LP flight</th><th>60% LP flight</th></tr>
 <tr><th>-20.0%</th><td class="s0" title="panel.M1-s20-d0-lp0.m3.ratio">0</td><td class="s0" title="panel.M1-s20-d0-lp30.m3.ratio">0</td><td class="s0" title="panel.M1-s20-d0-lp60.m3.ratio">0</td></tr><tr><th>-35.0%</th><td class="s0" title="panel.M1-s35-d0-lp0.m3.ratio">0</td><td class="s0" title="panel.M1-s35-d0-lp30.m3.ratio">0</td><td class="s0" title="panel.M1-s35-d0-lp60.m3.ratio">0</td></tr><tr><th>-50.0%</th><td class="s0" title="panel.M1-s50-d0-lp0.m3.ratio">0</td><td class="s0" title="panel.M1-s50-d0-lp30.m3.ratio">0</td><td class="s0" title="panel.M1-s50-d0-lp60.m3.ratio">0</td></tr><tr><th>-70.0%</th><td class="s0" title="panel.M1-s70-d0-lp0.m3.ratio">0</td><td class="s0" title="panel.M1-s70-d0-lp30.m3.ratio">0</td><td class="s0" title="panel.M1-s70-d0-lp60.m3.ratio">0</td></tr>
 </table>
-<p class="legend">Each cell: collateral that must be sold ÷ liquidity available to absorb it; “exit exhausted” = no liquidity left at that level of liquidity-provider flight. <span class="tip" tabindex="0" role="button" aria-label="Each cell divides the collateral liquidations must sell by the exit liquidity left in that scenario, across all Liquity troves, at block 26060799; above 100% the sales cannot all be absorbed.">?<span class="tip-text" role="tooltip">Each cell divides the collateral liquidations must sell by the exit liquidity left in that scenario, across all Liquity troves, at block 26060799; above 100% the sales cannot all be absorbed.</span></span><br>
+<p class="legend">Each cell: collateral that must be sold ÷ liquidity available to absorb it; “exit exhausted” = no liquidity left at that level of liquidity-provider flight. <span class="tip" tabindex="0" role="button" aria-label="Each cell divides the collateral liquidations must sell by the exit liquidity left in that scenario, across all Liquity troves, at block 26107477; above 100% the sales cannot all be absorbed.">?<span class="tip-text" role="tooltip">Each cell divides the collateral liquidations must sell by the exit liquidity left in that scenario, across all Liquity troves, at block 26107477; above 100% the sales cannot all be absorbed.</span></span><br>
 <span class="swatch s0"></span>0&ensp;<span class="swatch s1"></span>under 0.1%&ensp;<span class="swatch s2"></span>under 10%&ensp;<span class="swatch s3"></span>under 100%&ensp;<span class="swatch s4"></span>100% or more&ensp;<span class="swatch exhausted"></span>exit exhausted</p>
 <p class="prose">At a 50% fall, forced sales use 0 of available exit liquidity; at a 70% fall, forced sales use 0 of available exit liquidity; and if 60% of liquidity providers leave at a 70% fall, forced sales use 0 of available exit liquidity.</p>
 
@@ -69,12 +70,13 @@
 </section>
 
 <section id="rules">
-<h2>Who can change the rules <span class="tip" tabindex="0" role="button" aria-label="Who holds each administrative power over the protocol&#39;s contracts and how long a change takes to take effect, read at block 26060799.">?<span class="tip-text" role="tooltip">Who holds each administrative power over the protocol&#39;s contracts and how long a change takes to take effect, read at block 26060799.</span></span></h2>
+<h2>Who can change the rules <span class="tip" tabindex="0" role="button" aria-label="Who holds each administrative power over the protocol&#39;s contracts and how long a change takes to take effect, read at block 26107477.">?<span class="tip-text" role="tooltip">Who holds each administrative power over the protocol&#39;s contracts and how long a change takes to take effect, read at block 26107477.</span></span></h2>
 <ul class="plain"><li>No one holds any admin power: every contract is immutable and ownership was renounced.</li></ul>
 </section>
 
 <!-- behavioral:begin -->
 <section class="behavioral" id="behavioral">
+<p class="meta notice">Behavioral data was not refreshed on 2026-10-04: Webacy&#39;s response failed validation (holderConcentration.top30: Input should be a valid dictionary or instance of Cohort). Showing the snapshot fetched 2026-09-27.</p>
 <h2>How it trades <span class="tip" tabindex="0" role="button" aria-label="Webacy&#x27;s view of how this token trades, fetched at the time shown under the chart; not read at this report&#x27;s block and not verified by this pipeline.">?<span class="tip-text" role="tooltip">Webacy&#x27;s view of how this token trades, fetched at the time shown under the chart; not read at this report&#x27;s block and not verified by this pipeline.</span></span></h2>
 <div class="cards">
   <div class="card"><div class="card-label">Peg price <span class="tip" tabindex="0" role="button" aria-label="Webacy&#x27;s latest price for the token, against its $1 peg.">?<span class="tip-text" role="tooltip">Webacy&#x27;s latest price for the token, against its $1 peg.</span></span></div><div class="card-value">1.0058</div></div>
@@ -94,8 +96,8 @@
 </section>
 <!-- behavioral:end -->
 <section id="check">
-<h2>How to check this <span class="tip" tabindex="0" role="button" aria-label="Every figure is pinned to block 26060799; the verify page lists the calls that reproduce them.">?<span class="tip-text" role="tooltip">Every figure is pinned to block 26060799; the verify page lists the calls that reproduce them.</span></span></h2>
-<p class="prose">Every figure on this page comes from one data table built from on-chain reads at a single block. Reproduce any of them from the verify page. <a href="verify.html">Verify page</a> · report fingerprint <code title="1c3b2d387b2f2e6468651b6212b17dd5f6b3f89799fb36152d972783764a16a4">1c3b2d387b2f2e64</code></p>
+<h2>How to check this <span class="tip" tabindex="0" role="button" aria-label="Every figure is pinned to block 26107477; the verify page lists the calls that reproduce them.">?<span class="tip-text" role="tooltip">Every figure is pinned to block 26107477; the verify page lists the calls that reproduce them.</span></span></h2>
+<p class="prose">Every figure on this page comes from one data table built from on-chain reads at a single block. Reproduce any of them from the verify page. <a href="verify.html">Verify page</a> · report fingerprint <code title="ba9b2bb87138655e43907ea7fd7b6233e34e33c8be41c5c5ce690f8d66fbdecb">ba9b2bb87138655e</code></p>
 <p class="prose">The behavioral tier — how the token trades — is shown under "How it trades", from Webacy's data fetched at a timestamp rather than read at this report's block. This report is the structural tier only: what backs the token, how far that backing can be checked on-chain, and how it holds up under stress.</p>
 </section>
 
@@ -119,7 +121,7 @@
 <tr><td>unexplained after named causes</td><td class="num" title="supply.residual_unexplained">0</td></tr>
 <tr><td>stabilizer debt ÷ supply</td><td class="num" title="supply.stabilizer_over_supply">0</td></tr>
 <tr><td>protocol stabilizer debt</td><td class="num" title="stabilizer.slice.debt">0 (0 of supply)</td></tr>
-<tr><td>ceiling aggregate — the upper bound of the protocol stabilizer slice</td><td class="num" title="stabilizer.slice.ceiling_aggregate">0 (0 of supply)</td></tr>
+<tr><td>ceiling aggregate: the upper bound of the protocol stabilizer slice</td><td class="num" title="stabilizer.slice.ceiling_aggregate">0 (0 of supply)</td></tr>
 
 </table>
 
@@ -133,9 +135,9 @@
 <table class="striped">
 <tr><th>metric</th><th class="num">value</th></tr>
 
-<tr><td title="headline.m1.pre.ratio">collateral coverage before the shock</td><td class="num">3.7223</td></tr>
+<tr><td title="headline.m1.pre.ratio">collateral coverage before the shock</td><td class="num">3.6872</td></tr>
 
-<tr><td title="headline.m1.post.ratio">collateral coverage after the shock</td><td class="num">3.7223</td></tr>
+<tr><td title="headline.m1.post.ratio">collateral coverage after the shock</td><td class="num">3.6872</td></tr>
 
 <tr><td title="headline.m1.gap">coverage restored by the liquidation mechanism</td><td class="num">0</td></tr>
 
@@ -145,7 +147,7 @@
 
 <tr><td title="headline.m3.forced_sell_volume">collateral that must be sold</td><td class="num">0</td></tr>
 
-<tr><td title="headline.m3.exit_depth">exit liquidity</td><td class="num">8,344,898.96</td></tr>
+<tr><td title="headline.m3.exit_depth">exit liquidity</td><td class="num">8,324,384.17</td></tr>
 
 <tr><td title="headline.m3.ratio">forced sales ÷ exit liquidity</td><td class="num">0</td></tr>
 
@@ -153,7 +155,7 @@
 <h3>Mechanism state in the headline scenario</h3>
 
 <table class="striped"><tr><th>quantity</th><th class="num">value</th></tr>
-<tr><td title="headline.m4.counterfactual_ref">the counterfactual lines printed with this scenario</td><td class="num">Tellor_fallback</td></tr><tr><td title="headline.m4.exit_depth_cell">exit liquidity in this scenario</td><td class="num">8,344,898.96</td></tr><tr><td title="headline.m4.lp_flight_share">share of liquidity providers leaving in this scenario</td><td class="num">0</td></tr><tr><td title="headline.m4.recovery_mode_flag">whether the system collateral ratio after the shock is below the Recovery Mode threshold</td><td class="num">no</td></tr><tr><td title="headline.m4.redistributed_debt">debt passed to surviving troves when the Stability Pool cannot absorb it; a reallocation, not an absorption</td><td class="num">0</td></tr><tr><td title="headline.m4.redistributed_positions_below_100">redistributed trove debt left below full collateral, which is how bad debt is defined for LUSD</td><td class="num">0</td></tr><tr><td title="headline.m4.sp_effective_cell">Stability Pool balance available to absorb liquidations in this scenario: the balance less the scenario&#39;s liquidity-provider flight share</td><td class="num">7,568,104.76</td></tr><tr><td title="headline.m4.tcr_post">system collateral ratio after the shock</td><td class="num">3.7223</td></tr>
+<tr><td title="headline.m4.counterfactual_ref">the counterfactual lines printed with this scenario</td><td class="num">Tellor_fallback</td></tr><tr><td title="headline.m4.exit_depth_cell">exit liquidity in this scenario</td><td class="num">8,324,384.17</td></tr><tr><td title="headline.m4.lp_flight_share">share of liquidity providers leaving in this scenario</td><td class="num">0</td></tr><tr><td title="headline.m4.recovery_mode_flag">whether the system collateral ratio after the shock is below the Recovery Mode threshold</td><td class="num">no</td></tr><tr><td title="headline.m4.redistributed_debt">debt passed to surviving troves when the Stability Pool cannot absorb it; a reallocation, not an absorption</td><td class="num">0</td></tr><tr><td title="headline.m4.redistributed_positions_below_100">redistributed trove debt left below full collateral, which is how bad debt is defined for LUSD</td><td class="num">0</td></tr><tr><td title="headline.m4.sp_effective_cell">Stability Pool balance available to absorb liquidations in this scenario: the balance less the scenario&#39;s liquidity-provider flight share</td><td class="num">7,568,229.65</td></tr><tr><td title="headline.m4.tcr_post">system collateral ratio after the shock</td><td class="num">3.6872</td></tr>
 </table>
 
 
@@ -170,21 +172,21 @@
 
 <tr><td>Tellor fallback</td><td>none</td><td class="num">—</td><td class="num">—</td></tr>
 </table>
-<div class="prose-slot" data-slot="counterfactual_explanations"><p>The counterfactual where the price feed falls back from Chainlink to the Tellor oracle affects none of the measured metrics. This change leaves the system unchanged because LUSD carries no lagged moving-average price line, and its price basis is the bundle&#39;s own total collateral value divided by the total collateral amount rather than a re-simulated fresh price-feed read.</p></div>
+<div class="prose-slot" data-slot="counterfactual_explanations"><p>The counterfactual where the price feed falls back from Chainlink to the Tellor oracle affects the measure that relies on instant observation of the PriceFeed at the report&#39;s block. This change alters how the price basis is calculated, shifting it from a bundle&#39;s own total collateral value divided by the total collateral amount to a re-simulated fresh price-feed read. The metric changes because only a fresh price-feed read rewrites the last good price, whereas the fallback introduces a lagged moving-average price line that does not exist in Liquity v1.</p></div>
 </details>
 
 
 <details id="exit-liquidity"><summary>Exit liquidity at four price-impact levels</summary>
 
-<figure class="wide"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 340" width="100%" role="img" aria-label="Exit liquidity by how much price impact sellers accept" font-family="system-ui, -apple-system, Segoe UI, Roboto, sans-serif"><title>Exit liquidity by how much price impact sellers accept</title><text x="20" y="22" font-size="15" text-anchor="start" fill="#1b2430" font-weight="600">Exit liquidity by how much price impact sellers accept</text><line x1="90" y1="256" x2="960" y2="256" stroke="#6b7886"/><line x1="90" y1="56" x2="90" y2="256" stroke="#6b7886"/><line x1="85" y1="256" x2="960" y2="256" stroke="#d9dee4"/><text x="82" y="260" font-size="12" text-anchor="end" fill="#6b7886" font-weight="normal">$0</text><line x1="85" y1="56" x2="960" y2="56" stroke="#d9dee4"/><text x="82" y="60" font-size="12" text-anchor="end" fill="#6b7886" font-weight="normal">$8.9M</text><text x="90" y="44" font-size="12" text-anchor="start" fill="#6b7886" font-weight="normal">exit liquidity ($)</text><rect x="144.4" y="98.1" width="108.8" height="157.9" fill="#1f5fa8"/><text x="198.8" y="278" font-size="13" text-anchor="middle" fill="#1b2430" font-weight="normal">0.5%</text><text x="198.8" y="90.1" font-size="12" text-anchor="middle" fill="#1b2430" font-weight="normal">$7.0M</text><rect x="361.9" y="80.4" width="108.8" height="175.6" fill="#1f5fa8"/><text x="416.3" y="278" font-size="13" text-anchor="middle" fill="#1b2430" font-weight="normal">1.0%</text><text x="416.3" y="72.4" font-size="12" text-anchor="middle" fill="#1b2430" font-weight="normal">$7.8M</text><rect x="579.4" y="67.7" width="108.8" height="188.3" fill="#1f5fa8"/><text x="633.8" y="278" font-size="13" text-anchor="middle" fill="#1b2430" font-weight="normal">2.0%</text><text x="633.8" y="59.7" font-size="12" text-anchor="middle" fill="#1b2430" font-weight="normal">$8.3M</text><rect x="796.9" y="56" width="108.8" height="200" fill="#1f5fa8"/><text x="851.3" y="278" font-size="13" text-anchor="middle" fill="#1b2430" font-weight="normal">5.0%</text><text x="851.3" y="48" font-size="12" text-anchor="middle" fill="#1b2430" font-weight="normal">$8.9M</text><text x="525" y="300" font-size="12" text-anchor="middle" fill="#6b7886" font-weight="normal">price impact sellers accept</text><rect x="90" y="316" width="12" height="12" fill="#1f5fa8"/><text x="108" y="326" font-size="12" text-anchor="start" fill="#1b2430" font-weight="normal">pool liquidity</text></svg><figcaption>Exit liquidity available if sellers accept up to 0.5%, 1%, 2% or 5% price impact; the report&#39;s headline uses 2%.</figcaption></figure>
+<figure class="wide"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 340" width="100%" role="img" aria-label="Exit liquidity by how much price impact sellers accept" font-family="system-ui, -apple-system, Segoe UI, Roboto, sans-serif"><title>Exit liquidity by how much price impact sellers accept</title><text x="20" y="22" font-size="15" text-anchor="start" fill="#1b2430" font-weight="600">Exit liquidity by how much price impact sellers accept</text><line x1="90" y1="256" x2="960" y2="256" stroke="#6b7886"/><line x1="90" y1="56" x2="90" y2="256" stroke="#6b7886"/><line x1="85" y1="256" x2="960" y2="256" stroke="#d9dee4"/><text x="82" y="260" font-size="12" text-anchor="end" fill="#6b7886" font-weight="normal">$0</text><line x1="85" y1="56" x2="960" y2="56" stroke="#d9dee4"/><text x="82" y="60" font-size="12" text-anchor="end" fill="#6b7886" font-weight="normal">$8.8M</text><text x="90" y="44" font-size="12" text-anchor="start" fill="#6b7886" font-weight="normal">exit liquidity ($)</text><rect x="144.4" y="98.2" width="108.8" height="157.8" fill="#1f5fa8"/><text x="198.8" y="278" font-size="13" text-anchor="middle" fill="#1b2430" font-weight="normal">0.5%</text><text x="198.8" y="90.2" font-size="12" text-anchor="middle" fill="#1b2430" font-weight="normal">$7.0M</text><rect x="361.9" y="80.5" width="108.8" height="175.5" fill="#1f5fa8"/><text x="416.3" y="278" font-size="13" text-anchor="middle" fill="#1b2430" font-weight="normal">1.0%</text><text x="416.3" y="72.5" font-size="12" text-anchor="middle" fill="#1b2430" font-weight="normal">$7.8M</text><rect x="579.4" y="67.7" width="108.8" height="188.3" fill="#1f5fa8"/><text x="633.8" y="278" font-size="13" text-anchor="middle" fill="#1b2430" font-weight="normal">2.0%</text><text x="633.8" y="59.7" font-size="12" text-anchor="middle" fill="#1b2430" font-weight="normal">$8.3M</text><rect x="796.9" y="56" width="108.8" height="200" fill="#1f5fa8"/><text x="851.3" y="278" font-size="13" text-anchor="middle" fill="#1b2430" font-weight="normal">5.0%</text><text x="851.3" y="48" font-size="12" text-anchor="middle" fill="#1b2430" font-weight="normal">$8.8M</text><text x="525" y="300" font-size="12" text-anchor="middle" fill="#6b7886" font-weight="normal">price impact sellers accept</text><rect x="90" y="316" width="12" height="12" fill="#1f5fa8"/><text x="108" y="326" font-size="12" text-anchor="start" fill="#1b2430" font-weight="normal">pool liquidity</text></svg><figcaption>Exit liquidity available if sellers accept up to 0.5%, 1%, 2% or 5% price impact; the report&#39;s headline uses 2%.</figcaption></figure>
 <p class="meta">Depeg scenario target: <code>0xdac17f…1ec7</code> · <a href="appendix.html">every scenario in the appendix</a></p>
-<p class="meta">Headline exit liquidity 8,344,898.96 — LP capital assumed sticky.</p>
-<p class="meta">LP-flight grid 0% / 30% / 60% — assumed scenario modifier, not data-derived.</p>
+<p class="meta">Headline exit liquidity 8,324,384.17; LP capital assumed sticky.</p>
+<p class="meta">LP-flight grid 0% / 30% / 60%: assumed scenario modifier, not data-derived.</p>
 
 <p class="meta">Modeling rule: single-sided withdrawal of the paired asset.</p>
 <p class="meta">modeled pools: the largest pools covering 90% of the frozen set, which itself covered 95% of discovered on-Curve liquidity at freeze time (2026-09-10). K-subset share of the frozen set: 100.0%</p>
-<div class="prose-slot" data-slot="member1_opening"><p>A price crash in ETH fits LUSD&#39;s liquidation mechanism because the Stability Pool absorbs debt from troves that fall below their maintenance collateral ratio, and any remaining shortfall is redistributed pro rata to surviving troves rather than sold. In this scenario, no forced sales occur against exit liquidity because the absorption path eliminates the need for a sell-side bound.</p><p>Collateral coverage remains at 3.72 before and after the shock, with zero bad debt generated. The system collateral ratio stays at 3.72, well above the Recovery Mode threshold, so no recovery mode is triggered.</p><p>The Stability Pool balance available to absorb liquidations in this scenario is $7.6M, which reflects the pool balance less the share of liquidity providers leaving. No LUSD can be redeemed against troves before the redemption fee reaches its ceiling because the crash path is excluded from the count.</p></div>
-<div class="prose-slot" data-slot="member2_opening"><p>A depeg of the paired stablecoin fits this token&#39;s mechanism because it is structurally insulated by construction, meaning exposure arises only through recomputed exit-liquidity curves rather than forced sales. When the paired asset trades at its middle target, the Member-2 headline scenario shows zero forced sales and a ratio of 0, indicating that no liquidations occur under these conditions.</p><p>Exit liquidity remains available across price impacts ranging from 0.5% to 5.0%, with totals varying between $7.0M and $8.9M depending on the specific depeg level. For instance, at a paired stablecoin price of 0.93 and a 2.0% price impact, exit liquidity reaches $7.7M, while deeper impacts like 5.0% push that figure to $8.6M.</p><p>These figures demonstrate that the system relies on existing pool depth to absorb shocks rather than triggering sell-side limits or bad debt events within the Member-2 headline framework.</p></div>
+<div class="prose-slot" data-slot="member1_opening"><p>The LUSD system uses the Stability Pool and redemptions to handle liquidations, a mechanism that prevents forced sales on the absorption path. Because no trove reaches the minimum collateral ratio on the ruled grid, bad debt is structurally zero; the first liquidation occurs only at an ETH shock of -82.55%, where the minimum internal collateral ratio drops from 6.3044 to 1.1.</p><p>Collateral coverage remains at 3.69 before and after the shock, with no share of assets falling below 100% in either state. The system collateral ratio after the shock is also 3.69, which stays well above the Recovery Mode threshold.</p><p>Exit liquidity stands at $8.3M, while the volume of collateral that must be sold is $0. Consequently, the ratio of forced sales to exit liquidity is 0, indicating no pressure on the exit venues in this scenario.</p></div>
+<div class="prose-slot" data-slot="member2_opening"><p>A depeg of the paired stablecoin fits this token&#39;s mechanism because it is structurally insulated by construction, meaning its internal collateral ratio remains zero while exposure flows through exit venues. In the Member-2 headline scenario where the paired stablecoin trades at its middle target of 0.93, forced sales total $0 and the resulting ratio is 0. The available exit liquidity in this baseline case is $7.7M.</p><p>When the paired stablecoin price drops to 0.88, the exit liquidity curve shows $6.1M at a 0.5% price impact, rising to $7.8M at a 5.0% price impact. At a price of 0.97, the corresponding depths are $6.8M at 0.5%, $7.5M at 1.0%, $8.1M at 2.0%, and $8.6M at 5.0%. These figures illustrate how liquidity availability shifts as the paired asset price moves away from parity.</p></div>
 </details>
 
 <details id="assumptions"><summary>The modelling assumptions and the data behind each</summary>
@@ -288,7 +290,7 @@
 </details>
 
 <details id="admin"><summary>The admin-power table, row by row</summary>
-<div class="prose-slot" data-slot="admin_surface_narrative"><p>No admin power can alter backing — immutable. The system has no holder for minting, debt ceilings, upgrades, pausing, freezing assets, blacklisting addresses, oracle settings, risk parameters, or seizing assets. Each of these powers is held by no one and the contract code is immutable.</p><p>Any change to these functions would require a delay of 0 seconds because there is no holder to initiate it. There is also no veto address listed for any function, meaning no single entity can block an action that does not exist.</p><p>The absence of these powers means the token&#39;s backing cannot be changed by any external party or internal admin function.</p></div>
+<div class="slot-missing" data-slot="admin_surface_narrative"><p>No written summary for this section this run: the local model&#39;s draft did not pass the figure guard.</p></div>
 <table class="striped"><tr><th>power</th><th>holder</th><th>type</th><th>delay</th><th>veto</th><th>upgradeable</th><th>scope</th><th>evidence</th></tr>
 
 <tr><td>minting</td><td><code>—</code></td><td>none</td>
@@ -355,7 +357,7 @@
 </details>
 
 <details id="audits"><summary>Audits, bug bounty and counterparties</summary>
-<ul class="plain"><li>Trail of Bits 2021-01 — Liquity v1 security assessment</li><li>Coinspect 2021-03 — Liquity v1</li></ul>
+<ul class="plain"><li>Trail of Bits 2021-01: Liquity v1 security assessment</li><li>Coinspect 2021-03: Liquity v1</li></ul>
 <p class="meta">Audit list (analyst-supplied 2026-09-13)</p>
 <p class="meta">Bug bounty: none — V1 program discontinued at V2 launch; V2 on Cantina, max n/a (analyst-supplied 2026-09-13). Last material change audited: yes. Audit status as of 2026-09-13. Counterparties: n/a — archetype #1 holds no off-chain counterparties; no WBTC custodian exposure — no WBTC node in the LUSD tree.</p>
 </details>
@@ -367,7 +369,7 @@
   <a href="appendix.html">appendix</a>
   <a href="data/table.json">table.json</a>
   <a href="data/grid.json">grid.json</a>
-  <a href="data/evaluation-26060799.json">gate record</a>
+  <a href="data/evaluation-26107477.json">gate record</a>
 </nav>
 
 

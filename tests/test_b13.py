@@ -413,6 +413,35 @@ def test_pass2_is_skipped_when_every_defect_lies_outside_prose(tmp_path):
     assert rec2.pass2_skipped is None and rec2.revision_count == 1
 
 
+def test_from_record_republishes_without_a_model_call(tmp_path):
+    # P-8.10: the record's guard-passed texts are reused; a missing slot is the A-25 notice
+    from factory.report.__main__ import ReplayClient, replayed_prose
+    root, _fake, _r, rec = run(tmp_path, "k8_positive_control", extra_fired=(("T-22", 1),))
+    replay = json.loads(json.dumps(rec.model_dump(mode="json")))
+    replay["llm"] = {"version": "0.34.4", "digest": "sha256:x"}
+    for g in replay["generation"]:
+        if g["slot"] == "admin_surface_narrative":
+            g["error"], g["text"] = "guard failed after one re-ask", None
+    assert len(replayed_prose(replay)) == 6
+    r = build(root, "LUSD", client=ReplayClient(replay), replay=replay,
+              extra_fired=(("T-22", 1),))
+    rec2 = r["record"]
+    assert rec2.slots_missing == ["admin_surface_narrative"] and rec2.outcome == "published"
+    assert all(g.get("replayed_from") == 25974949 for g in rec2.generation)
+    page = (root / "out/site/LUSD/index.html").read_text(encoding="utf-8")
+    assert 'class="slot-missing" data-slot="admin_surface_narrative"' in page
+    assert page.count('class="prose-slot"') == 6
+    with pytest.raises(RuntimeError, match="no model call"):
+        ReplayClient(replay).chat({})
+
+
+def test_not_evaluated_rows_do_not_hold_back_a_resolution():
+    # P-8.10: the withdrawn judge's six not_evaluated rows kept settle's second pass from
+    # re-planning the template_change resolution (LUSD 26107477 came out quarantined)
+    src = (REPO / "src/factory/report/__main__.py").read_text(encoding="utf-8")
+    assert 'and x[1] != "not_evaluated"}' in src
+
+
 def test_publish_without_banner_by_ruling(tmp_path):
     from factory.report.__main__ import BANNER, PILL_FLAGS, PLACEHOLDER, publish_without_banner
     root = tmp_repo(tmp_path)

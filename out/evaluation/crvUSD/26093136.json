@@ -167,6 +167,7 @@
    "pass": 1,
    "prompt_eval_count": 17836,
    "reasks": 1,
+   "replayed_from": 26093136,
    "slot": "verifiability_narrative"
   },
   {
@@ -227,6 +228,7 @@
     "assumption.band_linear"
    ],
    "rejected": [],
+   "replayed_from": 26093136,
    "sampling": {
     "seed": 0,
     "temperature": 0
@@ -418,6 +420,7 @@
      "text": "A depeg of the paired stablecoin fits this token's mechanism because it is structurally insulated by construction, meaning its internal collateral ratio has no finite value and does not trigger forced sales. Instead, any impact flows through exit venues where liquidity providers may withdraw, as shown by the recomputed exit-liquidity curves for the Member-2 target at 0xdac17f…1ec7. When the paired stablecoin trades at 0.88, exit liquidity is $23.4M at a 0.5% price impact and rises to $29.2M at a 5.0% price impact. At a trade price of 0.93, the available depth reaches $29.3M when the price impact hits 2.0%, while at 0.97 it climbs to $32.3M under a 5.0% pressure."
     }
    ],
+   "replayed_from": 26093136,
    "sampling": {
     "seed": 0,
     "temperature": 0
@@ -469,6 +472,7 @@
    "references_added": [],
    "references_field_ids": [],
    "rejected": [],
+   "replayed_from": 26093136,
    "sampling": {
     "seed": 0,
     "temperature": 0
@@ -610,6 +614,7 @@
    "pass": 1,
    "prompt_eval_count": 6910,
    "reasks": 1,
+   "replayed_from": 26093136,
    "slot": "counterfactual_explanations"
   },
   {
@@ -671,6 +676,7 @@
     "admin.seize.None.holder_type"
    ],
    "rejected": [],
+   "replayed_from": 26093136,
    "sampling": {
     "seed": 0,
     "temperature": 0
@@ -859,6 +865,7 @@
      "text": "The token is backed by $156.7M of collateral, of which 3.8% can be checked directly on-chain and 53.8% through wrappers, while the remaining 42.4% relies on issuer disclosures; a further $1.1B of supply originates from contracts outside the traced mint markets, including lending factories and bridge vaults. The stress scenario shows that forced sales total $8, which is less than 0.1% of the $31.6M exit liquidity, and bad debt is structurally zero because soft liquidation converts collateral at band prices before positions become insolvent."
     }
    ],
+   "replayed_from": 26093136,
    "sampling": {
     "seed": 0,
     "temperature": 0
@@ -886,7 +893,7 @@
  "pass2_skipped": null,
  "pipeline_version": "0.1.0",
  "publication": null,
- "report_hash": "274a64512ae075fc69a2b1dcffa691755b3217a69c09944347256997b7737e6c",
+ "report_hash": "b3ed218d9dcb52bb13e8e6b7f91313028072dd0dc84d56639572855de181fa01",
  "results": [
   {
    "entry_id": "DET-02",
@@ -1388,8 +1395,8 @@
   },
   {
    "entry_id": "DET-58",
-   "result": "pass",
-   "scope_condition": "0 open Level-1 entr(ies) flagged",
+   "result": "fail",
+   "scope_condition": "DET-58: open Level-1 entr(ies) with no flag ['crvUSD:17']",
    "stage": "S3"
   },
   {
@@ -1401,7 +1408,7 @@
   {
    "entry_id": "DET-60",
    "result": "pass",
-   "scope_condition": "7 quarantine line(s); every fired trigger has one entry",
+   "scope_condition": "8 quarantine line(s); every fired trigger has one entry",
    "stage": "S3"
   },
   {
@@ -1467,12 +1474,16 @@
  ],
  "revision_cause": [],
  "revision_count": 0,
- "rubric_hash": "ae79f798",
+ "rubric_hash": "85e0588b",
  "run_block": 26093136,
  "sheet_hash": "29682310",
+ "slots_missing": [
+  "verifiability_narrative",
+  "counterfactual_explanations"
+ ],
  "stress_hash": "6911387c8ad52b1702f8697f76871cca33b7c956783febcfaad0d1a725c6dd82",
  "table_hash": "f62a02c576011f1d173097f9603ee87edbdd03f507940b702312c4e6411d2093",
- "template_hash": "770857761796d9da72bc613dc826fc79c17c0ad8d5da526c4dd0517563d8e5f9",
+ "template_hash": "50222d1f5d13accae91a9aa3497725d3909513df15f7256370fee49634126c49",
  "token": "crvUSD",
  "tree_hash": "32b9675c5c0cac2d08c2c01d91ed5ab4547078d7033767b9ea440c3412e69d78",
  "triggers": [
@@ -1543,11 +1554,16 @@
   },
   {
    "level": 2,
+   "source_entry": "DET-58",
+   "trigger": "T-28"
+  },
+  {
+   "level": 2,
    "source_entry": "DET-59",
    "trigger": "T-23"
   },
   {
-   "level": 2,
+   "level": 1,
    "source_entry": "DET-80",
    "trigger": "T-28"
   },

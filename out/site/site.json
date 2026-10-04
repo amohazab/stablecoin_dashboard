@@ -10,16 +10,22 @@
    "DET-64"
   ]
  },
- "behavioral_as_of": "2026-10-02",
+ "behavioral_as_of": "2026-10-04",
+ "behavioral_status": {
+  "fetched_at": "2026-10-04T09:44:05+00:00",
+  "ok": false,
+  "reason": "holderConcentration.top30: Input should be a valid dictionary or instance of Cohort",
+  "snapshot_stamp": "20260927T000000Z"
+ },
  "branch": "master",
- "log_rows": 20,
+ "log_rows": 30,
  "repo_url": "https://github.com/amohazab/stablecoin_dashboard",
  "tokens": {
   "GHO": {
    "behavioral": {
-    "age_days": 5,
-    "as_of": "2026-10-02",
-    "block_sha256": "2e1c910e5290c639bf82bccc026ed87ff10aea5c4d6ba80d505a665091674070",
+    "age_days": 7,
+    "as_of": "2026-10-04",
+    "block_sha256": "8732ee73b58945272ff0c63749befac13ac12a4326b7b195bd0eee37c1748fe5",
     "captions": [
      "7-day max |deviation|: 13.9 bp",
      "Share of liquidity among the 10 Ethereum pools Webacy lists, $7.0M",
@@ -64,15 +70,15 @@
     "supply_shown": true,
     "unknown_notes": []
    },
-   "figures": "Supply $699.0M · Bad debt, headline scenario $8.6M · Exit liquidity, headline scenario $18.8M",
-   "finding": "GHO's supply of $699.0M is minted entirely through Aave facilitators, and 21.5% of that supply ($150.0M) is issued against off-mainnet facilitators on Arbitrum, Monad and Plasma, whose backing is not traced by this tree.",
-   "outcome": "published_without_banner_by_ruling",
-   "pill": "<span class=\"pill red\">4 notice(s): freeze coverage below target, off-venue share 92.4%, gate failure and harness error</span>",
-   "report_hash": "447281cb4b87dcd40bd17e9fd0a8b9db741d4fd2c825262d5e1a0a15dd6183d1",
+   "figures": "Supply $699.0M · Bad debt, headline scenario $7.3M · Exit liquidity, headline scenario $23.0M",
+   "finding": "The token's backing is split between assets checked directly on-chain, wrapped assets checked one layer down, and disclosures; 33.0% of the backing is held in assets whose value can be checked directly on-chain, 38.5% in wrapped assets whose value can be checked on-chain one layer down, and 28.5% through an issuer's or custodian's published disclosures.",
+   "outcome": "published",
+   "pill": "<span class=\"pill amber\">3 notice(s): freeze coverage below target, off-venue share 93.0% and gate failure</span>",
+   "report_hash": "d07a2702518115972175c76bcd6e994b8739506744c16781a81a54f12386992b",
    "rewrites": {
     "index.html": {
-     "after": "121ea0c5f9833731a9d8a6fe27ad07a2b5cf8326de9e184e3fddbd59681e99f5",
-     "before": "f0e396e3fe7610c496b50601593f1eea012a1c044df4f068ec2f259b9cf628db",
+     "after": "bf42f0464f93035518ec3cd4bb42a61fac54879a89c6c715b37db6e2df4d5614",
+     "before": "ed6bd11cd480d831d2bd6bf17919da406dd7b21b2c91695c8ee9e07a43b5928b",
      "substitutions": [
       {
        "new": "href=\"https://github.com/amohazab/stablecoin_dashboard/blob/master/docs/context/archetype-memo-1-cdp.md\"",
@@ -95,19 +101,19 @@
        "old": "<h2 class=\"specialists\">Detail for specialists</h2>\n<p class=\"meta\">behavioral tier: pending</p>\n"
       },
       {
-       "new": "<behavioral block, sha256 2e1c910e5290c639bf82bccc026ed87ff10aea5c4d6ba80d505a665091674070><section id=\"check\">",
+       "new": "<behavioral block, sha256 8732ee73b58945272ff0c63749befac13ac12a4326b7b195bd0eee37c1748fe5><section id=\"check\">",
        "old": "<section id=\"check\">"
       }
      ]
     }
    },
-   "run_block": 25974932
+   "run_block": 26100308
   },
   "LUSD": {
    "behavioral": {
-    "age_days": 5,
-    "as_of": "2026-10-02",
-    "block_sha256": "da526fe94e2d462c19f0b57e97bff81b0a3137d6c7189c7a4a45bebdc882967b",
+    "age_days": 7,
+    "as_of": "2026-10-04",
+    "block_sha256": "6d73f7ea59328e1940a6732c85d7ac47a256a54ba2bacf23272dc0ee0f1bb1fc",
     "captions": [
      "7-day max |deviation|: 194.2 bp",
      "Net supply change, per Webacy",
@@ -147,14 +153,14 @@
     "unknown_notes": []
    },
    "figures": "Supply $26.2M · Bad debt, headline scenario $0, structurally zero · Exit liquidity, headline scenario $8.3M",
-   "finding": "The token is backed by collateral whose full value can be checked directly on-chain, and the stress scenario shows no forced sales against exit liquidity.",
+   "finding": "The structural-zero flag is set because no trove reaches the minimum collateral ratio on the ruled grid; the first liquidation occurs at an ETH shock of -82.55% (minimum ICR 6.3044 -> 1.1), recovery mode activates at -79.66% (TCR 7.3744 -> 1.5), and TCR falls below MCR at -85.08%, while Liquity v1 is wound down to 70 troves.",
    "outcome": "published",
-   "pill": "<span class=\"pill green\">No warnings this run</span>",
-   "report_hash": "1c3b2d387b2f2e6468651b6212b17dd5f6b3f89799fb36152d972783764a16a4",
+   "pill": "<span class=\"pill amber\">1 notice(s): gate failure</span>",
+   "report_hash": "ba9b2bb87138655e43907ea7fd7b6233e34e33c8be41c5c5ce690f8d66fbdecb",
    "rewrites": {
     "index.html": {
-     "after": "9e0a91ed0b68a4c2dab92db63acc3fee20368c16caacc7c094a4200305c00957",
-     "before": "2ea000b0855434ede277072f968ceb2f3ed2bc1ea3505223773535d54d6e8bda",
+     "after": "71ce6bc6da4911fcac1c4e9a5656cbbdd9caaf5d67665eec331b14f1ce057591",
+     "before": "f20b4a917fbbfabcd737fb7ac341de115c3685b92fbed9e458f293b77d14f552",
      "substitutions": [
       {
        "new": "href=\"https://github.com/amohazab/stablecoin_dashboard/blob/master/docs/context/archetype-memo-1-cdp.md\"",
@@ -177,19 +183,19 @@
        "old": "<h2 class=\"specialists\">Detail for specialists</h2>\n<p class=\"meta\">behavioral tier: pending</p>\n"
       },
       {
-       "new": "<behavioral block, sha256 da526fe94e2d462c19f0b57e97bff81b0a3137d6c7189c7a4a45bebdc882967b><section id=\"check\">",
+       "new": "<behavioral block, sha256 6d73f7ea59328e1940a6732c85d7ac47a256a54ba2bacf23272dc0ee0f1bb1fc><section id=\"check\">",
        "old": "<section id=\"check\">"
       }
      ]
     }
    },
-   "run_block": 26060799
+   "run_block": 26107477
   },
   "crvUSD": {
    "behavioral": {
-    "age_days": 5,
-    "as_of": "2026-10-02",
-    "block_sha256": "2e159ba4415334a2ef316d08f6fe56697dba272ba3263d9dd83d6abf9cd43651",
+    "age_days": 7,
+    "as_of": "2026-10-04",
+    "block_sha256": "7ed9341d1fd5afce67947ffffc54698df5b258f5bd44b7b718796f159b294bbc",
     "captions": [
      "7-day max |deviation|: 17.0 bp",
      "Share of liquidity among the 10 Ethereum pools Webacy lists, $216.5M",
@@ -241,7 +247,7 @@
    "report_hash": "8ac6132bc407aad7549f4d9f7ab127e229b521c03c58f5a8a66f03576c4f2912",
    "rewrites": {
     "index.html": {
-     "after": "c435c8a65f773da65d85f51515ce22fc5603b3a7f4afa6b72cead1d50b9dd424",
+     "after": "8aaed12d163eee5f9dfa2079939fceb0e861b01b945e98cde1fda46206775899",
      "before": "996a25d10a522f2aaa6da730f85dbed525590be7265ef3dae4fd59a905acb37a",
      "substitutions": [
       {
@@ -265,7 +271,7 @@
        "old": "<h2 class=\"specialists\">Detail for specialists</h2>\n<p class=\"meta\">behavioral tier: pending</p>\n"
       },
       {
-       "new": "<behavioral block, sha256 2e159ba4415334a2ef316d08f6fe56697dba272ba3263d9dd83d6abf9cd43651><section id=\"check\">",
+       "new": "<behavioral block, sha256 7ed9341d1fd5afce67947ffffc54698df5b258f5bd44b7b718796f159b294bbc><section id=\"check\">",
        "old": "<section id=\"check\">"
       }
      ]

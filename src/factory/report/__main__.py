@@ -224,8 +224,31 @@ def row_displays(repo: pathlib.Path, doc: dict) -> dict[str, list[str]]:
             for f, r in rows.items()}
 
 
+class ReplayClient:
+    """`--from-record` (P-8.10): the model identity of the replayed record; no call is ever
+    made through it."""
+
+    def __init__(self, rec: dict):
+        head = rec.get("llm") or {}
+        self.version, self.digest = head.get("version"), head.get("digest")
+
+    def chat(self, body: dict) -> dict:
+        raise RuntimeError("--from-record makes no model call")
+
+
+def replayed_prose(rec: dict) -> dict[str, str]:
+    """The guard-passed slot texts of a record (its highest pass per slot)."""
+    best: dict[str, dict] = {}
+    for g in rec.get("generation", []):
+        if g.get("slot") and g.get("text") and not g.get("error"):
+            if g["slot"] not in best or g["pass"] >= best[g["slot"]]["pass"]:
+                best[g["slot"]] = g
+    return {s: g["text"] for s, g in best.items()}
+
+
 def build(repo: pathlib.Path, token: str, client=None, extra_fired: tuple = (),
-          preview: bool = False, judge_withdrawn: str | None = "default") -> dict:
+          preview: bool = False, judge_withdrawn: str | None = "default",
+          replay: dict | None = None) -> dict:
     """`client` = None is a REHEARSAL (Amin, 2026-09-14): no generation, no judgment, the
     slots stay placeholders; pages stay in `out/rehearsal/`, the record's outcome is
     "rehearsal" and it is written beside them, not to `out/evaluation/`; nothing is
@@ -367,7 +390,9 @@ def build(repo: pathlib.Path, token: str, client=None, extra_fired: tuple = (),
             planned = eventlog.plan_quarantine(entries, token, date,
                                                [(x["trigger"], x["level"]) for x in rec_triggers])
             # A-25: a Level-1 failure (DET-80) neither blocks nor stops the resolutions
-            green = seen is None or not {x for x in seen if x[0] not in LEVEL1_CHECKS}
+            # A-24: `not_evaluated` rows are not failures here either (P-8.10 replay finding)
+            green = seen is None or not {x for x in seen if x[0] not in LEVEL1_CHECKS
+                                         and x[1] != "not_evaluated"}
             if green and not [x for x in gate if x["level"] > 1]:
                 planned = [*planned, *plan_resolutions([*entries, *planned], token, date,
                                                        hashes, current)]
@@ -462,6 +487,11 @@ def build(repo: pathlib.Path, token: str, client=None, extra_fired: tuple = (),
         carries its own pass-1 text and only its own defects (seventh live run, ruling a)."""
         if client is None:
             return {}
+        if replay is not None and own is None:     # --from-record: no model call (P-8.10)
+            prose = replayed_prose(replay)
+            llm_rec["generation"].extend({**g, "replayed_from": replay["run_block"]}
+                                         for g in replay.get("generation", []))
+            return {x["id"]: prose[x["id"]] for x in mf["prose_slots"] if x["id"] in prose}
         spec = llm.prompts(repo)["slots"]
         users = slot_users()
         prose = {}
@@ -743,6 +773,29 @@ if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("usage: python -m factory.report <TOKEN> [--llm [--preview]]  (crvUSD | GHO | LUSD)")
         sys.exit(2)
+    if len(sys.argv) == 4 and sys.argv[2] == "--from-record":
+        # P-8.10: republish at a record's block from its guard-passed slot texts, the missing
+        # slots as the A-25 notice; no model call
+        _tok, _blk = sys.argv[1], int(sys.argv[3])
+        _rec = json.loads((_repo / "out/evaluation" / _tok / f"{_blk}.json")
+                          .read_text(encoding="utf-8"))
+        from factory.tree import latest_bundle
+        _latest = latest_bundle(_repo, _tok).header.run_block
+        if _latest != _blk:
+            print(f"AssemblyStop: {_tok}'s latest promoted bundle is {_latest}, not {_blk}",
+                  file=sys.stderr)
+            sys.exit(1)
+        r = build(_repo, _tok, client=ReplayClient(_rec), replay=_rec)
+        _rr = r["record"]
+        print(f"from-record {_tok}@{_blk} | outcome {_rr.outcome} | report "
+              f"{_rr.report_hash[:8]} | slots reused "
+              f"{len(replayed_prose(_rec))} | slots as notices {_rr.slots_missing} | results "
+              f"{sum(1 for x in _rr.results if x.result == 'pass')} pass, "
+              f"{sum(1 for x in _rr.results if x.result == 'not_evaluated')} not_evaluated, "
+              f"{sum(1 for x in _rr.results if x.result in ('fail', 'error'))} fail | triggers "
+              f"{[(x['trigger'], x['level'], x['source_entry']) for x in _rr.triggers]} | "
+              f"site {r['site']}")
+        sys.exit(0)
     try:
         _client = None
         if "--llm" in sys.argv[2:]:          # B-13 NAMED DEFAULT: the model only on request

@@ -1,0 +1,6 @@
+{
+ "fetched_at": "2026-10-04T09:44:05+00:00",
+ "ok": false,
+ "reason": "holderConcentration.top30: Input should be a valid dictionary or instance of Cohort",
+ "snapshot_stamp": "20260927T000000Z"
+}

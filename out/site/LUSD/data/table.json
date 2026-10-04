@@ -166,7 +166,7 @@
    "section": "header",
    "source_path": "bundle/header/run_block",
    "unit": "block",
-   "value": 26060799
+   "value": 26107477
   },
   {
    "denominator": null,
@@ -176,7 +176,7 @@
    "section": "header",
    "source_path": "bundle/header/block_timestamp",
    "unit": "unix_s",
-   "value": 1790415731
+   "value": 1790978327
   },
   {
    "denominator": null,
@@ -196,7 +196,7 @@
    "section": "header",
    "source_path": "bundle/header/bundle_hash",
    "unit": "hash",
-   "value": "05e07023592dc37a01f06654761d6ef34e24f08f9130369e88524bdb7f63f3b6"
+   "value": "0ab3ea7cf50bb03d6e48b044c2c24a190a4aab3e2bd7208196e6cb5ac6b6164f"
   },
   {
    "denominator": null,
@@ -226,7 +226,7 @@
    "section": "header",
    "source_path": "tree/tree_hash",
    "unit": "hash",
-   "value": "29bda5b292005aaa2e883354b8c4b9cd58cf249b1c341d613f8cc8c92e01e679"
+   "value": "43316e2a51a21080feff46ec7d448f21fc3b8b55d9f16ce11c83240e95de6822"
   },
   {
    "denominator": null,
@@ -236,7 +236,7 @@
    "section": "header",
    "source_path": "stress/header/stress_hash",
    "unit": "hash",
-   "value": "c70e5bb3db3fde9349404308c56f6c79505d571164b063decbef7d3caede9b2f"
+   "value": "015d9a4d679992f86c0b28f4ec0518cbbd9b4ebc938beb0586ecbe6db52b69c4"
   },
   {
    "denominator": "backing_value",
@@ -626,7 +626,7 @@
    "section": "supply",
    "source_path": "tree/root/backing_value",
    "unit": "value_scale_units",
-   "value": 194759752778794631172806311
+   "value": 192921716970075975935848249
   },
   {
    "denominator": null,
@@ -666,7 +666,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m1/pre/ratio",
    "unit": "ratio",
-   "value": "3.722330354687320346150922133"
+   "value": "3.687201040821500745972972059"
   },
   {
    "denominator": null,
@@ -676,7 +676,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m1/post/ratio",
    "unit": "ratio",
-   "value": "3.722330354687320346150922133"
+   "value": "3.687201040821500745972972059"
   },
   {
    "denominator": null,
@@ -746,7 +746,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m3/exit_depth",
    "unit": "base_units",
-   "value": 8344898962644212835768395
+   "value": 8324384173909953478653151
   },
   {
    "denominator": "exit_depth",
@@ -776,7 +776,7 @@
    "section": "stress (Member 2)",
    "source_path": "stress/cells/[id=M2-t0.93-lp0]/m3/exit_depth",
    "unit": "base_units",
-   "value": 7743869168435455040695877
+   "value": 7724626106327215395875707
   },
   {
    "denominator": "exit_depth",
@@ -808,7 +808,7 @@
    "section": "mechanism state",
    "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m4/exit_depth_cell",
    "unit": "base_units",
-   "value": 8344898962644212835768395
+   "value": 8324384173909953478653151
   },
   {
    "denominator": null,
@@ -878,7 +878,7 @@
    "section": "mechanism state",
    "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m4/sp_effective_cell",
    "unit": "base_units",
-   "value": 7568104764235443181819691
+   "value": 7568229653041062926434543
   },
   {
    "denominator": null,
@@ -888,7 +888,7 @@
    "section": "mechanism state",
    "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m4/tcr_post",
    "unit": "ratio",
-   "value": "3.722330354687320346150922133"
+   "value": "3.687201040821500745972972059"
   },
   {
    "denominator": null,
@@ -938,7 +938,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s20-d0-lp0]/m1/post/ratio",
    "unit": "ratio",
-   "value": "5.955728567499712553843135698"
+   "value": "5.899521665314401193558415580"
   },
   {
    "denominator": null,
@@ -968,7 +968,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s20-d0-lp0]/m3/exit_depth",
    "unit": "base_units",
-   "value": 8344898962644212835768395
+   "value": 8324384173909953478653151
   },
   {
    "denominator": null,
@@ -978,7 +978,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s20-d0-lp30]/m1/post/ratio",
    "unit": "ratio",
-   "value": "5.955728567499712553843135698"
+   "value": "5.899521665314401193558415580"
   },
   {
    "denominator": null,
@@ -1008,7 +1008,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s20-d0-lp30]/m3/exit_depth",
    "unit": "base_units",
-   "value": 5154914393753729668937416
+   "value": 5134407088704125377132869
   },
   {
    "denominator": null,
@@ -1018,7 +1018,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s20-d0-lp60]/m1/post/ratio",
    "unit": "ratio",
-   "value": "5.955728567499712553843135698"
+   "value": "5.899521665314401193558415580"
   },
   {
    "denominator": null,
@@ -1048,7 +1048,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s20-d0-lp60]/m3/exit_depth",
    "unit": "base_units",
-   "value": 1964928733286506270402524
+   "value": 1944428902147739982762719
   },
   {
    "denominator": null,
@@ -1058,7 +1058,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s35-d0-lp0]/m1/post/ratio",
    "unit": "ratio",
-   "value": "4.839029461093516449997028916"
+   "value": "4.793361353067950969765693819"
   },
   {
    "denominator": null,
@@ -1088,7 +1088,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s35-d0-lp0]/m3/exit_depth",
    "unit": "base_units",
-   "value": 8344898962644212835768395
+   "value": 8324384173909953478653151
   },
   {
    "denominator": null,
@@ -1098,7 +1098,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s35-d0-lp30]/m1/post/ratio",
    "unit": "ratio",
-   "value": "4.839029461093516449997028916"
+   "value": "4.793361353067950969765693819"
   },
   {
    "denominator": null,
@@ -1128,7 +1128,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s35-d0-lp30]/m3/exit_depth",
    "unit": "base_units",
-   "value": 5154914393753729668937416
+   "value": 5134407088704125377132869
   },
   {
    "denominator": null,
@@ -1138,7 +1138,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s35-d0-lp60]/m1/post/ratio",
    "unit": "ratio",
-   "value": "4.839029461093516449997028916"
+   "value": "4.793361353067950969765693819"
   },
   {
    "denominator": null,
@@ -1168,7 +1168,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s35-d0-lp60]/m3/exit_depth",
    "unit": "base_units",
-   "value": 1964928733286506270402524
+   "value": 1944428902147739982762719
   },
   {
    "denominator": null,
@@ -1178,7 +1178,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m1/post/ratio",
    "unit": "ratio",
-   "value": "3.722330354687320346150922133"
+   "value": "3.687201040821500745972972059"
   },
   {
    "denominator": null,
@@ -1208,7 +1208,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m3/exit_depth",
    "unit": "base_units",
-   "value": 8344898962644212835768395
+   "value": 8324384173909953478653151
   },
   {
    "denominator": null,
@@ -1218,7 +1218,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s50-d0-lp30]/m1/post/ratio",
    "unit": "ratio",
-   "value": "3.722330354687320346150922133"
+   "value": "3.687201040821500745972972059"
   },
   {
    "denominator": null,
@@ -1248,7 +1248,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s50-d0-lp30]/m3/exit_depth",
    "unit": "base_units",
-   "value": 5154914393753729668937416
+   "value": 5134407088704125377132869
   },
   {
    "denominator": null,
@@ -1258,7 +1258,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s50-d0-lp60]/m1/post/ratio",
    "unit": "ratio",
-   "value": "3.722330354687320346150922133"
+   "value": "3.687201040821500745972972059"
   },
   {
    "denominator": null,
@@ -1288,7 +1288,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s50-d0-lp60]/m3/exit_depth",
    "unit": "base_units",
-   "value": 1964928733286506270402524
+   "value": 1944428902147739982762719
   },
   {
    "denominator": null,
@@ -1298,7 +1298,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s70-d0-lp0]/m1/post/ratio",
    "unit": "ratio",
-   "value": "2.233398212812392207689446423"
+   "value": "2.212320624492900447582676378"
   },
   {
    "denominator": null,
@@ -1328,7 +1328,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s70-d0-lp0]/m3/exit_depth",
    "unit": "base_units",
-   "value": 8344898962644212835768395
+   "value": 8324384173909953478653151
   },
   {
    "denominator": null,
@@ -1338,7 +1338,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s70-d0-lp30]/m1/post/ratio",
    "unit": "ratio",
-   "value": "2.233398212812392207689446423"
+   "value": "2.212320624492900447582676378"
   },
   {
    "denominator": null,
@@ -1368,7 +1368,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s70-d0-lp30]/m3/exit_depth",
    "unit": "base_units",
-   "value": 5154914393753729668937416
+   "value": 5134407088704125377132869
   },
   {
    "denominator": null,
@@ -1378,7 +1378,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s70-d0-lp60]/m1/post/ratio",
    "unit": "ratio",
-   "value": "2.233398212812392207689446423"
+   "value": "2.212320624492900447582676378"
   },
   {
    "denominator": null,
@@ -1408,7 +1408,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s70-d0-lp60]/m3/exit_depth",
    "unit": "base_units",
-   "value": 1964928733286506270402524
+   "value": 1944428902147739982762719
   },
   {
    "denominator": null,
@@ -1418,7 +1418,7 @@
    "section": "exit liquidity",
    "source_path": "stress/exit_depth/sensitivity_rows/[k=80]/depth_at_2pct",
    "unit": "base_units",
-   "value": 8344898962644212835768395
+   "value": 8324384173909953478653151
   },
   {
    "denominator": "frozen_set_tvl",
@@ -1438,7 +1438,7 @@
    "section": "exit liquidity",
    "source_path": "stress/exit_depth/sensitivity_rows/[k=90]/depth_at_2pct",
    "unit": "base_units",
-   "value": 8344898962644212835768395
+   "value": 8324384173909953478653151
   },
   {
    "denominator": "frozen_set_tvl",
@@ -1458,7 +1458,7 @@
    "section": "exit liquidity",
    "source_path": "stress/exit_depth/sensitivity_rows/[k=95]/depth_at_2pct",
    "unit": "base_units",
-   "value": 8344898962644212835768395
+   "value": 8324384173909953478653151
   },
   {
    "denominator": "frozen_set_tvl",
@@ -1488,7 +1488,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/structural_zero/reason",
    "unit": "literal",
-   "value": "no trove reaches MCR on the ruled grid; first liquidation at an ETH shock of -82.72% (min ICR 6.3645 -> 1.1), recovery mode at -79.85% (TCR 7.4447 -> 1.5), TCR below MCR at -85.22%; Liquity v1 is wound down to 70 troves"
+   "value": "no trove reaches MCR on the ruled grid; first liquidation at an ETH shock of -82.55% (min ICR 6.3044 -> 1.1), recovery mode at -79.66% (TCR 7.3744 -> 1.5), TCR below MCR at -85.08%; Liquity v1 is wound down to 70 troves"
   },
   {
    "denominator": "price_impact",
@@ -1508,7 +1508,7 @@
    "section": "exit liquidity",
    "source_path": "stress/exit_depth/depth_curve/[s=0.005]/total",
    "unit": "base_units",
-   "value": 6996456204419775171959724
+   "value": 6975943416387338153559904
   },
   {
    "denominator": null,
@@ -1518,7 +1518,7 @@
    "section": "exit liquidity",
    "source_path": "stress/exit_depth/depth_curve/[s=0.005]/pool_depth",
    "unit": "base_units",
-   "value": 6996456204419775171959724
+   "value": 6975943416387338153559904
   },
   {
    "denominator": null,
@@ -1548,7 +1548,7 @@
    "section": "exit liquidity",
    "source_path": "stress/exit_depth/depth_curve/[s=0.01]/total",
    "unit": "base_units",
-   "value": 7778429033819560902355632
+   "value": 7757914977596670429647535
   },
   {
    "denominator": null,
@@ -1558,7 +1558,7 @@
    "section": "exit liquidity",
    "source_path": "stress/exit_depth/depth_curve/[s=0.01]/pool_depth",
    "unit": "base_units",
-   "value": 7778429033819560902355632
+   "value": 7757914977596670429647535
   },
   {
    "denominator": null,
@@ -1588,7 +1588,7 @@
    "section": "exit liquidity",
    "source_path": "stress/exit_depth/depth_curve/[s=0.02]/total",
    "unit": "base_units",
-   "value": 8344898962644212835768395
+   "value": 8324384173909953478653151
   },
   {
    "denominator": null,
@@ -1598,7 +1598,7 @@
    "section": "exit liquidity",
    "source_path": "stress/exit_depth/depth_curve/[s=0.02]/pool_depth",
    "unit": "base_units",
-   "value": 8344898962644212835768395
+   "value": 8324384173909953478653151
   },
   {
    "denominator": null,
@@ -1628,7 +1628,7 @@
    "section": "exit liquidity",
    "source_path": "stress/exit_depth/depth_curve/[s=0.05]/total",
    "unit": "base_units",
-   "value": 8861585896865487564784966
+   "value": 8841070122332485127795930
   },
   {
    "denominator": null,
@@ -1638,7 +1638,7 @@
    "section": "exit liquidity",
    "source_path": "stress/exit_depth/depth_curve/[s=0.05]/pool_depth",
    "unit": "base_units",
-   "value": 8861585896865487564784966
+   "value": 8841070122332485127795930
   },
   {
    "denominator": null,
@@ -1708,7 +1708,7 @@
    "section": "exit liquidity",
    "source_path": "stress/exit_depth/base_virtual_price/0xed279fdd11ca84beef15af5d39bb4d4bee23f0ca",
    "unit": "base_units",
-   "value": 1039823717405305264
+   "value": 1039823717413104245
   },
   {
    "denominator": null,
@@ -1718,7 +1718,7 @@
    "section": "exit liquidity",
    "source_path": "bundle/offvenue_share/dex_liquidity_total_discovered",
    "unit": "usd_whole",
-   "value": 12637431
+   "value": 12635025
   },
   {
    "denominator": null,
@@ -1728,7 +1728,7 @@
    "section": "exit liquidity",
    "source_path": "bundle/offvenue_share/curve_mainnet_liquidity",
    "unit": "usd_whole",
-   "value": 12590652
+   "value": 12588392
   },
   {
    "denominator": "dex_liquidity_total_discovered",
@@ -1738,7 +1738,7 @@
    "section": "exit liquidity",
    "source_path": "bundle/offvenue_share/x",
    "unit": "ratio",
-   "value": "0.0037016225845268710072482295"
+   "value": "0.0036907722778546144546607545"
   },
   {
    "denominator": null,
@@ -1768,7 +1768,7 @@
    "section": "exit liquidity",
    "source_path": "bundle/offvenue_share/date",
    "unit": "date",
-   "value": "2026-09-26"
+   "value": "2026-10-02"
   },
   {
    "denominator": null,
@@ -1808,7 +1808,7 @@
    "section": "stress (Member 2)",
    "source_path": "stress/assumptions/m2_curves/0.88/0.005",
    "unit": "base_units",
-   "value": 6096721893130312760286581
+   "value": 6078113631277748596031827
   },
   {
    "denominator": null,
@@ -1818,7 +1818,7 @@
    "section": "stress (Member 2)",
    "source_path": "stress/assumptions/m2_curves/0.88/0.01",
    "unit": "base_units",
-   "value": 6802925106260395227139949
+   "value": 6784475824703090789209774
   },
   {
    "denominator": null,
@@ -1828,7 +1828,7 @@
    "section": "stress (Member 2)",
    "source_path": "stress/assumptions/m2_curves/0.88/0.02",
    "unit": "base_units",
-   "value": 7314507281855976392818863
+   "value": 7296173205776364474862469
   },
   {
    "denominator": null,
@@ -1838,7 +1838,7 @@
    "section": "stress (Member 2)",
    "source_path": "stress/assumptions/m2_curves/0.88/0.05",
    "unit": "base_units",
-   "value": 7781129594674894137830317
+   "value": 7762900791569535161012941
   },
   {
    "denominator": null,
@@ -1848,7 +1848,7 @@
    "section": "stress (Member 2)",
    "source_path": "stress/assumptions/m2_curves/0.93/0.005",
    "unit": "base_units",
-   "value": 6471639206637254712217429
+   "value": 6452236908837343232915297
   },
   {
    "denominator": null,
@@ -1858,7 +1858,7 @@
    "section": "stress (Member 2)",
    "source_path": "stress/assumptions/m2_curves/0.93/0.01",
    "unit": "base_units",
-   "value": 7209415731190169098831305
+   "value": 7190105437655161982349078
   },
   {
    "denominator": null,
@@ -1868,7 +1868,7 @@
    "section": "stress (Member 2)",
    "source_path": "stress/assumptions/m2_curves/0.93/0.02",
    "unit": "base_units",
-   "value": 7743869168435455040695877
+   "value": 7724626106327215395875707
   },
   {
    "denominator": null,
@@ -1878,7 +1878,7 @@
    "section": "stress (Member 2)",
    "source_path": "stress/assumptions/m2_curves/0.93/0.05",
    "unit": "base_units",
-   "value": 8231353150125310994993681
+   "value": 8212170869679056883860334
   },
   {
    "denominator": null,
@@ -1888,7 +1888,7 @@
    "section": "stress (Member 2)",
    "source_path": "stress/assumptions/m2_curves/0.97/0.005",
    "unit": "base_units",
-   "value": 6771543912343844087267694
+   "value": 6751507446445807974750366
   },
   {
    "denominator": null,
@@ -1898,7 +1898,7 @@
    "section": "stress (Member 2)",
    "source_path": "stress/assumptions/m2_curves/0.97/0.01",
    "unit": "base_units",
-   "value": 7534576247935499407259812
+   "value": 7514578180066159007779148
   },
   {
    "denominator": null,
@@ -1908,7 +1908,7 @@
    "section": "stress (Member 2)",
    "source_path": "stress/assumptions/m2_curves/0.97/0.02",
    "unit": "base_units",
-   "value": 8087325602923808938368999
+   "value": 8067355936926455993615107
   },
   {
    "denominator": null,
@@ -1918,7 +1918,7 @@
    "section": "stress (Member 2)",
    "source_path": "stress/assumptions/m2_curves/0.97/0.05",
    "unit": "base_units",
-   "value": 8591497609818327182051190
+   "value": 8571553120704565371647212
   },
   {
    "denominator": null,
@@ -2347,7 +2347,7 @@
    "section": "assumptions",
    "source_path": "stress/assumptions/engagement_thresholds",
    "unit": "literal",
-   "value": "no trove reaches MCR on the ruled grid; first liquidation at an ETH shock of -82.72% (min ICR 6.3645 -> 1.1), recovery mode at -79.85% (TCR 7.4447 -> 1.5), TCR below MCR at -85.22%; Liquity v1 is wound down to 70 troves"
+   "value": "no trove reaches MCR on the ruled grid; first liquidation at an ETH shock of -82.55% (min ICR 6.3044 -> 1.1), recovery mode at -79.66% (TCR 7.3744 -> 1.5), TCR below MCR at -85.08%; Liquity v1 is wound down to 70 troves"
   },
   {
    "denominator": null,
@@ -3930,7 +3930,7 @@
    "value": "n/a — archetype #1 holds no off-chain counterparties; no WBTC custodian exposure — no WBTC node in the LUSD tree."
   }
  ],
- "run_block": 26060799,
- "table_hash": "a5162428a654d5edbb1cf6d700e1570498c20c71a535cbb0c567b5325f8f2339",
+ "run_block": 26107477,
+ "table_hash": "a37d490d212402ca4b870b1fa0f79315886b955fd676105b39f2b9f8e2c5e118",
  "token": "LUSD"
 }
