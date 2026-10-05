@@ -9195,3 +9195,68 @@ Status: DONE (opened 2026-09-14; done-condition met 2026-09-15, P-9.03).
 - **Follow-ups spawned:** the trigger-fired runs (weekly Sunday 03:00; monthly 1–3 October);
   P-8.10 closes Step 8 when they have landed, been pushed and deployed, and the pages have been
   opened.
+
+## P-8.10 — Step 8 closed: the trigger-fired runs, A-25, A-26, `--from-record`, the October pages
+
+- **Date:** 2026-10-05
+- **Type:** closing
+- **Confirmed by:** Amin
+- **Content:**
+  **TRIGGER-FIRED RUNS.** Weekly `20260927T000000Z` fired at 03:00 local, pushed `589a246`,
+  exit 0. Monthly at 01:00 local on 1–3 October (`b9c15a7`, `b35ef6b`, `2329b52`): crvUSD
+  26093136, GHO 26100308, LUSD 26107477 promoted; all three blocked_S3; each pushed and
+  deployed, each exit 1 on `failed: behavioral` (Webacy HCI rows of other tokens with
+  `top30: null` failed the strict page). The 4 October weekly fired on wake at 10:10:48 and
+  ended 0xC000013A when its console was closed, leaving `chain.lock` (pid 1400) and no log.
+  **Q12 MET** under reading (i); the 4 October weekly adds the missed-start path.
+  **4-OCT RULINGS, at `d8a0d1c`:** HCI validation scoped to our three rows; dash
+  normalisation after the percent substitution; exit 2 (partial) when only behavioral
+  failed; Ruling 1, `status.json` and the not-refreshed notice on every page; Ruling 2 /
+  A-25 (`ae79f798` → `85e0588b`), a guard-failed slot renders the notice, DET-80 is T-28
+  Level 1, `slots_missing`, the card's "No written summary this run.", the "Gates"
+  paragraph; a dead-pid lock is stale at once; docs/scheduler.md "Hidden".
+  **`--from-record <block>`:** reuses a record's guard-passed texts, no model call, refuses
+  unless the block is the latest bundle. GHO and LUSD published at `960115b`.
+  **A-26** (`85e0588b` → `a8ae2477`): DET-59 counts only open Level-2 entries whose checks
+  would still fire at Level 2; settlement first, each excluded entry resolved by
+  `template_change`. Implementer default: a fire run was "Under review" when the log as it
+  stood after that run gives 4 runs. crvUSD: five lines resolved (09-14 T-24; 09-25, 09-26,
+  09-30 T-28; 09-30 T-23).
+  - The 4 Oct replay overwrote the 09-30 record's template value: its evidence reads
+    `50222d1f` for the original `77085776` (in `b9c15a7`).
+  - Same date, same key: a Level-2 trigger writes one line per date, so a replay's new fire
+    at an already-logged (and now resolved) key adds no line; the outcome still blocks.
+  **DET-18 CATCH.** With the body back, crvUSD's pill printed "0 old": its disclosures are 0
+  days old and the formatter's zero is a bare "0". Ruled (i): the pill prints the wording's
+  `freshness_zero = "0 days"` at zero, template text under DET-89 (iii); my first cut built
+  "0" + " days" in code, which DET-89 rejected. Formatter untouched.
+  | token | block | reused | notices | outcome | results |
+  |---|---|---|---|---|---|
+  | crvUSD | 26093136 | 5 | verifiability, counterfactuals | **published `77dc39df`** | 89 + 6 n/e, DET-80 |
+  | GHO | 26100308 | 6 | counterfactuals | **published `d07a2702`** | 89 + 6 n/e, DET-80 |
+  | LUSD | 26107477 | 6 | admin surface | **published `ba9b2bb8`** | 89 + 6 n/e, DET-80 |
+  **TOP30 RULING.** A null cohort on our own HCI row is a status note, not a failure. Live
+  4 Oct: 7/7, snapshot `20261004T100107Z`, `ok: true`, note for crvUSD's `top30`; crvUSD's
+  holder bar reads "not reported by Webacy this run"; no page-level notice on any page.
+  **OCTOBER PAGES** at `f9a22df`: site built twice, identical (`34d0932c`); Pages run
+  37361450241 green; the live `site.json` (`27cf37a8`), selector, methodology and three
+  token pages equal HEAD.
+  **POLISH** (no entry, by ruling): `33e4d15`, `bb6ed63`, `ef6156b`. Amin's page review:
+  crvUSD's supply-cause sentence is compressed but is what the rows say; the em dashes went.
+  **OUTREACH.** Webacy's written consent for public display 29 September (link back and logo
+  a follow-up); Medium article and X post 30 September.
+  **STATUS.** Phase B DONE; Step 8 DONE. Phase B: 37 Amin turns to this draft, 38 with its
+  confirmation, against the 11–18 estimate. 381 tests.
+  **AS-COUNTED.** Design layer: the dash guard's re-ask cost LUSD its 3 October publish; the
+  row cap. Builder: the red suite after P-8.09; the HCI validator first read every token's
+  rows; settle's green test counted `not_evaluated` rows (since A-24); the lock's double
+  unlink; `960115b` went out with the suite red (three September-pinned tests) and with a
+  subject departing from the ruled text; the code-built "0 days" that DET-89 rejected.
+  **FORWARD NOTES.** A larger model or a GPU reopens the judge and full prose on crvUSD and
+  GHO · USDe deferred (Amin, 26 September); memo amendment §11 item 4 queued · the Webacy
+  logo on the attribution line.
+- **Artifacts:** `src/factory/{behavioral,chain,eventlog,site}.py` · `src/factory/report/` ·
+  `templates/` · `docs/context/rubic_v1.md` (A-25, A-26) · `docs/scheduler.md` · `tests/`
+  (at `d8a0d1c`, `960115b`, `f9a22df`); `out/{evaluation,report,logs,site,behavioral}/`;
+  `PROGRESS.md`.
+- **Follow-ups spawned:** the v1 tag; Step 10 when Amin reopens it.
