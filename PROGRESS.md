@@ -9260,3 +9260,65 @@ Status: DONE (opened 2026-09-14; done-condition met 2026-09-15, P-9.03).
   (at `d8a0d1c`, `960115b`, `f9a22df`); `out/{evaluation,report,logs,site,behavioral}/`;
   `PROGRESS.md`.
 - **Follow-ups spawned:** the v1 tag; Step 10 when Amin reopens it.
+
+## P-8.11 — Post-close maintenance: the v1 tag, the Webacy probe, run alerts, holder figures
+
+- **Date:** 2026-10-05
+- **Type:** implementation
+- **Confirmed by:** Amin
+- **Content:**
+  **P-8.10 COMMITTED** at `348bf42`, pushed (PROGRESS only, no deploy); slice and draft
+  identical, sha256 `2c095ee9…81cb2` on both and on the committed blob. **v1 TAG:** annotated
+  `283d2d56` on `348bf42`, pushed; on origin `refs/tags/v1` and `v1^{}` = `348bf42`.
+  **1. WEBACY PROBE** (read-only first). crvUSD `0xf939…1b4e`: `top30` is truly null in the
+  4 October response, not moved or renamed (the row's keys equal 27 September's). Webacy's
+  reference now documents it: "Null when the pipeline could not compute the top-30 cohort."
+  No model change for it. Recorded as a data question for Amin's next reply to Webacy, with
+  the address, the dates and both raw rows: `out/reports/webacy-hci-crvusd-top30.md`. The
+  same reference makes `topSharePct` the organic top-N share (exchange, bridge, pool and
+  contract holders excluded; crvUSD's top-10 went 78.17% → 2.22%) and declares `holderCount`
+  and a cohort's `topSharePct` nullable.
+  **2. RUN ALERTS** at `0e7b7cf`. `factory.chain` writes one file to the Desktop on exit 1 or
+  2, or on a token outcome other than `published`: `stablecoin_ALERT_<UTC stamp>.txt`, one
+  line per problem (`token | stage | outcome | reason`), then the log's path. Implementer
+  defaults:
+  - the Desktop is the shell's own folder (`C:\Users\aminm\Desktop` here); CRLF for Notepad;
+  - the reason is the first `DET-/LLM- … fail:` line a report printed, else the stage's last
+    output line; behavioral uses status.json's reason; shared stages name token "all";
+  - an early stop (tree not clean, busy, bad token) writes stage "start", outcome "not run";
+  - an alerting run's own last line (exit or FAIL) stays last in its log; a dry run writes
+    no alert and ends its log with the folder (live: `alerts: C:\Users\aminm\Desktop`).
+  The selector cards show "Last successful run: <date>" from the log's last `published`
+  line (crvUSD 2026-09-30, GHO 2026-10-01, LUSD 2026-10-02, block dates); docs/scheduler.md
+  gains "Alerts". Pages run 37363739501 green; live equalled HEAD.
+  **3. RULINGS (Amin, 5 October), at `b9a4287`:**
+  - (a) The holder tip reads "Share of supply held by the ten largest organic holders, with
+    exchanges, bridges, pools and protocol contracts excluded, with Webacy's risk band." The
+    note sentence is not on crvUSD's page (Webacy no longer sends the note); as worded it
+    would contradict the figure when it returns, since Webacy then reports the raw share, so
+    it now reads "Every one of the ten largest holders is a protocol contract, so Webacy
+    shows their raw share and rates concentration as low."
+  - (b) A null `holderCount` or cohort `topSharePct` on our row renders "not reported by
+    Webacy this run" for that figure (card, bar, or caption) and never stops the fetch;
+    status.json notes it; tested.
+  - CLAUDE.md delivery rule 9: the suite runs after the last artifact change and before the
+    commit, and the reported count is that run's.
+  Site built twice, identical (`8a7861d1`); suite run last, **386 tests**; Pages run
+  37365360737 green; live `site.json` (`f47fa816`), selector, methodology and three token
+  pages equal HEAD.
+  **AS-COUNTED.** Builder:
+  - `f9a22df` went out with two tests red (crvUSD's September page pin): the suite ran
+    before the crvUSD replay, the same defect as `960115b`, repeated after it was counted;
+    P-8.10's "381 tests" is as-proposed, the commit's state was 379 pass, 2 fail;
+  - the first alert test run wrote one file to the real Desktop (the tests' fixed stamp;
+    inspected, deleted); the tests now redirect the folder;
+  - a heredoc broke the new tests' escapes and the alert's CRLF doubled (`\r\r\n`), both
+    caught by ruff and the tests before any commit;
+  - the key scan flagged `tests/test_chain.py` (the leak test's fake `ETH_RPC_URL`
+    fixture) and I pushed `0e7b7cf` before pausing on it.
+  Design layer: none.
+- **Artifacts:** `src/factory/{behavioral,chain,site}.py` · `templates/` ·
+  `docs/scheduler.md` · `CLAUDE.md` · `tests/test_{chain,behavioral}.py` (at `0e7b7cf`,
+  `b9a4287`); `out/site/`; tag `v1`; `out/reports/webacy-hci-crvusd-top30.md` (gitignored);
+  `PROGRESS.md`.
+- **Follow-ups spawned:** the Webacy reply (top30, the logo).
