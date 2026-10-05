@@ -8,6 +8,7 @@
 <article class="token-card">
   <h2><a href="{{ c.token }}/index.html">{{ c.token }}</a></h2>
   <p class="meta">read {{ c.read }} · block {{ c.run_block }} · report <code title="{{ c.report_hash }}">{{ c.report_hash[:8] }}</code></p>
+  <p class="meta last-ok">{{ c.last_ok }}</p>
   <p class="finding">{{ c.finding }}</p>
   <p class="meta figures">{{ c.figures }}</p>
   <div class="pills">{{ c.pill }}</div>

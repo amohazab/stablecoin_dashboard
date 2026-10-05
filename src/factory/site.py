@@ -273,7 +273,12 @@ def token_card(repo: pathlib.Path, token: str, w: dict, mf: dict, pairs, as_of: 
         "pending": pending, "spec": spec, "check": '<section id="check">',
         "readers": (wb["reader"], wb["reader_full"]), "reader": reader, "block": block})
     either_or(after, w, block is not None, token, notice)                     # A-20
+    # P-8.11: the card's "Last successful run", the log's last `published` line
+    last = eventlog.last_published(
+        eventlog.read(repo / "out/logs" / f"events_{token.lower()}.jsonl"), token)
+    last_ok = w["banner"]["last"].format(date=last.date if last else w["banner"]["none"])
     return {
+        "last_ok": last_ok,
         "token": token, "run_block": blk, "report_hash": man["report_hash"],
         "read": fmt(ts["value"], ts["unit"], ts["denominator"]),
         "finding": finding, "figures": " · ".join(figures),

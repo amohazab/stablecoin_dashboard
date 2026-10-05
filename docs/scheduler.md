@@ -63,3 +63,13 @@ Before the first run, check the chain without running anything (no model, no pus
 - The push uses the same Git login as your own pushes (Git Credential Manager); the task runs
   as you, so it finds it.
 - A second chain that starts while one is running stops at once with "busy" in its log.
+
+## Alerts
+
+- A run that ends with an error code (0x1, or 0x2 when only the Webacy refresh failed), or
+  whose report is anything other than published, writes one file to your Desktop:
+  `stablecoin_ALERT_<UTC time>.txt`. Each line names the token, the stage, the outcome and a
+  one-line reason; the last line points to the run's log. Delete the file once read.
+- A dry run writes no alert; its log names the folder alerts go to.
+- On the site, each token card on the front page shows "Last successful run: <date>", the
+  date of the token's last published report.

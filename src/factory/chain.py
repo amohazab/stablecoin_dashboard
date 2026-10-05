@@ -149,9 +149,40 @@ def outcome_of(output: str) -> str | None:
     return m[1] if m else None
 
 
+def desktop() -> pathlib.Path:
+    """The user's Desktop folder (Windows: the shell's own answer, OneDrive or not)."""
+    if os.name == "nt":
+        import ctypes
+        buf = ctypes.create_unicode_buffer(260)
+        if ctypes.windll.shell32.SHGetFolderPathW(None, 0x10, None, 0, buf) == 0:  # DESKTOPDIR
+            return pathlib.Path(buf.value)
+    return pathlib.Path.home() / "Desktop"
+
+
+def _reason(out: str) -> str:
+    """One line: the first failing check a report printed, else the last output line."""
+    lines = [x.strip() for x in out.splitlines() if x.strip()]
+    check = next((x for x in lines if re.match(r"(DET|LLM)-\S+ fail:", x)), None)
+    return (check or (lines[-1] if lines else "no output"))[:200]
+
+
+def write_alert(where: pathlib.Path, stamp: str, mode: str, code: int,
+                items: list[tuple[str, str, str, str]]) -> pathlib.Path:
+    """P-8.11: one file per alerting run, `stablecoin_ALERT_<UTC stamp>.txt`, one line per
+    problem: token, stage, outcome, reason."""
+    where.mkdir(parents=True, exist_ok=True)
+    p = where / f"stablecoin_ALERT_{stamp}.txt"
+    body = [f"stablecoin chain {mode} {stamp}: exit {code}"]
+    body += [f"token: {t} | stage: {s} | outcome: {o} | reason: {r}" for t, s, o, r in items]
+    body.append(f"log: out\\logs\\scheduler\\{stamp}-{mode}.log")
+    p.write_text("\n".join(body) + "\n", encoding="utf-8", newline="\r\n")    # for Notepad
+    return p
+
+
 def chain(repo: pathlib.Path, mode: str, token: str | None, dry_run: bool = False,
           runner: Callable = _run, git: Callable = _git, server: Callable = _server,
-          now: _dt.datetime | None = None) -> tuple[int, list[str]]:
+          now: _dt.datetime | None = None,
+          alert_dir: pathlib.Path | None = None) -> tuple[int, list[str]]:
     """Run the chain; returns (exit code, log lines). The log is also written to disk."""
     now = now or _dt.datetime.now(_dt.UTC)
     stamp = now.strftime("%Y%m%dT%H%M%SZ")
@@ -159,8 +190,19 @@ def chain(repo: pathlib.Path, mode: str, token: str | None, dry_run: bool = Fals
                       f"{' (dry run)' if dry_run else ''}"]
     logdir = repo / "out/logs/scheduler"
     code, failed, outcomes = 0, [], []
+    alerts: list[tuple[str, str, str, str]] = []        # P-8.11: (token, stage, outcome, reason)
+    where = alert_dir or desktop()
 
     def done() -> tuple[int, list[str]]:
+        # P-8.11: exit 1 or 2, or a token outcome other than `published`, writes the alert
+        if dry_run:
+            log.append(f"alerts: {where} (none written in a dry run)")
+        elif code in (1, 2) or alerts:
+            if not alerts:
+                alerts.append((token or "-", "start", "not run", log[-1][:200]))
+            # the run's own last line (exit or FAIL) stays last
+            log.insert(len(log) - 1,
+                       f"alert written: {write_alert(where, stamp, mode, code, alerts).name}")
         logdir.mkdir(parents=True, exist_ok=True)
         (logdir / f"{stamp}-{mode}.log").write_text("\n".join(log) + "\n", encoding="utf-8")
         return code, log
@@ -187,6 +229,8 @@ def chain(repo: pathlib.Path, mode: str, token: str | None, dry_run: bool = Fals
             except Exception as exc:
                 log.append(f"FAIL: model server unreachable: {type(exc).__name__}: {exc}"[:300])
                 failed.append("ollama")
+                alerts.append((token, "ollama", "token not run", f"{type(exc).__name__}: {exc}"
+                               [:200]))
         stop_token = bool(failed)
         for name, argv in plan(mode, token):
             is_token_stage = name.split()[0] in ("run", "tree", "stress", "report")
@@ -201,12 +245,18 @@ def chain(repo: pathlib.Path, mode: str, token: str | None, dry_run: bool = Fals
             log.append(f"{'ok' if rc == 0 else 'FAIL'} {name} (exit {rc})\n{tail}")
             if name.startswith("report"):
                 outcomes.append(f"{token} {outcome_of(out) or 'no outcome'}")
+                if rc == 0 and outcome_of(out) != "published":
+                    alerts.append((token, name, outcome_of(out) or "no outcome", _reason(out)))
+            reason = None
             if name == "behavioral":                            # Ruling 1: the disclosed reason
                 st = _status(repo)
                 if st and not st.get("ok"):
-                    log.append(f"behavioral not refreshed: {st.get('reason')}")
+                    reason = st.get("reason")
+                    log.append(f"behavioral not refreshed: {reason}")
             if rc != 0:
                 failed.append(name)
+                alerts.append((token if is_token_stage else "all", name, f"exit {rc}",
+                               reason or _reason(out)))
                 stop_token = stop_token or is_token_stage
         if dry_run:
             log.append("plan: key scan -> git add -A out/ -> commit -> push (not run)")
@@ -219,6 +269,7 @@ def chain(repo: pathlib.Path, mode: str, token: str | None, dry_run: bool = Fals
                 log.append(f"FAIL: key found in staged files {hits}; nothing committed")
                 git(repo, "reset", "-q")
                 failed.append("key scan")
+                alerts.append(("all", "key scan", "nothing committed", f"key in {hits}"[:200]))
             elif not names:
                 log.append("nothing to commit")
             else:
@@ -229,11 +280,13 @@ def chain(repo: pathlib.Path, mode: str, token: str | None, dry_run: bool = Fals
                 log.append(f"{'ok' if rc == 0 else 'FAIL'} commit ({len(names)} files): {summary}")
                 if rc != 0:
                     failed.append("commit")
+                    alerts.append(("all", "commit", f"exit {rc}", _reason(out)))
                 else:
                     rc, out = git(repo, "push", "origin", "master")
                     log.append(f"{'ok' if rc == 0 else 'FAIL'} push\n{out.strip()[-300:]}")
                     if rc != 0:
                         failed.append("push")
+                        alerts.append(("all", "push", f"exit {rc}", _reason(out)))
     finally:
         lock.release()
     # Amin, 4 Oct: a failed behavioral stage alone is a partial run, exit 2 (0x2); any other

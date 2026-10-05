@@ -29,10 +29,10 @@ FETCHED = dt.date(2026, 9, 15)
 # P-9.02's befores for the pages no later run has replaced (crvUSD, GHO). LUSD's page is
 # re-rendered by every published monthly run, so its "before" is the one the committed
 # site.json records (the recorded state, P-7.11's precedent) - never a pinned constant.
-# GHO and LUSD republish (P-8.06, P-8.10): their pins come from the committed site.json
-P902_BEFORE = {"crvUSD": "996a25d1", **{
+# every token republishes (P-8.06, P-8.10): the pins come from the committed site.json
+P902_BEFORE = {
     t: json.loads((REPO / "out/site/site.json").read_text(encoding="utf-8"))
-    ["tokens"][t]["rewrites"]["index.html"]["before"][:8] for t in ("GHO", "LUSD")}}
+    ["tokens"][t]["rewrites"]["index.html"]["before"][:8] for t in ("crvUSD", "GHO", "LUSD")}
 
 # ---- the trimmed schema (P5): nothing outside it is ever committed ------------------------
 REQ = {"fetched_at": None, "url": None, "status": None, "seconds": None, "body_sha256": None,

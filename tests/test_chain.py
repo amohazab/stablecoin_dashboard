@@ -8,10 +8,18 @@ import os
 import pathlib
 import time
 
+import pytest
+
 from factory import chain
 
 REPO = pathlib.Path(__file__).resolve().parents[1]
 NOW = dt.datetime(2026, 10, 1, 1, 0, tzinfo=dt.UTC)
+
+
+@pytest.fixture(autouse=True)
+def _alerts_to_tmp(tmp_path, monkeypatch):
+    # P-8.11: no test writes to the real Desktop
+    monkeypatch.setattr(chain, "desktop", lambda: tmp_path / "Desktop")
 
 
 class Git:
@@ -194,3 +202,58 @@ def test_a_failed_behavioral_stage_alone_is_a_partial_run(tmp_path):
     code2, _l = chain.chain(tmp_path, "monthly", "LUSD", runner=run2, git=git2,
                             server=lambda: "0.34.4", now=NOW)
     assert code2 == 1
+
+
+def alerts(tmp_path):
+    return sorted((tmp_path / "Desktop").glob("stablecoin_ALERT_*.txt"))
+
+
+def test_a_clean_published_run_writes_no_alert(tmp_path):
+    git, (run, _ran) = Git(), runner_with()
+    code, _log = chain.chain(tmp_path, "monthly", "LUSD", runner=run, git=git,
+                             server=lambda: "0.34.4", now=NOW)
+    assert code == 0 and alerts(tmp_path) == []
+
+
+def test_an_outcome_other_than_published_writes_one_alert(tmp_path):
+    # P-8.11: exit 0 still alerts when the report did not publish
+    def run(repo, argv):
+        if argv[0] == "factory.report":
+            return 0, "DET-18 fail: no printed element carries weighted days\noutcome blocked_S3"
+        return 0, "ok"
+    code, log = chain.chain(tmp_path, "monthly", "crvUSD", runner=run, git=Git(),
+                            server=lambda: "0.34.4", now=NOW)
+    (a,) = alerts(tmp_path)
+    assert code == 0 and a.name == "stablecoin_ALERT_20261001T010000Z.txt"
+    lines = a.read_text(encoding="utf-8").splitlines()
+    assert lines[0] == "stablecoin chain monthly 20261001T010000Z: exit 0"
+    assert lines[1] == ("token: crvUSD | stage: report crvUSD | outcome: blocked_S3 | reason: "
+                        "DET-18 fail: no printed element carries weighted days")
+    assert lines[-1] == r"log: out\logs\scheduler\20261001T010000Z-monthly.log"
+    assert log[-1] == "exit 0" and log[-2] == f"alert written: {a.name}"
+
+
+def test_exit_1_and_exit_2_write_an_alert_with_the_stage_and_reason(tmp_path):
+    st = tmp_path / "out/behavioral/status.json"
+    st.parent.mkdir(parents=True)
+    st.write_text('{"ok": false, "reason": "the request returned HTTP 503"}')
+    git, (run, _ran) = Git(), runner_with(fail="factory.behavioral")
+    code, _log = chain.chain(tmp_path, "weekly", None, runner=run, git=git, now=NOW)
+    (a,) = alerts(tmp_path)
+    assert code == 2 and ("token: all | stage: behavioral | outcome: exit 1 | reason: the "
+                          "request returned HTTP 503") in a.read_text(encoding="utf-8")
+    a.unlink()
+    code, log = chain.chain(tmp_path, "weekly", None, runner=run, git=Git(status=" M x\n"),
+                            now=NOW)
+    (a,) = alerts(tmp_path)
+    assert code == 1 and ("stage: start | outcome: not run | reason: FAIL: working tree not "
+                          "clean") in a.read_text(encoding="utf-8")
+    assert log[-1].startswith("FAIL: working tree not clean")
+
+
+def test_the_dry_run_names_the_alert_folder_and_writes_nothing(tmp_path):
+    code, log = chain.chain(tmp_path, "monthly", "LUSD", dry_run=True, runner=runner_with()[0],
+                            git=Git(), server=lambda: "0.34.4", now=NOW)
+    assert code == 0 and alerts(tmp_path) == []
+    assert f"alerts: {tmp_path / 'Desktop'} (none written in a dry run)" in log
+    assert chain.desktop().name == "Desktop"
