@@ -68,7 +68,7 @@ def test_rewrites_are_applied_once_and_a_second_build_is_byte_identical(tmp_path
 def test_a_leak_list_literal_stops_the_build(tmp_path):
     root = tmp_repo(tmp_path)
     p = root / "out/site/LUSD/index.html"
-    p.write_text(p.read_text(encoding="utf-8").replace("No warnings this run", "TBD"),
+    p.write_text(p.read_text(encoding="utf-8").replace("1 notice(s): gate failure", "TBD"),
                  encoding="utf-8", newline="")
     before = snapshot(root)
     with pytest.raises(site.SiteStop, match="literal leak.*'TBD'"):

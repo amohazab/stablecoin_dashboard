@@ -253,3 +253,51 @@ def test_det89_reads_the_section3_literals_as_printed_text(runs):
     assert "every figure a fmt output" in call(det_89, runs, "GHO", fresh(page))
     with pytest.raises(Level3, match=r"index:25%"):
         call(det_89, runs, "GHO", fresh(page, trigger_table={}))
+
+
+def test_a26_settles_entries_whose_checks_no_longer_fire_at_level2(tmp_path):
+    # A-26 (P-8.10): crvUSD's shape - DET-79 on the placeholder + DET-80; the judge's rows;
+    # an Under-review run's body checks and T-23; an unattributed line and a live check count
+    import json
+
+    from factory.report.__main__ import a26_settlement
+    Q = eventlog.QuarantineEvent
+    log = [Q(date=d, token="crvUSD", trigger=t, level=2) for d, t in (
+        ("2026-09-14", "T-24"), ("2026-09-14", "T-25"), ("2026-09-25", "T-28"),
+        ("2026-09-26", "T-28"), ("2026-09-30", "T-28"), ("2026-09-30", "T-23"),
+        ("2026-10-01", "T-28"))]
+    recs = {
+        1: ("2026-09-14", [("T-24", "LLM-03")], [("LLM-03", "S3", "")]),
+        2: ("2026-09-25", [("T-28", "DET-79"), ("T-28", "DET-80")],
+            [("DET-79", "S3", "DET-79: 1 leak(s): index '[slot:' x3")]),
+        3: ("2026-09-26", [("T-28", "DET-79")],
+            [("DET-79", "S3", "DET-79: 2 leak(s): index '[slot:' x2; index 'TBD' x1")]),
+        4: ("2026-09-30", [("T-28", "DET-14cd"), ("T-23", "DET-59"), ("T-23", "DET-13")],
+            [("DET-14cd", "S3", "x"), ("DET-59", "S3", "DET-59(b)"),
+             ("DET-13", "S3", "DET-13(a): no fingerprint")]),
+        5: ("2026-10-01", [("T-28", "DET-19")], [("DET-19", "S2", "x")]),   # still Level 2
+    }
+    ev = tmp_path / "out/evaluation/crvUSD"
+    ev.mkdir(parents=True)
+    hashes = {}
+    for blk, (d, trig, res) in recs.items():
+        (ev / f"{blk}.json").write_text(json.dumps({
+            "triggers": [{"trigger": t, "level": 2, "source_entry": s} for t, s in trig],
+            "results": [{"entry_id": i, "stage": st, "scope_condition": sc}
+                        for i, st, sc in res]}))
+        hashes[blk] = {"date": d, "template_hash": f"old{blk}"}
+    got = a26_settlement(tmp_path, log, "crvUSD", "2026-10-05", hashes,
+                         {"template_hash": "new"}, withdrawn="judge withdrawn")
+    assert [(x.date, x.trigger, x.resolution_type) for x in got] == [
+        ("2026-09-14", "T-24", "template_change"), ("2026-09-25", "T-28", "template_change"),
+        ("2026-09-30", "T-28", "template_change"), ("2026-09-30", "T-23", "template_change")]
+    # T-25 unattributed, 09-26's TBD leak and 10-01's S2 check still count
+    assert eventlog.consecutive_quarantined_runs([*log, *got], "crvUSD") == 3
+    assert eventlog.consecutive_quarantined_runs(log, "crvUSD") == 5
+    # with the judge in place, the LLM line is not excluded
+    assert ("2026-09-14", "T-24") not in [(x.date, x.trigger) for x in a26_settlement(
+        tmp_path, log, "crvUSD", "2026-10-05", hashes, {"template_hash": "new"}, None)]
+    # no template difference, no resolution (DET-87)
+    same = {b: {**h, "template_hash": "new"} for b, h in hashes.items()}
+    assert a26_settlement(tmp_path, log, "crvUSD", "2026-10-05", same,
+                          {"template_hash": "new"}, "w") == []

@@ -15,3 +15,11 @@
 {"date":"2026-09-30","level":2,"resolution_date":null,"resolution_type":null,"token":"crvUSD","trigger":"T-23","type":"quarantine"}
 {"date":"2026-09-30","level":2,"resolution_date":null,"resolution_type":null,"token":"crvUSD","trigger":"T-28","type":"quarantine"}
 {"date":"2026-09-30","level":1,"resolution_date":null,"resolution_type":null,"token":"crvUSD","trigger":"T-28","type":"quarantine"}
+{"date":"2026-09-14","level":2,"resolution_date":"2026-09-30","resolution_type":"template_change","token":"crvUSD","trigger":"T-24","type":"quarantine"}
+{"date":"2026-09-25","level":2,"resolution_date":"2026-09-30","resolution_type":"template_change","token":"crvUSD","trigger":"T-28","type":"quarantine"}
+{"date":"2026-09-26","level":2,"resolution_date":"2026-09-30","resolution_type":"template_change","token":"crvUSD","trigger":"T-28","type":"quarantine"}
+{"date":"2026-09-30","level":2,"resolution_date":"2026-09-30","resolution_type":"template_change","token":"crvUSD","trigger":"T-23","type":"quarantine"}
+{"date":"2026-09-30","level":2,"resolution_date":"2026-09-30","resolution_type":"template_change","token":"crvUSD","trigger":"T-28","type":"quarantine"}
+{"date":"2026-09-14","level":2,"resolution_date":"2026-09-30","resolution_type":"template_change","token":"crvUSD","trigger":"T-28","type":"quarantine"}
+{"date":"2026-09-14","level":2,"resolution_date":"2026-09-30","resolution_type":"template_change","token":"crvUSD","trigger":"T-25","type":"quarantine"}
+{"bundle_hash":"1ebd47073bd0f073f8312688c0f8f3d26342a1351c7349a107d7f9904fea3719","date":"2026-09-30","token":"crvUSD","type":"published"}

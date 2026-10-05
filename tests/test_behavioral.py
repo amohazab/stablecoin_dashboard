@@ -29,9 +29,10 @@ FETCHED = dt.date(2026, 9, 15)
 # P-9.02's befores for the pages no later run has replaced (crvUSD, GHO). LUSD's page is
 # re-rendered by every published monthly run, so its "before" is the one the committed
 # site.json records (the recorded state, P-7.11's precedent) - never a pinned constant.
-P902_BEFORE = {"crvUSD": "996a25d1", "GHO": "f0e396e3",
-               "LUSD": json.loads((REPO / "out/site/site.json").read_text(encoding="utf-8"))
-               ["tokens"]["LUSD"]["rewrites"]["index.html"]["before"][:8]}
+# GHO and LUSD republish (P-8.06, P-8.10): their pins come from the committed site.json
+P902_BEFORE = {"crvUSD": "996a25d1", **{
+    t: json.loads((REPO / "out/site/site.json").read_text(encoding="utf-8"))
+    ["tokens"][t]["rewrites"]["index.html"]["before"][:8] for t in ("GHO", "LUSD")}}
 
 # ---- the trimmed schema (P5): nothing outside it is ever committed ------------------------
 REQ = {"fetched_at": None, "url": None, "status": None, "seconds": None, "body_sha256": None,
@@ -561,7 +562,7 @@ def test_supply_bars_omit_a_null_window_and_name_it():
     assert "Net supply change, per Webacy (no figure for 30 days)</figcaption>" in html
 
 
-def test_holder_bar_three_segments_or_skipped_without_top30():
+def test_holder_bar_three_segments_or_unreported_without_top30():
     html, st = blk(fixture_snapshot("GHO", covered=True))
     assert st["holder_bar"] and st["holder_segments"] == ["61.3%", "18.8%", "20.0%"]
     assert "Share of supply held, 12,345 holders</figcaption>" in html
@@ -569,6 +570,12 @@ def test_holder_bar_three_segments_or_skipped_without_top30():
     snap["hci"]["entry"]["holderConcentration"]["top30"] = None
     html, st = blk(snap)
     assert not st["holder_bar"] and "Share of supply held, " not in html
+    assert ('<p class="meta holder-unreported">Share of supply by holder group: not reported '
+            "by Webacy this run.</p>") in html
+    assert cards_of(html)["Top-10 holder share"] == ("61.3%", "risk band low")
+    snap["hci"]["entry"]["holderConcentration"]["top10"] = None
+    assert cards_of(blk(snap)[0])["Top-10 holder share"] == ("not reported by Webacy this run",
+                                                            None)
     assert not blk(fixture_snapshot("GHO"))[1]["holder_bar"]            # no HCI entry
 
 
@@ -610,10 +617,24 @@ def test_hci_validation_reads_only_our_three_rows():
                "holderConcentration": {**ours["holderConcentration"], "top30": None}}
     body = {"meta": hmeta, "data": [foreign, ours]}
     assert [e.address for e in behavioral.validate_hci(body, ["0xabc"])] == ["0xAbC"]
-    bad = {"meta": hmeta, "data": [{**ours, "holderConcentration": {
+    nul = {"meta": hmeta, "data": [{**ours, "holderConcentration": {
         **ours["holderConcentration"], "top30": None}}]}
+    got = behavioral.validate_hci(nul, ["0xabc"])               # top30 ruling: not a failure
+    assert got[0].holderConcentration.top30 is None
+    trimmed = behavioral.trim_entry(nul["data"][0])
+    assert trimmed["holderConcentration"]["top30"] is None
+    bad = {"meta": hmeta, "data": [{**ours, "holderConcentration": {
+        **ours["holderConcentration"], "holderCount": None}}]}
     with pytest.raises(pydantic.ValidationError):
-        behavioral.validate_hci(bad, ["0xabc"])                 # our own row stays strict
+        behavioral.validate_hci(bad, ["0xabc"])                 # the rest stays strict
+
+
+def test_a_null_cohort_is_a_status_note_not_a_failure(tmp_path):
+    st = behavioral.write_status(tmp_path, True, None,
+                                 notes={"crvUSD": "holderConcentration.top30 not reported by "
+                                                  "Webacy"})
+    assert st["ok"] is True and st["notes"]["crvUSD"].startswith("holderConcentration.top30")
+    assert site.notice_of(tmp_path, wording()) is None          # no page-level notice
 
 
 def test_status_is_written_with_a_plain_reason(tmp_path):
@@ -631,7 +652,7 @@ def test_status_is_written_with_a_plain_reason(tmp_path):
     st = behavioral.write_status(tmp_path, False, reason,
                                  dt.datetime(2026, 10, 4, 7, tzinfo=dt.UTC))
     assert st == {"fetched_at": "2026-10-04T07:00:00+00:00", "ok": False, "reason": reason,
-                  "snapshot_stamp": "20260927T000000Z"}
+                  "snapshot_stamp": "20260927T000000Z", "notes": {}}
     assert behavioral.read_status(tmp_path) == st
 
 

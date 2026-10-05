@@ -22,6 +22,9 @@ fresh_days = 30
 stale_days = 92
 freshness = "Disclosures {avg} old on average · worst {worst}, {days} old, {share} of backing"
 freshness_none = "No collateral depends on off-chain disclosures"
+# Ruled (i), P-8.10: a zero staleness figure, the wording's zero plus the unit (DET-18;
+# template text under DET-89 (iii)); the formatter's zero rule is untouched
+freshness_zero = "0 days"
 governance = "Rule changes: {delay}"
 governance_immutable = "Rules cannot be changed: immutable contracts"
 flags_none = "No warnings this run"
@@ -440,6 +443,8 @@ not_covered_value = "not covered by Webacy"
 # Amin, 4 Oct (Ruling 1): a failed refresh is disclosed on every page, never silent
 not_refreshed = "Behavioral data was not refreshed on {date}: Webacy's response failed validation ({reason}). Showing the snapshot fetched {snapshot}."
 not_reported = "not reported by Webacy"
+# Amin, 4 Oct (top30 ruling): a null holder cohort on our own HCI row
+holder_unreported = "not reported by Webacy this run"
 donut_title = "Liquidity by Ethereum DEX pool"
 donut_other = "other listed pools"
 donut_caption = "Share of liquidity among the {n} Ethereum pools Webacy lists, {sum}"

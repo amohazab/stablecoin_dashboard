@@ -187,6 +187,59 @@ def plan_resolutions(entries: list, token: str, date: str, hashes: dict[int, dic
     return lines
 
 
+REVIEW_RUNS = 4      # DET-59: "Under review" at this many consecutive quarantined runs
+
+
+def _under_review_at(entries: list, token: str, fire_date: str) -> bool:
+    """Whether DET-59 rendered the fire run's page "Under review": the count over the log
+    as it stood after that run (A-26 implementer default - the record does not say)."""
+    then = [e for e in entries if e.date <= fire_date and not (
+        e.type == "quarantine" and e.resolution_date and e.resolution_date > fire_date)]
+    return eventlog.consecutive_quarantined_runs(then, token) >= REVIEW_RUNS
+
+
+def _a26_excluded(eid: str, res: dict, review: bool, withdrawn) -> bool:
+    """A-26: a source check that would no longer fire at Level 2 under the current rubric."""
+    stage, sc = res.get(eid, ("", ""))
+    if eid.startswith("LLM-"):
+        return bool(withdrawn)                                     # A-24: not_evaluated
+    if eid == "DET-80":
+        return True                                                # A-25: Level 1
+    if eid == "DET-79":                                            # only the A-25 placeholder
+        leaks = sc.split("leak(s): ", 1)[-1].split("; ") if "leak(s): " in sc else []
+        return bool(leaks) and all("'[slot:'" in x for x in leaks)
+    if eid == "DET-13":
+        return review and sc.startswith("DET-13(a)")               # T-23 derived from DET-59
+    return review and stage == "S3"           # DET-59's own state: the body checks, DET-59
+
+
+def a26_settlement(repo: pathlib.Path, entries: list, token: str, date: str,
+                   hashes: dict[int, dict], current: dict, withdrawn) -> list:
+    """A-26 (P-8.10): each open Level-2/3 entry whose fire run's record attributes it only
+    to excluded checks is resolved by `template_change` (DET-87's evidence: the template
+    hash differs between the fire run and this run). An unattributed entry counts."""
+    lines = []
+    for _eid, e in eventlog.open_entries(entries, token):
+        fire_blk = _fire_run(hashes, e.date) if e.level in (2, 3) else None
+        if fire_blk is None:
+            continue
+        rec = json.loads((repo / "out/evaluation" / token / f"{fire_blk}.json")
+                         .read_text(encoding="utf-8"))
+        srcs = [x["source_entry"] for x in rec.get("triggers", [])
+                if x["trigger"] == e.trigger and x["level"] == e.level]
+        res = {g["entry_id"]: (g["stage"], g.get("scope_condition") or "")
+               for g in rec.get("results", [])}
+        review = _under_review_at(entries, token, e.date)
+        if not srcs or not all(_a26_excluded(s, res, review, withdrawn) for s in srcs):
+            continue
+        fire, now = hashes[fire_blk].get("template_hash"), current.get("template_hash")
+        if fire and now and fire != now:
+            lines.append(eventlog.QuarantineEvent(
+                date=e.date, token=token, trigger=e.trigger, level=e.level,
+                resolution_type="template_change", resolution_date=date))
+    return lines
+
+
 def evidence_of(line, hashes: dict[int, dict], current: dict, blk: int) -> dict | None:
     """DET-87's evidence for one resolution line: its type's field at the fire run and
     at this run, kept in `out/evaluation/<T>/resolutions.jsonl` beside the records."""
@@ -310,6 +363,10 @@ def build(repo: pathlib.Path, token: str, client=None, extra_fired: tuple = (),
     hashes = run_hashes(repo, token)
     current = {**parts, "rubric_hash": _stamp(rubric), "frozen_set_hash": b.header.frozen_set_hash}
     persisted_evidence = read_evidence(repo, token)
+    log0 = entries                      # the log on disk; `entries` adds A-26's settlement
+    settled = [] if client is None else a26_settlement(repo, entries, token, date, hashes,
+                                                       current, withdrawn)
+    entries = [*log0, *settled]
     llm_rec: dict = {"judge": [], "generation": [], "revision_count": 0, "revision_cause": []}
     if client is not None:
         llm_rec["llm"] = llm.llm_header(client)          # P-8.04 Q6
@@ -387,18 +444,18 @@ def build(repo: pathlib.Path, token: str, client=None, extra_fired: tuple = (),
         for _loop in range(4):
             gate = gates([*prior, *s3], instability)
             rec_triggers = [*fired_checks, *record.triggers_of(s3), *gate]
-            planned = eventlog.plan_quarantine(entries, token, date,
-                                               [(x["trigger"], x["level"]) for x in rec_triggers])
+            planned = [*settled, *eventlog.plan_quarantine(
+                entries, token, date, [(x["trigger"], x["level"]) for x in rec_triggers])]
             # A-25: a Level-1 failure (DET-80) neither blocks nor stops the resolutions
             # A-24: `not_evaluated` rows are not failures here either (P-8.10 replay finding)
             green = seen is None or not {x for x in seen if x[0] not in LEVEL1_CHECKS
                                          and x[1] != "not_evaluated"}
             if green and not [x for x in gate if x["level"] > 1]:
-                planned = [*planned, *plan_resolutions([*entries, *planned], token, date,
+                planned = [*planned, *plan_resolutions([*log0, *planned], token, date,
                                                        hashes, current)]
             evidence = [x for x in (evidence_of(ln, hashes, current, blk) for ln in planned
                                     if ln.resolution_date is not None) if x]
-            after = [*entries, *planned]
+            after = [*log0, *planned]
             if stage.exists():
                 shutil.rmtree(stage)
             pre = {"triggers": rec_triggers, "log": log_view(after, token, ttable, wording),
@@ -600,10 +657,10 @@ def build(repo: pathlib.Path, token: str, client=None, extra_fired: tuple = (),
                 evaluate(prose2, j2, llm_outcome == "judge_instability", 2)
     else:
         gate = gate_triggers(prior)
-        planned = eventlog.plan_quarantine(entries, token, date,
-                                           [(x["trigger"], x["level"])
-                                            for x in [*fired_checks, *gate]])
-    after = [*entries, *planned]
+        planned = [*settled, *eventlog.plan_quarantine(entries, token, date,
+                                                       [(x["trigger"], x["level"])
+                                                        for x in [*fired_checks, *gate]])]
+    after = [*log0, *planned]
     heavy = [e for _, e in eventlog.open_entries(after, token) if e.level in (2, 3)]
     det_fail = [g for g in s3 if not g.entry_id.startswith("LLM-") and g.result != "pass"
                 and g.entry_id not in ("DET-85", "DET-13", *LEVEL1_CHECKS)]   # A-25

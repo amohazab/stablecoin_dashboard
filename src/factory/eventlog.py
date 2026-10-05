@@ -190,15 +190,17 @@ def last_published(entries: list[BaseModel], token: str) -> PublishedEvent | Non
 
 
 def consecutive_quarantined_runs(entries: list[BaseModel], token: str) -> int:
-    """DET-59: distinct run dates among Level 2/3 fire lines after the last
-    `published` line - runs, not entries."""
+    """DET-59: distinct run dates among OPEN Level 2/3 fire lines after the last
+    `published` line - runs, not entries. A-26 (P-8.10): a fire line with its resolution
+    line does not count; the run's settlement is planned before the count."""
     start = 0
     for i, e in enumerate(entries):
         if e.type == "published" and e.token == token:
             start = i + 1
+    resolved = {_key(e) for _, e in quarantine_lines(entries, token) if e.resolution_date}
     return len({e.date for e in entries[start:]
                 if e.type == "quarantine" and e.token == token and e.level in (2, 3)
-                and e.resolution_date is None})
+                and e.resolution_date is None and _key(e) not in resolved})
 
 
 def plan_quarantine(entries: list[BaseModel], token: str, date: str,

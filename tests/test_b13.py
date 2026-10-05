@@ -216,6 +216,8 @@ def test_a_second_slip_shows_the_a25_notice_and_publishes(tmp_path):
     from tests.test_b13 import REPO
     for t in ("crvUSD", "GHO"):
         shutil.copytree(REPO / "out/site" / t, root / "out/site" / t)
+        shutil.copytree(REPO / "out/evaluation" / t, root / "out/evaluation" / t,
+                        dirs_exist_ok=True)
     out = site.plan(root)
     rec_site = __import__("json").loads(out["site.json"])
     assert rec_site["tokens"]["LUSD"]["finding"] == "No written summary this run."
@@ -492,3 +494,19 @@ def test_the_withdrawn_judge_publishes_green_with_six_not_evaluated_rows(tmp_pat
         "90 of 90 evaluated, 6 not evaluated (judge withdrawn)"
     assert checks_line([{"result": "pass"}] * 94 + [{"result": "fail"}] * 2) == \
         "94 of 96 evaluated"
+
+
+def test_the_freshness_pill_prints_zero_days_with_its_unit():
+    # Ruled (i), P-8.10: crvUSD 26093136 printed "0 old"; DET-18 needs the day unit
+    from factory.report.render import pills
+    rows = {"verif.staleness.weighted_days": {"value": "0E-7"},
+            "verif.staleness.worst.days": {"value": 0},
+            "verif.staleness.worst.symbol": {"value": "WBTC"},
+            "verif.staleness.worst.share": {"value": "0.3055"}}
+    shown = {"verif.staleness.weighted_days": "0", "verif.staleness.worst.days": "0",
+             "verif.staleness.worst.share": "30.6%"}
+    import tomllib
+    w = tomllib.loads((REPO / "templates/wording.toml").read_text(encoding="utf-8"))
+    out = pills(rows, {"triggers": []}, {}, w, v=lambda fid: shown[fid])
+    assert out[0][1] == ("Disclosures 0 days old on average · worst WBTC, 0 days old, "
+                         "30.6% of backing")

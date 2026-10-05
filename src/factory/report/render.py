@@ -241,10 +241,14 @@ def pills(rows: dict, rec: dict, tnames: dict, w: dict, v=None) -> list[tuple[st
         colour = "green" if d <= p["fresh_days"] else "amber" if d <= p["stale_days"] else "red"
         # B-11c (DET-18, DET-89): every figure in the pill through `fmt`, and the worst
         # node's weight beside its days.
+        # Ruled (i), P-8.10: at zero the formatter prints its bare zero; the pill prints the
+        # wording's zero with its unit, "0 days" (DET-18), as template text (DET-89 (iii))
+        def days(fid: str) -> str:
+            return p["freshness_zero"] if Decimal(str(rows[fid]["value"])) == 0 else v(fid)
         fresh = (colour, p["freshness"].format(
-            avg=v("verif.staleness.weighted_days"),
+            avg=days("verif.staleness.weighted_days"),
             worst=rows["verif.staleness.worst.symbol"]["value"],
-            days=v("verif.staleness.worst.days"), share=v("verif.staleness.worst.share")))
+            days=days("verif.staleness.worst.days"), share=v("verif.staleness.worst.share")))
     else:
         fresh = ("green", p["freshness_none"])
     held = [a for a in admin_rows(rows) if a["power"] in QUALIFYING and a["holder_type"] != "none"]

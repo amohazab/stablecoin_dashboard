@@ -112,8 +112,10 @@ class Cohort(_M):
 
 
 class HolderConc(_M):
-    top10: Cohort
-    top30: Cohort
+    # Amin, 4 Oct (top30 ruling): a null cohort on our own row is not a failure; the holder
+    # figure renders "not reported by Webacy this run" and status.json carries a note
+    top10: Cohort | None
+    top30: Cohort | None
     holderCount: int
 
 
@@ -212,7 +214,8 @@ def trim_entry(e: dict) -> dict:
     cohort = lambda c: {k: c[k] for k in ("index", "topSharePct", "riskBand", "note")  # noqa: E731
                         if k in c}
     return {**{k: e[k] for k in ("chain", "address", "symbol", "name")},
-            "holderConcentration": {"top10": cohort(h["top10"]), "top30": cohort(h["top30"]),
+            "holderConcentration": {"top10": h["top10"] and cohort(h["top10"]),
+                                    "top30": h["top30"] and cohort(h["top30"]),
                                     "holderCount": h["holderCount"]}}
 
 
@@ -406,6 +409,8 @@ def cards(snap: dict, w: dict, usd) -> tuple[str, list[str], dict]:
     rec["notes"], rec["unknown_notes"] = [], []
     if e is None:
         out.append(_card(c["holders"], c["holders_tip"], w["not_covered_value"], None))
+    elif e["holderConcentration"].get("top10") is None:                 # top30 ruling
+        out.append(_card(c["holders"], c["holders_tip"], w["holder_unreported"], None))
     else:
         h = e["holderConcentration"]
         share = _pct(Decimal(str(h["top10"]["topSharePct"])))
@@ -471,11 +476,17 @@ def supply_figure(snap: dict, w: dict, usd) -> tuple[str | None, dict]:
 
 
 def holder_figure(snap: dict, w: dict) -> tuple[str | None, dict]:
-    """R14: top 10 · holders 11-30 · all others, one stacked bar; skipped without top30."""
+    """R14: top 10 · holders 11-30 · all others, one stacked bar; skipped without an HCI
+    entry. A null cohort on our row renders the unreported line (Amin, 4 Oct, top30 ruling)."""
     from factory.report.svg import stacked_bar
     e = snap["hci"]["entry"]
-    if e is None or e["holderConcentration"].get("top30") is None:
+    if e is None:
         return None, {"holder_bar": False}
+    if e["holderConcentration"].get("top10") is None or \
+            e["holderConcentration"].get("top30") is None:
+        line = f'{w["holder_title"]}: {w["holder_unreported"]}.'
+        return (f'<p class="meta holder-unreported">{escape(line)}</p>',
+                {"holder_bar": False, "holder_unreported": True})
     h = e["holderConcentration"]
     t10 = Decimal(str(h["top10"]["topSharePct"]))
     t30 = Decimal(str(h["top30"]["topSharePct"]))
@@ -612,7 +623,7 @@ def fetch(repo: pathlib.Path, key: str, get=_get, sleep=time.sleep, now=None) ->
 
     depeg = {t: call(f"{BASE}/rwa/{a}?chain=eth&hours=168") for t, a in addr.items()}
     supply = {t: call(f"{BASE}/rwa/supply/{t}") for t in addr}
-    hci_envs, found, page = [], set(), 1
+    hci_envs, found, page, notes = [], set(), 1, {}
     while True:
         env = call(f"{BASE}/rwa/hci?chain=eth&pageSize={HCI_PAGE_SIZE}&page={page}")
         hci_envs.append(env)
@@ -621,6 +632,12 @@ def fetch(repo: pathlib.Path, key: str, get=_get, sleep=time.sleep, now=None) ->
         except Exception as exc:
             raise BehavioralStop(f"HCI page {page}: {type(exc).__name__}: {exc}"[:400]) from exc
         found |= {e.address.lower() for e in ours}
+        for e in ours:                                               # top30 ruling
+            gone = [k for k in ("top10", "top30") if getattr(e.holderConcentration, k) is None]
+            if gone:
+                tok = next(t for t, a in addr.items() if a.lower() == e.address.lower())
+                notes[tok] = ", ".join(f"holderConcentration.{k}" for k in gone) + \
+                    " not reported by Webacy"
         meta = HciMeta.model_validate(env["body"]["meta"])
         if len(found) == len(addr) or page >= meta.totalPages or page >= HCI_PAGE_CAP:
             break
@@ -641,7 +658,7 @@ def fetch(repo: pathlib.Path, key: str, get=_get, sleep=time.sleep, now=None) ->
                             encoding="utf-8", newline="")
         written[t] = {"path": p, "raw": raw, "hci_found": trimmed[t]["hci"]["entry"] is not None,
                       "hci_page": trimmed[t]["hci"]["meta"]["page"]}
-    return {"requests": calls, "stamp": stamp, "written": written,
+    return {"requests": calls, "stamp": stamp, "written": written, "notes": notes,
             "statuses": [e["status"] for e in [*depeg.values(), *supply.values(), *hci_envs]]}
 
 
@@ -670,11 +687,13 @@ def latest_stamp(repo: pathlib.Path) -> str | None:
     return max(common) if common else None
 
 
-def write_status(repo: pathlib.Path, ok: bool, reason: str | None, now=None) -> dict:
-    """Ruling 1: out/behavioral/status.json (committed) on every run."""
+def write_status(repo: pathlib.Path, ok: bool, reason: str | None, now=None,
+                 notes: dict | None = None) -> dict:
+    """Ruling 1: out/behavioral/status.json (committed) on every run; `notes` per token
+    (top30 ruling: a cohort Webacy did not report, ok stays true)."""
     now = now or dt.datetime.now(dt.UTC)
     st = {"fetched_at": now.isoformat(timespec="seconds"), "ok": ok, "reason": reason,
-          "snapshot_stamp": latest_stamp(repo)}
+          "snapshot_stamp": latest_stamp(repo), "notes": notes or {}}
     p = repo / STATUS
     p.parent.mkdir(parents=True, exist_ok=True)
     p.write_text(json.dumps(st, indent=1, sort_keys=True) + "\n", encoding="utf-8", newline="")
@@ -701,7 +720,9 @@ if __name__ == "__main__":
         print(f"BEHAVIORAL STOPPED: {exc}")
         print(f"behavioral not refreshed: {_st['reason']}")
         sys.exit(1)
-    write_status(_repo, True, None)
+    write_status(_repo, True, None, notes=_r["notes"])
+    for _t, _n in _r["notes"].items():
+        print(f"note {_t}: {_n}")
     print(f"fetched {len(_r['requests'])} requests | statuses {_r['statuses']} | "
           f"stamp {_r['stamp']}")
     for _t, _w in _r["written"].items():
