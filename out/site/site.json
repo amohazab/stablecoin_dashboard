@@ -28,7 +28,7 @@
    "behavioral": {
     "age_days": 1,
     "as_of": "2026-10-05",
-    "block_sha256": "2ea4bb7e445727813335ef3d3c4c69b0b856c4e3fd47e8d2672c7c229eff3862",
+    "block_sha256": "0946cdb255d76acf27f1ac75300a94723d7ff2c557751816bc83d796e19e72b1",
     "captions": [
      "7-day max |deviation|: 11.4 bp",
      "Share of liquidity among the 10 Ethereum pools Webacy lists, $35.3M",
@@ -76,7 +76,7 @@
    "report_hash": "d07a2702518115972175c76bcd6e994b8739506744c16781a81a54f12386992b",
    "rewrites": {
     "index.html": {
-     "after": "397948e22c543cb5c140fde33aa690674b0c5e8f1837f8e15efe200273b33555",
+     "after": "7d51e1d683b619116be39f2e69827f04f21a2f42619af3953a68c0fd0ac4ec06",
      "before": "ed6bd11cd480d831d2bd6bf17919da406dd7b21b2c91695c8ee9e07a43b5928b",
      "substitutions": [
       {
@@ -100,7 +100,7 @@
        "old": "<h2 class=\"specialists\">Detail for specialists</h2>\n<p class=\"meta\">behavioral tier: pending</p>\n"
       },
       {
-       "new": "<behavioral block, sha256 2ea4bb7e445727813335ef3d3c4c69b0b856c4e3fd47e8d2672c7c229eff3862><section id=\"check\">",
+       "new": "<behavioral block, sha256 0946cdb255d76acf27f1ac75300a94723d7ff2c557751816bc83d796e19e72b1><section id=\"check\">",
        "old": "<section id=\"check\">"
       }
      ]
@@ -112,7 +112,7 @@
    "behavioral": {
     "age_days": 1,
     "as_of": "2026-10-05",
-    "block_sha256": "50e78b9b9ac271611060e8bdf811604c995f6c51a79ed83b849a82ca845f33a1",
+    "block_sha256": "8e196a0d5c70f02969fe7a2d80f0e8611b238ed4e5a88e9e5fd03af1b0e81bb1",
     "captions": [
      "7-day max |deviation|: 126.2 bp",
      "Net supply change, per Webacy",
@@ -158,7 +158,7 @@
    "report_hash": "ba9b2bb87138655e43907ea7fd7b6233e34e33c8be41c5c5ce690f8d66fbdecb",
    "rewrites": {
     "index.html": {
-     "after": "0377cc5ecb0279342f86ef47a76b37ca80ee890ceb86f5938bedceafe20cbd78",
+     "after": "cf68ccac1198136f2a0af8c1a7afa3ac1c12e8867b5b7fc1b9032e3e19a360db",
      "before": "f20b4a917fbbfabcd737fb7ac341de115c3685b92fbed9e458f293b77d14f552",
      "substitutions": [
       {
@@ -182,7 +182,7 @@
        "old": "<h2 class=\"specialists\">Detail for specialists</h2>\n<p class=\"meta\">behavioral tier: pending</p>\n"
       },
       {
-       "new": "<behavioral block, sha256 50e78b9b9ac271611060e8bdf811604c995f6c51a79ed83b849a82ca845f33a1><section id=\"check\">",
+       "new": "<behavioral block, sha256 8e196a0d5c70f02969fe7a2d80f0e8611b238ed4e5a88e9e5fd03af1b0e81bb1><section id=\"check\">",
        "old": "<section id=\"check\">"
       }
      ]
@@ -194,7 +194,7 @@
    "behavioral": {
     "age_days": 1,
     "as_of": "2026-10-05",
-    "block_sha256": "8b76ee22d3e0f6ce8ef25b97a7ed1a861296a9758f316b3da601e8b4e87971cc",
+    "block_sha256": "6dea0ed9b718d90a2f773ea7c0130223cab866a927e8b0bf7fbe22c308ba6469",
     "captions": [
      "7-day max |deviation|: 39.3 bp",
      "Share of liquidity among the 10 Ethereum pools Webacy lists, $202.1M",
@@ -236,7 +236,7 @@
    "report_hash": "77dc39df363ddc270b38dbb87212e226497366adc59b676a0a3c5ce81e89a8b8",
    "rewrites": {
     "index.html": {
-     "after": "e946c3617eb12f11ca28a321535a81f630aa27ff87cccdaf4d0db87bd43437be",
+     "after": "ff2ba4153b23fccc799adaa69d11423228e47c067ad6b809ab07d3b76071f034",
      "before": "0ac5e71d8e23954691dec8cc463a3a90d541fbc7aa5d9f47788e5905224d0cb5",
      "substitutions": [
       {
@@ -260,7 +260,7 @@
        "old": "<h2 class=\"specialists\">Detail for specialists</h2>\n<p class=\"meta\">behavioral tier: pending</p>\n"
       },
       {
-       "new": "<behavioral block, sha256 8b76ee22d3e0f6ce8ef25b97a7ed1a861296a9758f316b3da601e8b4e87971cc><section id=\"check\">",
+       "new": "<behavioral block, sha256 6dea0ed9b718d90a2f773ea7c0130223cab866a927e8b0bf7fbe22c308ba6469><section id=\"check\">",
        "old": "<section id=\"check\">"
       }
      ]

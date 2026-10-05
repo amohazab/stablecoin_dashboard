@@ -106,7 +106,7 @@ class DepegBody(_M):
 
 class Cohort(_M):
     index: float
-    topSharePct: float
+    topSharePct: float | None          # P-8.11 (b): null renders "not reported", never stops
     riskBand: str
     note: str | None = None
 
@@ -116,7 +116,7 @@ class HolderConc(_M):
     # figure renders "not reported by Webacy this run" and status.json carries a note
     top10: Cohort | None
     top30: Cohort | None
-    holderCount: int
+    holderCount: int | None            # P-8.11 (b)
 
 
 class HciEntry(_M):
@@ -411,6 +411,9 @@ def cards(snap: dict, w: dict, usd) -> tuple[str, list[str], dict]:
         out.append(_card(c["holders"], c["holders_tip"], w["not_covered_value"], None))
     elif e["holderConcentration"].get("top10") is None:                 # top30 ruling
         out.append(_card(c["holders"], c["holders_tip"], w["holder_unreported"], None))
+    elif e["holderConcentration"]["top10"].get("topSharePct") is None:  # P-8.11 (b)
+        out.append(_card(c["holders"], c["holders_tip"], w["holder_unreported"],
+                         f'risk band {e["holderConcentration"]["top10"]["riskBand"]}'))
     else:
         h = e["holderConcentration"]
         share = _pct(Decimal(str(h["top10"]["topSharePct"])))
@@ -482,8 +485,9 @@ def holder_figure(snap: dict, w: dict) -> tuple[str | None, dict]:
     e = snap["hci"]["entry"]
     if e is None:
         return None, {"holder_bar": False}
-    if e["holderConcentration"].get("top10") is None or \
-            e["holderConcentration"].get("top30") is None:
+    if any(e["holderConcentration"].get(k) is None
+           or e["holderConcentration"][k].get("topSharePct") is None   # P-8.11 (b)
+           for k in ("top10", "top30")):
         line = f'{w["holder_title"]}: {w["holder_unreported"]}.'
         return (f'<p class="meta holder-unreported">{escape(line)}</p>',
                 {"holder_bar": False, "holder_unreported": True})
@@ -493,7 +497,8 @@ def holder_figure(snap: dict, w: dict) -> tuple[str | None, dict]:
     segs = [(w["holder_segments"][0], t10), (w["holder_segments"][1], t30 - t10),
             (w["holder_segments"][2], Decimal(100) - t30)]
     rows = [(lab, v / 100, f"{lab}: {_pct(v)}") for lab, v in segs]
-    cap_text = w["holder_caption"].format(n=f'{h["holderCount"]:,}')
+    cap_text = (w["holder_caption"].format(n=f'{h["holderCount"]:,}')
+                if h["holderCount"] is not None else w["holder_caption_unreported"])  # (b)
     svg = stacked_bar(rows, w["holder_title"])
     return (f'<figure class="wide">{svg}<figcaption>{escape(cap_text)}</figcaption></figure>',
             {"holder_bar": True, "holder_caption": cap_text,
@@ -632,8 +637,12 @@ def fetch(repo: pathlib.Path, key: str, get=_get, sleep=time.sleep, now=None) ->
         except Exception as exc:
             raise BehavioralStop(f"HCI page {page}: {type(exc).__name__}: {exc}"[:400]) from exc
         found |= {e.address.lower() for e in ours}
-        for e in ours:                                               # top30 ruling
-            gone = [k for k in ("top10", "top30") if getattr(e.holderConcentration, k) is None]
+        for e in ours:                                     # top30 ruling, P-8.11 (b)
+            hc = e.holderConcentration
+            gone = [k for k in ("top10", "top30") if getattr(hc, k) is None]
+            gone += [f"{k}.topSharePct" for k in ("top10", "top30")
+                     if getattr(hc, k) is not None and getattr(hc, k).topSharePct is None]
+            gone += ["holderCount"] if hc.holderCount is None else []
             if gone:
                 tok = next(t for t, a in addr.items() if a.lower() == e.address.lower())
                 notes[tok] = ", ".join(f"holderConcentration.{k}" for k in gone) + \

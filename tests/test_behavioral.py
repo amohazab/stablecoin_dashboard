@@ -460,8 +460,8 @@ def test_supply_card_is_signed_its_tip_names_the_base_and_a_mismatch_shows_nothi
 def test_a_known_note_joins_the_note_line_and_an_unknown_one_is_recorded_only():
     note = "all_top_n_are_protocol_contracts_organic_low"
     html, st = blk(fixture_snapshot("GHO", covered=True, note=note))
-    sentence = "Webacy counts the largest holders as protocol contracts, so it rates " \
-               "concentration as low."
+    sentence = "Every one of the ten largest holders is a protocol contract, so Webacy " \
+               "shows their raw share and rates concentration as low."         # P-8.11
     exceeds = ("Webacy&#x27;s figure exceeds the token&#x27;s total supply ($699.0M); "
                "shown as given.")
     assert f'</div>\n<p class="meta">{exceeds} {sentence}</p>' in html        # one line, R11
@@ -623,10 +623,30 @@ def test_hci_validation_reads_only_our_three_rows():
     assert got[0].holderConcentration.top30 is None
     trimmed = behavioral.trim_entry(nul["data"][0])
     assert trimmed["holderConcentration"]["top30"] is None
+    nc = {"meta": hmeta, "data": [{**ours, "holderConcentration": {
+        **ours["holderConcentration"], "holderCount": None,
+        "top10": {"index": 1, "topSharePct": None, "riskBand": "low"}}}]}
+    got = behavioral.validate_hci(nc, ["0xabc"])                # P-8.11 (b): never stops
+    assert got[0].holderConcentration.holderCount is None
     bad = {"meta": hmeta, "data": [{**ours, "holderConcentration": {
-        **ours["holderConcentration"], "holderCount": None}}]}
+        **ours["holderConcentration"], "top10": {"index": 1, "riskBand": "low"}}}]}
     with pytest.raises(pydantic.ValidationError):
         behavioral.validate_hci(bad, ["0xabc"])                 # the rest stays strict
+
+
+def test_null_share_or_holder_count_renders_not_reported():
+    # P-8.11 (b): each null figure on our row renders "not reported by Webacy this run"
+    snap = fixture_snapshot("GHO", covered=True)
+    snap["hci"]["entry"]["holderConcentration"]["top10"]["topSharePct"] = None
+    html, st = blk(snap)
+    assert cards_of(html)["Top-10 holder share"] == ("not reported by Webacy this run",
+                                                    "risk band low")
+    assert not st["holder_bar"] and "holder group: not reported by Webacy this run." in html
+    snap = fixture_snapshot("GHO", covered=True)
+    snap["hci"]["entry"]["holderConcentration"]["holderCount"] = None
+    html, st = blk(snap)
+    assert st["holder_bar"] and st["holder_caption"] == (
+        "Share of supply held; holder count not reported by Webacy this run")
 
 
 def test_a_null_cohort_is_a_status_note_not_a_failure(tmp_path):
