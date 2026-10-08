@@ -254,7 +254,9 @@ def generate(bundle: Bundle, crvusd: str, controller_factory: str,
           "",
           "`origination_sum` is printed beside it as the protocol-origination "
           "figure. Note it already **includes** the stabilizer leg — DET-15(b) "
-          "defines it as Σ principal + Σ stabilizer debt — so it is shown "
+          "defines it as Σ (`total_debt()` − `admin_fees()`) + Σ stabilizer debt "
+          "(A-27) "
+          "— so it is shown "
           "alone, not summed with the stabilizer line again.",
           "",
           "**Checker notes:**", "", "```", "", "```", ""]

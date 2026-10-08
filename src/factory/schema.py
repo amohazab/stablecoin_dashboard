@@ -80,6 +80,8 @@ class PositionCompleteness(BaseModel):
     sum_position_gross_debt: int
     controller_total_debt: int
     relative_diff: Decimal
+    # A-27 (P-8.12): crvUSD's accrued, uncollected interest inside total_debt()
+    controller_admin_fees: int | None = None
 
     @property
     def ok(self) -> bool:                                   # DET-82, 1e-9
@@ -347,6 +349,8 @@ class Supply(BaseModel):
     # ruling 1's wording (P-7.05 S2). `residual_unexplained` = residual - sum.
     residual_causes: list[ResidualCause] = []
     residual_unexplained: int | None = None
+    # P-8.12: |unexplained|, the figure the [residual_gap] wording prints (crvUSD)
+    residual_unexplained_abs: int | None = None
     residual_pointer: dict[str, Any] | None = None
     reads: dict[str, Provenance]
 

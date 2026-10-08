@@ -109,3 +109,30 @@ def test_ceiling_share_is_det19s_second_carve_out():
                                                   "root.residual": "supply_ruled"}})
     with pytest.raises(Level3, match="R1 forbids"):
         det_19(b, stray)
+
+
+def test_the_residual_gap_rows_carry_the_absolute_amount_and_the_wording():
+    # P-8.12: the unexplained part is stated "to within" its absolute amount, any sign
+    import tomllib
+
+    from factory.schema import StressReport
+    token = "crvUSD"
+    b = _bundle(token)
+    cfg = load(REPO / "config", token)
+    t = fold(b, cfg)
+    s = StressReport.model_validate_json(
+        (REPO / f"out/stress/{token}/{BLOCKS[token]}.json").read_text(encoding="utf-8"))
+    w = tomllib.loads((REPO / "templates/wording.toml").read_text(encoding="utf-8"))
+    bj = json.loads(serialise(b))
+    bj["header"]["bundle_hash"] = b.header.bundle_hash
+    args = (json.loads(serialise_tree(t)), json.loads(serialise_stress(s)),
+            json.loads(json.dumps(cfg.sheet, default=str)))
+    assert "supply.residual_gap.description" not in {
+        r["field_id"] for r in build_rows(bj, *args, wording=w)}       # older bundles: none
+    bj["supply"]["residual_unexplained"] = -189734168748908297056
+    bj["supply"]["residual_unexplained_abs"] = 189734168748908297056
+    rows = {r["field_id"]: r for r in build_rows(bj, *args, wording=w)}
+    assert rows["supply.residual_unexplained_abs"]["value"] == 189734168748908297056
+    assert rows["supply.residual_gap.description"]["value"] == (
+        "the named causes account for the residual to within {abs}")
+    assert "mint-market AMM float" not in w["residual_families"]

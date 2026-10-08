@@ -258,7 +258,6 @@ SET_DEBT_CEILING = "0x" + __import__("eth_utils").keccak(
 # Family (iv)'s signed wording carried run-1 amounts; the per-row `amount` is
 # the run's own, so the label keeps the wording and drops the figures.
 F_CONTROLLER = "mint-controller pre-mint inventory"
-F_AMM = "mint-market AMM float"
 F_PEGKEEPER = "PegKeeper undrawn inventory"
 F_OTHER = ("non-mint-market minting facilitators enumerated from `SetDebtCeiling` history "
            "— the lend factories (zero ceilings, confirmed non-originating), the "
@@ -285,10 +284,10 @@ def residual_causes(rpc, repo: pathlib.Path, cf: str, markets: list, ops: list,
     ctrls = {m.address for m in markets}
     keepers = {o.operation_address: o for o in ops}
     fresh = [a for a in recips if a not in keepers]
+    # P-8.12 (yRisk review): no mint-market AMM row - crvUSD inside a LLAMMA is already
+    # inside borrower debt
     res = rpc.read([Call(CRVUSD, "balanceOf(address)", ("uint256",), (a,)) for a in fresh]
-                   + [Call(cf, "debt_ceiling(address)", ("uint256",), (a,)) for a in fresh]
-                   + [Call(CRVUSD, "balanceOf(address)", ("uint256",), (m.amm_address,))
-                      for m in markets])
+                   + [Call(cf, "debt_ceiling(address)", ("uint256",), (a,)) for a in fresh])
     if not all(x.ok for x in res):
         raise AssemblyStop("DET-15(c): a cause read reverted")
     k = len(fresh)
@@ -310,10 +309,6 @@ def residual_causes(rpc, repo: pathlib.Path, cf: str, markets: list, ops: list,
         else:
             causes.append(ResidualCause(family=F_OTHER, address=a,
                                         amount=bal[a] + max(ceil[a] - bal[a], 0), reads=reads))
-    for m, r in zip(markets, res[2 * k:], strict=True):
-        causes.append(ResidualCause(
-            family=F_AMM, address=m.amm_address, amount=int(r.one()),
-            reads={"balance": _cr(CRVUSD, "balanceOf(address)", rb, (m.amm_address,))}))
     return causes, ptr.record()
 
 
@@ -344,10 +339,11 @@ def assemble(cfg: Config, rpc: RpcClient, repo: pathlib.Path, token: str,
             Call(cf, "controllers(uint256)", ("address",), (i,)),
             Call(cf, "amms(uint256)", ("address",), (i,)),
             Call(cf, "collaterals(uint256)", ("address",), (i,))]))
-        td, nl, mp = (r.one() for r in rpc.read([
+        td, nl, mp, af = (r.one() for r in rpc.read([
             Call(ctrl, "total_debt()", ("uint256",)),
             Call(ctrl, "n_loans()", ("uint256",)),
-            Call(ctrl, "monetary_policy()", ("address",))]))
+            Call(ctrl, "monetary_policy()", ("address",)),
+            Call(ctrl, "admin_fees()", ("uint256",))]))                     # A-27
         a_coef = int(rpc.read([Call(amm, "A()", ("uint256",))])[0].one())
         px = int(rpc.read([Call(amm, "price_oracle()", ("uint256",))])[0].one())
         dec = int(rpc.read([Call(col, "decimals()", ("uint8",))])[0].one())
@@ -390,12 +386,13 @@ def assemble(cfg: Config, rpc: RpcClient, repo: pathlib.Path, token: str,
             external_collateral_value=value,
             position_completeness=PositionCompleteness(
                 sum_position_gross_debt=agg.gross_debt_sum, controller_total_debt=int(td),
-                relative_diff=agg.det82_relative_diff),
+                relative_diff=agg.det82_relative_diff, controller_admin_fees=int(af)),
             slot_base_verified=ver.base_slot,
             reads={"gross_debt": _cr(ctrl, "debt(address)", rb),
                    "principal": AbsenceRead(contract=ctrl, method="storage_slot_read",
                                             evidence=f"slot base {ver.base_slot}", block=rb),
                    "total_debt": _cr(ctrl, "total_debt()", rb),
+                   "admin_fees": _cr(ctrl, "admin_fees()", rb),                # A-27
                    "decimals": _cr(col, "decimals()", rb),
                    "collateral_price": _cr(amm, "price_oracle()", rb)},
             lineage=["debt_read", "position_netting", "collateral_read", "price_read"]))
@@ -473,7 +470,10 @@ def assemble(cfg: Config, rpc: RpcClient, repo: pathlib.Path, token: str,
     burn = sum(b.amount for b in bridge_rows if b.bridge_type == "burn_and_mint")
     supply = Supply(total_supply=ts, supply_ruled=ts + burn, bridge_state=state,
                     bridge_disclosure=disclosure, bridges=bridge_rows,
-                    origination_sum=sum(m.principal_sum for m in markets)
+                    # A-27 (P-8.12): Σ (total_debt() - admin_fees()) = Σ (minted - redeemed)
+                    origination_sum=sum(m.position_completeness.controller_total_debt
+                                        - m.position_completeness.controller_admin_fees
+                                        for m in markets)
                     + sum(o.current_debt for o in ops),
                     residual=0, stabilizer_over_supply=Decimal(
                         sum(o.current_debt for o in ops)) / Decimal(ts),
@@ -483,6 +483,7 @@ def assemble(cfg: Config, rpc: RpcClient, repo: pathlib.Path, token: str,
     causes, pointer = residual_causes(rpc, repo, cf, markets, ops, rb)
     supply.residual_causes = causes
     supply.residual_unexplained = supply.residual - sum(c.amount for c in causes)
+    supply.residual_unexplained_abs = abs(supply.residual_unexplained)     # [residual_gap]
     supply.residual_pointer = pointer
 
     # ---- nodes --------------------------------------------------------------

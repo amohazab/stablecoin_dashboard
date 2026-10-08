@@ -12,49 +12,49 @@
   <h1>crvUSD: verify</h1>
   
   <div class="meta">
-    read 2026-09-30 21:58 UTC · block 26093136 ·
-    report <code title="77dc39df363ddc270b38dbb87212e226497366adc59b676a0a3c5ce81e89a8b8">77dc39df</code> · intake sheet <code>29682310</code>
+    read 2026-10-07 21:22 UTC · block 26143168 ·
+    report <code title="07f460c0eb45a1caf656c9c2dc8396f02d80956b6889c3aa9cc9b297ba7a423b">07f460c0</code> · intake sheet <code>29682310</code>
   </div>
   <nav class="links meta">
     <a href="../index.html">all tokens</a><a href="index.html">report</a><a href="appendix.html">appendix</a><a href="verify.html">verify</a>
   </nav>
 </header>
 
-<p class="prose">Every figure here was read from Ethereum at block 26093136. The sheet below is produced by the same generator as the analyst's hand-verification sheet: repeat any call it lists on your own node at that block and you should get the same number.</p>
+<p class="prose">Every figure here was read from Ethereum at block 26143168. The sheet below is produced by the same generator as the analyst's hand-verification sheet: repeat any call it lists on your own node at that block and you should get the same number.</p>
 
 <p class="banner">This stress artifact carries no analyst verification row.</p>
 
 <p class="meta">The sheet's figures are raw base units and recorded call arguments (the reproduction recipe), shown verbatim and not reformatted. Older Vyper pools return a padded buffer: decode the first 32-byte word.</p>
-<pre class="sheet"># Stress spot-check — crvUSD @ 26093136
+<pre class="sheet"># Stress spot-check — crvUSD @ 26143168
 
-- bundle `1ebd4707` · tree `32b9675c` · stress `6911387c`
+- bundle `4421ee60` · tree `29e27568` · stress `6d4ea39e`
 - cells 47 · checks 26/26 · headline **M1-s50-d0-lp0** (memo §6.2.6)
 
 ## 1. The headline cell, by hand
 
 | quantity | value | where it comes from |
 |---|---|---|
-| m1.pre.ratio | 1.058735 | Σ collateral × (1+shock)(1−d) × price ÷ Σ net debt; collateral and debt per position in `out/raw/&lt;block&gt;.json`, price in `mechanism.llamma.markets[].oracle` |
-| m1.post.ratio | 1.235489 | the same over the book left after absorption |
-| m1.gap | 0.176755 | post − pre, the mechanism&#39;s measured contribution (DET-39) |
-| m2.bad_debt | 8.23 crvUSD | Σ (debt − value) over unabsorbed positions with CR &lt; 1; base units `8229004480148105354` |
-| m2.pct_supply | 0.0000000039 | ÷ `supply.supply_ruled` = 2,104,809,204.98 |
-| m3.forced_sell_volume | 8.23 | = bad_debt, DET-25&#39;s Member-1 identity |
-| m3.exit_depth | 31,644,320.64 | LP-0, so equal to DET-31 depth(0.02) = 31,644,320.64 |
-| m3.ratio | 2.600468050741923157097206397E-7 | forced_sell ÷ exit_depth |
+| m1.pre.ratio | 1.037598 | Σ collateral × (1+shock)(1−d) × price ÷ Σ net debt; collateral and debt per position in `out/raw/&lt;block&gt;.json`, price in `mechanism.llamma.markets[].oracle` |
+| m1.post.ratio | 1.227129 | the same over the book left after absorption |
+| m1.gap | 0.189531 | post − pre, the mechanism&#39;s measured contribution (DET-39) |
+| m2.bad_debt | 6.28 crvUSD | Σ (debt − value) over unabsorbed positions with CR &lt; 1; base units `6275376898052247258` |
+| m2.pct_supply | 0.0000000030 | ÷ `supply.supply_ruled` = 2,104,809,204.98 |
+| m3.forced_sell_volume | 6.28 | = bad_debt, DET-25&#39;s Member-1 identity |
+| m3.exit_depth | 25,651,705.25 | LP-0, so equal to DET-31 depth(0.02) = 25,651,705.25 |
+| m3.ratio | 2.446378061972205435296257748E-7 | forced_sell ÷ exit_depth |
 
 ## 2. DET-45, from the bundle&#39;s own keeper rows
 
-- effective **73,828,125.00** ≤ naive **290,250,000.00**
+- effective **80,668,475.92** ≤ naive **303,418,648.14**
 - gate views: provide_allowed {0}, withdraw_allowed 5 × 2²⁵⁶−1; reason `aggregator.price() &lt; ONE`
 
 | keeper | debt | balance | ceiling | r | max_ratio | allowed |
 |---|---|---|---|---|---|---|
-| `0x338cb2d8` | 0.00 | 9,000,000.00 | 9,000,000.00 | 0.00000000 | 0.390625 | 3,515,625.00 |
-| `0x3fa20eaa` | 0.00 | 45,000,000.00 | 45,000,000.00 | 0.00000000 | 0.390625 | 17,578,125.00 |
-| `0x53876b15` | 0.00 | 0.00 | 0.00 | 0.00000000 | 0.390625 | 0.00 |
-| `0x9201da0d` | 0.00 | 135,000,000.00 | 135,000,000.00 | 0.00000000 | 0.390625 | 52,734,375.00 |
-| `0xfb726f57` | 33,750,000.00 | 101,250,000.00 | 135,000,000.00 | 0.25000000 | 0.250000 | 0.00 |
+| `0x338cb2d8` | 0.00 | 9,000,000.00 | 9,000,000.00 | 0.00000000 | 0.357142 | 3,214,277.51 |
+| `0x3fa20eaa` | 0.00 | 45,000,000.00 | 45,000,000.00 | 0.00000000 | 0.357142 | 16,071,387.57 |
+| `0x53876b15` | 0.00 | 0.00 | 0.00 | 0.00000000 | 0.357142 | 0.00 |
+| `0x9201da0d` | 0.00 | 135,000,000.00 | 135,000,000.00 | 0.00000000 | 0.357142 | 48,214,162.70 |
+| `0xfb726f57` | 20,581,351.86 | 114,418,648.14 | 135,000,000.00 | 0.15245446 | 0.250000 | 13,168,648.14 |
 
 ## 2b. `m1.pre` as a hand sum — per market
 
@@ -62,52 +62,52 @@ Nine markets, each at its own `price_oracle()` shocked by -0.50. Collateral is t
 
 | market | sym | dec | collateral | oracle | shocked | value | net debt |
 |---|---|---|---|---|---|---|---|
-| `0x100daa78` | wstETH | 18 | 18,512.381716 | 3,339.69 | 1,669.84 | 30,912,788.82 | 29,691,377.91 |
-| `0x4e595413` | WBTC | 8 | 570.949852 | 83,850.29 | 41,925.15 | 23,937,155.97 | 19,715,428.33 |
-| `0xf8c786b1` | cbBTC | 8 | 220.514427 | 83,878.10 | 41,939.05 | 9,248,166.01 | 10,525,007.21 |
-| `0x1c91da02` | tBTC | 18 | 135.864023 | 83,738.53 | 41,869.27 | 5,688,526.97 | 6,387,183.84 |
-| `0x652aea6b` | weETH | 18 | 2,018.300192 | 2,962.43 | 1,481.21 | 2,989,533.54 | 3,224,071.42 |
-| `0xa920de41` | WETH | 18 | 2,229.132637 | 2,682.35 | 1,341.17 | 2,989,652.39 | 2,371,149.68 |
-| `0xec0820ef` | sfrxETH | 18 | 1,507.193202 | 3,133.35 | 1,566.67 | 2,361,279.44 | 1,930,692.93 |
-| `0x8472a9a7` | sfrxETH | 18 | 139.292184 | 3,135.70 | 1,567.85 | 218,389.58 | 154,265.35 |
-| `0x8aca5a77` | LBTC | 8 | 0.000042 | 84,025.93 | 42,012.97 | 1.75 | 1.09 |
-| **total** | | | | | | **78,345,494.47** | **73,999,177.76** |
+| `0x100daa78` | wstETH | 18 | 18,898.276274 | 3,193.05 | 1,596.52 | 30,171,539.11 | 29,918,873.34 |
+| `0x4e595413` | WBTC | 8 | 568.888452 | 83,233.46 | 41,616.73 | 23,675,277.01 | 19,825,458.93 |
+| `0xf8c786b1` | cbBTC | 8 | 238.530470 | 83,270.13 | 41,635.06 | 9,931,231.18 | 11,151,813.68 |
+| `0x1c91da02` | tBTC | 18 | 135.864023 | 83,101.60 | 41,550.80 | 5,645,259.09 | 5,981,102.04 |
+| `0x652aea6b` | weETH | 18 | 2,017.862334 | 2,832.80 | 1,416.40 | 2,858,097.97 | 3,225,874.20 |
+| `0xa920de41` | WETH | 18 | 2,252.325105 | 2,563.37 | 1,281.69 | 2,886,771.97 | 2,624,393.97 |
+| `0xec0820ef` | sfrxETH | 18 | 1,507.193202 | 2,998.23 | 1,499.12 | 2,259,458.90 | 1,941,999.01 |
+| `0x8472a9a7` | sfrxETH | 18 | 139.292184 | 3,006.40 | 1,503.20 | 209,383.89 | 154,299.45 |
+| `0x8aca5a77` | LBTC | 8 | 0.000042 | 83,448.12 | 41,724.06 | 1.74 | 1.10 |
+| **total** | | | | | | **77,637,020.86** | **74,823,815.71** |
 
-`m1.pre.ratio` = 78,345,494.47 / 73,999,177.76 = **1.058734662143454580380559715**.
+`m1.pre.ratio` = 77,637,020.86 / 74,823,815.71 = **1.037597723659720207746443547**.
 
 ## 3. The Member-2 headline cell — M2-t0.93-lp0
 
 | quantity | value | where it comes from |
 |---|---|---|
 | m3.forced_sell_volume | 0.00 | zero by construction — no stable node and no GSM (DET-43); base units `0` |
-| m3.exit_depth | 29,268,760.25 | the cell&#39;s own venue set, DET-35 |
+| m3.exit_depth | 23,717,541.26 | the cell&#39;s own venue set, DET-35 |
 | m3.ratio | 0 | forced_sell ÷ exit_depth |
 
 **Counterfactual `H1_v1_contagion`** — carried unsized on this cell: primary: V2 gating effective, no new mint, LP share stuck in the depegging asset. Counterfactual: V1 contagion mint sized by headroom (memo §6.3 H1 depeg path).
 
 ## 4. The pinned reads to reproduce
 
-**Every call below is a pinned read at `run_block` 26093136** — the same block the bundle was assembled at (R-13). Pin the block inside the JSON-RPC body; a `tag` query parameter is silently ignored by some proxies (P-3.39).
+**Every call below is a pinned read at `run_block` 26143168** — the same block the bundle was assembled at (R-13). Pin the block inside the JSON-RPC body; a `tag` query parameter is silently ignored by some proxies (P-3.39).
 
 **Decoding note.** Pools compiled with old Vyper (0.2.8 and earlier) return a padded buffer rather than a single word — LUSD&#39;s `0xed279fdd` answers `get_dy` with ~4 KB. **Decode the first 32-byte word**; the rest is padding. Verified by the analyst on 2026-09-13, whose first word matched this sheet to the wei.
 
 The depth m3 divides by is the sum over K-subset(0.90) = 3 pools. On each, call `get_dy` with the recorded `dx` — **`i` and `j` are the recorded argument values, not placeholders** — and check the implied marginal price sits at 1 − s = 0.98 ± ε:
 
-- `0x13e12bb0e6a2f1a3d6901a59a9d585e89a6243e1` → `get_dy(i=1, j=0, dx=4553063697742355262112495)` = 4537558481279752952826164; implied 0.9800315626311100462855468135 (within ε: True)
-- `0x390f3595bca2df7d23783dfd126427cceb997bf4` → `get_dy(i=1, j=0, dx=23235109175914370912409076)` = 23188436683533; implied 0.9800000003272597709212512527 (within ε: True)
-- `0x4dece678ceceb27446b35c672dc7d61f30bad69e` → `get_dy(i=1, j=0, dx=3856147762393156949212863)` = 3842882225895; implied 0.9800000500122708135781567061 (within ε: True)
+- `0x13e12bb0e6a2f1a3d6901a59a9d585e89a6243e1` → `get_dy(i=1, j=0, dx=6282815023137929714137910)` = 6266351299498815150352890; implied 0.9800717693838759873273779859 (within ε: True)
+- `0x390f3595bca2df7d23783dfd126427cceb997bf4` → `get_dy(i=1, j=0, dx=14784717178778353243158696)` = 14751006234292; implied 0.9800000787838684864248487059 (within ε: True)
+- `0x4dece678ceceb27446b35c672dc7d61f30bad69e` → `get_dy(i=1, j=0, dx=4584173050023411129686407)` = 4570273011824; implied 0.9800000896512964517081574688 (within ε: True)
 
 ## 5. Assumptions carried on this artifact
 
 - **band_linear** — crash-path conversion modeled band-linear (P-6.01 R11): a position&#39;s collateral is allocated across its bands in proportion to each band&#39;s recorded `y` (P-6.09 R-B4.15) - per-user band shares are not read - and conversion inside a crossed band is linear in price at the interval midpoint. Band prices are READ (`p_oracle_up(n)`, `p_oracle_up(n+1)`), never computed; LLAMMA&#39;s own curve inside a band is not reproduced.
 - **capacity** — absorption = Σ_nodes sell_side_capacity × shocked price, in crvUSD base units (P-6.08 R-B4.11). PegKeeper `effective` headroom is metric 4&#39;s mechanism trajectory and is NOT absorption — a keeper providing crvUSD into a crvUSD/stable pool does not buy collateral from a liquidator; DET-23(c) and DET-25 forbid `stabilizer_*` in the metric-1/2/3 and forced-sell lineages. Band conversion is uncapacitated.
-- **ema_lag_readings** — M1-s50-d0-lp0: m1.post 1.235489 primary vs 0.852418 under EMA_lag; M1-s70-d0-lp0: m1.post 1.124182 primary vs 0.377643 under EMA_lag
+- **ema_lag_readings** — M1-s50-d0-lp0: m1.post 1.227128 primary vs 0.833447 under EMA_lag; M1-s70-d0-lp0: m1.post 1.125510 primary vs 0.372156 under EMA_lag
 - **lp_flight** — LP capital assumed sticky; haircut grid 0% / 30% / 60% - assumed scenario modifier, not data-derived; LP flight modeled as single-sided withdrawal of the paired asset.
-- **m2_curves** — {&#39;0.88&#39;: {&#39;0.005&#39;: 23398555932257359802588127, &#39;0.01&#39;: 25837340347236496844228035, &#39;0.02&#39;: 27573184601204014882630186, &#39;0.05&#39;: 29156323602716528396613944}, &#39;0.93&#39;: {&#39;0.005&#39;: 24995001807953966804890431, &#39;0.01&#39;: 27489629853017116727386602, &#39;0.02&#39;: 29268760246351939282018148, &#39;0.05&#39;: 30891214317800830103035705}, &#39;0.97&#39;: {&#39;0.005&#39;: 26269417435716640676156380, &#39;0.01&#39;: 28811523900075653652160853, &#39;0.02&#39;: 30625578737947906119093763, &#39;0.05&#39;: 32278279675106716901212108}}
+- **m2_curves** — {&#39;0.88&#39;: {&#39;0.005&#39;: 18812794012556945639568326, &#39;0.01&#39;: 20869656527488225188287904, &#39;0.02&#39;: 22337325813926330955317446, &#39;0.05&#39;: 23674275686571864027219864}, &#39;0.93&#39;: {&#39;0.005&#39;: 20110858230564811650309517, &#39;0.01&#39;: 22215124189800755824292938, &#39;0.02&#39;: 23717541255819323347316164, &#39;0.05&#39;: 25087095432969486741442998}, &#39;0.97&#39;: {&#39;0.005&#39;: 21134941687531566621450353, &#39;0.01&#39;: 23293429745482873389649156, &#39;0.02&#39;: 24823506687822259654763868, &#39;0.05&#39;: 26217172753053823510359006}}
 - **structural_insulation** — structurally insulated; exposed through exit venues only
 - **undefined_ratio** — exit depth exhausted at this LP-flight level - ratio undefined (infinity)
 </pre>
-<p class="meta">The raw dump cited above is not committed to the repository; it can be regenerated from any Ethereum archive node by repeating the listed reads at block 26093136.</p>
+<p class="meta">The raw dump cited above is not committed to the repository; it can be regenerated from any Ethereum archive node by repeating the listed reads at block 26143168.</p>
 
 </main>
 </body>

@@ -10,7 +10,7 @@
    "DET-64"
   ]
  },
- "behavioral_as_of": "2026-10-05",
+ "behavioral_as_of": "2026-10-08",
  "behavioral_status": {
   "fetched_at": "2026-10-04T10:01:32+00:00",
   "notes": {
@@ -26,8 +26,8 @@
  "tokens": {
   "GHO": {
    "behavioral": {
-    "age_days": 1,
-    "as_of": "2026-10-05",
+    "age_days": 4,
+    "as_of": "2026-10-08",
     "block_sha256": "0946cdb255d76acf27f1ac75300a94723d7ff2c557751816bc83d796e19e72b1",
     "captions": [
      "7-day max |deviation|: 11.4 bp",
@@ -110,8 +110,8 @@
   },
   "LUSD": {
    "behavioral": {
-    "age_days": 1,
-    "as_of": "2026-10-05",
+    "age_days": 4,
+    "as_of": "2026-10-08",
     "block_sha256": "8e196a0d5c70f02969fe7a2d80f0e8611b238ed4e5a88e9e5fd03af1b0e81bb1",
     "captions": [
      "7-day max |deviation|: 126.2 bp",
@@ -192,8 +192,8 @@
   },
   "crvUSD": {
    "behavioral": {
-    "age_days": 1,
-    "as_of": "2026-10-05",
+    "age_days": 4,
+    "as_of": "2026-10-08",
     "block_sha256": "6dea0ed9b718d90a2f773ea7c0130223cab866a927e8b0bf7fbe22c308ba6469",
     "captions": [
      "7-day max |deviation|: 39.3 bp",
@@ -229,15 +229,15 @@
     "supply_shown": true,
     "unknown_notes": []
    },
-   "figures": "Supply $2.1B · Bad debt, headline scenario $8, structurally zero · Exit liquidity, headline scenario $31.6M",
-   "finding": "The token is backed by collateral whose value can be checked directly on-chain, through wrappers one layer down, or via issuer disclosures; 3.8% of the backing is direct, 53.8% is wrapped and 42.4% depends on disclosures.",
+   "figures": "Supply $2.1B · Bad debt, headline scenario $6, structurally zero · Exit liquidity, headline scenario $25.7M",
+   "finding": "No written summary this run.",
    "outcome": "published",
    "pill": "<span class=\"pill amber\">1 notice(s): gate failure</span>",
-   "report_hash": "77dc39df363ddc270b38dbb87212e226497366adc59b676a0a3c5ce81e89a8b8",
+   "report_hash": "07f460c0eb45a1caf656c9c2dc8396f02d80956b6889c3aa9cc9b297ba7a423b",
    "rewrites": {
     "index.html": {
-     "after": "ff2ba4153b23fccc799adaa69d11423228e47c067ad6b809ab07d3b76071f034",
-     "before": "0ac5e71d8e23954691dec8cc463a3a90d541fbc7aa5d9f47788e5905224d0cb5",
+     "after": "f610c915c594fc8745be121cd6271f38ae307845d75f2b3fa08b94935639eb4c",
+     "before": "317c94f3c3afe9b4297f89c7201bc4b8bd82d3c279892b9f04dabe43523f91e3",
      "substitutions": [
       {
        "new": "href=\"https://github.com/amohazab/stablecoin_dashboard/blob/master/docs/context/archetype-memo-1-cdp.md\"",
@@ -266,7 +266,7 @@
      ]
     }
    },
-   "run_block": 26093136
+   "run_block": 26143168
   }
  }
 }

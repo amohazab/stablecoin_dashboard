@@ -83,13 +83,18 @@ def test_det70_qualifier_replays_and_a_null_bucket_fails():
 
 
 def test_a_tree_with_a_failing_check_goes_to_rehearsal(tmp_path):
-    # B-9: the tree-consumer rows now include DET-05/15/32, which a pre-B-9
-    # bundle cannot pass; crvUSD's B-9 run (25970226) passes all fourteen.
-    b, t = _tree("crvUSD", 25970226)
+    # B-9: the tree-consumer rows include DET-05/15/32, which a pre-B-9 bundle cannot
+    # pass; LUSD's B-9 run (25970249) passes them. A-27 (P-8.12): crvUSD's stored bundles
+    # predate the total_debt() origination sum, so DET-15(b) now fails on them.
+    b, t = _tree("LUSD", 25970249)
     path, ok = emit(tmp_path, b, t)
-    assert ok and path == tmp_path / "out/trees/crvUSD/25970226.json"
+    assert ok and path == tmp_path / "out/trees/LUSD/25970249.json"
     broken = t.model_copy(update={"root": t.root.model_copy(update={"backing_value": 1})})
     path, ok = emit(tmp_path, b, broken)
-    assert not ok and path == tmp_path / "out/rehearsal/crvUSD/tree-25970226.json"
+    assert not ok and path == tmp_path / "out/rehearsal/LUSD/tree-25970249.json"
     written = VerifiabilityTree.model_validate_json(path.read_text(encoding="utf-8"))
     assert {r.entry_id: r.result for r in written.checks}["DET-14"] == "fail"
+    cb, ct = _tree("crvUSD", 25970226)
+    path, ok = emit(tmp_path, cb, ct)
+    written = VerifiabilityTree.model_validate_json(path.read_text(encoding="utf-8"))
+    assert not ok and {r.entry_id: r.result for r in written.checks}["DET-15"] == "fail"

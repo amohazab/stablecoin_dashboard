@@ -162,9 +162,15 @@ def _supply_bundle(residual_causes, unexplained, **kw):
 def test_det15_named_causes_close_within_the_bound():
     t = SimpleNamespace(root=SimpleNamespace(supply_ruled=2_104_809))
     b = _supply_bundle([104_800], 9, origination_sum=2_000_000)
-    b = b.model_copy(update={"markets": [b.markets[0].model_copy(
-        update={"principal_sum": 2_000_000, "gross_debt_sum": 2_000_000 + 0,
-                "accrued_interest_sum": 0})]})
+    m0 = b.markets[0]
+    b = b.model_copy(update={"markets": [m0.model_copy(        # A-27: O reads total_debt()
+        update={"principal_sum": 1_999_000, "gross_debt_sum": 2_000_000,
+                "accrued_interest_sum": 1_000,
+                "reads": {**m0.reads, "admin_fees": m0.reads["total_debt"]},
+                "position_completeness": m0.position_completeness.model_copy(update={
+                    "sum_position_gross_debt": 2_000_010,
+                    "controller_total_debt": 2_000_010,
+                    "controller_admin_fees": 10})})]})
     assert "unexplained 9" in det_15(b, t)
     with pytest.raises(Level3, match="unexplained"):
         det_15(_supply_bundle([100_000], 4_809).model_copy(update={"markets": b.markets}), t)
@@ -172,6 +178,12 @@ def test_det15_named_causes_close_within_the_bound():
         det_15(_supply_bundle([104_800], 0).model_copy(update={"markets": b.markets}), t)
     with pytest.raises(Level3, match="DET-15\\(b\\)"):
         det_15(_supply_bundle([104_800], 9, origination_sum=1), t)
+    # A-27: O = Σ (total_debt() - admin_fees()); without the read DET-15(b) stops
+    no_af = b.model_copy(update={"markets": [b.markets[0].model_copy(update={
+        "position_completeness": b.markets[0].position_completeness.model_copy(
+            update={"controller_admin_fees": None})})]})
+    with pytest.raises(Level3, match="admin_fees"):
+        det_15(no_af, t)
 
 
 # --- DET-05 ------------------------------------------------------------------------------

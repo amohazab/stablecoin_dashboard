@@ -371,10 +371,15 @@ LUSD = "residual is supply minus originated debt; 0 here because every LUSD is m
 [m2_curve]
 label = "exit liquidity when the paired stablecoin trades at {target}, at a price impact of {impact}"
 
+# P-8.12: the unexplained part stated within its absolute amount (always, any sign or size);
+# {abs} is the `supply.residual_unexplained_abs` row
+[residual_gap]
+form = "the named causes account for the residual to within {abs}"
+
+# P-8.12: "mint-market AMM float" retired (yRisk review: that crvUSD is inside borrower debt)
 [residual_families]
 "mint-controller pre-mint inventory" = "crvUSD minted into controllers but not yet borrowed, held by the protocol's own contracts, not in circulation"
 "PegKeeper undrawn inventory" = "crvUSD a PegKeeper may mint into its pool but has not deployed, held by the protocol, not in circulation"
-"mint-market AMM float" = "crvUSD held inside the mint markets' soft-liquidation AMMs, part of borrower positions being converted"
 "non-mint-market minting facilitators" = "crvUSD minted by protocol contracts outside the mint markets this report traces: lending factories, the flash lender and the bridge vaults"
 
 # Run 8 ruling 5: what each Level-1 flag means, passed with the open flag to

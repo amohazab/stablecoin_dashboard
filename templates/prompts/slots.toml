@@ -18,6 +18,8 @@ prefixes = ["supply.", "stabilizer.slice.", "tree.root.", "verif.bar.", "headlin
 obligations = """- The first paragraph states the single structural fact a reader must know; when the structural-zero flag is set, that finding appears in the summary with its reason.
 - The backing classes describe how backing can be checked, not whether it exists; never describe a class as unbacked.
 - Never write "not backed", "unbacked" or "untraced" for the residual; say what it is.
+- When the unexplained part of the residual is mentioned, use the wording of "how to state the unexplained amount" with {abs} as the absolute unexplained amount.
+- Never call the residual unexplained; if you mention it, say what it is from the "what the residual is" row; the unexplained amount only in the wording of "how to state the unexplained amount".
 - The exit-liquidity ratio is forced sales ÷ exit liquidity, never bad debt ÷ exit liquidity.
 - Summarise what backs the token, how much of that backing can be checked on-chain, and what the headline stress scenario shows, in that order.
 - State no conclusion the rows do not support; no grades, scores or verdicts.

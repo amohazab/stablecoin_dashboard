@@ -1311,8 +1311,8 @@ DET15_BOUND = Decimal("0.001")          # (c): unexplained <= 0.1% of supply_rul
 def det_15(b: Bundle, t: VerifiabilityTree) -> str:
     """Supply decomposition (R-8), S2 (B-9, P-7.01 R2). (a) `supply_ruled` =
     `totalSupply` + burn-and-mint bridged amounts, each provenanced; (b) O per
-    token - crvUSD Σ mint principal + Σ stabilizer debt, GHO Σ bucket levels,
-    LUSD Σ trove gross debt; (c) residual = supply_ruled - O with named causes,
+    token - crvUSD Σ mint (`total_debt()` - `admin_fees()`, A-27) + Σ stabilizer debt,
+    GHO Σ bucket levels, LUSD Σ trove gross debt; (c) residual = supply_ruled - O with named causes,
     unexplained <= 0.1% of `supply_ruled`, GHO exactly 0; (d) the bundle half -
     the tree's root carries the same `supply_ruled`."""
     sp = b.supply
@@ -1325,7 +1325,12 @@ def det_15(b: Bundle, t: VerifiabilityTree) -> str:
         raise Level3(f"DET-15(a): supply_ruled {sp.supply_ruled} != totalSupply + burn")
     token = b.header.token
     if token == "crvUSD":
-        o = (sum(m.principal_sum for m in b.markets if m.origination_class == "mint")
+        mint = [m for m in b.markets if m.origination_class == "mint"]
+        if any(m.position_completeness.controller_admin_fees is None
+               or "admin_fees" not in m.reads for m in mint):
+            raise Level3("DET-15(b): admin_fees() read absent (A-27)")
+        o = (sum(m.position_completeness.controller_total_debt
+                 - m.position_completeness.controller_admin_fees for m in mint)  # A-27
              + sum(x.current_debt for x in b.stabilizer.operations))
     elif token == "GHO":
         o = sum(f.bucket_level for f in b.facilitators)

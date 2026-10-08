@@ -178,6 +178,12 @@ def build_rows(bundle: dict, tree: dict, stress: dict, mirror: dict,
         # ruling on the third live run: the residual in words (source: wording.toml)
         t.add("supply.residual.description", "what the residual is",
               f"wording/residual/{bundle['header']['token']}", "literal", "supply", "DET-15")
+    if bundle["supply"].get("residual_unexplained_abs") is not None:
+        # P-8.12: the gap stated as the [residual_gap] wording, whatever its sign or size
+        t.add("supply.residual_unexplained_abs", "unexplained amount, absolute",
+              "bundle/supply/residual_unexplained_abs", "base_units", "supply", "DET-15")
+        t.add("supply.residual_gap.description", "how to state the unexplained amount",
+              "wording/residual_gap/form", "literal", "supply", "DET-15")
     for c in bundle["supply"]["residual_causes"]:
         base = f"bundle/supply/residual_causes/[address={c['address']}]"
         t.add(f"supply.cause.{c['address']}.amount", f"named cause: {c['family'][:40]}",
