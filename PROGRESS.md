@@ -9322,3 +9322,66 @@ Status: DONE (opened 2026-09-14; done-condition met 2026-09-15, P-9.03).
   `b9a4287`); `out/site/`; tag `v1`; `out/reports/webacy-hci-crvusd-top30.md` (gitignored);
   `PROGRESS.md`.
 - **Follow-ups spawned:** the Webacy reply (top30, the logo).
+
+## P-8.12 — crvUSD debt read and LLAMMA cause corrected after yRisk review (A-27)
+
+- **Date:** 2026-10-08
+- **Type:** decision + implementation
+- **Confirmed by:** Amin
+- **Content:**
+  **REVIEW** (yRisk, Wavey, two messages of 2026-10-07), verbatim:
+  1. "initial_debt is the debt when a loan was last updated, so it misses interest accrued
+     since then. It also shouldn't add LLAMMA balances separately, since those tokens are
+     already accounted for in the debt."
+  2. "for each controller, the accounting should be: crvusd.balanceOf(controller) +
+     total_debt() - admin_fees()"
+  **READ-ONLY FINDINGS** (bundle `1ebd4707` at 26093136, Controller source verified): the
+  per-loan debt was already gross (`user_state()[2]`, DET-82 against `total_debt()` within
+  383 wei); the supply decomposition summed per-loan `initial_debt` (rubric DET-15(b):
+  Σ `principal` + Σ stabilizer `debt`), missing 301,730.71 of accrued interest; the
+  "mint-market AMM float" cause (9 rows, 6,539.70), the Builder's own from P-3.39, carried
+  by P-7.01 R2, double-counted crvUSD already inside borrower debt. `admin_fees()` is the
+  accrued, uncollected interest inside `total_debt()` (Σ 189.72);
+  `total_debt() − admin_fees()` = `minted − redeemed` on all nine controllers, to the wei.
+  **UNEXPLAINED RESIDUAL at 26093136:** as stored **295,001.27** (0.014016% of supply) →
+  message 1 (`total_debt()`, AMM row out) **−189.73** → message 2 (less `admin_fees()`)
+  **−0.009**.
+  **RULINGS (Amin, 7 October).** A-27 (rubric a8ae2477 → **78155fa6**): DET-15(b) reads
+  "crvUSD Σ (gross debt `total_debt()` with the accrued rate applied, less accrued
+  uncollected `admin_fees()`) + Σ stabilizer `debt`", the log line crediting both
+  messages; a first A-27 (Σ `total_debt()`, 21f888d2) was signed, applied and superseded
+  before any commit. The AMM cause retired with its wording row. The gap is stated as
+  `[residual_gap]` "the named causes account for the residual to within {abs}", always,
+  with a derived `supply.residual_unexplained_abs` row and a slot-input row.
+  **BUILT:** a pinned `admin_fees()` read per controller with provenance
+  (`position_completeness.controller_admin_fees`, optional); the origination sum and
+  DET-15(b) as A-27; the spot-check sentence. The bundle keeps `principal` and gross debt.
+  **RUN 26143168** (Amin's terminal): bundle `4421ee60`, tree `29e27568`, stress
+  `6d4ea39e`; origination 95,408,964.65; Σ `admin_fees()` 201.16; three cause families;
+  **unexplained −0.009237**, DET-15 pass. Finding: the same figure to the wei as at
+  26093136 although every component moved; `totalSupply` is identical at both blocks and
+  internal flows conserve, so the −0.009 is a conserved historical leftover. The split
+  (3.7 / 53.0 / 43.3%) moved with the block, not the correction.
+  **REPORTS.** First, `c3b74077` (template `a04baa7c`, 3,436 s): structural_summary
+  called the residual "unexplained by the traced collateral"; held by Amin, not
+  deployed. Ruled (a): a structural_summary obligation (never call the residual
+  unexplained; say what it is; the amount only in the gap wording); prompt `8601048e` →
+  `93847c30`, template → `087e5eba`. Rerun **`07f460c0`** (3,236 s), published by
+  Amin's ruling with DET-80 Level 1 on four slots.
+  - Finding: structural_summary failed the guard on both attempts ("$53.0%", "$43.3%"
+    not printed; `exit.offvenue.x` missing; `verif.bar.other_layer` outside the rows),
+    and both drafts called the $95.4M originated supply "backed by collateral checked
+    directly on-chain". The card reads "No written summary this run."
+  - Wording defect, a later round: member2 prints "depeg target of 0xdac17f…1ec7"; the
+    target row prints an address where a label is wanted.
+  **DEPLOY** at `32d6187`: site twice, identical (`df896462`); suite last, **387 tests**;
+  Pages run 37774294745 green; live `site.json` (`8b84fc76`), selector, methodology and
+  the three token pages equal HEAD. Ollama 0.34.4 → **0.40.0** (model digest unchanged).
+  **AS-COUNTED.** Design layer: rubric v1's DET-15(b) formula (Σ principal). Builder: the
+  AMM cause (P-3.39), which double-counted; the 0.014% unexplained was read as within
+  bound and never traced to its cause.
+- **Artifacts:** `docs/context/rubic_v1.md` (A-27) · `src/factory/{run,schema,spotcheck}.py` ·
+  `src/factory/report/table.py` · `src/factory/validate/harness.py` · `templates/` ·
+  `tests/test_{b9,b11d,tree}.py`; `out/{bundles,trees,stress,evaluation,report,site}/` at
+  26143168; `out/logs/`; `PROGRESS.md`. All at `32d6187`.
+- **Follow-ups spawned:** the member2 target label.
