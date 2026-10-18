@@ -1,9 +1,9 @@
 {
- "fetched_at": "2026-10-11T10:34:07+00:00",
+ "fetched_at": "2026-10-18T12:36:57+00:00",
  "notes": {
   "crvUSD": "holderConcentration.top30 not reported by Webacy"
  },
  "ok": true,
  "reason": null,
- "snapshot_stamp": "20261011T103344Z"
+ "snapshot_stamp": "20261018T123628Z"
 }
