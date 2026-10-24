@@ -58,6 +58,9 @@ OPEN (scoped at P-8.01: local-model (Ollama) scheduled runs, not built).
 ## Step 9 — Static site v1
 Status: DONE (opened 2026-09-14; done-condition met 2026-09-15, P-9.03).
 
+## Step 10 — USDe as token #4
+Status: OPEN (opened 2026-10-25, P-10.01)
+
 ## P-3.01 — Block 0.1 anomaly dispositions; Python stack ruling; checksum task
 - **Date:** 2026-09-03
 - **Type:** flag-disposition
@@ -9385,3 +9388,86 @@ Status: DONE (opened 2026-09-14; done-condition met 2026-09-15, P-9.03).
   `tests/test_{b9,b11d,tree}.py`; `out/{bundles,trees,stress,evaluation,report,site}/` at
   26143168; `out/logs/`; `PROGRESS.md`. All at `32d6187`.
 - **Follow-ups spawned:** the member2 target label.
+
+## P-10.01 — Step 10 opened: Inventory G, memo #2 and USDe sheet rulings
+
+- **Date:** 2026-10-25
+- **Type:** decision
+- **Confirmed by:** Amin
+- **Content:**
+  **OPENED AT** `ebad325`: 387 tests, ruff clean, rubric `78155fa6` (last A-27), last entry
+  P-8.12, `len(CHECKS)` 96, published blocks crvUSD 26143168 · GHO 26100308 · LUSD 26107477,
+  tree clean. **Inventory G accepted:** `out/reports/step10-inventory-g.md` (873 lines,
+  gitignored, sha256 `993b6a73…66f0da`), G5 pinned at 26265302. Rulings file
+  `out/reports/step10-rulings.md` (sha256 `d88b15c8…fe9e2f`); `RULED:` lines are Amin's own
+  text, every other line confirmed by Amin as recommended.
+  **A. BACKING AND PERIMETER**
+  - Q1 fit test: whitelisted mint into the issuer's contract; custody + on-chain stables.
+  - Q2 address gate: memo #1 §2 on every on-chain node; custody sleeves keyed by category.
+  - Q3 backing = disclosed total (status endpoint); headline = backing ÷ `supply_ruled`.
+  - Q4 buffer discovery: V2 custodian/asset sets (events→verdict) + attestation wallet list.
+  - Q5 reconciliation: on-chain buffer vs three categories; gap > 5% of backing = Level 1.
+  - Q6 reserve fund: own slice, discretionary, never credited; first absorber in row 1.
+  - Q7 sUSDe: not a node, not a path; a supply-class line and row 3's cooldown gate.
+  **B. VERIFIABILITY**
+  - Q8 one node per disclosure category, four closed labels; headline 0 / 0 / 100 a finding.
+  - Q9 a basis sleeve's spot leg is not decomposed; the attested net position is the node.
+  - Q10 buffer stables at par (R-16); category nodes take DET-55 type `attested` rows.
+  - Q11 a `recurses` node older than 2× its cadence fires Level 1 "disclosure overdue" (T-29).
+  **C. ADMIN SURFACE**
+  - Q12 nine-power map from G5; A4 = `getMinDelay()`; qualifying set adds custody-scope
+    `set_parameters`.
+  - Q13 off-chain discretion: §14 and one banner sentence, no tenth enum value.
+  - Q14 Safe owners/threshold per holder; 1,035 restricted sUSDe addresses one count line.
+  **D. STRESS**
+  - Q15 row 1 funding reversal: basis × −25% × N/365, N ∈ {30, 90, 180}; headline N = 90.
+  - Q16 row 2 venue loss: (a) largest custodian lost; (b) hedge fails, spot −30%; lower wins.
+  - Q17 row 3 redemptions: 25% of free float in 7 d; cooldown branch by read; metric 3 ratio.
+  - Q18 memo #1 §5 whole; sUSDe pairs excluded; `member2_target` None; off-venue 22.1%.
+  - Q19 bias rows: row 3 stated both ways; rows 1–2 n/a present; CDP ★ rows not required.
+  **E. SUPPLY**
+  - Q20 `supply_ruled` = mainnet `totalSupply()`; OFT adapter locks; bridge `lock_and_mint`.
+  - Q21 DET-15(b) synthetic: O = `totalSupply()`, residual zero; holder-class split (A-29).
+  - Q22 §8.1.4: (a) 10pp, (b) 25% two-branch, (c) custodian count, (d) ratio < 101% / RF.
+  - Q23 `supply_ruled` is every "% of supply" denominator; staked and escrow shares beside.
+  - Q24 page lines: staked, cooling, bridged escrow, free float; cooldown beside staked.
+  **F. SOURCES AND STALENESS**
+  - Q25 on-chain at `run_block`; three Ethena endpoints per run, committed; attestation keyed.
+  - Q26 §14 filled with custodians and named counterparties; DET-73 literal scoped (A-30).
+  - Q27 fourth provenance shape `DisclosureSnapshot`; stored bundles untouched.
+  - Q28 USDe sheet with `first_run_reads[]`; mirror archetype branch; per-token paths; stamp.
+  - Q29 scraped-source outage or shape change: DET-85, T-25 Level 2, USDe only.
+  - Q30 one path: `module_on_chain`, whitelisted, face value, R6 capacity + pausable, R9
+    `disclaimed`.
+  **G. RUBRIC, TEMPLATES, SITE, CLOSE**
+  - Q31 six prose slots for archetype #2; DET-80 scoped to declared slots (A-31).
+  - Q32 methodology count "n evaluated, k not applicable (archetype #2), m new".
+  - Q33 strapline "structural risk reports for stablecoins"; archetype #2 paragraph; README.
+  - Q34 done: page live, one forced day-4 run, light sample + one snapshot re-hashed by Amin.
+  - Q35 benchmark: one-page note vs the manual report at close; not a publishing gate.
+  - Q36 fourth monthly task on day 4; USDe joins the weekly Webacy refresh.
+  - Q37 GHO's sUSDe node links to USDe's tree after its first publication (one labels row).
+  - Q38 page fixes in round 0; G9(a) template + label now, crvUSD prose at its next monthly.
+  - Q39 memo #2 cross-references memo #1 by section; deltas only; no common-memo refactor.
+  - Q40 `Header.archetype` ∈ {cdp, synthetic} replaces shape tests; default `cdp`.
+  - Q41 **RULED (Amin):** legacy FRAX 0x853d… gets a paired-asset row, `recurses` → Frax
+    disclosure (none published, dated absence), unit-priced with the numeraire: par-eligible.
+  - Q42 `raw_positions_hash` = sha256 of `out/disclosures/USDe/<run_block>.json`; raw copy.
+  - Q43 `node_class` stable on every USDe node; `lst_discount_applies` false; no shock grid.
+  - Q44 market and stabilizer counts 0; lend list explicit-empty with its note.
+  - Q45 EthenaMinting V1 retired by the `minter()` read; one disclosure line.
+  - Q46 `prose_slots` gain an `archetype` field (default cdp); render, llm, DET-80 filter.
+  - Q47 rubric three-way per row; floor 60 evaluating on USDe; Builder drafts, Amin signs.
+  - Q48 at most five new DET rows for the synthetic stress.
+  - Q49 G9(b): `sp_effective_cell` and `lp_flight_share` labels reworded; grid header stays.
+  - Q50 at close: the dead `AnalystSupplied(value=…)` argument removed; no output change.
+  **AMENDMENT SLATE** (signed at the round-3 edit): A-28 disclosure overdue, T-29, owner
+  DET-18 · A-29 DET-15(b) synthetic form · A-30 DET-73 scope · A-31 DET-80 slots · the Q47
+  disposition from A-32 onward.
+  **AS-COUNTED.** The "Stability Pool vs LP" note was Amin's 24 October note, not a repo
+  record; Inventory G's G9(b) reported it not located (Q49).
+- **Artifacts:** `PROGRESS.md` — the `## Step 10` heading and status line, and this entry.
+  No code, no config, no `docs/context/` change.
+- **Follow-ups spawned:** memo #2 draft and the USDe sheet (round 3, one signed edit); Q37
+  after USDe's first published tree; Q50 at close; the benchmark note (Q35) at close;
+  G9(a)'s prose at crvUSD's next monthly run.
