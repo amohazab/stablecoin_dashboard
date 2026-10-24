@@ -5,8 +5,10 @@ code, templates, site pages, records and reports under fixed export names.
 Run from the repo root:
     python tools/export_context.py --step 9
     python tools/export_context.py --step 8   (Step 9's set + the behavioral tier, P-8.01)
+    python tools/export_context.py --step 10  (the USDe kickoff set)
 
-Writes out/context-step<N>/ (a delete-later folder, never committed). Missing optional
+Writes out/context-step<N>/, or OUT_DIRS[N] where one is set (a delete-later folder,
+never committed). Missing optional
 sources are listed, not fatal. Prints each export with its size and scans every exported
 file for a key assignment with a value (ANTHROPIC_API_KEY=..., ETH_RPC_URL=...).
 Stdlib only.
@@ -84,6 +86,45 @@ PROFILES["8"] = [
     ("test_ollama.py", "tests/test_ollama.py"),
 ]
 
+# Step 10 kickoff (USDe): the governing set, the pipeline modules, the three adapters,
+# the report and site templates, and one token's latest promoted artifacts as shape
+# examples (LUSD at the block site.json publishes).
+LUSD = 26107477
+PROFILES["10"] = [
+    # governing
+    ("brief.md", "docs/context/stablecoin-risk-factory-brief.md"),
+    ("archetype-memo-1-cdp.md", "docs/context/archetype-memo-1-cdp.md"),
+    ("intake-sheets-cdp.md", "docs/context/intake-sheets-cdp.md"),
+    ("rubic_v1.md", "docs/context/rubic_v1.md"),
+    ("CLAUDE.md", "CLAUDE.md"), ("README.md", "README.md"), ("PROGRESS.md", "PROGRESS.md"),
+    ("scheduler.md", "docs/scheduler.md"), ("pyproject.toml", "pyproject.toml"),
+    (".env.example", ".env.example"),
+    # code
+    *((f"{n}.py", f"src/factory/{n}.py") for n in (
+        "schema", "run", "tree", "stress", "behavioral", "chain", "site", "spotcheck")),
+    *((f"adapter-{n}.py", f"src/factory/adapters/{n}.py") for n in ("crvusd", "gho", "lusd")),
+    *((f"report-{n}.py", f"{R}/{n}.py") for n in (
+        "__main__", "table", "render", "llm", "record", "assumptions", "manifest", "paths")),
+    ("harness.py", "src/factory/validate/harness.py"),
+    # templates (site.py's TOKEN_ORDER is the site's token list; manifest.toml is the
+    # template manifest)
+    *((n, f"{T}/{n}") for n in ("index.html.j2", "appendix.html.j2", "verify.html.j2",
+                                 "base.html.j2", "wording.toml", "manifest.toml")),
+    *((f"prompts-{n}", f"{T}/prompts/{n}") for n in ("generate.md", "slots.toml")),
+    ("site-methodology_html.j2", f"{T}/site/methodology.html.j2"),
+    # shape examples: LUSD's latest promoted artifacts and its published page
+    (f"bundle-LUSD-{LUSD}.json", f"out/bundles/LUSD/{LUSD}.json"),
+    (f"tree-LUSD-{LUSD}.json", f"out/trees/LUSD/{LUSD}.json"),
+    (f"stress-LUSD-{LUSD}.json", f"out/stress/LUSD/{LUSD}.json"),
+    (f"evaluation-LUSD-{LUSD}.json", f"out/evaluation/LUSD/{LUSD}.json"),
+    ("site.json", "out/site/site.json"),
+    ("site-LUSD-index.html", "out/site/LUSD/index.html"),
+    # deploy and schedule
+    ("pages.yml", ".github/workflows/pages.yml"),
+    ("run_monthly.cmd", "tools/scheduler/run_monthly.cmd"),
+]
+OUT_DIRS = {"10": "out/context-export/step10"}
+
 KEY_VALUE = re.compile(r"\b(ANTHROPIC_API_KEY|ETH_RPC_URL|WEBACY_API_KEY)=[^\s\"'`]+")
 
 
@@ -99,7 +140,7 @@ def main() -> int:
     if len(sys.argv) != 3 or sys.argv[1] != "--step" or sys.argv[2] not in PROFILES:
         print(f"usage: python tools/export_context.py --step {{{','.join(PROFILES)}}}")
         return 2
-    out = REPO / "out" / f"context-step{sys.argv[2]}"
+    out = REPO / OUT_DIRS.get(sys.argv[2], f"out/context-step{sys.argv[2]}")
     if out.exists():
         shutil.rmtree(out)
     out.mkdir(parents=True)
