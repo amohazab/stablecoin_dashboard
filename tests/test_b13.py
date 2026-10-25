@@ -14,7 +14,7 @@ import pytest
 from factory import eventlog
 from factory.report import llm
 from factory.report.__main__ import build
-from factory.validate.harness import CHECKS, Level3, det_80, det_85
+from factory.validate.harness import CHECKS, Level3, applies, det_80, det_85
 from tests.llm_fake import FIXTURES, FakeClient, pin_to_recorded
 
 REPO = pathlib.Path(__file__).resolve().parents[1]
@@ -60,7 +60,8 @@ def test_k8_positive_control_publishes_with_its_flag(tmp_path):
     assert rec.outcome == "published" and rec.revision_count == 0 and r["site"] is not None
     calls = fake.calls
     assert calls.count("SlotProse") == 7 and fake.judgments == 1
-    assert all(v == "pass" for v in results(rec).values()) and len(rec.results) == len(CHECKS)
+    assert all(v == "pass" for v in results(rec).values()) and len(rec.results) == len(
+        [c for c in CHECKS if applies(c, rec.token)])                          # P-10.07
     page = (root / "out/site/LUSD/index.html").read_text(encoding="utf-8")
     assert 'data-section="exit liquidity"' in page and "off-venue share not computed" in page
     assert page.count('class="prose-slot"') == 7 and "[slot:" not in page

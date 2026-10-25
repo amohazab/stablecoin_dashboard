@@ -730,6 +730,8 @@ def harness_ctx(repo: pathlib.Path, cfg: Config, bundle: Bundle, token: str) -> 
     # B-12 (finding 8): DET-12 S0's comparand is rubric §3 as printed, parsed here -
     # the harness does no file I/O (P-3.43 R1).
     return {"labels": cfg.labels, "printed_trigger_table": read_trigger_table(repo),
+            # archetype #2 (P-10.07): DET-55's attested rows (A-35), DET-90's label rows
+            "attested_rows": cfg.attested_rows, "label_rows": cfg.label_rows,
             "archetype_markers": read_archetype_markers(repo),                # A-48
            "sheet": cfg.sheet, "roots": cfg.roots,
            "today": __import__("datetime").date.today(),

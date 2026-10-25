@@ -13,7 +13,7 @@ import pytest
 from factory.report import assumptions, manifest, record
 from factory.report.__main__ import build
 from factory.report.paths import PathError, resolve
-from factory.validate.harness import CHECKS, Level3, det_84, evaluate_harness
+from factory.validate.harness import CHECKS, Level3, applies, det_84, evaluate_harness
 
 REPO = pathlib.Path(__file__).resolve().parents[1]
 TOKENS = ("crvUSD", "GHO", "LUSD")
@@ -37,7 +37,7 @@ def built(tmp_path_factory):
 
 
 def test_registry_carries_det84_at_the_report_stage():
-    assert len(CHECKS) == 96                                   # B-11b +15, B-12 +6, B-13 +8
+    assert len(CHECKS) == 97                       # B-11b +15, B-12 +6, B-13 +8, P-10.07 +1
     (c,) = [c for c in CHECKS if c.entry_id == "DET-84"]
     assert (c.stage, c.consumer) == ("S2", "report")
 
@@ -143,7 +143,8 @@ def test_record_is_complete_and_enumerates_the_unregistered(built):
     assert not {c.entry_id for c in CHECKS} & set(ids)
     for r in built.values():
         rec = r["record"]
-        assert {x.entry_id for x in rec.results} == {c.entry_id for c in CHECKS}
+        assert {x.entry_id for x in rec.results} == {c.entry_id for c in CHECKS
+                                                    if applies(c, rec.token)}  # P-10.07
         assert rec.revision_count == 0 and rec.revision_cause == [] and rec.judge == []
     assert [x["trigger"] for x in built["GHO"]["record"].triggers][:2] == ["T-20", "T-02"]
     assert {x["trigger"] for x in built["GHO"]["record"].triggers[2:]} <= {"T-28", "T-25"}
@@ -156,4 +157,4 @@ def test_evaluate_harness_never_raises():
     out = evaluate_harness(b, {})
     by = {g.entry_id: g.result for g in out.results}
     assert by["DET-76e"] == "fail" and len(out.results) == len(
-        [c for c in CHECKS if c.stage in ("S0", "S1")])
+        [c for c in CHECKS if c.stage in ("S0", "S1") and applies(c, b.header.token)])

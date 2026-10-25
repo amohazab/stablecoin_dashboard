@@ -385,7 +385,16 @@ def build(cfg, rpc, repo, http_get=catalog_get, disclosure_get=_http_bytes,
                           for e in (a.get("addressEntries") or [])
                           if e.get("chainSlug") == "ethereum" and str(e.get("address", ""))
                           .startswith("0x") and len(e["address"]) == 42})
+    eth_by = {s_["strategy"]: str(sum((Decimal(str(a["value"]))
+                                       for cp in s_.get("counterparties", [])
+                                       for a in cp.get("assets", [])
+                                       if a.get("chainSlug") == "ethereum"), Decimal(0)))
+              for s_ in ba["strategies"]}
+    locations = sorted({a["location"] for s_ in ba["strategies"]
+                        for cp in s_.get("counterparties", []) for a in cp.get("assets", [])
+                        if a.get("location")})
     put("FR-U36", {"strategies": {s_["strategy"]: str(s_["value"]) for s_ in ba["strategies"]},
+                   "ethereum_by_strategy": eth_by, "locations": locations,
                    "timestamp": ba["timestamp"], "ethereum_address_entries": eth_entries},
         d["backing_assets"]["prov"])
     fq = d["funding_quarterly"]["body"]
@@ -399,7 +408,7 @@ def build(cfg, rpc, repo, http_get=catalog_get, disclosure_get=_http_bytes,
     put("FR-U23", b_i, p23)
     group_ii = sorted(set(cfg.attestation_wallets.get("ethereum", [])) | set(eth_entries))
     b_ii, p24 = _balances(rpc, group_ii, buffer_assets)
-    put("FR-U24", {"addresses": group_ii, "balances": b_ii}, p24)
+    put("FR-U24", {"addresses": group_ii, "balances": b_ii, "decimals": decs}, p24)
     b_iii, p33 = _balances(rpc, [v2], buffer_assets)
     put("FR-U33", b_iii.get(v2, {}), p33)
 
@@ -509,6 +518,7 @@ def build(cfg, rpc, repo, http_get=catalog_get, disclosure_get=_http_bytes,
         bridge_disclosure=(f"one lock_and_mint escrow, the OFT adapter, holds {escrow} USDe "
                            "inside totalSupply (Q20)"),
         bridges=[bridge], origination_sum=total, residual=0,       # A-29: O = totalSupply()
+        residual_unexplained=0,
         stabilizer_over_supply=Decimal(0),
         reads={"total_supply": c[3].provenance, "minter": c[2].provenance,
                "decimals": c[4].provenance})
@@ -518,7 +528,7 @@ def build(cfg, rpc, repo, http_get=catalog_get, disclosure_get=_http_bytes,
         r6_gates=[{"kind": "capacity_limited", "param": "global_max_redeem_per_block"},
                   {"kind": "pausable", "param": None}],
         r7_capacity="synthetic.reads.FR-U09 + synthetic.reads.FR-U35",
-        r8="enforceable_unless_paused (capacity: see R7)", r9_legal_claim="disclaimed",
+        r8="enforceable_unless_paused (see R7)", r9_legal_claim="disclaimed",
         r10_provenance=_cr(v2, REDEEM_V2, rb, ["selector_present"]))
     from factory.run import static_metadata_of
     first_run = is_first_run(_BUNDLES, "USDe")

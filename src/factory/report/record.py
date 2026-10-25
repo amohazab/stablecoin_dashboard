@@ -36,11 +36,10 @@ QUEUE = {
     "DET-81": "P-4.01 (GHO [[reference_feed]] rows, gap column - P-7.05)",
     "DET-23abd": "P-4.01 (DET-23 limbs a/b/d beside the registered DET-23c)",
     "DET-76abcd": "P-4.01 (DET-76 limbs a-d beside the registered DET-76e)",
-    "DET-90": "P-10.02 (A-28: buffer reconciliation gap, registered at the USDe adapter build)",
 }
 # P-10.02 ruling 2(a): a queue item's archetype; a record lists an unregistered entry
 # only when the entry's archetype is the token's (`mirror.archetype`). Unlisted = cdp.
-QUEUE_ARCHETYPE = {"DET-90": "synthetic"}
+QUEUE_ARCHETYPE: dict[str, str] = {}   # DET-90 registered at P-10.07
 # Rubric entries whose registration is split into limb rows, and the S3 limbs
 # of entries registered at S0/S2 (inventory L).
 LIMBS = {"DET-29(a)": ["DET-29a"], "DET-29(b)(c)": ["DET-29bc"], "DET-23": ["DET-23c"],

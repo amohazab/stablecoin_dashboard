@@ -241,6 +241,9 @@ def fold(bundle: Bundle, cfg: Config, linked: dict | None = None,
     address to its name. Both resolved by `main`, so the fold stays pure."""
     b = bundle
     token = b.header.token
+    if b.synthetic is not None:                       # archetype #2 (P-10.07)
+        from factory.synthetic_tree import fold_synthetic
+        return fold_synthetic(b, cfg)
     if token not in VALUE_SCALE:
         raise KeyError(f"no value_scale named for token {token!r}")
     backing, shares = fold_shares(b)

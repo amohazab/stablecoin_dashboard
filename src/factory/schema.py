@@ -17,7 +17,7 @@ import json
 from decimal import Decimal
 from typing import Annotated, Any, ClassVar, Literal
 
-from pydantic import BaseModel, StringConstraints, model_validator
+from pydantic import BaseModel, StringConstraints, model_serializer, model_validator
 
 from factory.provenance import (  # noqa: F401
     AbsenceRead,
@@ -846,15 +846,29 @@ class TreeBar(BaseModel):
     denominator: Literal["backing_value"] = "backing_value"
 
 
-class TruncatedNode(BaseModel):
-    address: Address
+class _CategoryKeyed(BaseModel):
+    """P-10.07 (E6): an archetype-#2 tree row is keyed by `category` in place of an
+    address. `category` is dropped from the output when None, so archetype-#1 trees
+    keep their bytes."""
+
+    address: Address | None = None
+    category: str | None = None
+
+    @model_serializer(mode="wrap")
+    def _omit_none_category(self, handler):
+        d = handler(self)
+        if d.get("category") is None:
+            d.pop("category", None)
+        return d
+
+
+class TruncatedNode(_CategoryKeyed):
     symbol: str
     share: Decimal
     reason: str                          # memo 4.1's reason string
 
 
-class StalenessNode(BaseModel):
-    address: Address
+class StalenessNode(_CategoryKeyed):
     symbol: str
     share: Decimal
     last_disclosure_date: str | None
@@ -916,10 +930,9 @@ class OffMainnetLine(BaseModel):
     facilitators: list[dict[str, Any]]
 
 
-class TreeNode(BaseModel):
+class TreeNode(_CategoryKeyed):
     """B-11a′ (R-B11.3): each node under its bar, share over `backing_value`."""
 
-    address: Address
     symbol: str
     label: str
     share: Decimal
@@ -983,6 +996,9 @@ class VerifiabilityTree(BaseModel):
     stabilizer_slice: StabilizerSlice | None = None
     checks: list[GateResult] = []
     flags: list[str] = []
+    # Archetype #2 (P-10.07): label rows, the reserve-fund slice, the supply classes,
+    # the attested DET-55 rows. Excluded from serialisation when None.
+    synthetic: dict[str, Any] | None = None
 
 
 def finalise_tree(tree: VerifiabilityTree) -> VerifiabilityTree:
@@ -996,7 +1012,8 @@ def finalise_tree(tree: VerifiabilityTree) -> VerifiabilityTree:
 
 
 def _tree_exclude(tree: VerifiabilityTree, base: set) -> set:
-    return base | ({"off_mainnet_line"} if tree.off_mainnet_line is None else set())
+    return (base | ({"off_mainnet_line"} if tree.off_mainnet_line is None else set())
+            | ({"synthetic"} if tree.synthetic is None else set()))
 
 
 def serialise_tree(tree: VerifiabilityTree) -> str:

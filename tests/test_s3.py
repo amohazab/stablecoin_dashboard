@@ -94,7 +94,7 @@ def run(fn, tok, inputs, page):
 
 def test_registry_carries_the_fifteen_s3_rows():
     s3 = [c for c in CHECKS if c.stage == "S3"]
-    assert {c.entry_id for c in s3} == S3_IDS and len(CHECKS) == 96
+    assert {c.entry_id for c in s3} == S3_IDS and len(CHECKS) == 97          # P-10.07
     assert all(c.consumer in ("report", "judge") and c.level_on_fail >= 2 for c in s3)
     assert {c.entry_id for c in s3 if c.consumer == "judge"} == {f"LLM-0{i}" for i in range(1, 7)}
 

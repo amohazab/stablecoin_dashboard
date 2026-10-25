@@ -9729,3 +9729,55 @@ Status: OPEN (opened 2026-10-25, P-10.01)
   `config/usde_roots.toml` · `tests/test_{usde_adapter,harness}.py`; `PROGRESS.md`.
 - **Follow-ups spawned:** the first freeze; DET-55 / DET-66 USDe clauses; a ruling on
   DET-90's buffer set (T-30 fires structurally); commit 5 (tree + DET-90).
+
+## P-10.07 — Commit 5: the USDe tree and DET-90 (J1–J5)
+
+- **Date:** 2026-10-25
+- **Type:** decision + implementation
+- **Confirmed by:** Amin
+- **Content:**
+  **P-10.06 APPENDED** at `76b5c21`, pushed (draft = slice, `4884e592…`), with the
+  disclosure set moved to `out/rehearsal/USDe/` by ruling; suite last 407.
+  **RULINGS J1–J5 (Amin):** J1 DET-90 reconciles Liquid Stables only; DeFi Lending and RWA
+  Ethereum entries printed beside the gap, "disclosed, not reconciled (receipt
+  tokens)"; receipt-token reads a follow-up at close · J2 the first freeze at the first
+  promoted run (commit 6); this commit runs unpromoted · J3 USDT / USDC feed rows → raw
+  Chainlink USDT / USD and USDC / USD · J4 flags 1, 2, 3, 6 of P-10.06: no action · J5
+  A-35's DET-55 clause here, A-39's DET-66 clause in commit 7.
+  **TREE** `synthetic_tree.fold_synthetic`, dispatched from `tree.fold` on
+  `bundle.synthetic`: six category nodes at `usdAmount` (whole USD, value_scale 1); label
+  rows at zero weight with their staleness; the reserve-fund slice (not credited); the
+  four supply classes; the attested DET-55 rows; per-node T-29 evaluation (A-28;
+  cadence quarterly 92 / monthly 30 / weekly 7 d, named default). Schema: tree rows keyed
+  by `category` in place of an address; `category` and `tree.synthetic` are omitted when
+  None, so CDP trees keep their bytes.
+  **GATES:** DET-90 registered (S1, Level 1, `[archetypes: synthetic]`, T-30;
+  `len(CHECKS)` 97; queue entry removed). DET-55's A-35 clause. det_18's T-29 limb.
+  DET-14 / DET-19 replay from the category values; DET-15(b) A-29's synthetic form. The
+  adapter's R8 now reads the derivation; FR-U36 carries the Ethereum totals by strategy.
+  **UNPROMOTED RUN** at **26271944** (`out/rehearsal/USDe/`): headline **0 / 0 / 100**;
+  DeFi Lending 35.17%, Liquid Stables 27.16% (derived staleness 117 d, from USDT),
+  Institutional Lending 15.35%, Crypto Basis 15.01%, RWA 6.20%, Equity and RWA Basis
+  1.11%. DET-90: 695.08M on-chain vs 875.74M disclosed; gap 3.94% of backing, so
+  **T-30 does not fire** (DeFi Lending 633.34M not reconciled). T-29: none. S0/S1 18 of
+  21 (DET-66 owed, J5; DET-10 and DET-29a wait for the first freeze, J2). S2 10 of 11.
+  **FLAG — DET-70:** its replay uses archetype #1's qualifying set and banner, while memo
+  #2 §13 (Q12, Q13) adds `set_parameters` and the custodian sentence. A-51 is proposed;
+  the banner's n is the route's named locations (3).
+  **TEXTS FOR SIGNING, not applied (delivery rule 5):**
+  - J1: memo #2 §2's reconciliation sentence (`d317a78d` → `7ebdd7b0`); DET-90's text;
+    A-50.
+  - J3: the two raw feed rows (`description()` verified at 26271959); sheet `bf64d756` →
+    `a2e270cd`; the mirror regenerated; one `intake_trigger` in B-11d's form; line 7 then
+    carries both stamps.
+  **PROOFS:** CDP trees byte-identical to the P-10.05 baseline; three mirrors byte-for-byte.
+  **TESTS:** `tests/test_usde_tree.py` (3); pins moved to 97 in `test_b10`, `test_s3` and
+  `test_archetype_marker` (USDe rows 68); CDP record and DET-13 / DET-85 fixtures
+  compare against the token's rows. Suite **410 passed**.
+  **NOTE:** CDP gate records gain `not_applicable: [DET-90]` at their next runs (E4).
+- **Artifacts:** `src/factory/synthetic_tree.py` (new) · `src/factory/{tree,schema,run}.py` ·
+  `src/factory/adapters/usde.py` · `src/factory/validate/harness.py` ·
+  `src/factory/report/record.py` ·
+  `tests/test_{usde_tree,b10,b12,b13,s3,archetype_marker}.py`; `PROGRESS.md`.
+- **Follow-ups spawned:** sign J1 and J3 (one signed edit); rule A-51 (DET-70); the
+  first freeze and promotion (commit 6); receipt-token reads at close.

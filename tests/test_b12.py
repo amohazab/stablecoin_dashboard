@@ -19,6 +19,7 @@ from factory.validate.harness import (
     TRIGGER_SECTION,
     TRIGGER_TABLE,
     Level3,
+    applies,
     det_12,
     det_12_s3,
     det_13,
@@ -135,7 +136,8 @@ def runs():
         have = {r["entry_id"] for r in rec["results"]}          # B-13's rows postdate the record
         page["_s3_results"] += [{"entry_id": c.entry_id, "stage": "S3", "result": "pass",
                                  "scope_condition": None} for c in CHECKS
-                                if c.entry_id not in have and c.entry_id != "DET-13"]
+                                if c.entry_id not in have and c.entry_id != "DET-13"
+                                and applies(c, tok)]                     # P-10.07
         out[tok] = (inp["bundle"], inp["tree"], s, page)
     return out
 

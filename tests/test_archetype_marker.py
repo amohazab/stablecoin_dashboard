@@ -30,7 +30,8 @@ def test_markers_name_29_cdp_rows_and_det_90():
 def test_registry_sets_equal_the_markers_and_det_12_holds_them():
     m = read_archetype_markers(REPO)
     assert all(m.get(base_id(c.entry_id), ARCHETYPES) == c.archetypes for c in CHECKS)
-    assert len(CHECKS) == 96 and sum(1 for c in CHECKS if c.archetypes == {"cdp"}) == 29
+    assert len(CHECKS) == 97 and sum(1 for c in CHECKS if c.archetypes == {"cdp"}) == 29
+    assert [c.entry_id for c in CHECKS if c.archetypes == {"synthetic"}] == ["DET-90"]
     ctx = {"printed_trigger_table": read_trigger_table(REPO), "archetype_markers": m}
     det_12(None, ctx)
     off = copy.deepcopy(ctx)
@@ -51,9 +52,10 @@ def test_marker_parser_defaults_and_rejects():
 def test_runner_filter_by_token_archetype():
     det03 = next(c for c in CHECKS if c.entry_id == "DET-03")
     det12 = next(c for c in CHECKS if c.entry_id == "DET-12")
-    assert all(applies(c, t) for c in CHECKS for t in ("crvUSD", "GHO", "LUSD"))
+    assert all(applies(c, t) for c in CHECKS for t in ("crvUSD", "GHO", "LUSD")
+               if c.entry_id != "DET-90")
     assert not applies(det03, "USDe") and applies(det12, "USDe")
-    assert sum(applies(c, "USDe") for c in CHECKS) == 67                        # E1 floor
+    assert sum(applies(c, "USDe") for c in CHECKS) == 68           # E1 floor 67 + DET-90
 
 
 def test_record_omits_an_empty_not_applicable():

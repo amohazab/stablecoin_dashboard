@@ -150,6 +150,50 @@ def det_12(b: Bundle, ctx) -> None:
         raise Level3(f"DET-12: archetype markers differ from the registry on {off[:6]}")
 
 
+DET90_THRESHOLD = __import__("decimal").Decimal("0.05")
+
+
+def det90_figures(b: Bundle, ctx) -> dict:
+    """DET-90 under J1 (P-10.07): Σ of the label-row assets (buffer rows with an
+    Ethereum address) held at the group (i)-(iii) addresses, each address once, at par,
+    against the route's Liquid Stables entries with `chainSlug == ethereum`. DeFi
+    Lending and RWA Ethereum entries are printed beside the gap, not reconciled
+    (receipt tokens)."""
+    from decimal import Decimal
+    r = b.synthetic.reads
+    assets = {row.address for row in ctx["label_rows"].values()
+              if row.address != "none" and "buffer" in row.roles}
+    dec = r["FR-U24"].value["decimals"]
+    held: dict[str, dict] = {}
+    for h, row in r["FR-U23"].value.items():
+        held[h] = row
+    for h, row in r["FR-U24"].value["balances"].items():
+        held[h] = row
+    held[r["FR-U02"].value] = r["FR-U33"].value
+    onchain = sum((Decimal(v) / Decimal(10) ** dec[a] for row in held.values()
+                   for a, v in row.items() if a in assets), Decimal(0))
+    eth = r["FR-U36"].value["ethereum_by_strategy"]
+    disclosed = Decimal(eth.get("Liquid Stables", "0"))
+    backing = Decimal(r["FR-U21"].value["backing_usd"])
+    gap = abs(onchain - disclosed)
+    return {"buffer_onchain": onchain, "disclosure_onchain": disclosed, "gap": gap,
+            "backing": backing, "gap_share": gap / backing,
+            "not_reconciled": {k: Decimal(eth.get(k, "0")) for k in ("DeFi Lending", "RWA")},
+            "fires": gap > DET90_THRESHOLD * backing}
+
+
+def det_90(b: Bundle, ctx) -> tuple[str, int] | str:
+    """DET-90 (A-28, J1): buffer reconciliation gap, archetype #2, S1. A gap above 5%
+    of backing fires T-30 at Level 1; otherwise the figures are the scope."""
+    f = det90_figures(b, ctx)
+    if f["fires"]:
+        return ("T-30", 1)
+    return (f"gap {f['gap']:.2f} ({f['gap_share']:.4%} of backing): Liquid Stables on-chain "
+            f"{f['buffer_onchain']:.2f} vs disclosed {f['disclosure_onchain']:.2f}; disclosed, "
+            "not reconciled (receipt tokens): "
+            + ", ".join(f"{k} {v:.0f}" for k, v in f["not_reconciled"].items()))
+
+
 def det_77(b: Bundle, ctx) -> None:
     """Sheet fields present, typed, dated; sheet version stamped (R-47).
 
@@ -561,6 +605,8 @@ DET55_ENUMS = {"crvUSD": ("instant_optimistic_counterfactual", "EMA_lag"),
 
 def det_55(b: Bundle, ctx) -> None:
     """Oracle-dependency table: a row per priced node, ema_window typed."""
+    if b.synthetic is not None:                                       # A-35 (P-10.07)
+        return _det_55_synthetic(b, ctx)
     priced = {n.address for n in b.nodes if n.value > 0}
     covered = {r.node_address for r in b.oracle_rows}
     if priced - covered:
@@ -594,6 +640,30 @@ def det_55(b: Bundle, ctx) -> None:
     if bad:
         raise Level3(f"DET-55: {len(bad)} row(s) off {b.header.token}'s "
                      f"(assumption_applied, counterfactual_ref) {want}: {bad[:3]}")
+
+
+A35_ATTESTED = {"update_condition_type": "attested",
+                "staleness_check": "not_applicable_attested",
+                "assumption_applied": "attested_value", "counterfactual_ref": None}
+
+
+def _det_55_synthetic(b: Bundle, ctx) -> str:
+    """A-35: every disclosure-category node carries one `attested` row with the ruled
+    fields; every buffer label row with an Ethereum address has its Chainlink
+    reference feed read at `run_block` (the R-49 gap column at par, R-16)."""
+    cats = set(b.synthetic.reads["FR-U20"].value)
+    rows = ctx["attested_rows"]
+    if cats - set(rows):
+        raise Level3(f"DET-55: no attested row for categories {sorted(cats - set(rows))}")
+    off = [c for c in cats if any(rows[c].get(k) != v for k, v in A35_ATTESTED.items())]
+    if off:
+        raise Level3(f"DET-55: attested rows off A-35's fields: {off}")
+    feeds = set(b.synthetic.reads["FR-U28"].value)
+    want = {s for s, r in ctx["label_rows"].items()
+            if r.address != "none" and "buffer" in r.roles}
+    if want - feeds:
+        raise Level3(f"DET-55: no reference feed read for {sorted(want - feeds)}")
+    return f"{len(cats)} attested rows; {len(want)} reference feeds read"
 
 
 # --- DET-66 vocabularies and helpers (rubric line 102) -----------------------
@@ -961,10 +1031,31 @@ def _share_sum(s) -> Decimal:
     return sum((getattr(s, k) for k in TREE_LABELS), Decimal(0))
 
 
+def _category_values(b: Bundle, t: VerifiabilityTree) -> list[tuple[str, int]]:
+    """Archetype #2 (P-10.07): the (label, value) of each disclosure-category node -
+    the value from the bundle's FR-U20 read, the label from the tree's own row."""
+    label = {n.category: n.label for n in t.nodes}
+    return [(label.get(c, "unlisted"), v) for c, v in b.synthetic.reads["FR-U20"].value.items()]
+
+
 def det_14(b: Bundle, t: VerifiabilityTree) -> None:
     """Backed-branch composition sums: (a) the sum of node values IS
     `backing_value`, exact; (b) classified shares + U = 1, each label replaying
-    from the node values and from the bundle's own `share_of_backing`, 1e-6."""
+    from the node values and from the bundle's own `share_of_backing`, 1e-6.
+    Archetype #2: the node values are the six category amounts (FR-U20, D1)."""
+    if b.synthetic is not None:
+        rows = _category_values(b, t)
+        backing = sum(v for _, v in rows)
+        if t.root.backing_value != backing:
+            raise Level3(f"DET-14(a): backing_value {t.root.backing_value} != sum of "
+                         f"category values {backing}")
+        if abs(_share_sum(t.shares) - 1) > TREE_TOL:
+            raise Level3(f"DET-14(b): shares sum to {_share_sum(t.shares)}")
+        for label in TREE_LABELS:
+            by_value = Decimal(sum(v for lb, v in rows if lb == label)) / Decimal(backing)
+            if abs(getattr(t.shares, label) - by_value) > TREE_TOL:
+                raise Level3(f"DET-14(b): {label} replays as {by_value}")
+        return None
     backing = sum(n.value for n in b.nodes)
     if t.root.backing_value != backing:
         raise Level3(f"DET-14(a): backing_value {t.root.backing_value} != sum of node "
@@ -983,7 +1074,9 @@ def det_19(b: Bundle, t: VerifiabilityTree) -> None:
     """Denominator discipline: every share and bar is over `backing_value` and
     replays against it; nothing is over `supply_ruled`; the stabilizer line is
     an amount (P-6.01 R1 retired the pending literal)."""
-    backing = Decimal(sum(n.value for n in b.nodes))
+    rows = (_category_values(b, t) if b.synthetic is not None
+            else [(n.label, n.value) for n in b.nodes])                    # P-10.07
+    backing = Decimal(sum(v for _, v in rows))
     want = {"terminal": ("terminal",), "terminal_other_layer": ("terminal_other_layer",),
             "disclosure_dependent": ("recurses", "recurses_truncated")}
     if [x.name for x in t.bars] != list(want):
@@ -991,7 +1084,7 @@ def det_19(b: Bundle, t: VerifiabilityTree) -> None:
     for bar in t.bars:
         if bar.denominator != "backing_value":
             raise Level3(f"DET-19: bar {bar.name} over {bar.denominator}")
-        v = Decimal(sum(n.value for n in b.nodes if n.label in want[bar.name])) / backing
+        v = Decimal(sum(val for lb, val in rows if lb in want[bar.name])) / backing
         if abs(bar.share - v) > TREE_TOL:
             raise Level3(f"DET-19: bar {bar.name} {bar.share} replays as {v}")
     for key in ("shares", "bars", "truncated_share", "truncated_nodes.share",
@@ -1372,6 +1465,17 @@ def det_15(b: Bundle, t: VerifiabilityTree) -> str:
         o = sum(f.bucket_level for f in b.facilitators)
     elif token == "LUSD":
         o = sum(m.gross_debt_sum for m in b.markets)
+    elif b.synthetic is not None:
+        # A-29: O = mainnet totalSupply(), with minter() uniqueness as evidence that no
+        # second mint path exists; residual zero by construction; holder classes.
+        r = b.synthetic.reads
+        if "minter" not in sp.reads or not r["FR-U02"].value:
+            raise Level3("DET-15(b): minter() read absent (A-29)")
+        o = sp.total_supply
+        classes = (r["FR-U06"].value + r["FR-U07"].value["balance"]
+                   + r["FR-U08"].value["balance"])
+        if classes > o:
+            raise Level3(f"DET-15(b): staked + cooling + escrow {classes} > O {o}")
     else:
         raise NotYetImplemented(f"DET-15(b): no O for {token}")
     if sp.origination_sum != o:
@@ -2575,6 +2679,16 @@ def det_17(b: Bundle, t: VerifiabilityTree, r: StressReport, page: dict) -> str:
 
 
 def det_18(b: Bundle, t: VerifiabilityTree, r: StressReport, page: dict) -> str:
+    """The staleness pair, plus A-28's T-29 limb on an archetype-#2 tree: a `recurses`
+    node older than 2x its cadence fires T-29 at Level 1, named in the scope."""
+    scope = _det_18_pair(b, t, r, page)
+    overdue = [x["category"] for x in ((t.synthetic or {}).get("t29") or []) if x["overdue"]]
+    if overdue:
+        return f"T-29 (L1): disclosure overdue on {', '.join(overdue)}; {scope}"
+    return scope
+
+
+def _det_18_pair(b: Bundle, t: VerifiabilityTree, r: StressReport, page: dict) -> str:
     """Staleness pair, S3: printed format carries weighted days, worst node
     name, worst days and worst weight; a per-node column for every node in D;
     D empty => "no disclosure-dependent nodes"; the companion line iff the
@@ -3473,6 +3587,7 @@ CHECKS: list[Check] = [
     Check("DET-71", "S1", 3, det_71),                  # B-9, P-7.03 ruling 3
     Check("DET-76e", "S1", 3, det_76e),                # B-9, P-7.01 R7
     Check("DET-82", "S1", 3, det_82),
+    Check("DET-90", "S1", 1, det_90, archetypes=frozenset({"synthetic"})),   # P-10.07
     Check("DET-52", "S1", 3, det_52),
     # S2 - the tree (P-5.01 R6); Level 2 = the report is not published.
     Check("DET-14", "S2", 2, det_14), Check("DET-19", "S2", 2, det_19),
