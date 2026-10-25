@@ -525,9 +525,9 @@ def test_execute_unknown_token_stops_before_any_rpc(tmp_path):
     P-4.02 said 4B and 4C would. `OWED` is now EMPTY, so the guard is asserted
     on an unknown token instead - which is the branch that outlives the pilot.
     """
-    with pytest.raises(AssemblyStop) as exc:
-        execute(tmp_path, "http://rpc.invalid", "USDe")
-    assert "USDe" in str(exc.value) and "pilot tokens" in str(exc.value)
+    with pytest.raises(AssemblyStop) as exc:          # P-10.06: USDe has an adapter now
+        execute(tmp_path, "http://rpc.invalid", "FRAX")
+    assert "FRAX" in str(exc.value) and "pilot tokens" in str(exc.value)
 
     with pytest.raises(AssemblyStop) as exc:
         execute(tmp_path, "http://rpc.invalid", "crvUSDD")

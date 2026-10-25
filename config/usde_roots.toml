@@ -44,6 +44,17 @@ derivation_route = "analyst root: located via L2 USDe OFT peers(30101), not on d
 source = "intake-sheet-usde.md, Contracts to read; token() = USDe; approvalRequired(); FR-U08"
 date = 2026-10-25
 
+# ---- Curve enumeration: PIN-ONLY REUSE, not a new discovery root (P-10.06) -----
+# The address crvUSD signed at P-3.35; every USDe Curve pool sits in this
+# registry class (Inventory G, G7: 22 pools, all factory-stable-ng).
+[[root]]
+id = "pool_factory_stable_ng"
+address = "0x6a8cbed756804b16e05e741edabd5cb544ae21bf"
+role = "Curve pool enumeration (pool_count/pool_list) for the registry class factory-stable-ng"
+derivation_route = "pin-only reuse of a signed root"
+source = "config/discovery_roots.toml's `pool_factory_stable_ng` row (P-3.35), unchanged"
+date = 2026-10-25
+
 # DERIVED PER RUN — never configured, never a row here:
 #   EthenaMinting V2          <- USDe.minter()          (V1 retired by this read, Q45)
 #   EthenaTimelockController  <- USDe.owner()

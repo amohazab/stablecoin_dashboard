@@ -16,6 +16,7 @@ from decimal import Decimal
 
 from factory.adapters import gho as gho_adapter
 from factory.adapters import lusd as lusd_adapter
+from factory.adapters import usde as usde_adapter
 from factory.adapters.crvusd import discover_lend_markets
 from factory.config import Config, load, sell_side_for
 from factory.disclosure import disclosure_fields
@@ -678,7 +679,8 @@ def _event_log(repo: pathlib.Path, token: str) -> pathlib.Path:
 # before `RpcClient` is constructed, so an unbuilt adapter cannot reach the
 # network. Steps 4B and 4C delete their `OWED` row when the adapter lands.
 ASSEMBLIES = {"crvUSD": assemble, "GHO": gho_adapter.assemble,
-              "LUSD": lusd_adapter.assemble}
+              "LUSD": lusd_adapter.assemble,
+              "USDe": usde_adapter.assemble}                    # P-10.06
 # EMPTY at P-4.16: the three pilot adapters all exist. The dict stays because
 # the shape is the contract - a fourth token (USDe, Step 10) gets a row here
 # and stops before any RPC call until its adapter lands.
@@ -751,13 +753,19 @@ def harness_ctx(repo: pathlib.Path, cfg: Config, bundle: Bundle, token: str) -> 
            # DET-10(b)'s comparand and (d)-ii's last-run ratios. Both come from
            # OUTSIDE the bundle so the gate compares the emitted table against
            # the signed set file and the prior run, never against itself.
-           "frozen_set_members": fs_members(cfg.frozen_set_path),
+           # P-10.06: a token before its first freeze has no set file; the three
+           # set-derived entries are empty and the DET-10/29 rows that read them
+           # route on the absence (USDe's first runs).
+           "frozen_set_members": (fs_members(cfg.frozen_set_path)
+                                  if cfg.frozen_set_path.exists() else set()),
            # DET-29(a) (B-8): the set file's own properties, parsed here so
            # the harness stays free of file I/O.
-           "frozen_set": json.loads(cfg.frozen_set_path.read_text(encoding="utf-8")),
-           "last_run_ratio": last_run_ratios(repo / BUNDLES, token,
-                                             cfg.frozen_set_path,
-                                             bundle.header.run_block)}
+           "frozen_set": (json.loads(cfg.frozen_set_path.read_text(encoding="utf-8"))
+                          if cfg.frozen_set_path.exists() else None),
+           "last_run_ratio": (last_run_ratios(repo / BUNDLES, token,
+                                              cfg.frozen_set_path,
+                                              bundle.header.run_block)
+                              if cfg.frozen_set_path.exists() else {})}
 
 
 def write_raw(repo, token: str, run_block: int, raw: str, *, disclosures: bool = False) -> None:
@@ -798,6 +806,10 @@ def _promote(repo, cfg, token, bundle, extra, outcome, t0) -> dict:
     if token == "GHO":
         sheet_path = write_spotcheck_gho(stamped, repo / "out/spotcheck/GHO",
                                          gho=cfg.root("gho_token").address)
+    elif token == "USDe":
+        # NAMED IMPLEMENTER DEFAULT (P-10.06): USDe's spot-check sheet lands with its
+        # stress artifact (commit 6); until then the run writes none.
+        sheet_path = None
     elif token == "LUSD":
         sheet_path = write_spotcheck_lusd(stamped, repo / "out/spotcheck/LUSD",
                                           lusd=cfg.root("lusd_token").address,

@@ -654,6 +654,26 @@ class FirstRunLiterals(BaseModel):
 # ------------------------------------------------------------- bundle ------
 
 
+class SyntheticRead(BaseModel):
+    """One `first_run_reads[]` row of an archetype-#2 sheet, read (P-10.06). Keyed by
+    its tag id; `field_path` is the registry's `bundle_field_path`, verbatim, so the
+    sheet's registry and the bundle name the same read."""
+
+    tag_id: str
+    field_path: str
+    value: Any
+    provenance: list[Provenance]
+
+
+class SyntheticBlock(BaseModel):
+    """Archetype #2's reads (P-10.06, NAMED IMPLEMENTER DEFAULT): the FR-U rows by tag
+    id. Absent on archetype-#1 bundles and excluded from their serialisation when
+    None, so no CDP byte or `bundle_hash` moves."""
+
+    archetype: Literal["synthetic"] = "synthetic"
+    reads: dict[str, SyntheticRead]
+
+
 class Bundle(BaseModel):
     header: Header
     markets: list[Market]
@@ -694,6 +714,7 @@ class Bundle(BaseModel):
     counts: Counts
     attribution_method: Literal["per_position", "protocol_level_fallback", "direct"]
     first_run_literals: FirstRunLiterals | None = None
+    synthetic: SyntheticBlock | None = None                  # archetype #2 (P-10.06)
     # B-9 (P-7.05 S14): `gate_results` and `log_entries` REMOVED. The first was
     # stamped after `finalise()`, so no stored bundle replayed its own hash
     # (Step-3 as-counted); the gate record owns results (R13) and `eventlog.py`
@@ -994,7 +1015,8 @@ def _default(o: Any) -> Any:
 
 def serialise(bundle: Bundle) -> str:
     """Deterministic JSON (O-2): sorted keys, fixed separators, no floats."""
-    payload = bundle.model_dump(mode="python", exclude={"header": {"bundle_hash"}})
+    payload = bundle.model_dump(mode="python", exclude=_bundle_exclude(
+        bundle, {"header": {"bundle_hash"}}))
     return json.dumps(payload, sort_keys=True, separators=(",", ":"),
                       ensure_ascii=False, default=_default)
 
@@ -1006,8 +1028,15 @@ def serialise_for_disk(bundle: Bundle) -> str:
     this is the artifact (hash embedded, per DET-13(a)). Same deterministic
     settings (O-2) either way.
     """
-    return json.dumps(bundle.model_dump(mode="python"), sort_keys=True,
-                      separators=(",", ":"), ensure_ascii=False, default=_default)
+    return json.dumps(bundle.model_dump(mode="python", exclude=_bundle_exclude(bundle, {})),
+                      sort_keys=True, separators=(",", ":"), ensure_ascii=False,
+                      default=_default)
+
+
+def _bundle_exclude(bundle: Bundle, base: dict) -> dict:
+    """P-10.06: an archetype-#1 bundle carries no `synthetic` key (the tree's
+    `off_mainnet_line` convention), so its bytes and hash do not move."""
+    return {**base, "synthetic": True} if bundle.synthetic is None else base
 
 
 def finalise(bundle: Bundle) -> tuple[Bundle, str]:

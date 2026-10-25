@@ -9676,3 +9676,56 @@ Status: OPEN (opened 2026-10-25, P-10.01)
 - **Artifacts:** `config/usde_roots.toml` (new) · `config/usde_labels.toml` (new) ·
   `src/factory/{config,run}.py` · `tests/test_usde_config.py` (new); `PROGRESS.md`.
 - **Follow-ups spawned:** commit 4 (adapter reads), with the Curve enumeration root.
+
+## P-10.06 — Commit 4: the USDe adapter reads; the first live run (rehearsal)
+
+- **Date:** 2026-10-25
+- **Type:** implementation
+- **Confirmed by:** Amin
+- **Content:**
+  **P-10.05 APPENDED** at `47b06e0`, pushed (draft = slice, `195de200…`); suite last 402.
+  **ADAPTER** `src/factory/adapters/usde.py`: FR-U01–U37 as the registry specifies.
+  - On-chain at one `run_block`; V2 derived from `minter()`, timelock from `owner()`,
+    silo from `silo()`. Custodian and asset sets by events (POINTER) and `is…`
+    getters (VERDICT); roles by `gho.role_holders` (logs, then `hasRole`);
+    `LOGS_FROM_BLOCK = 18,500,000` (named default, before USDe's launch).
+  - Seven disclosure fetches, shape-gated (a missing key stops the run, Q29), each a
+    `DisclosureSnapshot` (route as-of; the fetch date where the route has none).
+  - FR-U24 = the union of the attestation list and the route's Ethereum addressEntries;
+    FR-U37 = the quarterly series minimum.
+  - `holder_kind`: no code → eoa, `getThreshold()` → multisig, `getMinDelay()` →
+    timelock, else contract_automated (the GHO helper probes `getDelay()`).
+  - Signatures for `redeem` and `redistributeLockedAmount` from the verified ABIs; the
+    scans read the dispatcher's PUSH4.
+  - Reference feeds: `latestRoundData()`, else `latestAnswer()`.
+  **SCHEMA:** `SyntheticRead` / `SyntheticBlock` keyed by tag id, each carrying the
+  registry's `bundle_field_path`; `Bundle.synthetic` is excluded from serialisation when
+  None, so CDP bytes and hashes do not move. CDP-shaped fields carry Q44's empties.
+  **RUN.PY:** USDe in `ASSEMBLIES`; `harness_ctx` tolerates an absent set file; USDe
+  writes no spot-check sheet until commit 6 (named default).
+  **CONFIG:** `usde_roots.toml` gains `pool_factory_stable_ng`, pin-only reuse of the
+  P-3.35 root (`pool_count()` 1,080 at the run block).
+  **FIRST LIVE RUN** at **26271781**, 29.7 s: 37 of 37 reads made. S0/S1 16 pass; DET-55
+  and DET-66 `NotYetImplemented` (their USDe clauses, A-35 / A-39, are owed); DET-10
+  fail and DET-29a error (no set file before the first freeze). Bundle written to
+  `out/rehearsal/USDe/26271781.json` (`1beee716`), not promoted. Disclosure set moved,
+  by ruling, to `out/rehearsal/USDe/disclosures-26271781.json` (46,091 B, untracked);
+  `out/disclosures/USDe/` receives its first file at the first promoted run.
+  **READ-BACK** `out/reports/step10-d2-c4-readback.md`: 31 OK, 6 FLAG. Flags:
+  - a fourth Safe holds the timelock's EXECUTOR role (3-of-6; first read of those roles);
+  - backing ÷ supply = 1.00044, below Q22(d)'s 101%, so T-07 fires once A-37 runs;
+  - the route's Morpho entries moved (…461, …463);
+  - no freeze, so exit depth is not runnable;
+  - the GHO-reused USDT / USDC feed rows are CAPO adapters, read by `latestAnswer()`;
+  - the route revised 2022-Q3 (0.1088 → 0.1016).
+  **Q5 RECONCILIATION:** buffer 695.11M vs disclosure 1,508.84M; gap 17.74% of backing,
+  so **T-30 fires**. Structural: DeFi Lending's Ethereum supply receipts are outside the
+  buffer asset set. **T-29:** none of 11 rows fires.
+  **PROOFS:** CDP trees byte-identical to the P-10.05 baseline; three mirrors byte-for-byte;
+  latest CDP bundles re-serialise unchanged, with no `synthetic` key.
+  **TESTS:** `tests/test_usde_adapter.py` (5); `test_harness`'s unknown-token case now
+  uses "FRAX". Suite **407 passed**.
+- **Artifacts:** `src/factory/adapters/usde.py` (new) · `src/factory/{schema,run}.py` ·
+  `config/usde_roots.toml` · `tests/test_{usde_adapter,harness}.py`; `PROGRESS.md`.
+- **Follow-ups spawned:** the first freeze; DET-55 / DET-66 USDe clauses; a ruling on
+  DET-90's buffer set (T-30 fires structurally); commit 5 (tree + DET-90).
