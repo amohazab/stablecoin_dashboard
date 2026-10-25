@@ -1,8 +1,9 @@
 """Provenance primitives, pulled forward from B-5's schema.
 
-Only the three provenance shapes and the lineage enum land here — rpc.py cannot
+Only the provenance shapes and the lineage enum land here — rpc.py cannot
 emit provenance without them. The rest of the common schema arrives at B-5.
-Shapes ruled at P-3.08; `storage_slot_read` added by P-3.07 ruling (i) branch 2.
+Shapes ruled at P-3.08; `storage_slot_read` added by P-3.07 ruling (i) branch 2;
+`DisclosureSnapshot`, the fourth shape, by Q27 (P-10.03).
 """
 
 from __future__ import annotations
@@ -44,8 +45,22 @@ class AbsenceRead(BaseModel):
     block: int
 
 
+class DisclosureSnapshot(BaseModel):
+    """A value taken from a fetched issuer disclosure, pinned by the snapshot's
+    hash (memo #2 §9, Q27, P-10.03). The snapshot set is committed under
+    `out/disclosures/<token>/<run_block>.json` (Q42)."""
+
+    kind: Literal["disclosure_snapshot"] = "disclosure_snapshot"
+    source_url: str
+    as_of_date: _dt.date
+    published_date: _dt.date | None = None
+    sha256: str
+    fetched_at: _dt.datetime
+
+
 Provenance = Annotated[
-    ContractRead | AnalystSupplied | AbsenceRead, Field(discriminator="kind")
+    ContractRead | AnalystSupplied | AbsenceRead | DisclosureSnapshot,
+    Field(discriminator="kind"),
 ]
 
 Lineage = Literal[

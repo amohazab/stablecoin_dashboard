@@ -758,6 +758,20 @@ def harness_ctx(repo: pathlib.Path, cfg: Config, bundle: Bundle, token: str) -> 
                                              bundle.header.run_block)}
 
 
+def write_raw(repo, token: str, run_block: int, raw: str, *, disclosures: bool = False) -> None:
+    """The raw dump at `out/raw/<run_block>.json` (gitignored), which
+    `stress.assert_raw_hash` reads. A token whose raw dump IS its disclosure
+    snapshot set also writes the same bytes, tracked, to
+    `out/disclosures/<token>/<run_block>.json` (Q42, P-10.03): the copy at
+    `out/raw` keeps the stress loader unchanged."""
+    (repo / "out/raw").mkdir(parents=True, exist_ok=True)
+    (repo / f"out/raw/{run_block}.json").write_text(raw, encoding="utf-8", newline="")
+    if disclosures:
+        d = repo / "out/disclosures" / token
+        d.mkdir(parents=True, exist_ok=True)
+        (d / f"{run_block}.json").write_text(raw, encoding="utf-8", newline="")
+
+
 def _promote(repo, cfg, token, bundle, extra, outcome, t0) -> dict:
 
     # B-9 (P-7.05 S14): S0/S1 results are NOT stamped onto the bundle - they
@@ -792,9 +806,8 @@ def _promote(repo, cfg, token, bundle, extra, outcome, t0) -> dict:
             controller_factory=cfg.root("controller_factory").address,
             biggest_position=biggest)
 
-    (repo / "out/raw").mkdir(parents=True, exist_ok=True)
-    (repo / f"out/raw/{stamped.header.run_block}.json").write_text(
-        extra["raw"], encoding="utf-8", newline="")
+    write_raw(repo, token, stamped.header.run_block, extra["raw"],
+              disclosures=bool(extra.get("disclosures")))
     out = repo / BUNDLES / token
     out.mkdir(parents=True, exist_ok=True)
     (out / f"{stamped.header.run_block}.json").write_text(

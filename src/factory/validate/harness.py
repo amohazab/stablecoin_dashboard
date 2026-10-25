@@ -17,7 +17,7 @@ from contextvars import ContextVar
 from dataclasses import dataclass
 from decimal import ROUND_HALF_UP, Decimal
 
-from factory.provenance import AbsenceRead, AnalystSupplied, ContractRead
+from factory.provenance import AbsenceRead, AnalystSupplied, ContractRead, DisclosureSnapshot
 from factory.schema import Bundle, GateResult, StressReport, VerifiabilityTree
 
 # Trigger table, mirrored from rubric §3. DET-12 compares this to the printed
@@ -478,6 +478,9 @@ def det_76e(b: Bundle, ctx) -> None:
         if isinstance(prov, ContractRead):
             if prov.block != b.header.run_block:
                 raise Level3(f"DET-76(e): {n.symbol} disclosure read off run_block")
+        elif isinstance(prov, DisclosureSnapshot):              # Q27 (P-10.03)
+            if prov.as_of_date.isoformat() != str(n.last_disclosure_date):
+                raise Level3(f"DET-76(e): {n.symbol} disclosure date != snapshot as_of_date")
         elif not isinstance(prov, AnalystSupplied):
             raise Level3(f"DET-76(e): {n.symbol} disclosure date without provenance")
     return None
@@ -763,7 +766,7 @@ def det_66(b: Bundle, ctx) -> None:
             if not prov.source or prov.date is None:
                 raise Level3(f"{at}: R10 document/date form incomplete")
         else:
-            raise Level3(f"{at}: R10 provenance of unknown shape: {type(prov)}")
+            raise Level3(f"{at}: R10 provenance of unknown shape: {prov.kind}")
 
 
 # --- DET-10 named implementer defaults (all P-3.43 unless stated) ------------
@@ -1060,7 +1063,11 @@ def _token_address(b: Bundle) -> str:
     """The token's own address, from the provenance of its `totalSupply()` read
     — every adapter makes that read on the token itself."""
     p = b.supply.reads["total_supply"]
-    return p.source_contract if isinstance(p, ContractRead) else p.contract
+    if isinstance(p, ContractRead):
+        return p.source_contract
+    if isinstance(p, AbsenceRead):
+        return p.contract
+    raise Level3(f"unexpected provenance shape on total_supply: {p.kind}")  # P-10.03
 
 
 def det_06(b: Bundle, t: VerifiabilityTree) -> str | None:
@@ -1256,7 +1263,12 @@ def det_72(b: Bundle, t: VerifiabilityTree) -> str:
             continue
         onchain += 1
         prov = p.r10_provenance
-        contract = prov.source_contract if isinstance(prov, ContractRead) else prov.contract
+        if isinstance(prov, ContractRead):
+            contract = prov.source_contract
+        elif isinstance(prov, AbsenceRead):
+            contract = prov.contract
+        else:
+            raise Level3(f"DET-72: path {i} R10 has unexpected provenance shape {prov.kind}")
         targets = {contract, freezers.get(contract)} - {None}
         matched = [r.power for r in rows if targets & set(r.scope)]
         marked = any(g["kind"] == "pausable" for g in p.r6_gates)
