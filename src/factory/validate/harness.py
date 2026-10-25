@@ -18,6 +18,7 @@ from dataclasses import dataclass
 from decimal import ROUND_HALF_UP, Decimal
 
 from factory.provenance import AbsenceRead, AnalystSupplied, ContractRead, DisclosureSnapshot
+from factory.rubric import ARCHETYPES, base_id
 from factory.schema import Bundle, GateResult, StressReport, VerifiabilityTree
 
 # Trigger table, mirrored from rubric §3. DET-12 compares this to the printed
@@ -81,6 +82,22 @@ class Check:
     # `run_harness`'s ("S0", "S1") filter keeps `factory.run` unreachable from
     # either consumer.
     consumer: str = "tree"
+    # A-33 / E4 (P-10.04): the archetypes the row runs on, equal to its §1 marker
+    # (A-48, checked by DET-12); a token whose archetype is outside the set lists the
+    # row under the record's `not_applicable[]` instead of running it.
+    archetypes: frozenset = frozenset({"cdp", "synthetic"})
+
+
+def _page_token(b, page: dict) -> str:
+    """The token a report-stage row runs for: the bundle's, else the page table's
+    (unit calls pass no bundle); "" reads as archetype #1."""
+    return b.header.token if b is not None else (page.get("table") or {}).get("token", "")
+
+
+def applies(chk: Check, token: str) -> bool:
+    """E4: the row runs on this token (`mirror.archetype`, cdp unless listed)."""
+    from factory.mirror import archetype
+    return archetype(token) in chk.archetypes
 
 
 @dataclass
@@ -125,6 +142,12 @@ def det_12(b: Bundle, ctx) -> None:
     if runtime != got:
         diff = set(runtime.items()) ^ set(got.items())
         raise Level3(f"DET-12: trigger table mismatch {sorted(diff)[:4]}")
+    # A-48 (P-10.04): §1's `[archetypes: …]` markers equal the registry's sets.
+    markers = ctx["archetype_markers"]
+    off = sorted(c.entry_id for c in CHECKS
+                 if markers.get(base_id(c.entry_id), ARCHETYPES) != c.archetypes)
+    if off:
+        raise Level3(f"DET-12: archetype markers differ from the registry on {off[:6]}")
 
 
 def det_77(b: Bundle, ctx) -> None:
@@ -1409,7 +1432,8 @@ def run_tree_checks(bundle: Bundle, tree: VerifiabilityTree) -> list[GateResult]
     `error`, never `pass`. Every entry yields a result, so a rehearsal tree
     records WHICH failed; `factory.tree` routes on them (R2)."""
     results = []
-    for chk in (c for c in CHECKS if c.stage == "S2" and c.consumer == "tree"):
+    for chk in (c for c in CHECKS if c.stage == "S2" and c.consumer == "tree"
+                and applies(c, bundle.header.token)):
         try:
             scope = chk.fn(bundle, tree)
             results.append(GateResult(entry_id=chk.entry_id, result="pass",
@@ -2274,7 +2298,8 @@ def run_stress_checks(bundle: Bundle, tree: VerifiabilityTree,
     results = []
     token = _M4_FIELDS.set(tuple(m4_fields) if m4_fields else None)
     try:
-        for chk in (c for c in CHECKS if c.stage == "S2" and c.consumer == "stress"):
+        for chk in (c for c in CHECKS if c.stage == "S2" and c.consumer == "stress"
+                    and applies(c, bundle.header.token)):
             try:
                 scope = chk.fn(bundle, tree, report)
                 results.append(GateResult(entry_id=chk.entry_id, result="pass",
@@ -2358,7 +2383,8 @@ def run_report_checks(bundle: Bundle, tree: VerifiabilityTree, report: StressRep
     results = []
     page["_s3_results"] = []            # DET-13 reads the record as it stands (B-12)
     consumers = ("report", "judge") if stage == "S3" else ("report",)
-    for chk in (c for c in CHECKS if c.consumer in consumers and c.stage == stage):
+    for chk in (c for c in CHECKS if c.consumer in consumers and c.stage == stage
+                and applies(c, bundle.header.token)):
         try:
             scope = chk.fn(bundle, tree, report, page)
             results.append(GateResult(entry_id=chk.entry_id, result="pass",
@@ -3331,7 +3357,8 @@ def det_13(b: Bundle, t: VerifiabilityTree, r: StressReport, page: dict) -> str:
         raise Level3(f"DET-13(b): revision_count {rev}")
     results = [*page["prior_results"], *page.get("_s3_results", [])]
     ids = [x["entry_id"] for x in results]
-    want = [c.entry_id for c in CHECKS if c.entry_id != "DET-13"]
+    want = [c.entry_id for c in CHECKS if c.entry_id != "DET-13"
+            and applies(c, _page_token(b, page))]                           # A-33
     if sorted(ids) != sorted(want):
         raise Level3(f"DET-13(c): record entries differ {sorted(set(ids) ^ set(want))[:4]}")
     for x in results:
@@ -3418,7 +3445,8 @@ def det_85(b: Bundle, t: VerifiabilityTree, r: StressReport, page: dict) -> str:
     entry (A-16's scope; DET-13 follows), and no result is `error` - an error blocks
     publication (T-25)."""
     results = [*page["prior_results"], *page.get("_s3_results", [])]
-    want = sorted(c.entry_id for c in CHECKS if c.entry_id not in ("DET-85", "DET-13"))
+    want = sorted(c.entry_id for c in CHECKS if c.entry_id not in ("DET-85", "DET-13")
+                  and applies(c, _page_token(b, page)))                     # A-33
     ids = sorted(x["entry_id"] for x in results)
     if ids != want:
         raise Level3(f"DET-85: record entries differ {sorted(set(ids) ^ set(want))[:4]}")
@@ -3517,6 +3545,18 @@ CHECKS: list[Check] = [
 ]
 
 
+# A-33 (P-10.04): the 29 rows marked `[archetypes: cdp]` in §1, by the object they lack
+# on archetype #2 (debt, positions, stabilizer, GSM, trove / LUSD control, cell grid,
+# LP-flight grid). Set on the registry here; DET-12 (A-48) holds it equal to the markers.
+CDP_ONLY = frozenset({
+    "DET-03", "DET-07", "DET-06", "DET-82", "DET-05", "DET-20", "DET-21", "DET-23",
+    "DET-25", "DET-26", "DET-27", "DET-45", "DET-28", "DET-35", "DET-46", "DET-47",
+    "DET-51", "DET-71", "DET-37", "DET-38", "DET-39", "DET-40", "DET-41", "DET-42",
+    "DET-43", "DET-48", "DET-49", "DET-50", "DET-36"})
+for _c in CHECKS:
+    if base_id(_c.entry_id) in CDP_ONLY:
+        _c.archetypes = frozenset({"cdp"})
+
 def evaluate_harness(bundle: Bundle, ctx: dict) -> HarnessOutcome:
     """S0 then S1 for the gate-evaluation record (B-10): the same checks as
     `run_harness`, fail-closed per result, but never raising - the record must
@@ -3524,7 +3564,7 @@ def evaluate_harness(bundle: Bundle, ctx: dict) -> HarnessOutcome:
     results: list[GateResult] = []
     triggers: list[tuple[str, int]] = []
     for stage in ("S0", "S1"):
-        for chk in (c for c in CHECKS if c.stage == stage):
+        for chk in (c for c in CHECKS if c.stage == stage and applies(c, bundle.header.token)):
             try:
                 fired = chk.fn(bundle, ctx)
                 scope = (f"{fired[0]} (L{fired[1]})" if isinstance(fired, tuple)
@@ -3551,7 +3591,7 @@ def run_harness(bundle: Bundle, ctx: dict) -> HarnessOutcome:
     results: list[GateResult] = []
     triggers: list[tuple[str, int]] = []
     for stage in ("S0", "S1"):
-        for chk in (c for c in CHECKS if c.stage == stage):
+        for chk in (c for c in CHECKS if c.stage == stage and applies(c, bundle.header.token)):
             try:
                 fired = chk.fn(bundle, ctx)
                 results.append(GateResult(entry_id=chk.entry_id, result="pass"))

@@ -9539,3 +9539,97 @@ Status: OPEN (opened 2026-10-25, P-10.01)
 - **Follow-ups spawned:** the adapter build (`TOKEN_FILES["USDe"]`, roots, labels,
   DET-90 and the Q48 rows); Q47's disposition from A-33; `tools/measure_entry.py` at close;
   GHO's tree moves to crvUSD@26143168 at its next monthly run.
+
+## P-10.03 — Deliverable 2 opened: E1–E9, the seven-commit split; commit 1, DisclosureSnapshot
+
+- **Date:** 2026-10-25
+- **Type:** decision + implementation
+- **Confirmed by:** Amin
+- **Content:**
+  **SCOPING** `out/reports/step10-d2-scoping.md` (392 lines, `dd219d59`) and the round-2
+  rubric texts `out/reports/step10-d2-rubric-texts.md` (88 lines, `71cd6dd8`).
+  **RULINGS E1–E9 (Amin, 2026-10-25):**
+  - E1 Q47's floor counts LLM rows; 67 rows evaluate on USDe (≥ 60).
+  - E2 a row outside Q47's lists evaluates if its object exists on USDe, else not applicable.
+  - E3 DET-36 not applicable (Q17: no LP-flight axis).
+  - E4 no fourth result state: CHECKS entries carry an `archetypes` set; the runner runs
+    only rows whose set holds the token's archetype; the record lists the rest under
+    `not_applicable[]` ("archetype #2"), key omitted when empty; the site's unregistered
+    check compares within archetype; DET-90 and the Q48 rows carry {synthetic}.
+  - E6/E7 category nodes are `[[node]]` with `category` in place of `address` (exactly
+    one); label rows in `[[label_row]]` keyed by symbol, optional address; USDT0 and sGHO
+    `address = "none"`, `chain = "other"`.
+  - E8 blocks in 7 d = 7 × 86400 ÷ 12 = 50,400, printed with its derivation.
+  - E9 crvUSD's FR-18/29/30 bytecode scan: a follow-up at close, outside deliverable 2.
+  **SPLIT, seven commits:** (1) provenance; (2) rubric + marker + dispatch; (3) config;
+  (4) adapter reads; (5) tree + DET-90; (6) stress; (7) report + site.
+  **ROUND-2 RULINGS:** A-33–A-48 confirmed as read back, "(P-10.04)"; DET-56 evaluates
+  with an amended literal (memo #2 §7.3, A-49); A-36's IDs accepted; A-37's levels read
+  as absolute thresholds; Q42's tracked copy, no path switch.
+  **COMMIT 1 — DisclosureSnapshot (Q27, Q42):**
+  - `provenance.py`: `DisclosureSnapshot{source_url, as_of_date, published_date,
+    sha256, fetched_at}` appended to the `kind`-discriminated `Provenance` union.
+  - `harness.py`: `det_76e` accepts a snapshot dated as the node; `_token_address` and
+    `det_72` raise Level 3 naming the shape (were AttributeError); `det_66` names it.
+  - `run.py`: `write_raw` — `out/raw/<run_block>.json` as before; a disclosure token also
+    writes the same bytes, tracked, to `out/disclosures/<token>/<run_block>.json`.
+  - `tests/test_disclosure_snapshot.py`, five tests: union round-trip; latest bundles
+    re-serialise unchanged; `det_76e`; the two Level 3s; `write_raw`'s two paths.
+  - Finding: GHO's and LUSD's latest bundles predate P-8.12's two optional fields
+    (`controller_admin_fees`, `residual_unexplained_abs`), which re-serialise as null —
+    true at `e73c078`, not this commit; the test strips exactly those two keys.
+  **SUITE:** 392 passed (387 + 5). Committed and pushed as code only, at the round-3
+  instruction; this entry is appended with P-10.04's confirmation.
+- **Artifacts:** `src/factory/{provenance,run}.py` · `src/factory/validate/harness.py` ·
+  `tests/test_disclosure_snapshot.py`; `PROGRESS.md`.
+- **Follow-ups spawned:** commit 2 (P-10.04); E9 at close.
+
+## P-10.04 — Commit 2: rubric A-33–A-49, the archetype marker and dispatch
+
+- **Date:** 2026-10-25
+- **Type:** decision + implementation
+- **Confirmed by:** Amin
+- **Content:**
+  **RUBRIC** (`94c04fb2` → `8753ac39`): A-33's anchors §0.8 and DET-13(c) exist at
+  `94c04fb2` and are kept. §1 marks 29 rows `[archetypes: cdp]` (debt DET-03, 07;
+  positions DET-06, 82; stabilizer DET-05, 20, 21, 23, 25, 26, 27, 45; GSM DET-28, 35,
+  46, 47; trove and LUSD control DET-51, 71; cell grid DET-37–43, 48, 49, 50; LP-flight
+  DET-36) and DET-90 `[archetypes: synthetic]`. §5 gains A-33–A-48 as read back
+  ("(P-10.04)") and A-49 (DET-56, the archetype-#2 literal set citing memo #2 §7.3).
+  **MEMO #2** (`9e6af9bc` → `d317a78d`): §7.3 "Scope-outs" — oracle manipulation (attested
+  values), sUSDe yield (Q7), other-chain positions (D17), mainnet only; Status line
+  notes the addition; rubric line 7 carries the new stamp.
+  **CODE:**
+  - `rubric.py`: `archetype_markers` / `read_archetype_markers` / `base_id` — one parser;
+    absent marker = both; entries sharing a number must agree.
+  - `harness.py`: `Check.archetypes` (default both); `CDP_ONLY` sets the 29 rows;
+    `applies(chk, token)` via `mirror.archetype`; the five runners and DET-13(c) /
+    DET-85's completeness run only the token's rows; DET-12 gains A-48's limb (markers
+    equal the registry, else Level 3).
+  - `run.py`: `harness_ctx` passes the markers.
+  - `record.py`: `GateRecord.not_applicable[]` (`{entry_id, reason}`), omitted when empty.
+  - `site.py`: the unregistered-list check compares within an archetype.
+  - Methodology count (Q32, "n evaluated, k not-applicable (archetype #2), m new")
+    deferred to commit 7 (report + site), as is the site's A-16 line, which still reads
+    the first card's list.
+  **TESTS:** `tests/test_archetype_marker.py` (5): markers = 29 + DET-90; registry =
+  markers, DET-12 fails on a moved marker; parser default and rejects; runner filter (67
+  rows on USDe, E1); empty `not_applicable` omitted. `test_b12` and `test_harness`'s
+  context fixture pass the markers. Suite **397 passed** (392 + 5).
+  **PROOFS:** `len(CHECKS)` 96; DET-12 passes; the three CDP mirrors byte-for-byte; USDe
+  mirror unchanged (`bf64d756`); `site.plan` passes. CDP replay: `--from-record` for the
+  three tokens at `d736a74` and with this commit — 20 files each, identical except the
+  six `rubric_hash` lines (`94c04fb2` → `8753ac39`), the rubric edit itself.
+  Finding: either replay differs from the stored October records (GHO and LUSD report
+  hashes `a281c64a` / `ad85980e`), from P-8.12's template change and P-10.02's rubric
+  edits, not this commit; the replays were discarded, the stored artifacts are untouched.
+  **AS-COUNTED.** Builder: the site edit first dropped `unreg`, which the methodology's
+  A-16 line reads (caught by ruff); the first suite run failed 23 — `test_harness`'s
+  context lacked the markers, and DET-85's unit call passes no bundle (`_page_token`
+  now reads the page table's token) — both fixed before this count.
+- **Artifacts:** `docs/context/{rubic_v1,archetype-memo-2-synthetic}.md` ·
+  `src/factory/{rubric,run,site}.py` · `src/factory/report/record.py` ·
+  `src/factory/validate/harness.py` · `tests/test_{archetype_marker,b12,harness}.py`;
+  `PROGRESS.md` (P-10.03 and this entry).
+- **Follow-ups spawned:** commit 3 (config); the methodology count and A-16 line at
+  commit 7; the CDP pages re-render at their next monthly runs.

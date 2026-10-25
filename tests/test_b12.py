@@ -12,7 +12,7 @@ import pytest
 from factory import eventlog
 from factory.eventlog import QuarantineEvent
 from factory.report.__main__ import gate_triggers, s3_page
-from factory.rubric import read_trigger_table
+from factory.rubric import read_archetype_markers, read_trigger_table
 from factory.schema import Bundle, GateResult, VerifiabilityTree
 from factory.validate.harness import (
     CHECKS,
@@ -44,11 +44,12 @@ def test_section3_parses_every_row_with_split_levels_and_sections():
     assert t["T-20"]["owners"] == ["DET-29"] and t["T-23"]["owners"] == ["DET-13", "DET-59",
                                                                           "DET-87"]
     assert {k: v["section"] for k, v in t.items()} == TRIGGER_SECTION
-    det_12(None, {"printed_trigger_table": t})
+    markers = read_archetype_markers(REPO)                          # A-48 (P-10.04)
+    det_12(None, {"printed_trigger_table": t, "archetype_markers": markers})
     moved = copy.deepcopy(t)
     moved["T-02"]["section"] = "supply"
     with pytest.raises(Level3, match="DET-12"):
-        det_12(None, {"printed_trigger_table": moved})
+        det_12(None, {"printed_trigger_table": moved, "archetype_markers": markers})
 
 
 # ---- the log lifecycle -------------------------------------------------------------------

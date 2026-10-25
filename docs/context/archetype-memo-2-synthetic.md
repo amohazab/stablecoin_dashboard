@@ -1,6 +1,6 @@
 # Archetype Memo #2 — Synthetic / Off-Chain-Hedged Stablecoins (signed 2026-10-25 (P-10.02))
 
-**Status:** signed 2026-10-25 (P-10.02) — rulings P-10.01 (Q1–Q50) and P-10.02 (points 1–4, D1–D19, F1–F4).
+**Status:** signed 2026-10-25 (P-10.02) — rulings P-10.01 (Q1–Q50) and P-10.02 (points 1–4, D1–D19, F1–F4); §7.3 added 2026-10-25 (P-10.04).
 **Applies to:** USDe (Ethena). Archetype membership is decided at the intake gate (memo #1 §1).
 **Conventions:** memo #1's markers, unchanged: `[VERIFIED <date>: …]`, `[FIRST-RUN READ: …]`, `[ANALYST-SUPPLIED <date>: …]`, `[RE-SCOPED TO INTAKE: …]`; mechanism logic carries no marker. Blank analyst tags read `[ANALYST-SUPPLIED ____-__-__: …]` until Amin fills them. **Every generic rule is memo #1's, cited by section and never restated (Q39); this memo states only the deltas.** Section numbers follow memo #1; §10 and §15 carry no archetype-#2 content.
 
@@ -130,6 +130,13 @@ Memo #1's four ★ rows (DET-53) are archetype-#1 literals and are not required 
 **Shock window.** Stock-only, memo #1 §7.1 by reference; the per-row direction of error is the §6 bias table.
 
 **Observation — attested value.** A disclosure-category node is observed at its attested value as of its disclosure's as-of date and held there until the next disclosure; no on-chain feed tracks it (Q10, `assumption_applied` = `attested_value`). Its age is the staleness printed under memo #1 §4.6(iii) and bounded by §4 (Q11).
+
+### 7.3 Scope-outs (P-10.04)
+
+- **Oracle manipulation:** out of scope — no oracle prices the backing; the disclosure-category nodes carry attested values (§7, Q10).
+- **sUSDe yield:** out of scope (Q7).
+- **Other-chain positions:** disclosed as "balance not read by this pipeline (other chain)", not read (§2, D17).
+- **Sequencer / infra risk:** n/a — mainnet only (memo #1 §5.2).
 
 ## §8. Quarantine bounds
 

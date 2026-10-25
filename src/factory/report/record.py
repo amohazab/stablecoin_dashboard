@@ -21,10 +21,10 @@ from __future__ import annotations
 import re
 from typing import Any, Literal
 
-from pydantic import BaseModel
+from pydantic import BaseModel, model_serializer
 
 from factory.mirror import archetype
-from factory.validate.harness import CHECKS, TRIGGER_TABLE
+from factory.validate.harness import CHECKS, TRIGGER_TABLE, applies
 
 # A-16: every rubric ID not registered, by the queue item that builds it (the
 # P-7.01 block plan; P-4.01 for items no Step-7 block owns). A registry that
@@ -71,6 +71,16 @@ class GateRecord(BaseModel):
     results: list[RecordResult]
     triggers: list[dict[str, Any]]
     unregistered: list[dict[str, str]]
+    # A-33 / E4 (P-10.04): registered rows not run on this token's archetype, each with
+    # its reason; the key is omitted when empty, so archetype-#1 records do not move.
+    not_applicable: list[dict[str, str]] = []
+
+    @model_serializer(mode="wrap")
+    def _omit_empty_not_applicable(self, handler):
+        d = handler(self)
+        if not d.get("not_applicable"):
+            d.pop("not_applicable", None)
+        return d
     # P-8.04 Q6: {backend, version, model, digest} of the run's model (null offline)
     llm: dict[str, Any] | None = None
     judge: list[dict[str, Any]] = []            # B-13: envelopes, calls, span events
@@ -142,7 +152,11 @@ def build(parts: dict, manifest: dict, s01, tree_checks, stress_checks, report_c
         triggers += _triggers_from_scope(g.entry_id, g.scope_condition)
     triggers += list(gate_triggers)                  # B-12: T-28 / T-23 per failed check
     got = {r.entry_id for r in results}
-    want = {c.entry_id for c in CHECKS}
+    token = manifest["token"]
+    want = {c.entry_id for c in CHECKS if applies(c, token)}
+    reason = "archetype #2" if archetype(token) == "synthetic" else "archetype #1"
+    not_applicable = [{"entry_id": c.entry_id, "reason": reason}
+                      for c in CHECKS if not applies(c, token)]
     if got != want:
         raise ValueError(f"record incomplete: missing {sorted(want - got)}, extra "
                          f"{sorted(got - want)}")
@@ -160,6 +174,7 @@ def build(parts: dict, manifest: dict, s01, tree_checks, stress_checks, report_c
                                                "pipeline_version", "sheet_hash")},
                       results=results, triggers=triggers,
                       unregistered=unregistered(rubric_text, manifest["token"]),
+                      not_applicable=not_applicable,
                       rubric_hash=__import__("hashlib").sha256(rubric_text.encode()).hexdigest()[:8],
                       outcome=outcome if outcome is not None else
                       ("blocked_S3" if any(r.stage == "S3" and r.result != "pass"

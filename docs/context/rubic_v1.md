@@ -4,7 +4,7 @@
 **Date:** 2026-09-03.
 **Checksum algorithm (declared 2026-09-03):** SHA-256, first 8 hex digits, over the raw bytes of the LF-normalized file. The stamp is computed over LF-normalised bytes; on-disk line endings (CRLF on Windows) do not affect it.
  
-**Governing artifacts (checksums):** `archetype-memo-1-cdp.md` 17553d7b · `intake-sheets-cdp.md` 29682310 · `phase-b-checklist.md` 54620383 — all at status "Phase B COMPLETE — 2026-09-02" · `archetype-memo-2-synthetic.md` 9e6af9bc · `intake-sheet-usde.md` bf64d756 — both at status "signed 2026-10-25 (P-10.02)".
+**Governing artifacts (checksums):** `archetype-memo-1-cdp.md` 17553d7b · `intake-sheets-cdp.md` 29682310 · `phase-b-checklist.md` 54620383 — all at status "Phase B COMPLETE — 2026-09-02" · `archetype-memo-2-synthetic.md` d317a78d · `intake-sheet-usde.md` bf64d756 — both at status "signed 2026-10-25 (P-10.02)".
  
 **Historical checksums — unreproducible, retained (2026-09-03):** the previous values `f65f5f72` · `976085c9` · `6c7c6708` reproduce under no tested scheme: 0 of 3 files matched across 126 scheme × byte-form combinations (14 schemes — CRC-32, Adler-32, and first-8/last-8 of MD5, SHA-1, SHA-256, SHA3-256, BLAKE2b, BLAKE2s — over 9 byte forms). The three values were authored during the Step-2 design sessions in a chat environment where no byte-level hash of the repository files was ever computed; the working explanation is that the stamps were authored, not machine-computed over these bytes. Pre-import drift is not excluded by evidence, but under either explanation the values are unrecoverable. Provenance boundary: commit 5aef7c4 (2026-09-03), clean tree for `docs/context/` — bytes as committed are the earliest verifiable state. Retained, never deleted.
 **Place in the pipeline (brief §7):** deterministic checks in plain code run first, in stage order; then one LLM-as-judge call with structured output. generate → evaluate → one revision → ship or quarantine.
@@ -66,13 +66,13 @@ Pass: `first_run = true` only if the log has no published entry for the token; a
 **DET-01 — Address-keyed entities**
 Checked: every enumerated row (collateral node, mint/lend market, frozen-set pool, paired asset, stabilizer operation, GSM, facilitator) is keyed by contract address. Pass: `address` matches `^0x[0-9a-fA-F]{40}$` on every row (lowercase compare); no row with null `address` and a set `symbol`; no duplicate `address` within a table. Symbol is display only. Consequence: Level 3. Source: §9 gate 1; §2; brief §10.
  
-**DET-03 — Principal / interest separation (anti-tautology, C-2)**
+**DET-03 — Principal / interest separation (anti-tautology, C-2)** [archetypes: cdp]
 Pass: per position and market-aggregate row: `principal`, `accrued_interest`, `gross_debt` present, ≥ 0, `gross_debt == principal + accrued_interest` exactly in integer base units; `gross_debt` (or its source pair) carries contract-read provenance; at least one of `principal` / `accrued_interest` carries its own read provenance — all three tracing to one read plus arithmetic = fail; no-accrual debt classes: `accrued_interest = 0` explicit with the read establishing no accrual. Consequence: Level 3. Source: §9 gate 2; §2.
  
 **DET-04 — Enumeration provenance (checkable form of "no hardcoded lists")**
 Pass: every DET-01 row carries exactly one of `discovery_provenance {source_contract, function, block = run_block}` or `analyst_supplied {source, date}`; PegKeeper rows: `source_contract` = regulator, `function = peg_keepers`; LUSD contract set = the permitted analyst-supplied form, dated; analyst-supplied enumeration with `date` older than 92 d ⇒ Level 1 `enumeration source stale` (T-16), persisting until refreshed. Consequence: Level 3 (missing provenance). Source: §9 gate 3; brief §6/§10; P4; R-1. Note: the code property "no list literal in the adapter" is unchecked by design (Appendix).
  
-**DET-20 — Stabilizer operation rows complete; ceilings per-run reads (O8/A-4)**
+**DET-20 — Stabilizer operation rows complete; ceilings per-run reads (O8/A-4)** [archetypes: cdp]
 Pass: per PegKeeper in the regulator-read set: `operation_address`, `paired_pool_address`, `paired_asset_address`, `debt_ceiling`, `current_debt`, `utilization`, `protocol_lp_share ∈ [0,1]`, `pool_composition_at_block[]`, `net_non_self_referential_value`, `residual`, `provenance` per read; keeper without row / row without keeper = fail; every `debt_ceiling` has contract-read provenance `ControllerFactory.debt_ceiling(pk)` at `run_block` (the Phase-B USDT figure is a first-run reconciliation point only); header `run_block` equals every Tier-1 provenance block (B-list patch). Consequence: Level 3. Source: §3 disclosure fields; §3c; P4; R-13.
  
 **DET-09 — Discovery reconciliation (R-3)**
@@ -105,7 +105,7 @@ Pass: `paths[]` per token; GHO `module_on_chain` paths = `gsm_count` (one per li
 **DET-68 — A1–A8 table complete, enum closed (R-38, R-39, R-40, A-7)**
 Pass: all nine A1 rows always present, none-filled where unheld; one row per (power, holder) pair, A2–A5 scalar; A1 ∈ {`mint`, `set_ceiling`, `upgrade`, `pause`, `freeze_asset`, `blacklist_address`, `set_oracle`, `set_parameters`, `seize`} exactly; A2 = `{address, type ∈ {eoa, multisig(m-of-n), dao_governance, timelock, contract_automated, none}}`, `m ≤ n`; `contract_automated` holders carry an interface-probe provenance (DET-46 `checkUpkeep` or equivalent); A3 present iff multisig `{count = n, identity ∈ {disclosed, partial, undisclosed}}`; A4 `{seconds, bucket}` with bucket replay: `0 → none`; `[1, 86399] → <24h`; `[86400, 604800] → 1–7d`; `> 604800 → >7d`; A5 `{address, power ∈ {cancel, pause}}` or `none`; A6 ∈ {`immutable`, `proxy_upgradeable`}, proxy `admin` equals the `upgrade` row's A2 address; A7 address list, non-empty where A2 ≠ none; A8 `{contract, function, block = run_block}`; each concrete function maps to exactly one A1 value. Consequence: Level 3 (rows/provenance) / Level 2 (replays). Source: §13; R-38; R-39; R-40; A-7.
  
-**DET-71 — LUSD empty-surface control (R-41)**
+**DET-71 — LUSD empty-surface control (R-41)** [archetypes: cdp]
 Pass: nine rows with A2 = none, A6 = `immutable`, A8 = reads establishing absence (no `owner()`, EIP-1967 slots zero, no pause function) at `run_block`; qualifier = immutable literal. Any LUSD row with A2.type ≠ none, or any missing row ⇒ Level 3 (immutable-protocol impossibility class). Source: §13 control case; §14; R-41 (extending §8.1.4(c)).
  
 **DET-75 — FIRST-RUN READ tags resolved to reads (R-45)**
@@ -114,20 +114,20 @@ Pass: the sheet section `first_run_reads[]` (produced at intake, dated, versione
 **DET-76 — FIRST-RUN-VERIFY items**
 Pass: (a) GHO bucket identity (R-8): first run computes `Σ facilitator bucket levels − totalSupply()` at `run_block`; 0 ⇒ sheet field `gho_bucket_identity {verified: true, block, date}`; ≠ 0 ⇒ Level 2 (DET-15) and `verified: false` with residual. (b) feed parameters per DET-55 (deviation class I; heartbeat per R-46). (c) tBTC: WalletRegistry read recorded with provenance; label on every run ∈ {`terminal_other_layer`, `recurses`} with `label_provenance = WalletRegistry read @ block`. (d) LUSD floor check: first discovery run records `pools_above_floor_count`, `achievable_coverage`; `< 0.95` requires the R-20 waiver (DET-29a). (e) every `recurses` node has `disclosure_cadence` and `last_disclosure_date` with provenance (on-chain PoR read where available; else analyst-supplied dated, class I) — missing = Level 3 (staleness uncomputable). Source: R-8 directive; O14; §4.4; §5.5 bracket; R-20.
  
-**DET-82 — Position-set completeness (crvUSD, LUSD, GHO secondary)**
+**DET-82 — Position-set completeness (crvUSD, LUSD, GHO secondary)** [archetypes: cdp]
 Pass: per crvUSD market `Σ position gross_debt` vs `Controller.total_debt()`; LUSD `Σ trove debt` vs `ActivePool.getLUSDDebt() + DefaultPool.getLUSDDebt()`; GHO per reserve `Σ position collateral` vs `aToken.totalSupply()`; relative tolerance 1e-9 (named default: same contract's rate-multiplier arithmetic vs. orders-of-magnitude enumeration miss). Beyond ⇒ Level 3. Source: G-3.
  
-**DET-90 — Buffer reconciliation gap (archetype #2).** Pass: `|buffer_onchain − disclosure_onchain| ≤ 0.05 × backing.total_usd`, where `buffer_onchain` = Σ balances read at `run_block` over the sheet's three buffer groups (memo #2 §2) and `disclosure_onchain` = Σ route values with `chainSlug == ethereum` under Liquid Stables, DeFi Lending and RWA; the gap and both sums printed. Fail: T-30, Level 1. Stage S1. Source: memo #2 §2; A-28. Registered at the adapter build; unregistered until then (the DET-09 precedent, record.py).
+**DET-90 — Buffer reconciliation gap (archetype #2).** [archetypes: synthetic] Pass: `|buffer_onchain − disclosure_onchain| ≤ 0.05 × backing.total_usd`, where `buffer_onchain` = Σ balances read at `run_block` over the sheet's three buffer groups (memo #2 §2) and `disclosure_onchain` = Σ route values with `chainSlug == ethereum` under Liquid Stables, DeFi Lending and RWA; the gap and both sums printed. Fail: T-30, Level 1. Stage S1. Source: memo #2 §2; A-28. Registered at the adapter build; unregistered until then (the DET-09 precedent, record.py).
  
 ### S2 — Verifiability and model output
  
-**DET-05 — Stabilizer netting (R-14a)**
+**DET-05 — Stabilizer netting (R-14a)** [archetypes: cdp]
 Pass: (a) no backed-branch node with `address` = the token's own address or a stabilizer operation address; (b) stabilizer slice `credited_backing_value == 0` exactly; (c) `net_non_self_referential_value = protocol_lp_share × paired_asset_balance_at_block × 1.00` (par), 1e-6; (d) `residual = lp_position_value − debt`, 1e-6; (e) owned by DET-25. Consequence: Level 2. Source: §9 gate 4; §3a; §3d; R-14(a).
  
-**DET-06 — Position netting (R-2)**
+**DET-06 — Position netting (R-2)** [archetypes: cdp]
 Pass: (a) token's own address in no §4 node row; (b) `net_debt = max(gross_debt − stablecoin_in_position, 0)`; `surplus = max(stablecoin_in_position − gross_debt, 0)`; (c) base-state collateralization replays as `Σ external_collateral_value / Σ net_debt` (floored), 1e-6; (d) Σ `stablecoin_in_position` and Σ `surplus` disclosed ("held stablecoin exceeding debt, not netted"); surplus never reduces any aggregate. Consequence: Level 2. Source: §9 gate 5; §2; R-2.
  
-**DET-07 — Supply origination (mint vs. lend)**
+**DET-07 — Supply origination (mint vs. lend)** [archetypes: cdp]
 Pass: every market row `origination_class ∈ {mint, lend}` assigned from the factory address in its provenance (assignment from any non-address field = fail); backed branch sums collateral over `mint` rows only; `lend` rows present in the bundle and in the disclosed lend-market count, in no backing, supply, or stress input; `lend_market_count = n/a` explicit where no lend class. Consequence: Level 2. Source: §9 gate 6; crvUSD sheet; brief §10.
  
 **DET-08 — Unlisted node routing (R-6)**
@@ -151,25 +151,25 @@ Pass: `X = Σ stabilizer debt / supply_ruled`, 1e-6; printed per R-7; appears in
 **DET-19 — Denominator discipline**
 Pass: every percentage in the headline block carries `denominator ∈ {backing_value, supply_ruled}` in the flat table; backed-branch shares and bars → `backing_value`; stabilizer line, metric 2 %, bridged % → `supply_ruled`; a headline figure without a denominator field, or not replaying against its declared denominator, = fail. Consequence: Level 2. Source: §4.6(i).
  
-**DET-21 — Utilization, LP share, residual replay (R-11, R-14a)**
+**DET-21 — Utilization, LP share, residual replay (R-11, R-14a)** [archetypes: cdp]
 Pass: `utilization = current_debt / debt_ceiling`, 1e-6, except `debt_ceiling = 0` ⇒ row prints "n/a — ceiling 0", ratio replay skipped, other field checks apply; utilization > 1 permitted and disclosed as > 100%; `protocol_lp_share = keeper_lp_balance / pool_lp_total_supply`, 1e-6; `residual` per DET-05(d), sign unconstrained; disclosed values valued at par with the rendered caption "valued at par". Consequence: Level 2. Source: §3 fields; §3d; R-11; R-14(a).
  
-**DET-23 — Zero-credit in every aggregate (P-2, P-3, R-15)**
+**DET-23 — Zero-credit in every aggregate (P-2, P-3, R-15)** [archetypes: cdp]
 Pass: (a) owned by DET-05(b); (b) no `operation_address`, `paired_pool_address`, or keeper LP token address in the §4 node table, the backing sum, or any per-cell `collateral_value` input; (c) every field feeding `backing_value`, metric 1, 2, 3 carries `lineage`; the lineage set of each aggregate ⊆ {`collateral_read`, `debt_read`, `price_read`, `attribution`, `model_*`} and contains no `stabilizer_*` [source: R-15]; (d) the slice sits inside `supply_ruled` and outside `backing_value` — decomposition owned by DET-15. Consequence: Level 2. Source: §3; §3a; §3d; §9 gate 4; R-15.
  
 **DET-24 — Stabilizer pools enter exit depth in full (P-4)**
 Pass: for every stabilizer paired pool: depth-model input balances equal `pool_composition_at_block` exactly (no LP-share reduction); a stabilizer pool absent from the frozen set = fail with no permitted exclusion reason (neither §5.4 nor the §5.5 floor — stabilizer pools are floor-exempt); `paired_asset_address` labeled per DET-11 (frxUSD expected to route to T-18 on the first crvUSD run — the gate working). Consequence: Level 2. Source: §3b; §5.4; P-4.
  
-**DET-25 — Stabilizer debt excluded from forced-sell volume, every cell (R-15)**
+**DET-25 — Stabilizer debt excluded from forced-sell volume, every cell (R-15)** [archetypes: cdp]
 Pass: for all cells, the lineage set of `forced_sell_volume` contains no `stabilizer_*` source; Member 1 `forced_sell_volume = bad_debt` identity, 1e-6 (bad-debt arithmetic: DET-40). Sole owner of the per-cell exclusion. Consequence: Level 2. Source: §3b; §6.2.7; R-15.
  
-**DET-26 — Crash-path trajectory (Member 1)**
+**DET-26 — Crash-path trajectory (Member 1)** [archetypes: cdp]
 Pass: every Member 1 cell and the joint cell: `m4.stabilizer_debt_post_cell`, `ceiling_aggregate`, `utilization_post_cell` (replay 1e-6); `stabilizer_debt_post_cell ≥ current_debt`. Consequence: Level 2. Source: §3 crash path; §6.2.7 m4.
  
-**DET-27 — Confidence-crisis burn capacity (Member 2) (R-12)**
+**DET-27 — Confidence-crisis burn capacity (Member 2) (R-12)** [archetypes: cdp]
 Pass: every Member 2 cell and compound tail: `m4.burn_capacity == current_debt` at `run_block` (exact integer); any derivation from `debt_ceiling` = fail; `withdraw_allowed` state reads present; metric 4 prints quantities only (LP share, paired-asset units held, pool tilt post-cell) — any shocked-price USD figure = fail. Consequence: Level 2. Source: §3 confidence-crisis path; §3d; R-12.
  
-**DET-28 — Asset-in-a-box exclusion honored (R-14b)**
+**DET-28 — Asset-in-a-box exclusion honored (R-14b)** [archetypes: cdp]
 Pass: no GSM address in the stabilizer table; each live GSM's boxed asset is a backed-branch node with its §4 label and `value = boxed_asset_balance × chainlink_price`, both reads with provenance at `run_block`, feed address recorded on the node row (DET-55 row required); GSM-minted supply inside `backed_supply` (DET-15); `gsm_count = 0` explicit where no GSM class. A facilitator is classified as a 1:1 swap module iff it answers a GSM-signature staticcall probe (`getExposureCap` / `getAvailableLiquidity`-class functions respond at `run_block`), probe result recorded with provenance (PQ-1 ruled; a probe-miss errs conservative in every direction — no credited boxed asset, no venue, no §12 path — and DET-63's `facilitator_count` T-06 puts a human eye on any new facilitator). Consequence: Level 2. Source: §3 exclusion; §5.10; §14; R-14(b).
  
 **DET-22 — Stabilizer slice, ceiling bound, labels (R-12)**
@@ -190,52 +190,52 @@ Pass: `dex_liquidity_total_discovered`, `curve_mainnet_liquidity`, `X = 1 − cu
 **DET-34 — §5.4 exclusion reasons per excluded pool**
 Pass: every discovered on-Curve pool (≥ floor, mainnet) not in F carries exactly one `exclusion_reason ∈ {non_market_contract, volatile_collateral_circular, tail_beyond_freeze_coverage, added_since_freeze}`; `volatile_collateral_circular` valid only if the paired asset's `address` is a `node_class = volatile` node of the token — a stablecoin-collateral pool carrying it = fail; `non_market_contract` only for non-pool addresses; `added_since_freeze` disclosed via DET-10; stabilizer pools owned by DET-24; below-floor pools at freeze recorded in `excluded_at_freeze[]` with `below_dust_floor`. Consequence: Level 2. Source: §5.4; §5.5; §5.6.
  
-**DET-35 — §5.10 GSM deterministic venue (R-19, PQ-2, R-25)**
+**DET-35 — §5.10 GSM deterministic venue (R-19, PQ-2, R-25)** [archetypes: cdp]
 Pass: per live GSM: `fee_exit` (fee on stablecoin → boxed asset) read from the fee strategy at `run_block` (both directions disclosed if they differ); included at each curve point s iff `fee_exit < s` (strict; at 0.2% the GSM enters all four points); contribution = boxed balance read, listed under "deterministic venue (GSM)", not inside the pool-depth line; `total_exit_depth(s) = pool_depth(s) + Σ gsm_contribution(s)` (1e-6); excluded ⇒ literal "GSM [addr] excluded — fee ≥ [s]"; Member 2 cells with H2 routing `freezer_effective`: cell `exit_depth` lineage contains no `gsm_*` and the report states the removal; `freezer_fails`: contribution remains; `is_frozen` or `is_seized` at `run_block` ⇒ excluded in all cells incl. base, literal "GSM [addr] frozen at block N — venue closed" ("seized" wording), Level 1 `GSM frozen at base` (T-21), report publishes; base-frozen is not a routing contradiction. Consequence: Level 2 / Level 1 as stated. Source: §5.10; §6.3 H2; R-19 (rubric-level generalization); PQ-2; R-25.
  
-**DET-37 — Cell set exact (47 / 23)**
+**DET-37 — Cell set exact (47 / 23)** [archetypes: cdp]
 Pass: unique cell IDs; Member 1 shock {−0.20, −0.35, −0.50, −0.70} × LST {0, 0.05, 0.10} × LP {0, 0.30, 0.60} = 36; Member 2 target {0.97, 0.93, 0.88} × LP {0, 0.30, 0.60} = 9; compound tail 1; joint 1; total 47; LST axis collapses (Member 1 = 12, total 23) iff no node with `lst_discount_applies = true` and share > 0; other count = fail; joint and compound cells labeled "compound scenario", printed once; no axis beyond the four; a counterfactual ID as an axis = fail. Consequence: Level 2. Source: §6.2.6; §6.3 design rule; R-21.
  
-**DET-38 — Four metrics per cell, no composite**
+**DET-38 — Four metrics per cell, no composite** [archetypes: cdp]
 Pass: per cell `m1 = {pre: {ratio, share_below_100}, post: {…}}`, `m2 = {bad_debt, pct_supply}`, `m3 = {ratio, forced_sell_volume, exit_depth}`, `m4 = {…}` = the sheet's `m4_fields[]` key set exactly; no composite field (`hours_to_depeg` or any cross-metric aggregate) anywhere; `m3.ratio` marked panel headline; `m1.post` marked headline reading. Consequence: Level 2. Source: §6.2.7; brief §11.7.
  
-**DET-39 — Metric 1: two readings, post headline, gap visible**
+**DET-39 — Metric 1: two readings, post headline, gap visible** [archetypes: cdp]
 Pass: `m1.pre.ratio = Σ_mint-positions collateral × f_node / Σ net_debt_base` with `f = (1 + shock)(1 − d)` for volatile nodes (d only where `lst_discount_applies`), `f = 1` for stable nodes in Member 1, `f = target` for shocked-stable nodes in Member 2 — replay 1e-6; denominator = DET-06 floored net debt, identical to base; `m1.pre.share_below_100` = supply-weighted share of positions with CR < 1 under the same factors; `m1.post.*` wiring-check; `gap = post − pre` printed; post carries the headline mark; denominators' lineage ⊆ {`debt_read`, `position_netting`}. Consequence: Level 2. Source: §6.2.7 m1; §6.2.2; §9.
  
-**DET-40 — Metric 2: bad debt (R-29)**
+**DET-40 — Metric 2: bad debt (R-29)** [archetypes: cdp]
 Pass: `bad_debt ≥ 0`; `pct_supply = bad_debt / supply_ruled` (1e-6); definition per token via lineage (LUSD: redistributed positions below 100% CR, DET-51); monotonicity gate: `bad_debt` non-decreasing along the shock, LST, and LP axes at fixed other axes (exact) [source: R-29]. Consequence: Level 2. Source: §6.2.7 m2; §6.2.1; R-29.
  
-**DET-41 — Metric 3: depeg-pressure ratio per cell (R-29 extension)**
+**DET-41 — Metric 3: depeg-pressure ratio per cell (R-29 extension)** [archetypes: cdp]
 Pass: `m3.ratio = forced_sell_volume / exit_depth_cell` (1e-6); Member 1 numerator: DET-25; other cells: DET-42; `exit_depth_cell`: Member 1 = depth(2%) on K-subset(0.90) after single-sided withdrawal of the cell's LP-flight share (wiring-check; LP-0 equals DET-31 `depth(0.02)` exactly); Member 2 = par-terms recomputation against shocked paired assets (wiring-check), GSM per DET-35; lineage ⊆ {`depth_model`, `gsm_read`}, no `offvenue_*`; ratio > 1 rendered with the panel mark; headline-cell `m3` = DET-30 row 90; monotonicity: `m3.ratio` non-decreasing along the LP axis (fixed shock, LST) and along the Member 1 shock axis (fixed LST, LP) [source: R-29]. Consequence: Level 2. Source: §6.2.7 m3; §6.1.4; §6.2.5; R-29.
  
-**DET-42 — A2 numerator rules (R-27, R-28)**
+**DET-42 — A2 numerator rules (R-27, R-28)** [archetypes: cdp]
 Pass: Member 2 target cell: `forced_sell = gsm_boxed_supply(shocked stable) + attributed_slice(shocked stable-collateral nodes)` (§11.1 pro-rata, DET-64), full slice — lineage contains no price or depeg factor; crvUSD/LUSD: 0 with `reason = structurally_insulated`; compound tail: the same over all `recurses` paired stables, incl. unlabeled; joint: `bad_debt_joint + m2_slice_joint` within the cell (1e-6); factor rows: linked (analyzed-set) paired assets 1.0 in every Member 2 cell; unlabeled paired assets 1.0 in target cells and 0.93 in the compound tail; compound-tail literal "compound scenario — all disclosure-dependent paired stables, incl. unlabeled [addr]" (the `incl.` clause iff an unlabeled asset exists); numerator lineage ⊆ {`supply_attribution`, `gsm_supply`, `liquidation_model`} — any `backing_*`/`collateral_*` = fail; `pct_supply` and every stress-panel "% of supply" over `supply_ruled`; no `circulating_*` field exists. Consequence: Level 2. Source: §6.2.7 forced-sell; §6.2.5; §11.1; R-15; R-27; R-28.
  
-**DET-43 — Structural-insulation presentation (R-22)**
+**DET-43 — Structural-insulation presentation (R-22)** [archetypes: cdp]
 Pass: tokens with no `node_class = stable` node and `gsm_count = 0`: all Member 2 and compound `m3.ratio = 0` exactly; literal "structurally insulated; exposed through exit venues only"; three four-point recomputed depth curves (targets 0.97/0.93/0.88, LP 0), twelve values, each replaying against the corresponding cell's `exit_depth` at s = 2% (1e-6), s = 2% marked; `m4` mechanism quantities per DET-27 / DET-51. Prose obligation: LLM-06. Consequence: Level 2. Source: §6.2.5; R-22.
  
 **DET-44 — Counterfactual lines: present, under metric 4, never cells (R-23, R-24)**
 Pass: `counterfactual_lines[]` per cell `{id, assumption_text, metric_affected, value_primary, value_counterfactual, approximation_flag}`; required IDs: crvUSD `H1_kill` (Member 1 + joint; counterfactual = zero PegKeeper contribution; replay of the cell's m2/m3 with capacity 0 — wiring-check), `H1_v1_contagion` (Member 2 + compound + joint), `EMA_lag` (Member 1 + joint; literal "bounded approximation — not full EMA band-crossing dynamics", `approximation_flag = true`, window = the per-market `MA_EXP_TIME` read); GHO `H2_freezer` (Member 2 + compound + joint; direction per DET-46); LUSD `Tellor_fallback`: content = the three verified constants (14400 s; 50%; 5%) with contract-constant provenance + literal "modeled outcome unchanged under primary; fallback engaged does not alter stock-only capacity", `metric_affected = none`, rendered once per member (the R-24 exception). All other lines render per cell in the full table, headline cell's lines repeated in the panel. Missing required ID = fail; an ID as a cell axis = fail. Consequence: Level 2. Source: §6.3 design rule; H1; H2; §7.2; §7.3; R-23; R-24.
  
-**DET-45 — H1 effective vs. naive headroom (O12/A-5)**
+**DET-45 — H1 effective vs. naive headroom (O12/A-5)** [archetypes: cdp]
 Pass: per keeper at `run_block`: `is_killed` (Provide, Withdraw), `alpha`, `beta`, `debt_i`, `balance_i` with provenance; `r_j = debt_j / (debt_j + balance_j)` (0 where denominator 0); `allowed_i = min((α + β·Σ_j√r_j)² × (debt_i + balance_i) − debt_i, debt_ceiling_i − debt_i)`, floored at 0; killed-Provide keepers contribute 0; `effective = Σ_live allowed_i`; `naive = Σ max(debt_ceiling_i − debt_i, 0)`; both printed under metric 4 with the literal "effective vs. naive ceiling headroom"; `effective ≤ naive` exact; killed keepers listed; every Member 1 cell's crash-path capacity term = `effective` (1e-6). Consequence: Level 2 (Level 3 if a read is missing). Source: §6.3 H1 (C1 option iii); §15.1; O12; A-5.
  
-**DET-46 — H2 state-conditional routing (PQ-4, R-25)**
+**DET-46 — H2 state-conditional routing (PQ-4, R-25)** [archetypes: cdp]
 Pass: per live GSM: `freezer_role_holders[]` (all `getRoleMember(SWAP_FREEZER_ROLE, i)`), `automated_freezer_present` = at least one holder is a contract answering a `checkUpkeep` STATICCALL at `run_block` (probe recorded with provenance; upkeep registration/funding not checked — carried by the counterfactual line), `freeze_lower_bound`, `freeze_upper_bound`, `unfreeze_bounds`, `can_unfreeze`, `is_frozen`, `is_seized`; `check_pass = automated_freezer_present ∧ freeze_lower_bound ≥ 0.88`; `routing = freezer_effective` iff `check_pass` (base-frozen GSM: trivially `freezer_effective`), else `freezer_fails`; DET-44 `H2_freezer` primary/counterfactual labels in the routing's direction; any `check_pass = false` ⇒ Level 1 `GSM freezer check failed` (T-08) with the literal "automated freeze protection not currently in place / not effective in modeled range (checked at block N)"; pass ⇒ template sentence "…automated freezer currently holds the role, with bands verified effective in the modeled range (block N)"; depth removal owned by DET-35. Consequence: Level 2. Source: §6.3 H2 (Item 1.2); P3; PQ-4; R-25.
  
-**DET-47 — H5 which side binds (PQ-5, D-4)**
+**DET-47 — H5 which side binds (PQ-5, D-4)** [archetypes: cdp]
 Pass: per Member 1 and joint cell: `gho_sourceable = pool_buy_side_depth + gsm_mint_headroom` (mint-direction fee and `getExposureCap()` reads; buy-side depth bounded by the minimum liquidation bonus across the cell's shocked reserves, each from `getReserveConfigurationData`, bound and source printed in the assumptions line); `collateral_sellable = Σ_shocked-nodes sell_side_parameter`; `capacity = min(...)` (1e-6); `binding_side` = argmin, printed under metric 4; tie (exact equality) ⇒ `collateral_sellable`, equality noted (named default); facilitator bucket levels/caps printed under metric 4, not in `capacity` lineage. Consequence: Level 2. Source: §6.3 H5; PQ-5; D-4.
  
-**DET-48 — Shock grid exact; reference points context-only**
+**DET-48 — Shock grid exact; reference points context-only** [archetypes: cdp]
 Pass: every `node_class = volatile` node receives the cell's shock; `stable` nodes none in Member 1; per volatile node a reference row `{worst_7d_drawdown, window_start, window_end, source, provenance}` with the source's asset resolved by address (never symbol; B-list patch), or literal "reference point unavailable" (no block, no flag); lineage of every metric contains no `reference_*`. Consequence: Level 2 (missing row without the literal); pass with the literal. Source: §6.2.1; §6.2.2; §11.7; R-15; R-21.
  
-**DET-49 — LST-discount axis as modifier**
+**DET-49 — LST-discount axis as modifier** [archetypes: cdp]
 Pass: `d ∈ {0, 0.05, 0.10}` applied as `× (1 − d)` only where `lst_discount_applies = true`; other nodes identical `f_node` across the LST axis (exact); headline cell and panel use `d = 0`; axis rendered as a labeled modifier column; no headline line references a `d > 0` cell; LUSD: axis absent, no `d` field rendered. Consequence: Level 2. Source: §6.2.2; §6.2.6; R-21.
  
-**DET-50 — Target stable, compound tail, joint cell**
+**DET-50 — Target stable, compound tail, joint cell** [archetypes: cdp]
 Pass: `member2_target` recorded in the set file at freeze = the `recurses` paired stable (directly or via composite constituents) with the largest share of frozen-set exit depth at freeze; printed in every report with the freeze date; not re-selected per run (identity with set file); compound tail: every `recurses` paired stable at 0.93, LP 0, once, with the DET-42 literal; joint cell axes exactly (−0.50, 0.93, LST 0, LP 0) with "compound scenario — collateral crash × paired-stable depeg"; linked paired assets unshocked in both (factor check owned by DET-42). Consequence: Level 2. Source: §6.2.5; §6.2.6.
  
-**DET-51 — LUSD H3 / H4 specifics**
+**DET-51 — LUSD H3 / H4 specifics** [archetypes: cdp]
 Pass: Member 1 capacity lineage = {`sp_balance_read`} (`StabilityPool.getTotalLUSDDeposits()` at `run_block`); `sp_effective_cell = sp_balance × (1 − LP_cell)` (1e-6); per cell under m4: `redistributed_debt`, `redistributed_positions_below_100 → bad_debt` (identity with `m2.bad_debt`, 1e-6), `tcr_post`, `recovery_mode_flag = (tcr_post < 1.50)`; CCR = 1.50, MCR = 1.10 as contract-constant reads; H4: `redemption_capacity` present in Member 2, compound, and joint only (Member 1: absent or `0, reason = "crash path excluded"`); capacity = LUSD redeemable before `baseRate + 0.5% > 2%` from the base-rate schedule (wiring-check; `baseRate` read); state gate: `tcr_cell < 1.10` ⇒ `redemption_capacity = 0, reason = "TCR < MCR"` (exact). Consequence: Level 2. Source: §6.3 H3, H4; §12 `state_conditional`.
  
 **DET-61 — Mechanism near bound (R-34, R-35)**
@@ -270,7 +270,7 @@ Pass: bars ordered (1) `terminal`, (2) `terminal_other_layer`, (3) `recurses + r
 **DET-18 — Staleness pair (R-10)**
 Pass: D = nodes labeled `recurses`; per node `staleness_days = run_date − last_disclosure_date` (DET-76e); `weighted = Σ_D share_i × staleness_i / Σ_D share_i`; `worst = argmax` with its share as % of backing; printed format contains weighted days, worst node name, worst days, worst weight; `terminal`, `terminal_other_layer`, `recurses_truncated` excluded (a staleness value on any = fail); per-node staleness column for every node in D; D empty ⇒ literal "no disclosure-dependent nodes"; companion line when Σ truncated share > 0: "N% of backing depth-truncated — staleness not assessed" (N at p = 1), omitted when 0. Consequence: Level 2. Source: §4.6(iii); §4.2; R-10; A-3.
  
-**DET-36 — LP-flight assumption line**
+**DET-36 — LP-flight assumption line** [archetypes: cdp]
 Pass: headline exit-depth line carries "LP capital assumed sticky"; grid printed `0% / 30% / 60%` with "assumed scenario modifier, not data-derived"; modeling-rule sentence "single-sided withdrawal of the paired asset" once; per-cell application owned by DET-41/DET-51. Consequence: Level 2. Source: §6.1.4; §11.5.
  
 **DET-53 — Bias note per mechanism (R-31)**
@@ -497,6 +497,32 @@ All rows have a computing owner. Non-computable properties are in Appendix A. Ju
 - **A-30** §1 / DET-73: the `counterparties` literal "n/a — archetype #1 holds no off-chain counterparties" with the WBTC note is required on archetype-#1 sheets only. An archetype-#2 sheet carries the filled enumeration of memo #2 §14 — present, non-empty, verbatim from the sheet — and the page prints it. The `audits[]`, `bug_bounty`, `last_material_change_audited` and `staleness_date` clauses are unchanged (P-10.02).
 - **A-31** §1 / DET-80: "template `prose_slots[]` (verifiability narrative; Member 1 opening; Member 2 opening; flag explanations; counterfactual explanations; admin-surface narrative; structural summary)" reads "the template's `prose_slots[]` declared for the token's archetype (`templates/manifest.toml`, field `archetype`, default `cdp`)": archetype #1 keeps the seven listed; archetype #2 declares structural summary, verifiability narrative, stress opening, flag explanations, admin-surface narrative and counterfactual explanations (Q31, Q46). A-25's notice rule is unchanged (P-10.02).
 - **A-32** §1 / DET-53: the four memo-derived mandatory rows (sell-side bound, GSM cap headroom, liquidator recycling (H5), Stability Pool refills (H3)) are required on archetype-#1 sheets only; an archetype-#2 sheet carries no ★ row. On an archetype-#2 sheet the direction enum gains `n/a`, for a stress row whose loss is not a stock-only capacity, with its reason printed (memo #2 §6, Q19). Coverage and the heading are unchanged (P-10.02).
+- **A-33** §0.8 / §1, DET-13(c), DET-85, DET-36, DET-71: a registered row carries an `archetypes` set, written as its §1 marker (A-48); the harness runs a row only on a token whose archetype is in the set. The rows not run on a token are listed in its gate-evaluation record under `not_applicable[]`, each with reason "archetype #2"; the key is omitted when the list is empty, so archetype-#1 records are byte-identical. `not_applicable` is not a result value: DET-85's "an entry for every DET and LLM ID" reads "an entry for every DET and LLM ID whose `archetypes` set includes the token's archetype, and every other registered ID under `not_applicable[]`", and §0.8's token-scope condition includes the archetype. The rows marked `[archetypes: cdp]`, by the object they lack on archetype #2 (memo #2 §1, Q44, E2, E3):
+  - debt: DET-03, DET-07
+  - positions: DET-06, DET-82
+  - stabilizer: DET-05, DET-20, DET-21, DET-23(c), DET-25, DET-26, DET-27, DET-45
+  - GSM: DET-28, DET-35, DET-46, DET-47
+  - trove and the LUSD control: DET-51, DET-71
+  - cell grid: DET-37, DET-38, DET-39, DET-40, DET-41, DET-42, DET-43, DET-48, DET-49, DET-50
+  - LP-flight grid: DET-36 (Q17: no LP-flight axis)
+
+  29 rows. The methodology page prints, per token, "n evaluated, k not-applicable (archetype #2), m new", where n counts the rows run (A-24's not-evaluated clause unchanged), k the `not_applicable[]` list, and m the rows marked `[archetypes: synthetic]` (DET-90, the Q48 rows). On an archetype-#1 token the k and m clauses are omitted (P-10.04).
+- **A-34** §1 / DET-52: "LUSD: literal "exempt — Stability Pool depositors receive collateral; no forced sale", no numeric;" reads "LUSD: literal "exempt — Stability Pool depositors receive collateral; no forced sale", no numeric; archetype #2: literal "no collateral-sell-side bound — no on-chain liquidation path (memo #2 §1)", no numeric, no lineage;" (P-10.04).
+- **A-35** §1 / DET-55: "fields: `feed_or_source`, `update_condition {type ∈ {deviation_heartbeat, ema_window}, …}`, `assumption_applied ∈ {instant, instant_optimistic_counterfactual, instant_with_fallback_counterfactual}`" reads the same with `type` also ∈ {`attested`} and `assumption_applied` also ∈ {`attested_value`}: an archetype-#2 category node's row is keyed `(category, —)`, carries `update_condition.type = attested`, `staleness_check = not_applicable_attested`, `assumption_applied = attested_value`, `counterfactual_ref = None`, and no `heartbeat_s`; buffer label rows carry their Chainlink reference feed in the R-49 gap column at par (R-16) (memo #2 §4, Q10) (P-10.04).
+- **A-36** §1 / DET-57: "required IDs: `stock_only`, `observation` (DET-54), `lp_sticky` + `lp_grid` (DET-36), `sell_side_bound` …, `member2_target`, `freeze_reference`" reads, on an archetype-#2 token, "required IDs: `stock_only`, `observation` (DET-54, attested value), `par_numeraire`, `funding_reversal_rate` (F = −25%, N ∈ {30, 90, 180}), `venue_loss_shock` (−30%), `redemption_fraction` (25% in 7 d), `blocks_7d` (50,400 = 7 × 86400 ÷ 12, E8), `freeze_reference`" (P-10.04).
+- **A-37** §1 / DET-61: "instances: crvUSD …; GHO …; LUSD `recovery_mode` (…)" reads the same plus "USDe `backing_ratio` (fires when backing ÷ `supply_ruled` < 1.01) and `reserve_fund` (fires when reserve fund ÷ `supply_ruled` < 0.005), memo #2 §8(d); `near_bound_threshold` does not apply to them" (P-10.04).
+- **A-38** §1 / DET-63: "count fields — crvUSD …; GHO …; LUSD `contract_set_count`" reads the same plus "USDe `custodian_count` and `exchange_count` from the backing-assets route: addition ⇒ Level 1 (T-06), removal ⇒ Level 2 (T-12), with no label-config test on an addition (memo #2 §8(c))" (P-10.04).
+- **A-39** §1 / DET-66: "Ruled contents: LUSD R6 = {…}; GHO GSM R6 = {`pausable`, `capacity_limited`}." reads the same plus "USDe one `module_on_chain` path (EthenaMinting V2), R2 = `whitelisted`, R6 = {`capacity_limited`, `pausable`}, R7 = `globalMaxRedeemPerBlock` and Σ `/api/stablecoin-collateral`, R9 = `disclaimed`; R2 is printed beside R8 (memo #2 §12, D7)" (P-10.04).
+- **A-40** §1 / DET-74: "class N (M8 behavioral threshold; S5 subgraph note): Appendix." reads the same plus "archetype #2: the attestation wallet list is class I (> 92 d ⇒ T-16); the audit, bug-bounty and R9 tags are class D; `last_disclosure_date` tags are owned by DET-18 / T-29 (A-28), not by this entry" (P-10.04).
+- **A-41** §2 / LLM-02: "Member 1 and Member 2 openings state why this shock fits this token's mechanism class" reads "on archetype #1, the Member 1 and Member 2 openings, and on archetype #2 the stress opening for each of its three rows, state why this shock fits this token's mechanism class" (P-10.04).
+- **A-42** §2 / LLM-04: "no paragraph would be equally true of any CDP token" reads "no paragraph would be equally true of any token of the same archetype" (P-10.04).
+- **A-43** §2 / LLM-06: "for structurally insulated tokens (DET-43)" reads "for structurally insulated tokens (DET-43); on archetype #2, which has no Member 2, `applicable = false` by rule" (P-10.04).
+- **A-44** §1 / DET-02 (E2): "every config row has a unique `address`" reads "every config row has a unique `address`, except an archetype-#2 category node, which has a unique `category` and no `address` (exactly one of the two); a label row keyed by symbol may carry `address = "none"` with `chain = "other"` (E6)" (P-10.04).
+- **A-45** §1 / DET-44 (E2): "required IDs: crvUSD …; GHO …; LUSD `Tellor_fallback` …" reads the same plus "USDe `cf.basis_unwind_day0` (row 1, every N cell; `value_counterfactual` null, literal "loss bounded by execution cost, unquantified") and `cf.cooldown_branch` (row 3, S3); on archetype #2 lines render under their row, not under metric 4" (P-10.04).
+- **A-46** §1 / DET-54 (E2): adds "archetype #2: literal "attested value — disclosure-category nodes are held at their attested value until the next disclosure; their age is printed (memo #2 §7)"; buffer label rows: instant observation at par" (P-10.04).
+- **A-47** §1 / DET-69 (E2): "(crvUSD regulator `pause` → `is_killed`; …; GHO GSM `pause` → freezer role/bands)" reads the same plus "; USDe sUSDe `set_parameters` → `cooldownDuration` (row-3 branch), V2 `set_ceiling` → `globalMaxRedeemPerBlock` (row-3 capacity)" (P-10.04).
+- **A-48** §1 / DET-12: DET-12's S0 limb also compares §1's markers with the registry: for every registered ID, the set its entry's `[archetypes: …]` marker names (default both) equals `CHECKS[id].archetypes`; a mismatch in either direction ⇒ Level 3, the pipeline does not start. One parser (`factory.rubric.archetype_markers`) serves DET-12, the runner and the methodology count. No new CHECKS row; `len(CHECKS)` unchanged (P-10.04).
+- **A-49** §1 / DET-56 (E2): "all: "sequencer/infra risk n/a — mainnet only"." reads the same plus "archetype #2 (memo #2 §7.3): "oracle manipulation out of scope — no oracle prices backing; attested values (memo #2 §7)", "sUSDe yield out of scope (Q7)", "other-chain positions disclosed, not read (D17)" and "sequencer/infra risk n/a — mainnet only"; the crvUSD, GHO and LUSD sentences do not apply to it" (P-10.04).
 ## 6. Evaluation-loop contract
  
 1. Deterministic stages run in order S0 → S1 → S2 → S3; a failure at a stage stops at that stage's consequence (Level 3 / Level 2); S3 data-consistency failures are Level 2; DET-13 runs last.

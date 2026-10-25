@@ -385,11 +385,16 @@ def plan(repo: pathlib.Path, as_of: dt.date | None = None) -> dict[str, bytes]:
     notice = notice_of(repo, w)                                               # Ruling 1
     cards = [token_card(repo, t, w, mf, pairs, as_of, notice) for t in TOKEN_ORDER]
 
-    unreg = [c["unregistered"] for c in cards]                                 # D2
-    if any(u != unreg[0] for u in unreg):
-        raise SiteStop("gate records disagree on unregistered: "
-                       + "; ".join(f"{c['token']} {[x['entry_id'] for x in c['unregistered']]}"
-                                   for c in cards))
+    # D2; E4 (P-10.04): the unregistered lists agree within an archetype - since
+    # ruling 2(a) a record lists only its own archetype's queue items.
+    from factory.mirror import archetype
+    unreg = [c["unregistered"] for c in cards]  # unreg[0]: the methodology's A-16 line (commit 7)
+    for arch in sorted({archetype(c["token"]) for c in cards}):
+        same = [c for c in cards if archetype(c["token"]) == arch]
+        if any(c["unregistered"] != same[0]["unregistered"] for c in same):
+            raise SiteStop("gate records disagree on unregistered: "
+                           + "; ".join(f"{c['token']} {[x['entry_id'] for x in c['unregistered']]}"
+                                       for c in same))
     tt = read_trigger_table(repo)
     rows, opened, n_lines = log_rows(repo, tt)
     repo_url = w["repo"]["url"]

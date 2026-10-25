@@ -18,7 +18,7 @@ from factory.discovery import still_enumerated
 from factory.eventlog import FreezeEvent, IntakeTriggerEvent, last_event
 from factory.logbook import is_first_run, load_prior
 from factory.provenance import AbsenceRead
-from factory.rubric import read_trigger_table
+from factory.rubric import read_archetype_markers, read_trigger_table
 from factory.run import AssemblyStop, _admin_delay, execute
 from factory.schema import (
     AdminRow,
@@ -58,6 +58,7 @@ REPO = pathlib.Path(__file__).resolve().parents[1]
 def a_ctx(**kw):
     base = dict(
         labels={}, printed_trigger_table=read_trigger_table(REPO),
+        archetype_markers=read_archetype_markers(REPO),                 # A-48 (P-10.04)
         sheet={"sheet_hash": "43a5d27b", "near_bound_threshold": 0.80,
                "counterparties": "n/a", "attribution_method": "direct"},
         roots={"controller_factory": Root("controller_factory", CF, "r", "s",

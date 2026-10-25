@@ -39,6 +39,40 @@ def trigger_table(rubric_text: str) -> dict[str, dict]:
     return out
 
 
+ARCHETYPES = frozenset({"cdp", "synthetic"})
+MARKER_ENTRY = re.compile(r"^\*\*((?:DET|LLM)-\d\d)\b.*$", re.M)
+MARKER = re.compile(r"\[archetypes: ([a-z, ]+)\]")
+
+
+def base_id(entry_id: str) -> str:
+    """A registered ID's §1 entry number: "DET-29a" / "DET-22-S3" -> "DET-29" / "DET-22"."""
+    m = re.match(r"^((?:DET|LLM)-\d\d)", entry_id)
+    if not m:
+        raise ValueError(f"not a rubric ID: {entry_id}")
+    return m.group(1)
+
+
+def archetype_markers(rubric_text: str) -> dict[str, frozenset]:
+    """A-48 (P-10.04): §1's `[archetypes: …]` marker per entry number, read off the
+    entry's title line; absent = both. Entries sharing a number (DET-29(a), DET-29(b)(c))
+    must agree. One parser serves DET-12, the runner and the methodology count."""
+    out: dict[str, frozenset] = {}
+    for m in MARKER_ENTRY.finditer(rubric_text):
+        mk = MARKER.search(m.group(0))
+        got = (frozenset(x.strip() for x in mk.group(1).split(",")) if mk else ARCHETYPES)
+        if not got <= ARCHETYPES:
+            raise ValueError(f"rubric §1: {m.group(1)} marker {sorted(got)} "
+                             f"outside {sorted(ARCHETYPES)}")
+        if out.setdefault(m.group(1), got) != got:
+            raise ValueError(f"rubric §1: {m.group(1)} entries carry different markers")
+    return out
+
+
+def read_archetype_markers(repo: pathlib.Path) -> dict[str, frozenset]:
+    text = (repo / "docs/context/rubic_v1.md").read_bytes().replace(b"\r\n", b"\n").decode()
+    return archetype_markers(text)
+
+
 def read_trigger_table(repo: pathlib.Path) -> dict[str, dict]:
     text = (repo / "docs/context/rubic_v1.md").read_bytes().replace(b"\r\n", b"\n").decode()
     return trigger_table(text)
