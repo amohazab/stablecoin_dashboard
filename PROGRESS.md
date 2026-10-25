@@ -9633,3 +9633,46 @@ Status: OPEN (opened 2026-10-25, P-10.01)
   `PROGRESS.md` (P-10.03 and this entry).
 - **Follow-ups spawned:** commit 3 (config); the methodology count and A-16 line at
   commit 7; the CDP pages re-render at their next monthly runs.
+
+## P-10.05 — Commit 3: the USDe config (E6/E7), USDe declared
+
+- **Date:** 2026-10-25
+- **Type:** implementation
+- **Confirmed by:** Amin
+- **Content:**
+  **P-10.03 and P-10.04 APPENDED** with commit 2 at `c8f67cb`, pushed: each draft equal to
+  its appended slice (`0430bc2c…` / `ac541460…`); suite last 397 passed.
+  **CONFIG** from the signed sheet (`bf64d756`):
+  - `config/usde_roots.toml`: four roots (`usde_token` anchor, `susde`, `reserve_fund`,
+    `oft_adapter`), the derived set listed as comments (V2 ← `minter()`, timelock ←
+    `owner()`, silo ← `silo()`); `lend_factory = []` (Q44); the OFT `[[bridge]]`
+    `lock_and_mint`; four `[[supply_class]]` rows; `[reserve_fund]` (not credited);
+    `[pool_set]` floor 500,000, `member2_target = "none"`; `[attestation_wallets]` (11
+    Ethereum, 2 Solana disclosed only).
+  - `config/usde_labels.toml`: six `[[node]]` category nodes (`category` +
+    `attestation_ref`, `node_class` stable, Q43); nine `[[label_row]]` (USDT
+    buffer + pool pair, USDT0 and sGHO `address = "none"`, `chain = "other"`, USDC,
+    PYUSD, USDtb, USDG, RLUSD, legacy FRAX pool pair).
+  **LOADER** (`config.py`): `[[node]]` takes exactly one of `address` / `category`
+  (DET-02, A-44); `CategoryNode` and `SymbolLabelRow` (symbol unique, address unique
+  unless "none", "none" iff `chain = "other"`); `Config` gains `category_nodes`,
+  `label_rows`, `attested_rows`, `reserve_fund`, `supply_classes`, `pool_set`,
+  `attestation_wallets` (empty on CDP tokens). **Where flag 8 lands:** both in
+  `config.load`. The DET-55 `attested` row is fixed by Q10 for every category node, so
+  it is built, not signed per node. Liquid Stables' cadence is derived as its oldest
+  buffer row (USDT, 2026-06-30), because the sheet gives the rule, not a value.
+  **DECLARED:** `TOKEN_FILES["USDe"]` and `run._TOKEN_ROOT["USDe"] = "usde_token"`
+  together (ruling 1(a)); `frozen_set_usde.json` absent, never read by the loader.
+  **PROOFS:** `config.load("USDe")` → 6 nodes, 9 label rows, 4 supply classes, 6 attested
+  rows, 13 disclosure rows; `analyzed_set` gains USDe; `factory.tree` for crvUSD, GHO and
+  LUSD byte-identical to a baseline folded before the change (`29e27568`, `501e9822`,
+  `43316e2a`; fold outputs restored); three CDP mirrors byte-for-byte; `site.plan` passes.
+  **TESTS:** `tests/test_usde_config.py` (5): counts and fields; Liquid Stables derived;
+  exactly-one `address`/`category`; "none" iff other chain; USDe in the analyzed set, CDP
+  configs carry no archetype-#2 tables. Suite **402 passed**.
+  **IMPLEMENTER DEFAULTS:** sGHO's label row `transparent_wrapper` (the
+  `composite_passthrough` precedent: a pass-through row outside the four tree labels);
+  FRAX and USDT `roles` carry `pool_pair`; the Curve enumeration root waits for commit 4.
+- **Artifacts:** `config/usde_roots.toml` (new) · `config/usde_labels.toml` (new) ·
+  `src/factory/{config,run}.py` · `tests/test_usde_config.py` (new); `PROGRESS.md`.
+- **Follow-ups spawned:** commit 4 (adapter reads), with the Curve enumeration root.

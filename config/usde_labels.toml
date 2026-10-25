@@ -1,0 +1,161 @@
+# USDe label config — from the signed sheet (intake-sheet-usde.md, bf64d756), P-10.05.
+#
+# Two tables (E6). `[[node]]`: the six disclosure-category nodes, keyed by
+# `category` + `attestation_ref` in place of `address` (exactly one of the two,
+# DET-02 per A-44); tree weight comes from these alone (D1). `[[label_row]]`:
+# the assets the backing-assets route lists, keyed by symbol, zero tree weight;
+# they give Liquid Stables its staleness and feed the §2 reconciliation.
+# node_class = stable on every node, lst_discount_applies = false (Q43).
+
+schema_version = 1
+
+[[node]]
+category = "Crypto Basis"
+attestation_ref = "custodian-attestations-of-assets-backing-usde-september-3"
+label = "recurses"
+node_class = "stable"
+lst_discount_applies = false
+label_source = "memo #2 §4.5 Crypto Basis row; intake-sheet-usde.md, Backing nodes"
+date = 2026-10-25
+
+[[node]]
+category = "Equity and RWA Basis"
+attestation_ref = "custodian-attestations-of-assets-backing-usde-september-3"
+label = "recurses"
+node_class = "stable"
+lst_discount_applies = false
+label_source = "memo #2 §4.5 Equity and RWA Basis row; intake-sheet-usde.md, Backing nodes"
+date = 2026-10-25
+
+[[node]]
+category = "Institutional Lending"
+attestation_ref = "custodian-attestations-of-assets-backing-usde-september-3"
+label = "recurses"
+node_class = "stable"
+lst_discount_applies = false
+label_source = "memo #2 §4.5 Institutional Lending row (per-run note from /api/institutional-lending, D14)"
+date = 2026-10-25
+
+[[node]]
+category = "Liquid Stables"
+attestation_ref = "custodian-attestations-of-assets-backing-usde-september-3"
+label = "recurses"
+node_class = "stable"
+lst_discount_applies = false
+label_source = "memo #2 §4.5 Liquid Stables row; staleness = the worst issuer cadence among its label rows"
+date = 2026-10-25
+
+[[node]]
+category = "DeFi Lending"
+attestation_ref = "custodian-attestations-of-assets-backing-usde-september-3"
+label = "recurses_truncated"
+reason = "lending positions; underlying stables not attributed by the disclosure"
+node_class = "stable"
+lst_discount_applies = false
+label_source = "memo #2 §4.5 DeFi Lending row (P-10.02 point 3)"
+date = 2026-10-25
+
+[[node]]
+category = "RWA"
+attestation_ref = "custodian-attestations-of-assets-backing-usde-september-3"
+label = "recurses_truncated"
+reason = "the funds' off-chain holdings - not analyzed (JAAA, STAC)"
+node_class = "stable"
+lst_discount_applies = false
+label_source = "memo #2 §4.5 RWA row; memo #1 §4.5 tokenized-fund row"
+date = 2026-10-25
+
+# ---- label rows (D18, E6) -----------------------------------------------------------
+# `roles`: "buffer" = a Liquid Stables / DeFi Lending asset (label row, reconciliation
+# input); "pool_pair" = a paired asset of a modeled Curve pool (DET-11). USDT is both.
+[[label_row]]
+symbol = "USDT"
+address = "0xdac17f958d2ee523a2206206994597c13d831ec7"
+chain = "ethereum"
+label = "recurses"
+recurses_into = "Tether"
+roles = ["buffer", "pool_pair"]
+label_source = "memo #1 §4.5 USDT row; paired asset of 0x5B03CcCAb7BA3010fA5CAd23746cbf0794938e96"
+date = 2026-10-25
+
+[[label_row]]
+symbol = "USDT0"
+address = "none"
+chain = "other"
+label = "recurses"
+recurses_into = "Tether"
+as = "USDT"
+roles = ["buffer"]
+label_source = "memo #2 §4.5 label rows (D18); the route lists it on Plasma and Mantle only (E6)"
+date = 2026-10-25
+
+[[label_row]]
+symbol = "USDC"
+address = "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+chain = "ethereum"
+label = "recurses"
+recurses_into = "Circle"
+roles = ["buffer"]
+label_source = "memo #1 §4.5 USDC row"
+date = 2026-10-25
+
+[[label_row]]
+symbol = "PYUSD"
+address = "0x6c3ea9036406852006290770bedfcaba0e23a0e8"
+chain = "ethereum"
+label = "recurses"
+recurses_into = "Paxos"
+roles = ["buffer"]
+label_source = "memo #1 §4.5 pyUSD row"
+date = 2026-10-25
+
+[[label_row]]
+symbol = "USDtb"
+address = "0xc139190f447e929f090edeb554d95abb8b18ac1c"
+chain = "ethereum"
+label = "recurses"
+recurses_into = "Anchorage Digital Bank NA"
+roles = ["buffer"]
+label_source = "memo #2 §4.5 USDtb row (new)"
+date = 2026-10-25
+
+[[label_row]]
+symbol = "USDG"
+address = "0xe343167631d89b6ffc58b88d6b7fb0228795491d"
+chain = "ethereum"
+label = "recurses"
+recurses_into = "Paxos"
+roles = ["buffer"]
+label_source = "memo #2 §4.5 USDG row (new, D18)"
+date = 2026-10-25
+
+[[label_row]]
+symbol = "RLUSD"
+address = "0x8292bb45bf1ee4d140127049757c2e0ff06317ed"
+chain = "ethereum"
+label = "recurses"
+recurses_into = "Ripple"
+roles = ["buffer"]
+label_source = "memo #2 §4.5 RLUSD row (new, D18); symbol() at 26269287"
+date = 2026-10-25
+
+[[label_row]]
+symbol = "sGHO"
+address = "none"
+chain = "other"
+label = "transparent_wrapper"
+recurses_into = "GHO (memo #1 §4.1 analyzed-set link)"
+as = "GHO"
+roles = ["buffer"]
+label_source = "memo #2 §4.5 sGHO row (new, D18); the route lists it with chain null (E6)"
+date = 2026-10-25
+
+[[label_row]]
+symbol = "FRAX"
+address = "0x853d955acef822db058eb8505911ed77f175b99e"
+chain = "ethereum"
+label = "recurses"
+recurses_into = "Frax disclosure - none published, dated absence"
+roles = ["pool_pair"]
+label_source = "memo #2 §4.5 legacy FRAX row (Q41, RULED); paired asset of FRAXUSDe 0x5dc1BF6f1e983C0b21EfB003c105133736fA0743; unit-priced with the numeraire, par-eligible"
+date = 2026-10-25

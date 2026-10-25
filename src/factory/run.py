@@ -689,7 +689,8 @@ OWED: dict[str, str] = {}
 # token's own signed root - crvUSD's is the module constant it has always been,
 # and a token with no such root returns "" rather than a wrong address, which
 # `fetch_supply_confirmations` reads as a MISSING confirmation (P-4.16).
-_TOKEN_ROOT = {"GHO": "gho_token", "LUSD": "lusd_token"}
+_TOKEN_ROOT = {"GHO": "gho_token", "LUSD": "lusd_token",
+               "USDe": "usde_token"}                     # P-10.05, with TOKEN_FILES["USDe"]
 
 
 def _token_address(cfg: Config, token: str) -> str:

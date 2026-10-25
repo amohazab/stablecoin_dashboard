@@ -1,0 +1,113 @@
+# USDe discovery roots — from the signed sheet (intake-sheet-usde.md, bf64d756), P-10.05.
+#
+# THE HARD GATE (memo #1 §9, memo #2 §9). Every contract a getter reaches is
+# DERIVED per run and never appears here; a root is an address no getter reaches,
+# or the anchor the derivations start from. Addresses confirmed by reads at
+# block 26265302 (Inventory G, G5).
+
+schema_version = 1
+
+# ---- lend factories: EXPLICIT EMPTY (Q44; three states, P-3.17) --------------
+# Archetype #2 has no lend markets. THIS KEY MUST PRECEDE EVERY `[[root]]` TABLE
+# (the P-4.16 lesson: a bare key after a table header belongs to that table).
+lend_factory = []
+
+[[root]]
+id = "usde_token"
+address = "0x4c9edd5852cd905f086c759e8383e09bff1e68b3"
+role = "token anchor; totalSupply(), minter(), owner(), balanceOf()"
+derivation_route = "analyst anchor"
+source = "intake-sheet-usde.md, Contracts to read (docs.ethena.fi key-addresses 'USDe Token'); FR-U01-U03"
+date = 2026-10-25
+
+[[root]]
+id = "susde"
+address = "0x9d39a5de30e57443bff2a8307a4256c8797a3497"
+role = "staking vault; cooldownDuration(), silo(), roles; USDe.balanceOf(sUSDe) = staked class"
+derivation_route = "analyst root: no USDe getter returns it"
+source = "intake-sheet-usde.md, Contracts to read (key-addresses 'Staking Contract'); asset() = USDe; FR-U04-U06"
+date = 2026-10-25
+
+[[root]]
+id = "reserve_fund"
+address = "0x2b5ab59163a6e93b4486f6055d33ca4a115dd4d5"
+role = "the reserve-fund slice (memo #2 §3); balances of every supported asset"
+derivation_route = "analyst root: no getter reaches it"
+source = "intake-sheet-usde.md, Contracts to read (key-addresses 'Reserve Fund'); Safe getters; FR-U19"
+date = 2026-10-25
+
+[[root]]
+id = "oft_adapter"
+address = "0x5d3a1ff2b6bab83b63cd9ad0787074081a52ef34"
+role = "LayerZero lockbox; USDe.balanceOf(adapter) = bridged-escrow class"
+derivation_route = "analyst root: located via L2 USDe OFT peers(30101), not on docs.ethena.fi"
+source = "intake-sheet-usde.md, Contracts to read; token() = USDe; approvalRequired(); FR-U08"
+date = 2026-10-25
+
+# DERIVED PER RUN — never configured, never a row here:
+#   EthenaMinting V2          <- USDe.minter()          (V1 retired by this read, Q45)
+#   EthenaTimelockController  <- USDe.owner()
+#   USDeSilo                  <- sUSDe.silo()
+#   custodian / asset sets    <- V2 events (POINTER) + isCustodianAddress / isSupportedAsset (VERDICT)
+#   role holders              <- RoleGranted / RoleRevoked logs (POINTER) + hasRole (VERDICT)
+
+# ---- the OFT bridge row (Q20; DET-33) -----------------------------------------
+[[bridge]]
+address = "0x5d3a1ff2b6bab83b63cd9ad0787074081a52ef34"
+bridge_type = "lock_and_mint"
+source = "https://governance.aave.com/t/usde-usde-on-aave-monad-assessments/25255; G5 approvalRequired() = true (intake-sheet-usde.md, Token-specific mechanisms)"
+date = 2026-10-25
+
+# ---- the four supply classes (Q21, Q24; A-29) ----------------------------------
+[[supply_class]]
+id = "staked"
+read = "USDe.balanceOf(sUSDe)"
+source = "intake-sheet-usde.md, Supply decomposition; FR-U06"
+
+[[supply_class]]
+id = "cooling"
+read = "USDe.balanceOf(sUSDe.silo())"
+source = "intake-sheet-usde.md, Supply decomposition; FR-U07"
+
+[[supply_class]]
+id = "bridged_escrow"
+read = "USDe.balanceOf(oft_adapter)"
+source = "intake-sheet-usde.md, Supply decomposition; FR-U08"
+
+[[supply_class]]
+id = "free_float"
+read = "derived: totalSupply() - staked - cooling - bridged_escrow (lineage)"
+source = "intake-sheet-usde.md, Supply decomposition"
+
+# ---- the reserve-fund slice (memo #2 §3, Q6) --------------------------------------
+# Outside backing, never credited; absorbs first in stress rows 1 and 2 (P-10.02).
+[reserve_fund]
+root = "reserve_fund"
+slice = "protocol reserve fund, discretionary"
+credited = false
+disclosed_by = "/api/collateralization/status totalReserveFundInUsd (cross-shown)"
+source = "memo #2 §3; intake-sheet-usde.md, Token-specific mechanisms"
+
+# ---- the pool set (memo #2 §5) --------------------------------------------------
+# TOML has no null: "none" is the literal the set file records (Q18).
+[pool_set]
+floor_usd = 500000
+member2_target = "none"
+member2_note = "no Member 2 in this family"
+source = "memo #1 §5.5 dust floor; memo #2 §5 delta 2; intake-sheet-usde.md, Pool set"
+
+# ---- group (ii): the attestation wallet list (Q4(ii), F4; DET-04 form) ------------
+# Dated analyst list, refreshed monthly; read on-chain in union with the route's
+# Ethereum addressEntries, each address once. Solana rows are disclosed, not read (D17).
+[attestation_wallets]
+source = "September attestation post, 'Coinbase Onchain Wallets', https://ethena.fi/blog/custodian-attestations-of-assets-backing-usde-september-3; as-of 2026-09-27"
+date = 2026-10-25
+ethereum = [
+  "0x2d4d2a025b10c09bdbd794b4fce4f7ea8c7d7bb4", "0xb8734a14fbd4aa2d44e6aa830405ffc861ba313c",
+  "0x1c3b25019ed4e4876e7af7903cc3e1e23287c337", "0x2bf5d9a2326ad3c5ef8208f91af79c3ca1f0f67c",
+  "0x3feaa7483fcfba130e68b41369dd78ff30465459", "0x3e9924b65eb75d05b7448305e66d1f490e70623d",
+  "0x1a52abd3de0caceb71c5871386bec4f6eb80cc8e", "0xc1f00a3b50cbf62d91a0bed27e978eaed0470e58",
+  "0x61e614ec5e2f282ca42f313afacb45738ddacdae", "0xb127f6f301de26c72a4f4b65f2f15e12fae31e0b",
+  "0xa13fee3e98808fe0ab4ae86509c6a068b3d24174",
+]
+other_chain = ["C23FGxQB2LsoTbZsQr5w3R7b3sw5saxPLGJ4ujvyH34L", "4FaQc6QZ5skFjcDF64mKcXRhtCCsnArZcr1xumPNrbtN"]

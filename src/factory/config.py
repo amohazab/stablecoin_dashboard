@@ -46,6 +46,40 @@ class LabelRow:
     share: str | None = None
 
 
+@dataclass(frozen=True)
+class CategoryNode:
+    """An archetype-#2 node (E6, P-10.05): a disclosure category keyed by `category` +
+    `attestation_ref` in place of an address (memo #2 §2 Q2's one exception; DET-02
+    per A-44). Tree weight comes from these alone (D1)."""
+
+    category: str
+    attestation_ref: str
+    label: str
+    node_class: str
+    lst_discount_applies: bool
+    label_source: str
+    date: _dt.date
+    reason: str | None = None
+
+
+@dataclass(frozen=True)
+class SymbolLabelRow:
+    """An archetype-#2 label row (E6, D18): keyed by symbol, zero tree weight; an
+    asset the backing-assets route lists. `address = "none"` with `chain = "other"`
+    for an asset with no Ethereum address (USDT0, sGHO); `as_` names the row whose
+    label and disclosure it carries."""
+
+    symbol: str
+    address: str
+    chain: str
+    label: str
+    recurses_into: str
+    roles: tuple[str, ...]
+    label_source: str
+    date: _dt.date
+    as_: str | None = None
+
+
 class LendState(Enum):
     """Three states, never two (P-3.17).
 
@@ -116,6 +150,11 @@ TOKEN_FILES: dict[str, dict[str, str]] = {
     # they are there.
     "LUSD": {"roots": "lusd_roots.toml", "labels": "lusd_labels.toml",
              "sheet": "lusd_sheet.toml", "frozen_set": "frozen_set_lusd.json"},
+    # P-10.05 (ruling 1(a) of P-10.02): declared together with its roots and labels,
+    # because `tree.analyzed_set` loads every declared token's config. The frozen
+    # set stays absent until the first freeze; the loader never reads it.
+    "USDe": {"roots": "usde_roots.toml", "labels": "usde_labels.toml",
+             "sheet": "usde_sheet.toml", "frozen_set": "frozen_set_usde.json"},
 }
 
 
@@ -161,6 +200,14 @@ class Config:
     disclosures: dict[str, dict] = field(default_factory=dict)
     oracle_feeds: dict[str, dict] = field(default_factory=dict)
     audit_status: dict = field(default_factory=dict)
+    # Archetype #2 (P-10.05; E6, Q4, Q6, Q10, Q21, Q18). Empty on archetype-#1 tokens.
+    category_nodes: dict[str, CategoryNode] = field(default_factory=dict)
+    label_rows: dict[str, SymbolLabelRow] = field(default_factory=dict)
+    attested_rows: dict[str, dict] = field(default_factory=dict)       # DET-55, A-35
+    reserve_fund: dict = field(default_factory=dict)
+    supply_classes: tuple[dict, ...] = ()
+    pool_set: dict = field(default_factory=dict)
+    attestation_wallets: dict = field(default_factory=dict)
 
     def root(self, root_id: str) -> Root:
         if root_id not in self.roots:
@@ -218,6 +265,75 @@ def join_disclosures(labels: dict, sheet_raw: dict) -> dict[str, dict]:
     return by_symbol
 
 
+def _label_rows(labels_raw: dict) -> dict[str, SymbolLabelRow]:
+    """E6: `[[label_row]]` keyed by symbol; an address is unique unless it is "none"."""
+    out: dict[str, SymbolLabelRow] = {}
+    seen: set[str] = set()
+    for r in labels_raw.get("label_row", []):
+        row = SymbolLabelRow(symbol=r["symbol"], address=r["address"].lower(),
+                             chain=r["chain"], label=r["label"],
+                             recurses_into=r["recurses_into"], roles=tuple(r["roles"]),
+                             label_source=r["label_source"], date=_date(r["date"]),
+                             as_=r.get("as"))
+        if row.symbol in out:
+            raise ValueError(f"duplicate label_row symbol: {row.symbol}")
+        if (row.address == "none") != (row.chain == "other"):
+            raise ValueError(f"{row.symbol}: address 'none' iff chain 'other' (E6)")
+        if row.address != "none":
+            if row.address in seen:
+                raise ValueError(f"duplicate label_row address: {row.address}")
+            seen.add(row.address)
+        out[row.symbol] = row
+    return out
+
+
+# DET-55 / A-35 (Q10): every category node's oracle row is fixed by the ruling, not
+# signed per node, so config.load builds it here; the mirror carries no such table.
+ATTESTED_ROW = {"literal": "no on-chain price source; attested value",
+                "update_condition_type": "attested",
+                "staleness_check": "not_applicable_attested",
+                "assumption_applied": "attested_value", "counterfactual_ref": None}
+
+
+def attested_rows(categories: dict) -> dict[str, dict]:
+    return {c: dict(ATTESTED_ROW, key=(c, "—")) for c in categories}
+
+
+def join_category_disclosures(categories: dict, label_rows: dict, sheet_raw: dict) -> dict:
+    """DET-76(e) for archetype #2 (P-10.05): each disclosure-carrying category node and
+    label row gets exactly one mirror row, matched by the row's leading name and KEYED
+    BY CATEGORY / SYMBOL. Liquid Stables carries no sheet cadence (round-4a flag 8): its
+    row is DERIVED here as the oldest `last_disclosure_date` among its buffer label
+    rows - the sheet states the rule ("the worst issuer cadence"), never a value to mirror."""
+    rows = sheet_raw.get("disclosure", [])
+
+    def hit(name: str) -> dict:
+        got = [d for d in rows if d["row_key"] == name or d["row_key"].startswith(name + " ")]
+        if len(got) != 1:
+            raise ValueError(f"DET-76(e): {name} matches {len(got)} disclosure rows; "
+                             "exactly one required")
+        return got[0]
+
+    out: dict[str, dict] = {}
+    buffer = []
+    for s, r in label_rows.items():
+        if r.label == "recurses" and r.as_ is None and "buffer" in r.roles:
+            out[s] = dict(hit(s), inherited_from=None)
+            buffer.append(s)
+    for s, r in label_rows.items():
+        if r.as_ in out:
+            out[s] = dict(out[r.as_], inherited_from=r.as_)
+    for c in categories:
+        if c == "Liquid Stables":
+            worst = min(buffer, key=lambda s: out[s]["last_disclosure_date"])
+            out[c] = dict(out[worst], row_key=c, memo_row="Liquid Stables",
+                          derived="worst issuer cadence among its label rows",
+                          inherited_from=worst)
+        else:
+            out[c] = dict(hit(c), inherited_from=None)
+    return out
+
+
 def _date(v) -> _dt.date:
     return v if isinstance(v, _dt.date) else _dt.date.fromisoformat(str(v))
 
@@ -238,7 +354,22 @@ def load(config_dir: Path, token: str) -> Config:
         roots[root.id] = root
 
     labels: dict[str, LabelRow] = {}
+    categories: dict[str, CategoryNode] = {}
     for n in labels_raw.get("node", []):
+        if ("category" in n) == ("address" in n):                     # DET-02 / A-44
+            raise ValueError(f"[[node]] needs exactly one of `address` / `category`: {n}")
+        if "category" in n:
+            cn = CategoryNode(category=n["category"], attestation_ref=n["attestation_ref"],
+                              label=n["label"], node_class=n["node_class"],
+                              lst_discount_applies=bool(n["lst_discount_applies"]),
+                              label_source=n["label_source"], date=_date(n["date"]),
+                              reason=n.get("reason"))
+            if cn.category in categories:
+                raise ValueError(f"duplicate category node: {cn.category}")
+            if cn.lst_discount_applies and cn.node_class != "volatile":
+                raise ValueError(f"{cn.category}: lst_discount_applies requires volatile")
+            categories[cn.category] = cn
+            continue
         row = LabelRow(
             address=n["address"].lower(),
             symbol=n["symbol"],
@@ -332,9 +463,19 @@ def load(config_dir: Path, token: str) -> Config:
         if a in feeds:
             raise ValueError(f"duplicate oracle_feed node_address: {a}")
         feeds[a] = dict(r)
+    label_rows = _label_rows(labels_raw)
+    disclosures = join_disclosures(labels, sheet_raw)
+    if categories:
+        disclosures.update(join_category_disclosures(categories, label_rows, sheet_raw))
     return Config(token=token, frozen_set_path=config_dir / files["frozen_set"],
+                  category_nodes=categories, label_rows=label_rows,
+                  attested_rows=attested_rows(categories),
+                  reserve_fund=dict(roots_raw.get("reserve_fund", {})),
+                  supply_classes=tuple(roots_raw.get("supply_class", [])),
+                  pool_set=dict(roots_raw.get("pool_set", {})),
+                  attestation_wallets=dict(roots_raw.get("attestation_wallets", {})),
                   sell_side=sell_side,
-                  disclosures=join_disclosures(labels, sheet_raw),
+                  disclosures=disclosures,
                   oracle_feeds=feeds, audit_status=dict(sheet_raw.get("audit_status", {})),
                   m4_fields=tuple(sheet_raw.get("m4_fields", ())),
                   bias_table=[dict(r, date=_date(sheet_raw["bias_table_date"]))
