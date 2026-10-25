@@ -23,6 +23,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel
 
+from factory.mirror import archetype
 from factory.validate.harness import CHECKS, TRIGGER_TABLE
 
 # A-16: every rubric ID not registered, by the queue item that builds it (the
@@ -35,7 +36,11 @@ QUEUE = {
     "DET-81": "P-4.01 (GHO [[reference_feed]] rows, gap column - P-7.05)",
     "DET-23abd": "P-4.01 (DET-23 limbs a/b/d beside the registered DET-23c)",
     "DET-76abcd": "P-4.01 (DET-76 limbs a-d beside the registered DET-76e)",
+    "DET-90": "P-10.02 (A-28: buffer reconciliation gap, registered at the USDe adapter build)",
 }
+# P-10.02 ruling 2(a): a queue item's archetype; a record lists an unregistered entry
+# only when the entry's archetype is the token's (`mirror.archetype`). Unlisted = cdp.
+QUEUE_ARCHETYPE = {"DET-90": "synthetic"}
 # Rubric entries whose registration is split into limb rows, and the S3 limbs
 # of entries registered at S0/S2 (inventory L).
 LIMBS = {"DET-29(a)": ["DET-29a"], "DET-29(b)(c)": ["DET-29bc"], "DET-23": ["DET-23c"],
@@ -91,7 +96,7 @@ def rubric_ids(rubric_text: str) -> list[str]:
     return list(dict.fromkeys(ids))
 
 
-def unregistered(rubric_text: str) -> list[dict[str, str]]:
+def unregistered(rubric_text: str, token: str | None = None) -> list[dict[str, str]]:
     registered = {c.entry_id for c in CHECKS}
     out = []
     for rid in rubric_ids(rubric_text):
@@ -104,7 +109,9 @@ def unregistered(rubric_text: str) -> list[dict[str, str]]:
     missing = [x for x in out if x not in QUEUE]
     if missing:
         raise ValueError(f"A-16: unregistered ID(s) with no queue item {missing}")
-    return [{"entry_id": x, "queue_item": QUEUE[x]} for x in out]
+    arch = archetype(token) if token else "cdp"
+    return [{"entry_id": x, "queue_item": QUEUE[x]} for x in out
+            if QUEUE_ARCHETYPE.get(x, "cdp") == arch]
 
 
 def _triggers_from_scope(entry_id: str, scope: str | None) -> list[dict]:
@@ -152,7 +159,7 @@ def build(parts: dict, manifest: dict, s01, tree_checks, stress_checks, report_c
                                                "table_hash", "template_hash",
                                                "pipeline_version", "sheet_hash")},
                       results=results, triggers=triggers,
-                      unregistered=unregistered(rubric_text),
+                      unregistered=unregistered(rubric_text, manifest["token"]),
                       rubric_hash=__import__("hashlib").sha256(rubric_text.encode()).hexdigest()[:8],
                       outcome=outcome if outcome is not None else
                       ("blocked_S3" if any(r.stage == "S3" and r.result != "pass"

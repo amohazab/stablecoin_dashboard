@@ -38,7 +38,7 @@ BLOCKS = {"crvUSD": 25974925, "GHO": 25974932, "LUSD": 25974949}
 
 def test_section3_parses_every_row_with_split_levels_and_sections():
     t = read_trigger_table(REPO)
-    assert len(t) == 28 and set(t) == set(TRIGGER_TABLE)
+    assert len(t) == 30 and set(t) == set(TRIGGER_TABLE)            # A-28 (P-10.02): T-29, T-30
     assert t["T-18"]["levels"] == [2, 1] and t["T-28"] == {"name": "gate failure", "levels": [2, 1],
                                                           "section": "—", "owners": []}
     assert t["T-20"]["owners"] == ["DET-29"] and t["T-23"]["owners"] == ["DET-13", "DET-59",

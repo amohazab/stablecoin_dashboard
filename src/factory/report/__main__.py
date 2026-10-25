@@ -39,7 +39,7 @@ import tomllib
 
 from factory import eventlog
 from factory.config import load
-from factory.mirror import sheet_hash
+from factory.mirror import SHEET_FILE, archetype, sheet_hash
 from factory.report import assumptions, manifest, record, table
 from factory.rubric import trigger_table
 from factory.run import AssemblyStop, harness_ctx
@@ -47,6 +47,10 @@ from factory.schema import serialise, serialise_stress, serialise_tree
 from factory.stress import load_inputs
 from factory.tree import latest_tree
 from factory.validate.harness import CHECKS, evaluate_harness, run_report_checks
+
+# Q28 (P-10.02): the stamped sheet and memo each token's S3 rows read, per token and
+# per archetype; a token not listed reads the CDP set.
+MEMO_FILE = {"cdp": "archetype-memo-1-cdp.md", "synthetic": "archetype-memo-2-synthetic.md"}
 
 JINJA_BLOCK = re.compile(r"\{\{.*?\}\}|\{%.*?%\}|\{#.*?#\}", re.S)
 
@@ -74,14 +78,14 @@ def s3_page(repo: pathlib.Path, doc: dict, grid: dict, mirror: dict, files: dict
                 collect(v)
     collect(wording)
     strings += [JINJA_BLOCK.sub(" ", _lf(p)) for p in sorted(tpl.glob("*.j2"))]
-    sheet = repo / "docs/context/intake-sheets-cdp.md"
+    sheet = repo / "docs/context" / SHEET_FILE.get(doc["token"], "intake-sheets-cdp.md")
     return {"table": doc, "grid": grid, "mirror": mirror,
             "html": {k: v.read_text(encoding="utf-8") for k, v in files.items()},
             "wording": wording,
             "manifest": tomllib.loads((tpl / "manifest.toml").read_text(encoding="utf-8")),
             "template_strings": strings, "sheet_text": _lf(sheet),
             "sheet_hash": sheet_hash(sheet),
-            "memo_text": _lf(repo / "docs/context/archetype-memo-1-cdp.md")}
+            "memo_text": _lf(repo / "docs/context" / MEMO_FILE[archetype(doc["token"])])}
 
 
 NOT_JUDGED = "not judged: deterministic S3 failure"         # sixth live run, ruling 5

@@ -81,16 +81,34 @@ def parse_sell_side(sheet_path: pathlib.Path, token: str) -> list[dict[str, str]
     return rows
 
 
-BIAS_DIRECTIONS = frozenset({"overstates", "understates", "both"})     # DET-53, no `neutral`
+# P-10.02 (Q28, Q40): the token's archetype, the key every per-archetype rule below
+# reads; a token not listed is archetype #1. The sheet file each token's section
+# lives in (Q28: one sheet file per archetype-#2 token).
+ARCHETYPE = {"USDe": "synthetic"}
+SHEET_FILE = {"USDe": "intake-sheet-usde.md"}
+
+
+def archetype(token: str) -> str:
+    return ARCHETYPE.get(token, "cdp")
+
+
+# DET-53, no `neutral`. A-32 (Q19): an archetype-#2 row may carry `n/a` for a
+# scenario row whose loss is not a stock-only capacity.
+BIAS_DIRECTIONS = {"cdp": frozenset({"overstates", "understates", "both"}),
+                   "synthetic": frozenset({"overstates", "understates", "both", "n/a"})}
 
 # DET-53's four memo-derived rows, mandatory as literals: (mechanism, direction).
 # The sheet marks them ★; the parse asserts the mark AND the direction, so a
-# sheet edit that drops a ★ or flips one of these fails regeneration.
+# sheet edit that drops a ★ or flips one of these fails regeneration. A-32: the
+# four are archetype #1's; an archetype-#2 sheet carries no ★ row.
 BIAS_MANDATORY = {
-    "Collateral-sell-side bound": "overstates",
-    "GSM cap headroom (H2.i)": "overstates",
-    "Liquidator recycling (H5)": "understates",
-    "Stability Pool refills (H3)": "understates",
+    "cdp": {
+        "Collateral-sell-side bound": "overstates",
+        "GSM cap headroom (H2.i)": "overstates",
+        "Liquidator recycling (H5)": "understates",
+        "Stability Pool refills (H3)": "understates",
+    },
+    "synthetic": {},
 }
 
 # NAMED IMPLEMENTER DEFAULT (P-7.01 R8): DET-53 reads "`bias_table[]` (sheet
@@ -99,6 +117,8 @@ BIAS_MANDATORY = {
 # intake_trigger 2026-09-13). A later sheet edit that changes the table owes a
 # new date here, by ruling.
 BIAS_TABLE_DATE = "2026-09-14"                # B-11d signed edit C changed a reason
+# NAMED IMPLEMENTER DEFAULT (P-10.02): USDe's table lands at the round-4 signed edit.
+BIAS_TABLE_DATE_BY_TOKEN = {"USDe": "2026-10-25"}
 
 BIAS_HEADING = "stock-only capacity — direction of error per mechanism"
 
@@ -127,13 +147,14 @@ def parse_bias_table(sheet_path: pathlib.Path, token: str) -> list[dict]:
         mech, tokens, direction, reason = parts
         mandatory = mech.endswith("★")
         mech = mech.removesuffix("★").strip()
-        if direction not in BIAS_DIRECTIONS:
+        if direction not in BIAS_DIRECTIONS[archetype(token)]:
             raise ValueError(f"DET-53: {mech} direction {direction!r} outside the enum")
         rows.append({"mechanism": mech, "tokens": [t.strip() for t in tokens.split(",")],
                      "direction": direction, "reason": reason, "mandatory": mandatory})
     marked = {r["mechanism"]: r["direction"] for r in rows if r["mandatory"]}
-    if marked != BIAS_MANDATORY:
-        raise ValueError(f"DET-53: {token} mandatory rows {marked} != {BIAS_MANDATORY}")
+    want = BIAS_MANDATORY[archetype(token)]
+    if marked != want:
+        raise ValueError(f"DET-53: {token} mandatory rows {marked} != {want}")
     return rows
 
 
@@ -329,7 +350,10 @@ def parse_oracle_feeds(sheet_path: pathlib.Path, token: str) -> list[dict]:
 # backing attributes to the single §4.5 ETH node with nothing to apportion -
 # the pro-rata denominator GHO needs (P-4.04 R2) does not exist here. Added at
 # P-4.15 because `generate(sheet, "LUSD")` cannot render without it.
-ATTRIBUTION_METHOD = {"crvUSD": "direct", "GHO": "per_position", "LUSD": "direct"}
+# USDe (P-10.02, NAMED IMPLEMENTER DEFAULT): `direct` - each disclosure category is
+# one node at its disclosed amount (Q8), nothing to apportion.
+ATTRIBUTION_METHOD = {"crvUSD": "direct", "GHO": "per_position", "LUSD": "direct",
+                      "USDe": "direct"}
 
 
 def generate(sheet_path: pathlib.Path, token: str) -> str:
@@ -340,12 +364,14 @@ def generate(sheet_path: pathlib.Path, token: str) -> str:
     inherit = parse_disclosure_inheritance(sheet_path, token)
     audit = parse_audit_status(sheet_path, token)
     feeds = parse_oracle_feeds(sheet_path, token)
-    m4 = parse_m4_fields(sheet_path, token)
+    # Q19, Q28: the m4 line is archetype #1's; an archetype-#2 sheet has none.
+    m4 = parse_m4_fields(sheet_path, token) if archetype(token) == "cdp" else None
     bias = parse_bias_table(sheet_path, token)
 
     out = [
         "# DERIVED MIRROR - NOT AUTHORITATIVE (P-3.04 binding).",
-        f"# Source of truth: docs/context/intake-sheets-cdp.md, {token} section.",
+        f"# Source of truth: docs/context/{SHEET_FILE.get(token, 'intake-sheets-cdp.md')}, "
+        f"{token} section.",
         f"# Derived from sheet version sha256_first8 = {h}.",
         "# DET-77's sheet_hash check binds this mirror to that source; drift is caught",
         "# mechanically, never trusted away. Regenerated, never hand-patched.",
@@ -359,12 +385,13 @@ def generate(sheet_path: pathlib.Path, token: str) -> str:
         # one owner is the set file, which `factory.stress` reads directly.
         "# member2_target - not mirrored: DET-50's owner is the set file (R-B3.6, P-7.01 R8).",
         "",
-        f"# m4_fields[] - DET-38's exact per-cell m4 key set, {len(m4)} keys, "
-        "mirrored from the stamped sheet.",
-        "m4_fields = [" + ", ".join(f'"{k}"' for k in m4) + "]",
+        *([f"# m4_fields[] - DET-38's exact per-cell m4 key set, {len(m4)} keys, "
+           "mirrored from the stamped sheet.",
+           "m4_fields = [" + ", ".join(f'"{k}"' for k in m4) + "]"] if m4 is not None else
+          ["# m4_fields[] - not applicable to archetype #2 (Q19, Q28)."]),
         "# bias_table[] date - the P-6.07 signed edit's; the sheet table has no date "
         "column (P-7.01 R8).",
-        f"bias_table_date = {BIAS_TABLE_DATE}",
+        f"bias_table_date = {BIAS_TABLE_DATE_BY_TOKEN.get(token, BIAS_TABLE_DATE)}",
     ]
     out += [
         "",
@@ -419,7 +446,8 @@ def generate(sheet_path: pathlib.Path, token: str) -> str:
     out += [
         "",
         f"# bias_table[] - DET-53, {len(bias)} rows mirrored from the stamped sheet; "
-        "the four mandatory rows are the memo-derived literals.",
+        + ("the four mandatory rows are the memo-derived literals." if archetype(token) == "cdp"
+           else "no mandatory rows on an archetype-#2 sheet (A-32)."),
         "",
     ]
     for r in bias:

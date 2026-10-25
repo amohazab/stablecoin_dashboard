@@ -298,7 +298,7 @@ def test_bias_table_parses_nine_rows_with_the_four_mandatory_literals():
         rows = parse_bias_table(sheet, token)
         assert len(rows) == 9
         assert {r["mechanism"]: r["direction"] for r in rows if r["mandatory"]} \
-            == BIAS_MANDATORY
+            == BIAS_MANDATORY["cdp"]                                 # A-32 (P-10.02)
         assert all(r["direction"] in {"overstates", "understates", "both"} for r in rows)
         assert all("★" not in r["mechanism"] for r in rows)
 

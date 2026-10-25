@@ -1,0 +1,483 @@
+# DERIVED MIRROR - NOT AUTHORITATIVE (P-3.04 binding).
+# Source of truth: docs/context/intake-sheet-usde.md, USDe section.
+# Derived from sheet version sha256_first8 = bf64d756.
+# DET-77's sheet_hash check binds this mirror to that source; drift is caught
+# mechanically, never trusted away. Regenerated, never hand-patched.
+schema_version = 1
+sheet_hash = "bf64d756"
+
+near_bound_threshold = 0.80
+counterparties = "filled per memo #2 §14 (Q26, D6) — direct custodians Copper, Ceffu, Anchorage Digital Bank, Kraken Financial; lending counterparties FalconX International Lending Opportunities SPC (loans $236.64m, over-collateralised ~166% by BTC/ETH/SOL/XRP/USD/USDC at Anchorage, BitGo, Kraken under account-control agreements) and one unnamed borrower under Anchorage's secured lending arrangement ($81m against $145.54m BTC); derivatives Ripple Prime (Hidden Road Partners CIV US LLC d/b/a Ripple Prime), FCM for CME and Coinbase Derivatives Exchange; basis-hedge exchanges Binance (via Ceffu), OKX, Bybit, Deribit (via Copper), CDE (via Hidden Road); on-chain wallets, Coinbase-labeled; per-run shares from the backing-assets route (FR-U36), letters as monthly confirmation [ANALYST-SUPPLIED 2026-10-25: letter values — Copper Markets (Switzerland) AG $668,759,532.90 incl. unrealised P&L; Ceffu Digital Pte. Ltd. ≥ $733,212,922.85 (post headline $0.675bn); Anchorage Digital Bank NA $576,576,634 held + $81,000,000 USDC/USDT loaned against $145,541,292 BTC in tri-party custody (post headline $0.657bn); Kraken Financial $41,690.76; Ethena x FalconX SPV collateral $393,803,618.69 (Anchorage $137,516,667, BitGo $181,930,552, Payward/Kraken $74,408,775.45) against loans of $236,644,959.12; Ripple Prime FCM account equity $7,934,609.93; Coinbase on-chain wallets $2.620bn; MintRedeem contract $89.230m; total backing $4.953bn; reserve fund $62.095m; 101.34% incl. reserve fund; USDe supply 4.949bn; September attestation post and its custodian letters, https://ethena.fi/blog/custodian-attestations-of-assets-backing-usde-september-3; route https://app.ethena.fi/api/positions/current/backing-assets read 2026-10-25; as-of 2026-09-27]"
+attribution_method = "direct"
+# member2_target - not mirrored: DET-50's owner is the set file (R-B3.6, P-7.01 R8).
+
+# m4_fields[] - not applicable to archetype #2 (Q19, Q28).
+# bias_table[] date - the P-6.07 signed edit's; the sheet table has no date column (P-7.01 R8).
+bias_table_date = 2026-10-25
+
+# disclosure[] - DET-76(e), 11 node-table rows; owner: the sheet (C-8).
+
+[[disclosure]]
+row_key = "Crypto Basis"
+memo_row = "Crypto Basis"
+disclosure_cadence = "monthly attestation + weekly PoR"
+last_disclosure_date = "2026-09-27"
+source = "ANALYST-SUPPLIED 2026-10-25: monthly (twenty-second monthly report, published 2026-10-10); September attestation post, https://ethena.fi/blog/custodian-attestations-of-assets-backing-usde-september-3; as-of 2026-09-27"
+
+[[disclosure]]
+row_key = "Equity and RWA Basis"
+memo_row = "Equity and RWA Basis"
+disclosure_cadence = "monthly attestation + weekly PoR"
+last_disclosure_date = "2026-09-27"
+source = "ANALYST-SUPPLIED 2026-10-25: monthly; September attestation post; as-of 2026-09-27"
+
+[[disclosure]]
+row_key = "Institutional Lending"
+memo_row = "Institutional Lending"
+disclosure_cadence = "monthly attestation"
+last_disclosure_date = "2026-09-27"
+source = "ANALYST-SUPPLIED 2026-10-25: monthly; September attestation post; as-of 2026-09-27"
+
+[[disclosure]]
+row_key = "DeFi Lending"
+memo_row = "DeFi Lending"
+disclosure_cadence = "monthly attestation"
+last_disclosure_date = "2026-09-27"
+source = "ANALYST-SUPPLIED 2026-10-25: monthly; September attestation post; as-of 2026-09-27"
+
+[[disclosure]]
+row_key = "RWA (JAAA, STAC)"
+memo_row = "RWA (memo #1 §4.5 tokenized-fund row)"
+disclosure_cadence = "NAV per fund — JAAA `nav_schedule`, STAC continuous on-chain verification"
+last_disclosure_date = "2026-10-25"
+source = "ANALYST-SUPPLIED 2026-10-25: JAAA `nav_schedule`, heartbeat 86,436 s observed (GHO sheet JAAA oracle row, B-9 read; as-of 2026-09-13); STAC (Securitize Tokenized AAA CLO Fund, BNY custody) continuous on-chain holdings and NAV/pricing verification by Chronicle since 2026-02-05, formal NAV publication cadence not located in public materials; https://securitize.io/stac, Securitize/Chronicle announcement 2026-02-05, STAC launch announcement 2025-10-29; as-of 2026-10-25"
+
+[[disclosure]]
+row_key = "USDT 0xdac17f958d2ee523a2206206994597c13d831ec7; USDT0 (as USDT — route lists it on Plasma and Mantle only, other chain)"
+memo_row = "memo #1 USDT"
+disclosure_cadence = "quarterly BDO attestation"
+last_disclosure_date = "2026-06-30"
+source = "ANALYST-SUPPLIED 2026-10-25: most recent reserves report as of 2026-06-30; https://tether.to/en/transparency/; as-of 2026-06-30"
+
+[[disclosure]]
+row_key = "USDC 0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+memo_row = "memo #1 USDC"
+disclosure_cadence = "monthly, Deloitte & Touche LLP (AICPA)"
+last_disclosure_date = "2026-08-31"
+source = "ANALYST-SUPPLIED 2026-10-25: USDC Reserve Report as of 11 and 31 August 2026, issued 2026-09-29; https://www.circle.com/transparency; as-of 2026-08-31"
+
+[[disclosure]]
+row_key = "PYUSD 0x6c3ea9036406852006290770bedfcaba0e23a0e8"
+memo_row = "memo #1 pyUSD"
+disclosure_cadence = "monthly, KPMG LLP New York (AICPA)"
+last_disclosure_date = "2026-09-30"
+source = "ANALYST-SUPPLIED 2026-10-25: as of 17 and 30 September 2026, issued 2026-10-23, issuer Paxos Trust Company NA (OCC); https://paxos.com/pyusd-transparency/; as-of 2026-09-30"
+
+[[disclosure]]
+row_key = "USDtb 0xc139190f447e929f090edeb554d95abb8b18ac1c"
+memo_row = "memo #2 USDtb (new)"
+disclosure_cadence = "monthly reserve attestation, Deloitte & Touche LLP (AICPA)"
+last_disclosure_date = "2026-08-31"
+source = "ANALYST-SUPPLIED 2026-10-25: signed 2026-09-28, 529,269,213 redeemable tokens against $530,419,653 reserves (cash + BUIDL in segregated accounts); https://anchorage.com/platform/usdtb-reserve-attestations; as-of 2026-08-31"
+
+[[disclosure]]
+row_key = "USDG 0xe343167631d89b6ffc58b88d6b7fb0228795491d"
+memo_row = "memo #2 USDG (new, D18)"
+disclosure_cadence = "monthly, KPMG LLP Singapore (SSAE 3000)"
+last_disclosure_date = "2026-09-30"
+source = "ANALYST-SUPPLIED 2026-10-25: as of 17 and 30 September 2026, issued 2026-10-23, issuers Paxos Digital Singapore (MAS) and Paxos Issuance Europe (FIN-FSA); https://paxos.com/usdg-transparency; as-of 2026-09-30"
+
+[[disclosure]]
+row_key = "RLUSD 0x8292bb45bf1ee4d140127049757c2e0ff06317ed (`symbol()` at 26269287)"
+memo_row = "memo #2 RLUSD (new, D18)"
+disclosure_cadence = "monthly, Deloitte & Touche LLP (AICPA)"
+last_disclosure_date = "2026-08-31"
+source = "ANALYST-SUPPLIED 2026-10-25: \"RLUSD Reserve Report August 2026\" as of 17 and 31 August 2026, issued 2026-09-29, issuer Standard Custody & Trust Company (NYDFS); https://ripple.com/products/stablecoin/transparency/; as-of 2026-08-31"
+
+# oracle_feed[] - DET-54/55, 6 signed rows (P-7.01 R21).
+
+[[oracle_feed]]
+node_address = "0x6c3ea9036406852006290770bedfcaba0e23a0e8"
+symbol = "PYUSD"
+feed = "0x8f1df6d7f2db73eece86a18b4381f4707b918fb1"
+type = "deviation_heartbeat"
+heartbeat_form = "documented"
+source = "Chainlink feed directory (data.chain.link), fetched 2026-10-25"
+date = "2026-10-25"
+deviation_bps = 30
+heartbeat_s = 86400
+
+[[oracle_feed]]
+node_address = "0x8292bb45bf1ee4d140127049757c2e0ff06317ed"
+symbol = "RLUSD"
+feed = "0x26c46b7ad0012ca71f2298ada567dc9af14e7f2a"
+type = "deviation_heartbeat"
+heartbeat_form = "documented"
+source = "Chainlink feed directory (data.chain.link), fetched 2026-10-25"
+date = "2026-10-25"
+deviation_bps = 30
+heartbeat_s = 86400
+
+[[oracle_feed]]
+node_address = "0xe343167631d89b6ffc58b88d6b7fb0228795491d"
+symbol = "USDG"
+feed = "0x14f0737d6b705259e521ea6e9e3506ac78dbd311"
+type = "deviation_heartbeat"
+heartbeat_form = "documented"
+source = "Chainlink feed directory (data.chain.link), fetched 2026-10-25"
+date = "2026-10-25"
+deviation_bps = 25
+heartbeat_s = 86400
+
+[[oracle_feed]]
+node_address = "0xc139190f447e929f090edeb554d95abb8b18ac1c"
+symbol = "USDtb"
+feed = "0x66704dad467a7ca508b3be15865d9b9f3e186c90"
+type = "deviation_heartbeat"
+heartbeat_form = "documented"
+source = "Chainlink feed directory (data.chain.link), fetched 2026-10-25"
+date = "2026-10-25"
+deviation_bps = 50
+heartbeat_s = 86400
+
+[[oracle_feed]]
+node_address = "0xdac17f958d2ee523a2206206994597c13d831ec7"
+symbol = "USDT"
+feed = "0x260326c220e469358846b187ee53328303efe19c"
+type = "deviation_heartbeat"
+heartbeat_form = "documented"
+source = "Chainlink feed directory (data.chain.link), fetched 2026-09-13"
+date = "2026-09-13"
+deviation_bps = 25
+heartbeat_s = 86400
+
+[[oracle_feed]]
+node_address = "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+symbol = "USDC"
+feed = "0x3f73f03aa83b2a48ed27e964ed0fdb590332095b"
+type = "deviation_heartbeat"
+heartbeat_form = "documented"
+source = "Chainlink feed directory (data.chain.link), fetched 2026-09-13"
+date = "2026-09-13"
+deviation_bps = 25
+heartbeat_s = 82800
+
+# audit_status - DET-73's structured block, values as signed (P-7.04).
+[audit_status]
+last_material_change_audited = "yes"
+staleness_date = "2026-10-25"
+bug_bounty = { platform = "Immunefi", max = "USD 3,000,000" }
+audits = [
+  { firm = "Quantstamp", date = "2023-10-18", scope = "v1" },
+  { firm = "Spearbit", date = "2023-10-18", scope = "v1" },
+  { firm = "Pashov", date = "2023-10-22", scope = "v1" },
+  { firm = "Code4rena", date = "2023-11-13", scope = "v1 (public)" },
+  { firm = "Pashov", date = "2023-12-22", scope = "ENA and LP staking" },
+  { firm = "Pashov", date = "2024-05-23", scope = "V2 contracts" },
+  { firm = "Pashov", date = "2024-09-02", scope = "sENA" },
+  { firm = "Pashov", date = "2024-10-20", scope = "USDtb" },
+  { firm = "Quantstamp", date = "2024-10-25", scope = "USDtb" },
+  { firm = "Cyfrin", date = "2024-10-31", scope = "USDtb" },
+]
+
+# audit_tag_date - DET-74 class D: each §14 line's ANALYST-SUPPLIED date (B-11c′).
+[audit_tag_date]
+audits = "2026-10-25"
+bug_bounty = "2026-10-25"
+last_material_change_audited = "2026-10-25"
+
+# node_note[] - DET-74 class D: node-table analyst notes, rendered on their rows (B-11d).
+
+# first_run_reads[] - 37 rows mirrored from the stamped sheet.
+# status stays "open" until a stamped sheet edit retires the prose tag (P-3.14).
+
+[[first_run_read]]
+tag_id = "FR-U01"
+sheet_location = "USDe § Reads — USDe"
+bundle_field_path = "`admin_surface[mint].holder`"
+read_spec = "`USDE.owner()`, `pendingOwner()`"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-U02"
+sheet_location = "USDe § Reads — USDe"
+bundle_field_path = "`supply.minter`"
+read_spec = "`USDE.minter()`"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-U03"
+sheet_location = "USDe § Reads — USDe"
+bundle_field_path = "`supply.total_supply`"
+read_spec = "`USDE.totalSupply()`"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-U04"
+sheet_location = "USDe § Reads — sUSDe"
+bundle_field_path = "`staking.cooldown_duration_s`"
+read_spec = "`SUSDE.cooldownDuration()`"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-U05"
+sheet_location = "USDe § Reads — sUSDe"
+bundle_field_path = "`staking.{total_assets, total_supply}`"
+read_spec = "`SUSDE.totalAssets()`, `totalSupply()`"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-U06"
+sheet_location = "USDe § Reads — sUSDe"
+bundle_field_path = "`supply.classes.staked`"
+read_spec = "`USDE.balanceOf(SUSDE)`"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-U07"
+sheet_location = "USDe § Reads — Silo"
+bundle_field_path = "`supply.classes.cooling`"
+read_spec = "`USDE.balanceOf(SUSDE.silo())`"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-U08"
+sheet_location = "USDe § Reads — Adapter"
+bundle_field_path = "`supply.classes.bridged_escrow`, `supply.bridges[]`"
+read_spec = "`USDE.balanceOf(OFT)`; `OFT.approvalRequired()`"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-U09"
+sheet_location = "USDe § Reads — V2"
+bundle_field_path = "`minting.global_config`"
+read_spec = "`V2.globalConfig()`"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-U10"
+sheet_location = "USDe § Reads — V2"
+bundle_field_path = "`minting.token_config[]`"
+read_spec = "`V2.tokenConfig(a)` ∀ supported a"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-U11"
+sheet_location = "USDe § Reads — V2"
+bundle_field_path = "`minting.custodians[]`"
+read_spec = "`CustodianAddressAdded`/`Removed` logs (POINTER); `V2.isCustodianAddress(c)` (VERDICT)"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-U12"
+sheet_location = "USDe § Reads — V2"
+bundle_field_path = "`minting.supported_assets[]`"
+read_spec = "`AssetAdded`/`Removed` logs (POINTER); `V2.isSupportedAsset(a)` (VERDICT)"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-U13"
+sheet_location = "USDe § Reads — V2"
+bundle_field_path = "`admin_surface[].holders` (V2 roles)"
+read_spec = "`RoleGranted`/`RoleRevoked` logs (POINTER); `V2.hasRole(r, h)` (VERDICT)"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-U14"
+sheet_location = "USDe § Reads — sUSDe roles"
+bundle_field_path = "`admin_surface[].holders` (sUSDe roles)"
+read_spec = "as FR-U13 on SUSDE"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-U15"
+sheet_location = "USDe § Reads — Timelock"
+bundle_field_path = "`admin_surface[].delay_s`"
+read_spec = "`TL.getMinDelay()`"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-U16"
+sheet_location = "USDe § Reads — Timelock"
+bundle_field_path = "`admin_surface[].controller`"
+read_spec = "TL PROPOSER/EXECUTOR/CANCELLER: logs (POINTER), `TL.hasRole` (VERDICT)"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-U17"
+sheet_location = "USDe § Reads — Safes"
+bundle_field_path = "`admin_surface[].signers`"
+read_spec = "`getOwners()`, `getThreshold()` per Safe holder"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-U18"
+sheet_location = "USDe § Reads — EIP-1967"
+bundle_field_path = "`admin_surface[upgrade].upgradeability`"
+read_spec = "`eth_getStorageAt` impl/admin/beacon slots on USDE, SUSDE, V2, OFT"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-U19"
+sheet_location = "USDe § Reads — Reserve Fund"
+bundle_field_path = "`reserve_fund.balances[]`"
+read_spec = "`balanceOf(RF)` ∀ supported asset, USDe, sUSDe; ETH balance"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-U20"
+sheet_location = "USDe § Disclosure sources"
+bundle_field_path = "`nodes[category].value_usd`"
+read_spec = "GET APP `/api/collateral-breakdown`; `DisclosureSnapshot`"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-U21"
+sheet_location = "USDe § Disclosure sources"
+bundle_field_path = "`backing.total_usd`, `reserve_fund.disclosed_usd`, `backing.as_of`"
+read_spec = "GET APP `/api/collateralization/status`; `DisclosureSnapshot`"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-U22"
+sheet_location = "USDe § Disclosure sources"
+bundle_field_path = "`nodes[*_basis].por_last_updated`"
+read_spec = "GET APP `/api/por` `lastUpdatedAt`; `DisclosureSnapshot`"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-U23"
+sheet_location = "USDe § On-chain buffer assets"
+bundle_field_path = "`buffer.balances[]` (group i)"
+read_spec = "`balanceOf(c)` ∀ asset ∀ FR-U11 custodian"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-U24"
+sheet_location = "USDe § On-chain buffer assets — Q4(ii)"
+bundle_field_path = "`buffer.balances[]` (group ii)"
+read_spec = "`balanceOf(w)` ∀ asset ∀ address in the union of the dated list and FR-U36's Ethereum `addressEntries`, each once (F4)"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-U25"
+sheet_location = "USDe § Pool set"
+bundle_field_path = "`discovered_pools[]`, `frozen_set`"
+read_spec = "three-way discovery; `pool.balances(i)` at par"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-U26"
+sheet_location = "USDe § Pool set — off-venue"
+bundle_field_path = "`offvenue_share`"
+read_spec = "DET-32 `X = 1 − curve/total`"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-U27"
+sheet_location = "USDe § Stress inputs — row 3"
+bundle_field_path = "`exit_depth.s2`"
+read_spec = "depth solver at s = 2% over the frozen set"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-U28"
+sheet_location = "USDe § Oracle feed table"
+bundle_field_path = "`oracle[].reference_round`"
+read_spec = "`latestRoundData()` per reference feed"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-U29"
+sheet_location = "USDe § Redemption-rights R10"
+bundle_field_path = "`redemption_paths[0].r10_provenance`"
+read_spec = "selector-presence scan for `redeem` over `eth_getCode(V2)`"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-U30"
+sheet_location = "USDe § Admin surface — `seize`"
+bundle_field_path = "`admin_surface[seize].reads`"
+read_spec = "selector-presence scan for `redistributeLockedAmount` over `eth_getCode(SUSDE)`"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-U31"
+sheet_location = "USDe § Admin surface — `set_oracle`"
+bundle_field_path = "`admin_surface[set_oracle].holder`"
+read_spec = "selector-absence scan over USDE, SUSDE, V2 → `none`"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-U32"
+sheet_location = "USDe § Reads — sUSDe roles"
+bundle_field_path = "`admin_surface[blacklist_address].restricted_count`"
+read_spec = "count of FULL_RESTRICTED_STAKER_ROLE holders: logs (POINTER), `SUSDE.hasRole` (VERDICT)"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-U33"
+sheet_location = "USDe § Reads — V2"
+bundle_field_path = "`buffer.balances[]` (group iii)"
+read_spec = "`balanceOf(V2)` ∀ supported asset — the on-chain check of FR-U35's sum (F1)"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-U34"
+sheet_location = "USDe § Disclosure sources"
+bundle_field_path = "`nodes[institutional_lending].note`"
+read_spec = "GET APP `/api/institutional-lending` `totals`, `counterparties[]`; `DisclosureSnapshot` (D14)"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-U35"
+sheet_location = "USDe § Disclosure sources"
+bundle_field_path = "`buffer.disclosed_by_symbol[]`"
+read_spec = "GET APP `/api/stablecoin-collateral`; `DisclosureSnapshot` (D13)"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-U36"
+sheet_location = "USDe § Disclosure sources"
+bundle_field_path = "`disclosure.backing_assets`"
+read_spec = "GET APP `/api/positions/current/backing-assets` `strategies[]`, `timestamp`; `DisclosureSnapshot` (D15)"
+status = "open"
+
+[[first_run_read]]
+tag_id = "FR-U37"
+sheet_location = "USDe § Disclosure sources"
+bundle_field_path = "`stress.row1.reference_point`"
+read_spec = "GET APP `/api/funding/quarterly`, minimum `value`; `DisclosureSnapshot` (D19)"
+status = "open"
+
+# bias_table[] - DET-53, 4 rows mirrored from the stamped sheet; no mandatory rows on an archetype-#2 sheet (A-32).
+
+[[bias_table]]
+mechanism = "Row 3 — liquid buffer treated as instantly available"
+tokens = ["USDe"]
+direction = "overstates"
+reason = "the full category is redeemable within the window"
+mandatory = false
+
+[[bias_table]]
+mechanism = "Row 3 — no issuer top-up of the buffer"
+tokens = ["USDe"]
+direction = "understates"
+reason = "no rebalancing from the basis book during the run"
+mandatory = false
+
+[[bias_table]]
+mechanism = "Row 1 — funding reversal"
+tokens = ["USDe"]
+direction = "n/a"
+reason = "a loss over a stated horizon, not a stock-only capacity"
+mandatory = false
+
+[[bias_table]]
+mechanism = "Row 2 — venue loss"
+tokens = ["USDe"]
+direction = "n/a"
+reason = "a balance-sheet write-down, not a stock-only capacity"
+mandatory = false
+
+# sell_side_capacity - DET-52, per volatile node, signed at P-6.07.

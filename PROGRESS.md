@@ -9471,3 +9471,71 @@ Status: OPEN (opened 2026-10-25, P-10.01)
 - **Follow-ups spawned:** memo #2 draft and the USDe sheet (round 3, one signed edit); Q37
   after USDe's first published tree; Q50 at close; the benchmark note (Q35) at close;
   G9(a)'s prose at crvUSD's next monthly run.
+
+## P-10.02 — Memo #2 and the USDe sheet signed: D1–D19, F1–F4, the fills, A-28–A-32
+
+- **Date:** 2026-10-25
+- **Type:** decision
+- **Confirmed by:** Amin
+- **Content:**
+  **ROUND-2 POINTS (Amin):** (1) Q17 reads "plus 25% of staked supply when
+  `cooldownDuration()` < 7 d"; (2) the reserve fund absorbs first in rows 1 and 2, both
+  legs of row 2, and is not capacity in row 3; (3) DeFi Lending = `recurses_truncated`,
+  "lending positions; underlying stables not attributed by the disclosure"; (4) USDG and
+  USDm as drafted (P-3.24 R-3 line), USDG then superseded by D18.
+  **D1–D19 (D4 withdrawn for D16; D9, D12 not issued):** D1 tree weight from the six
+  category nodes; buffer assets are label rows · D2 DET-30's K rows on S3 · D3 post-loss
+  backing = backing − max(0, loss − reserve fund), ÷ `supply_ruled` · D5 T-30, Level 1;
+  near bound T-07; counts on T-06 / T-12 · D6 §14's seventh entry, the Coinbase-labeled
+  wallets · D7 R2 printed beside R8, "redeemable by approved counterparties only" · D8 the
+  round-3 defaults · D10 pending A-32 · D11 headers · D13 FR-U33 · D14 Institutional
+  Lending per run · D15 backing-assets route per run, attestation the staleness clock ·
+  D16 row 2's two legs · D17 `chainSlug == ethereum` only · D18 eight label rows · D19
+  row 1's reference point.
+  **F1–F4:** F1 `capacity_redeem` = min(Σ `/api/stablecoin-collateral`, cap × blocks in
+  7 d); FR-U33 is its on-chain check, never an addend. F2 leg (a) = the largest location
+  total across all strategies; Coinbase-labeled wallets are no route `location`, custody
+  undisclosed (§11 item 4). F3 reference point = the series minimum, **+0.11% (2022-Q3)**,
+  "no negative quarter observed"; F = −25% has no analogue in the issuer's record. F4
+  group (ii) = the attestation's 11 wallets ∪ the route's Ethereum `addressEntries`.
+  **ROUND 4B:** (a) `harness.py` gains T-29 and T-30 (Level 1, verifiability); DET-12
+  passes at 30 rows; `len(CHECKS)` 96. (b) F3's +10.9% was a chart-axis misread; the
+  series is in percent. (c) R7 = `globalMaxRedeemPerBlock` and Σ
+  `/api/stablecoin-collateral` (memo §12, sheet R-block).
+  **RULING 1(a):** `TOKEN_FILES["USDe"]` deferred to the adapter build with
+  `usde_roots.toml`: `tree.analyzed_set()` loads every declared token's config, so
+  declaring USDe without its roots failed every token's tree stage (FileNotFoundError).
+  **RULING 2(a):** `QUEUE["DET-90"]` with `QUEUE_ARCHETYPE` "synthetic"; a record lists an
+  unregistered entry only when its archetype is the token's; CDP records stay at 6.
+  **DET-90** — buffer reconciliation gap (archetype #2), §1 after DET-82, Stage S1, Level 1
+  via T-30; registered at the adapter build, queued until then.
+  **G6-BIS** (2026-10-25, `out/reports/step10-g6bis-*`): backing-assets 4,586,113,088;
+  Binance the largest hedge, Copper the largest location; 4 of 11 attestation wallets in
+  the route; four Chainlink RefPrice feeds; V2 created 2024-06-21 (block 20142841).
+  **FILLS:** 15 items keyed 2026-10-25; item 15 = yes, recorded reading: StakedUSDeV2 in
+  the v1 audit series; V2 deployed 29 days after Pashov's V2 review of 2024-05-23;
+  byte-identity not performed.
+  **STAMPS:** `archetype-memo-2-synthetic.md` `9e6af9bc` · `intake-sheet-usde.md`
+  `bf64d756` · `config/usde_sheet.toml` `sheet_hash` `bf64d756` · rubric `78155fa6` →
+  `94c04fb2`. CDP mirrors byte-for-byte; `intake_trigger` USDe `bf64d756`.
+  **SIGNED:** title line, header line 7, DET-90, A-28–A-32, T-29, T-30; the `mirror.py`
+  archetype branch; the report `__main__.py` sheet and memo map. **TESTS:** `test_b12` 28 →
+  30 rows; `test_schema` reads `BIAS_MANDATORY["cdp"]`; `test_b10` unchanged at 6.
+  **LIVE CHECK:** `factory.tree` ran 14/14 for the three tokens; `site.plan` passed. GHO's
+  re-fold linked crvUSD@26143168 (P-8.12's tree) and moved its hash; the committed tree
+  was restored, untouched by this entry.
+  **IMPLEMENTER DEFAULTS:** heading "USDe as token #4"; USDe `attribution_method`
+  `direct`; `bias_table_date` 2026-10-25; T-30's owner id DET-90.
+  **AS-COUNTED.** Design layer: Q17's "X × staked" and capacity form (D2); the post-loss
+  wording (D3); D4's whole-sleeve form (D16); D13's premise (F1); F3's +10.9%. Builder:
+  the confirmed `config.py` hunk and the T-29/T-30 rows were drafted without the
+  `analyzed_set` and DET-12 checks, both caught at apply; `tools/measure_entry.py` in
+  scratch only.
+- **Artifacts:** `docs/context/archetype-memo-2-synthetic.md` (new) ·
+  `docs/context/intake-sheet-usde.md` (new) · `docs/context/rubic_v1.md` ·
+  `src/factory/mirror.py` · `src/factory/report/{__main__,record}.py` ·
+  `src/factory/validate/harness.py` · `tests/test_{b12,schema}.py` · `config/usde_sheet.toml`
+  (new) · `out/logs/events_usde.jsonl` (new) · `PROGRESS.md`.
+- **Follow-ups spawned:** the adapter build (`TOKEN_FILES["USDe"]`, roots, labels,
+  DET-90 and the Q48 rows); Q47's disposition from A-33; `tools/measure_entry.py` at close;
+  GHO's tree moves to crvUSD@26143168 at its next monthly run.

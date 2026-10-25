@@ -28,6 +28,7 @@ TRIGGER_TABLE: dict[str, int] = {
     "T-15": 3, "T-16": 1, "T-17": 1, "T-18": 2, "T-19": 1, "T-20": 1, "T-21": 1,
     "T-22": 1, "T-23": 2, "T-24": 2, "T-25": 2, "T-26": 1, "T-27": 1,
     "T-28": 2,                       # A-17, C3+ (P-7.04): gate failure, report stage
+    "T-29": 1, "T-30": 1,           # A-28 (P-10.02): disclosure overdue; buffer reconciliation
 }
 
 # The printed table's `section` column (where a flag renders), mirrored for DET-12 S0
@@ -40,7 +41,7 @@ TRIGGER_SECTION: dict[str, str] = {
     "T-17": "exit liquidity", "T-18": "exit liquidity", "T-19": "supply",
     "T-20": "exit liquidity", "T-21": "exit liquidity", "T-22": "exit liquidity",
     "T-23": "—", "T-24": "—", "T-25": "—", "T-26": "oracle table", "T-27": "supply",
-    "T-28": "—",
+    "T-28": "—", "T-29": "verifiability", "T-30": "verifiability",
 }
 
 STALENESS_LIMIT_DAYS = 92  # R-1
