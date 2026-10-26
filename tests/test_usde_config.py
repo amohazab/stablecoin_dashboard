@@ -16,11 +16,12 @@ def test_usde_loads_with_six_nodes_nine_label_rows_four_classes():
     assert sorted(c.category_nodes) == ["Crypto Basis", "DeFi Lending", "Equity and RWA Basis",
                                         "Institutional Lending", "Liquid Stables", "RWA"]
     assert len(c.label_rows) == 9 and len(c.supply_classes) == 4
-    assert c.labels == {} and c.paired == {} and c.lend.state.value == "explicit_empty"
+    assert c.labels == {} and c.lend.state.value == "explicit_empty"
+    assert {p.symbol for p in c.paired.values()} == {"USDT", "FRAX"}       # P-10.09 pool pairs
     assert c.label_rows["USDT0"].address == "none" and c.label_rows["USDT0"].as_ == "USDT"
     assert set(c.label_rows["USDT"].roles) == {"buffer", "pool_pair"}
     assert c.pool_set["member2_target"] == "none" and c.pool_set["floor_usd"] == 500000
-    assert c.reserve_fund["credited"] is False and not c.frozen_set_path.exists()
+    assert c.reserve_fund["credited"] is False and c.frozen_set_path.exists()  # P-10.09
     assert len(c.attested_rows) == 6 and all(
         r["assumption_applied"] == "attested_value" for r in c.attested_rows.values())
 

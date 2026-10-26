@@ -42,7 +42,7 @@ def bundle(liquid_disclosed="700"):
                         block_timestamp=1792933308),                      # 2026-10-25
               supply=NS(total_supply=999 * USDE18, supply_ruled=999 * USDE18,
                         origination_sum=999 * USDE18, residual=0),
-              admin_surface=[])
+              admin_surface=[], pools=[])
 
 
 def test_fold_is_0_0_100_over_the_six_categories():
@@ -61,7 +61,7 @@ def test_det90_reconciles_liquid_stables_only():
     f = det90_figures(bundle("700"), ctx)
     assert f["buffer_onchain"] == 700 and f["gap"] == 0 and not f["fires"]
     assert f["not_reconciled"] == {"DeFi Lending": Decimal(300), "RWA": Decimal(0)}
-    assert "not reconciled (receipt tokens)" in det_90(bundle("700"), ctx)
+    assert det_90(bundle("700"), ctx) is None                          # S1: tuple or None
     assert det_90(bundle("800"), ctx) == ("T-30", 1)                   # gap 100 > 5% of 1000
 
 

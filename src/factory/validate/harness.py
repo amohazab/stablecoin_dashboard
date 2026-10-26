@@ -182,16 +182,11 @@ def det90_figures(b: Bundle, ctx) -> dict:
             "fires": gap > DET90_THRESHOLD * backing}
 
 
-def det_90(b: Bundle, ctx) -> tuple[str, int] | str:
+def det_90(b: Bundle, ctx) -> tuple[str, int] | None:
     """DET-90 (A-28, J1): buffer reconciliation gap, archetype #2, S1. A gap above 5%
-    of backing fires T-30 at Level 1; otherwise the figures are the scope."""
-    f = det90_figures(b, ctx)
-    if f["fires"]:
-        return ("T-30", 1)
-    return (f"gap {f['gap']:.2f} ({f['gap_share']:.4%} of backing): Liquid Stables on-chain "
-            f"{f['buffer_onchain']:.2f} vs disclosed {f['disclosure_onchain']:.2f}; disclosed, "
-            "not reconciled (receipt tokens): "
-            + ", ".join(f"{k} {v:.0f}" for k, v in f["not_reconciled"].items()))
+    of backing fires T-30 at Level 1. The figures are `det90_figures`' (the report's);
+    an S0/S1 check returns a trigger tuple or None (P-10.09)."""
+    return ("T-30", 1) if det90_figures(b, ctx)["fires"] else None
 
 
 def det_77(b: Bundle, ctx) -> None:
@@ -356,8 +351,22 @@ def det_21(b: Bundle, ctx) -> None:
             raise Level3(f"DET-21: utilization replay failed on {op.operation_address}")
 
 
+# A-37 (memo #2 §8(d)): archetype #2's two DET-61 instances and their bounds.
+A37_BACKING_RATIO_MIN = Decimal("1.01")
+A37_RESERVE_FUND_MIN = Decimal("0.005")
+
+
 def det_61(b: Bundle, ctx) -> tuple[str, int] | None:
     """Mechanism near bound -> T-07 at the sheet threshold (default 0.80)."""
+    if b.synthetic is not None:                                       # A-37 (P-10.09)
+        # `backing_ratio` and `reserve_fund` against `supply_ruled`, both from the
+        # status read (FR-U21, Q3); `near_bound_threshold` does not apply to them.
+        st = b.synthetic.reads["FR-U21"].value
+        supply = Decimal(b.supply.supply_ruled) / Decimal(10) ** 18
+        if (Decimal(st["backing_usd"]) / supply < A37_BACKING_RATIO_MIN
+                or Decimal(st["reserve_fund_usd"]) / supply < A37_RESERVE_FUND_MIN):
+            return ("T-07", 1)
+        return None
     thr = Decimal(str(ctx["sheet"].get("near_bound_threshold", 0.80)))
     for op in b.stabilizer.operations:
         if op.utilization is not None and op.utilization >= thr:
@@ -647,7 +656,7 @@ A35_ATTESTED = {"update_condition_type": "attested",
                 "assumption_applied": "attested_value", "counterfactual_ref": None}
 
 
-def _det_55_synthetic(b: Bundle, ctx) -> str:
+def _det_55_synthetic(b: Bundle, ctx) -> None:
     """A-35: every disclosure-category node carries one `attested` row with the ruled
     fields; every buffer label row with an Ethereum address has its Chainlink
     reference feed read at `run_block` (the R-49 gap column at par, R-16)."""
@@ -663,7 +672,6 @@ def _det_55_synthetic(b: Bundle, ctx) -> str:
             if r.address != "none" and "buffer" in r.roles}
     if want - feeds:
         raise Level3(f"DET-55: no reference feed read for {sorted(want - feeds)}")
-    return f"{len(cats)} attested rows; {len(want)} reference feeds read"
 
 
 # --- DET-66 vocabularies and helpers (rubric line 102) -----------------------
@@ -708,6 +716,24 @@ def _resolves_by_identity(b: Bundle, path) -> bool:
     want = set(path.r3_received)
     return any(getattr(r, "underlying_asset", None) in want and hasattr(r, field)
                for r in rows)
+
+
+def _synthetic_terms(ref: str) -> list[str]:
+    """NAMED IMPLEMENTER DEFAULT (P-10.09): an archetype-#2 R7 is
+    `min(synthetic.reads.<FR>, synthetic.reads.<FR>)` - F1's capacity_redeem names
+    two reads keyed by FR tag, which no dotted attribute path reaches."""
+    if not (ref.startswith("min(") and ref.endswith(")")):
+        return []
+    terms = [t.strip() for t in ref[4:-1].split(",")]
+    if not all(t.startswith("synthetic.reads.") for t in terms):
+        return []
+    return sorted(t.removeprefix("synthetic.reads.") for t in terms)
+
+
+def _resolves_synthetic(b: Bundle, ref: str) -> bool:
+    tags = _synthetic_terms(ref)
+    return bool(tags) and b.synthetic is not None and all(
+        t in b.synthetic.reads for t in tags)
 
 
 def _is_figure(s: str) -> bool:
@@ -774,6 +800,26 @@ def det_66(b: Bundle, ctx) -> None:
         if paths[0].r2_who != "anyone":
             raise Level3("DET-66: LUSD's path is open to anyone (sheet R2); got "
                          f"{paths[0].r2_who!r}")
+    elif token == "USDe":
+        # A-39 (P-10.09): one `module_on_chain` path (EthenaMinting V2), R2 =
+        # whitelisted, R6 = {capacity_limited, pausable}, R7 = globalMaxRedeemPerBlock
+        # and the stablecoin-collateral sum (FR-U09, FR-U35), R9 = disclaimed. "R2
+        # printed beside R8" is the report row's (commit 7), not this check's.
+        if len(paths) != 1 or paths[0].r1_path != "module_on_chain":
+            raise Level3(
+                "DET-66: USDe requires exactly one module_on_chain path; got "
+                f"{len(paths)} path(s) with R1 = {[p.r1_path for p in paths]}")
+        p0 = paths[0]
+        if p0.r2_who != "whitelisted":
+            raise Level3(f"DET-66: USDe's path R2 = whitelisted (A-39); got {p0.r2_who!r}")
+        if sorted(g.get("kind") for g in p0.r6_gates) != ["capacity_limited", "pausable"]:
+            raise Level3(f"DET-66: USDe's R6 = {{capacity_limited, pausable}} (A-39); got "
+                         f"{[g.get('kind') for g in p0.r6_gates]}")
+        if _synthetic_terms(p0.r7_capacity) != ["FR-U09", "FR-U35"]:
+            raise Level3("DET-66: USDe's R7 names globalMaxRedeemPerBlock (FR-U09) and "
+                         f"the stablecoin-collateral sum (FR-U35); got {p0.r7_capacity!r}")
+        if p0.r9_legal_claim != "disclaimed":
+            raise Level3(f"DET-66: USDe's R9 = disclaimed (A-39); got {p0.r9_legal_claim!r}")
     else:
         raise NotYetImplemented(
             f"DET-66: the path-count clause for {token} is not implemented. "
@@ -823,7 +869,8 @@ def det_66(b: Bundle, ctx) -> None:
                              f"{p.r5_minimum!r}")
             if (p.r7_capacity != "unbounded"
                     and not _resolves_on_bundle(b, p.r7_capacity)
-                    and not _resolves_by_identity(b, p)):
+                    and not _resolves_by_identity(b, p)
+                    and not _resolves_synthetic(b, p.r7_capacity)):
                 raise Level3(f"{at}: R7 must be a resolvable bundle field ref "
                              f"or `unbounded`: {p.r7_capacity!r}")
 
@@ -1908,6 +1955,18 @@ def det_43(b: Bundle, t: VerifiabilityTree, r: StressReport) -> str | None:
 
 def det_44(b: Bundle, t: VerifiabilityTree, r: StressReport) -> str | None:
     """Counterfactual lines: present, under metric 4, never cells."""
+    if r.synthetic is not None:                                       # A-45 (P-10.09)
+        cells = r.synthetic["cells"]
+        ids = {c["id"] for c in cells}
+        for c in cells:
+            got = {ln["id"] for ln in c["counterfactual_lines"]}
+            need = ({"cf.basis_unwind_day0"} if c["row"] == 1 else
+                    {"cf.cooldown_branch"} if c["row"] == 3 else set())
+            if not need <= got:
+                raise Level3(f"DET-44: {c['id']} missing {sorted(need - got)}")
+            if got & ids:
+                raise Level3(f"DET-44: {c['id']} uses a counterfactual ID as a cell")
+        return f"{len(cells)} cells; row 1 and row 3 lines present (A-45)"
     if not r.cells:
         return "no cells"
     # The entry names a DIFFERENT required set per token: crvUSD `H1_kill`,
@@ -2207,6 +2266,10 @@ def det_69(b: Bundle, t: VerifiabilityTree, r: StressReport) -> str | None:
     """
     marked = {row.power for row in b.admin_surface if row.live_model_input}
     consumed: set[str] = set()
+    if r.synthetic is not None:                                       # A-47 (P-10.09)
+        # row 3 reads cooldownDuration() (set_parameters) for its branch and
+        # globalMaxRedeemPerBlock (set_ceiling) for capacity_redeem
+        consumed |= {"set_parameters", "set_ceiling"}
     if r.mechanism.effective_headroom is not None:
         # α and β enter `_get_max_ratio`; the kill flag gates each keeper's term
         consumed |= {"set_parameters", "pause"}

@@ -216,65 +216,70 @@ def build_rows(bundle: dict, tree: dict, stress: dict, mirror: dict,
               "supply", "DET-19")
 
     # ---- the headline cell, the d = 0 panel (DET-38..44) -------------------------------
-    cell = f"stress/cells/[id={HEADLINE}]"
-    for k, u, d, own in (("m1/pre/ratio", "ratio", None, "DET-39"),
-                         ("m1/post/ratio", "ratio", None, "DET-39"),
-                         ("m1/pre/share_below_100", "ratio", None, "DET-39"),
-                         ("m1/post/share_below_100", "ratio", None, "DET-39"),
-                         ("m1/gap", "ratio", None, "DET-39"),
-                         ("m2/bad_debt", "base_units", None, "DET-40"),
-                         ("m2/pct_supply", "ratio", "supply_ruled", "DET-40"),
-                         ("m3/forced_sell_volume", "base_units", None, "DET-41"),
-                         ("m3/exit_depth", "base_units", None, "DET-41"),
-                         ("m3/ratio", "ratio", "exit_depth", "DET-41")):
-        t.add(f"headline.{k.replace('/', '.')}", f"headline {k.replace('/', ' ')}",
-              f"{cell}/{k}", u, "stress (Member 1)", own, d)
-    # Amin, previews ruling 2: the Member-2 headline cell's m3 (memo §6.2.6's 0.93 target,
-    # no LP flight) for member2_opening
-    if any(c["id"] == HEADLINE_M2 for c in stress["cells"]):
-        m2c = f"stress/cells/[id={HEADLINE_M2}]"
-        for k, u, d in (("m3/forced_sell_volume", "base_units", None),
-                        ("m3/exit_depth", "base_units", None), ("m3/ratio", "ratio", "exit_depth")):
-            t.add(f"m2.headline.{k.replace('/', '.')}", f"member 2 headline {k.replace('/', ' ')}",
-                  f"{m2c}/{k}", u, "stress (Member 2)", "DET-41", d)
-    t.walk("headline.m4", "headline m4", f"{cell}/m4", "mechanism state",
-           lambda fid: M4_OWNER.get(fid.split(".")[2], "DET-38"))
-    head = next(c for c in stress["cells"] if c["id"] == HEADLINE)
-    for line in head["counterfactual_lines"]:
-        base = f"{cell}/counterfactual_lines/[id={line['id']}]"
-        for k in ("value_primary", "value_counterfactual", "metric_affected"):
-            t.add(f"headline.cf.{line['id']}.{k}", f"counterfactual {line['id']} {k}",
-                  f"{base}/{k}", None, "stress (Member 1)", "DET-44")
-        if line["id"] in (wording or {}).get("counterfactual", {}):
-            t.add(f"headline.cf.{line['id']}.description", f"counterfactual {line['id']}",
-                  f"wording/counterfactual/{line['id']}", "literal", "stress (Member 1)",
-                  "DET-44")
-    # Amin, run 8 ruling 5: a counterfactual line of the Member-2 headline cell (memo
-    # §6.2.6's 0.93 target, no LP flight) joins the headline rows. NAMED DEFAULT: only a
-    # line not already read from the Member-1 headline cell and carrying values (GHO's
-    # H2_freezer); crvUSD's value-less H1_v1_contagion stays off pending a ruling.
-    m2_head = next((c for c in stress["cells"] if c["id"] == HEADLINE_M2), None)
-    have = {line["id"] for line in head["counterfactual_lines"]}
-    for line in (m2_head or {}).get("counterfactual_lines", []):
-        if line["id"] in have or line.get("value_primary") is None:
-            continue
-        base = f"stress/cells/[id={HEADLINE_M2}]/counterfactual_lines/[id={line['id']}]"
-        for k in ("value_primary", "value_counterfactual", "metric_affected"):
-            t.add(f"headline.cf.{line['id']}.{k}", f"counterfactual {line['id']} {k}",
-                  f"{base}/{k}", None, "stress (Member 2)", "DET-44")
-        if line["id"] in (wording or {}).get("counterfactual", {}):
-            t.add(f"headline.cf.{line['id']}.description", f"counterfactual {line['id']}",
-                  f"wording/counterfactual/{line['id']}", "literal", "stress (Member 2)",
-                  "DET-44")
-    panel = [c for c in stress["cells"] if c["member"] == "M1" and c["id"].split("-")[2] == "d0"]
-    for c in panel:
-        base = f"stress/cells/[id={c['id']}]"
-        for k, u, d, own in (("m1/post/ratio", "ratio", None, "DET-39"),
+    # P-10.09: archetype #2 has no Member-1 headline cell; its rows land at commit 7.
+    if stress.get("synthetic") is None:
+        cell = f"stress/cells/[id={HEADLINE}]"
+        for k, u, d, own in (("m1/pre/ratio", "ratio", None, "DET-39"),
+                             ("m1/post/ratio", "ratio", None, "DET-39"),
+                             ("m1/pre/share_below_100", "ratio", None, "DET-39"),
+                             ("m1/post/share_below_100", "ratio", None, "DET-39"),
+                             ("m1/gap", "ratio", None, "DET-39"),
                              ("m2/bad_debt", "base_units", None, "DET-40"),
-                             ("m3/ratio", "ratio", "exit_depth", "DET-41"),
-                             ("m3/exit_depth", "base_units", None, "DET-41")):
-            t.add(f"panel.{c['id']}.{k.replace('/', '.')}", f"{c['id']} {k.replace('/', ' ')}",
-                  f"{base}/{k}", u, "stress (Member 1)", own, d)
+                             ("m2/pct_supply", "ratio", "supply_ruled", "DET-40"),
+                             ("m3/forced_sell_volume", "base_units", None, "DET-41"),
+                             ("m3/exit_depth", "base_units", None, "DET-41"),
+                             ("m3/ratio", "ratio", "exit_depth", "DET-41")):
+            t.add(f"headline.{k.replace('/', '.')}", f"headline {k.replace('/', ' ')}",
+                  f"{cell}/{k}", u, "stress (Member 1)", own, d)
+        # Amin, previews ruling 2: the Member-2 headline cell's m3 (memo §6.2.6's 0.93 target,
+        # no LP flight) for member2_opening
+        if any(c["id"] == HEADLINE_M2 for c in stress["cells"]):
+            m2c = f"stress/cells/[id={HEADLINE_M2}]"
+            for k, u, d in (("m3/forced_sell_volume", "base_units", None),
+                            ("m3/exit_depth", "base_units", None),
+                            ("m3/ratio", "ratio", "exit_depth")):
+                t.add(f"m2.headline.{k.replace('/', '.')}",
+                      f"member 2 headline {k.replace('/', ' ')}",
+                      f"{m2c}/{k}", u, "stress (Member 2)", "DET-41", d)
+        t.walk("headline.m4", "headline m4", f"{cell}/m4", "mechanism state",
+               lambda fid: M4_OWNER.get(fid.split(".")[2], "DET-38"))
+        head = next(c for c in stress["cells"] if c["id"] == HEADLINE)
+        for line in head["counterfactual_lines"]:
+            base = f"{cell}/counterfactual_lines/[id={line['id']}]"
+            for k in ("value_primary", "value_counterfactual", "metric_affected"):
+                t.add(f"headline.cf.{line['id']}.{k}", f"counterfactual {line['id']} {k}",
+                      f"{base}/{k}", None, "stress (Member 1)", "DET-44")
+            if line["id"] in (wording or {}).get("counterfactual", {}):
+                t.add(f"headline.cf.{line['id']}.description", f"counterfactual {line['id']}",
+                      f"wording/counterfactual/{line['id']}", "literal", "stress (Member 1)",
+                      "DET-44")
+        # Amin, run 8 ruling 5: a counterfactual line of the Member-2 headline cell (memo
+        # §6.2.6's 0.93 target, no LP flight) joins the headline rows. NAMED DEFAULT: only a
+        # line not already read from the Member-1 headline cell and carrying values (GHO's
+        # H2_freezer); crvUSD's value-less H1_v1_contagion stays off pending a ruling.
+        m2_head = next((c for c in stress["cells"] if c["id"] == HEADLINE_M2), None)
+        have = {line["id"] for line in head["counterfactual_lines"]}
+        for line in (m2_head or {}).get("counterfactual_lines", []):
+            if line["id"] in have or line.get("value_primary") is None:
+                continue
+            base = f"stress/cells/[id={HEADLINE_M2}]/counterfactual_lines/[id={line['id']}]"
+            for k in ("value_primary", "value_counterfactual", "metric_affected"):
+                t.add(f"headline.cf.{line['id']}.{k}", f"counterfactual {line['id']} {k}",
+                      f"{base}/{k}", None, "stress (Member 2)", "DET-44")
+            if line["id"] in (wording or {}).get("counterfactual", {}):
+                t.add(f"headline.cf.{line['id']}.description", f"counterfactual {line['id']}",
+                      f"wording/counterfactual/{line['id']}", "literal", "stress (Member 2)",
+                      "DET-44")
+        panel = [c for c in stress["cells"]
+                 if c["member"] == "M1" and c["id"].split("-")[2] == "d0"]
+        for c in panel:
+            base = f"stress/cells/[id={c['id']}]"
+            for k, u, d, own in (("m1/post/ratio", "ratio", None, "DET-39"),
+                                 ("m2/bad_debt", "base_units", None, "DET-40"),
+                                 ("m3/ratio", "ratio", "exit_depth", "DET-41"),
+                                 ("m3/exit_depth", "base_units", None, "DET-41")):
+                t.add(f"panel.{c['id']}.{k.replace('/', '.')}", f"{c['id']} {k.replace('/', ' ')}",
+                      f"{base}/{k}", u, "stress (Member 1)", own, d)
 
     # ---- exit liquidity (DET-30 / 31 / 35 / 36 / 11 / 50 / 32) --------------------------
     ed = "stress/exit_depth"

@@ -122,3 +122,15 @@ ethereum = [
   "0xa13fee3e98808fe0ab4ae86509c6a068b3d24174",
 ]
 other_chain = ["C23FGxQB2LsoTbZsQr5w3R7b3sw5saxPLGJ4ujvyH34L", "4FaQc6QZ5skFjcDF64mKcXRhtCCsnArZcr1xumPNrbtN"]
+
+# ---- DET-10(d)-ii disappearance test: the frozen pool's factory index (P-10.09) ----
+# Written with the first freeze (J2), the LUSD P-4.16 form: the factory is asked what
+# it lists rather than the pool vouching for itself; `pool_list` is append-only.
+[[frozen_pool_index]]
+pool = "0x5dc1bf6f1e983c0b21efb003c105133736fa0743"
+factory_root = "pool_factory_stable_ng"
+index = 35
+found_at_block = 26272135
+date = 2026-10-25
+method = "pool_list walk at freeze time: pool_count() = 1080, the pool appears at exactly one index (35)"
+member_coins = ["0x853d955acef822db058eb8505911ed77f175b99e", "0x4c9edd5852cd905f086c759e8383e09bff1e68b3"]

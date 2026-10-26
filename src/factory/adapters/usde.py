@@ -24,11 +24,12 @@ from web3 import Web3
 from factory.adapters.gho import role_holders
 from factory.discovery import (
     AssemblyStopFromDiscovery,
+    build_pool_rows,
     catalog_get,
     fetch_candidates,
     value_candidates,
 )
-from factory.logbook import is_first_run
+from factory.logbook import is_first_run, load_prior
 from factory.logs_pointer import default_transport, env
 from factory.offvenue import read_share
 from factory.provenance import AbsenceRead, AnalystSupplied, ContractRead, DisclosureSnapshot
@@ -393,8 +394,25 @@ def build(cfg, rpc, repo, http_get=catalog_get, disclosure_get=_http_bytes,
     locations = sorted({a["location"] for s_ in ba["strategies"]
                         for cp in s_.get("counterparties", []) for a in cp.get("assets", [])
                         if a.get("location")})
+    # D16 (row 2): each location's total across all strategies (F2), and each basis
+    # counterparty's hedge notional across the two basis strategies.
+    loc_tot: dict[str, Decimal] = {}
+    for s_ in ba["strategies"]:
+        for cp in s_.get("counterparties", []):
+            for a in cp.get("assets", []):
+                if a.get("location"):
+                    loc_tot[a["location"]] = loc_tot.get(a["location"], Decimal(0)) + \
+                        Decimal(str(a["value"]))
+    hedge = {}
+    for s_ in ba["strategies"]:
+        if s_["strategy"] in ("Crypto Basis", "Equity and RWA Basis"):
+            for cp in s_.get("counterparties", []):
+                hedge[cp["counterparty"]] = hedge.get(cp["counterparty"], Decimal(0)) + \
+                    Decimal(str(cp["value"]))
     put("FR-U36", {"strategies": {s_["strategy"]: str(s_["value"]) for s_ in ba["strategies"]},
                    "ethereum_by_strategy": eth_by, "locations": locations,
+                   "location_totals": {k: str(v) for k, v in sorted(loc_tot.items())},
+                   "exchange_notional": {k: str(v) for k, v in sorted(hedge.items())},
                    "timestamp": ba["timestamp"], "ethereum_address_entries": eth_entries},
         d["backing_assets"]["prov"])
     fq = d["funding_quarterly"]["body"]
@@ -412,28 +430,49 @@ def build(cfg, rpc, repo, http_get=catalog_get, disclosure_get=_http_bytes,
     b_iii, p33 = _balances(rpc, [v2], buffer_assets)
     put("FR-U33", b_iii.get(v2, {}), p33)
 
-    # ---- pools: discovery only - no frozen set before the first freeze ------------------
+    # ---- pools: the frozen set's pass once the first freeze exists (J2), else discovery -----
+    floor = int(cfg.pool_set["floor_usd"])
+    fs = fs_hash = None
+    detectors = PoolDetectors(baseline_source="freeze_set_file",
+                              baseline_note="no frozen set yet: the first freeze is owed")
+    pool_rows, below = [], 0
     try:
-        cands = fetch_candidates(http_get, ["factory-stable-ng"])
-        eligible = {usde} | {r.address for r in cfg.label_rows.values()
-                             if "pool_pair" in r.roles}
-        disc = value_candidates(rpc, cands, usde, eligible)
+        if cfg.frozen_set_path.exists():
+            fs = json.loads(cfg.frozen_set_path.read_text(encoding="utf-8"))
+            fs_hash = hashlib.sha256(cfg.frozen_set_path.read_bytes()).hexdigest()[:8]
+            prior = load_prior(_BUNDLES, cfg.token, rb)
+            prior_pools = ({q.address: {"tvl_at_par": q.tvl_at_par} for q in prior.pools}
+                           if prior else {})
+            pool_rows, below, detectors = build_pool_rows(rpc, cfg, fs, http_get, usde, set(),
+                                                          prior_pools, rb)
+            disc = pool_rows
+            above = sorted(((q.address, q.tvl_at_par, list(q.paired_assets)) for q in pool_rows
+                            if q.tvl_at_par >= floor), key=lambda x: -x[1])
+        else:
+            cands = fetch_candidates(http_get, ["factory-stable-ng"])
+            disc = value_candidates(rpc, cands, usde, set(cfg.paired) | {usde})
+            above = sorted(((q.address, q.tvl_at_par, list(q.paired_assets)) for q in disc
+                            if q.tvl_at_par >= floor), key=lambda x: -x[1])
     except AssemblyStopFromDiscovery as exc:
         raise UsdeAdapterStop(str(exc)) from exc
-    floor = int(cfg.pool_set["floor_usd"])
-    above = sorted(((p.address, p.tvl_at_par, list(p.paired_assets)) for p in disc
-                    if p.tvl_at_par >= floor), key=lambda x: -x[1])
     put("FR-U25", {"registry_classes": ["factory-stable-ng"], "discovered": len(disc),
-                   "above_floor": [{"pool": a, "tvl_at_par": t, "paired": p} for a, t, p in above],
-                   "frozen_set": None},
+                   "above_floor": [{"pool": a, "tvl_at_par": t, "paired": q} for a, t, q in above],
+                   "frozen_set": ({"pools": [x["address"] for x in fs["pools"]],
+                                   "freeze_block": fs["freeze_block"],
+                                   "freeze_coverage": fs["freeze_coverage"],
+                                   "set_file_hash": fs_hash} if fs else None)},
         [_cr(a, "balances(uint256)", rb) for a, _, _ in above] or
         [_cr(usde, "totalSupply()", rb)])
     off = read_share(usde)
     put("FR-U26", str(off.x) if off.x is not None else off.literal,
         AnalystSupplied(source=off.source, date=off.date))
-    put("FR-U27", "not yet runnable: the depth solver reads the frozen set, absent until "
-                  "the first freeze", AbsenceRead(contract=usde, method="storage_slot_read",
-                                                   evidence="no frozen set", block=rb))
+    put("FR-U27", ("computed by the stress fold at run_block over the frozen set "
+                   "(exit_depth.depth_curve, s = 0.02)" if fs else
+                   "not yet runnable: the depth solver reads the frozen set, absent until "
+                   "the first freeze"),
+        [_cr(a, "balances(uint256)", rb) for a in (x["address"] for x in fs["pools"])]
+        if fs else AbsenceRead(contract=usde, method="storage_slot_read",
+                               evidence="no frozen set", block=rb))
 
     # ---- reference feeds (DET-54 gap column) ----------------------------------------------
     feeds = {f["symbol"]: f["feed"] for f in cfg.sheet.get("oracle_feed", [])}
@@ -527,7 +566,7 @@ def build(cfg, rpc, repo, http_get=catalog_get, disclosure_get=_http_bytes,
         r4_rate="face_value", r5_minimum="none",
         r6_gates=[{"kind": "capacity_limited", "param": "global_max_redeem_per_block"},
                   {"kind": "pausable", "param": None}],
-        r7_capacity="synthetic.reads.FR-U09 + synthetic.reads.FR-U35",
+        r7_capacity="min(synthetic.reads.FR-U09, synthetic.reads.FR-U35)",     # F1
         r8="enforceable_unless_paused (see R7)", r9_legal_claim="disclaimed",
         r10_provenance=_cr(v2, REDEEM_V2, rb, ["selector_present"]))
     from factory.run import static_metadata_of
@@ -536,15 +575,15 @@ def build(cfg, rpc, repo, http_get=catalog_get, disclosure_get=_http_bytes,
         header=Header(token="USDe", run_block=rb, block_timestamp=rpc.block_timestamp,
                       run_start_time=rpc.run_start_time, first_run=first_run,
                       pipeline_version="0.1.0", sheet_hash=cfg.sheet["sheet_hash"],
+                      frozen_set_hash=fs_hash, freeze_date=fs["freeze_date"] if fs else None,
                       raw_positions_hash=hashlib.sha256(raw.encode()).hexdigest()),
         markets=[], stabilizer=StabilizerBlock(operations=[], ceiling_aggregate=0,
                                                ceiling_aggregate_lineage=[]),
         supply=supply, nodes=[], oracle_rows=[], redemption_paths=[redemption],
-        admin_surface=admin, lend_markets=[], pools=[],
-        pool_detectors=PoolDetectors(baseline_source="freeze_set_file",
-                                     baseline_note="no frozen set yet: the first freeze is owed"),
+        admin_surface=admin, lend_markets=[], pools=pool_rows, pool_detectors=detectors,
         offvenue_share=off, static_metadata=static_metadata_of(cfg),
         counts=Counts(mint_market_count=0, lend_market_count=cfg.lend.market_count_field,
+                      below_floor_pool_count=below,
                       lend_market_count_note="no lend markets in this archetype (Q44)",
                       facilitator_count="n/a", gsm_count=0),
         attribution_method=cfg.sheet["attribution_method"],

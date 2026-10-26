@@ -35,7 +35,7 @@ def test_latest_committed_bundles_reserialise_byte_for_byte():
     loader read. Older bundles predate later schema fields and are not loaded."""
     files = [sorted(d.glob("*.json"))[-1] for d in sorted((REPO / "out/bundles").iterdir())
              if d.is_dir()]
-    assert len(files) == 3
+    assert len(files) == 4                                    # + USDe (P-10.09)
     for f in files:
         raw = f.read_bytes().replace(b"\r\n", b"\n").decode("utf-8")
         out = serialise_for_disk(Bundle.model_validate_json(raw))

@@ -987,3 +987,65 @@ def stress_sheet_text(bundle, report, out_dir: pathlib.Path) -> str:
     for k, v in sorted(report.assumptions.items()):
         lines.append(f"- **{k}** — {v}")
     return "\n".join(lines) + "\n"
+
+
+# ---- archetype #2 (P-10.09) ------------------------------------------------------
+# R17's hand verification for USDe: every pinned contract read with its block, every
+# disclosure pin with its sha256, so Amin reproduces them through his own RPC and a
+# plain GET. Old-Vyper padding does not arise here (Solidity contracts).
+
+
+def _synthetic_read_rows(bundle) -> list[str]:
+    out = ["| FR | contract | function | args | block / pin |", "|---|---|---|---|---|"]
+    for tag, rd in bundle.synthetic.reads.items():
+        for p in rd.provenance[:3]:
+            if p.kind == "contract_read":
+                out.append(f"| {tag} | `{p.source_contract}` | `{p.function}` | "
+                           f"{', '.join(p.args[:2]) or '—'} | {p.block} |")
+            elif p.kind == "disclosure_snapshot":
+                out.append(f"| {tag} | {p.source_url} | GET | as-of {p.as_of_date} | "
+                           f"sha256 `{p.sha256[:16]}…` |")
+            elif p.kind == "absence_read":
+                out.append(f"| {tag} | `{p.contract}` | {p.method} | — | {p.block} |")
+    return out
+
+
+def write_spotcheck_usde(bundle, out_dir: pathlib.Path) -> pathlib.Path:
+    h = bundle.header
+    lines = [f"# USDe spot-check — run {h.run_block}", "",
+             f"bundle `{h.bundle_hash[:8]}` · sheet `{h.sheet_hash}` · "
+             f"frozen set `{h.frozen_set_hash}`", "",
+             *_synthetic_read_rows(bundle)]
+    path = out_dir / "USDe" / f"{h.run_block}.md"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    return path
+
+
+def write_tree_synthetic(bundle, tree, out_dir: pathlib.Path) -> pathlib.Path:
+    cats = bundle.synthetic.reads["FR-U20"].value
+    lines = [f"# USDe tree spot-check — {tree.run_block}", "",
+             f"tree `{tree.tree_hash[:8]}` · backing {tree.root.backing_value}", "",
+             "| category | usdAmount (route) | label | share |", "|---|---|---|---|",
+             *[f"| {n.category} | {cats[n.category]} | {n.label} | {n.share:.6f} |"
+               for n in tree.nodes]]
+    out_dir.mkdir(parents=True, exist_ok=True)
+    p = out_dir / f"tree-{tree.run_block}.md"
+    p.write_text("\n".join(lines) + "\n", encoding="utf-8", newline="")
+    return p
+
+
+def write_stress_synthetic(bundle, report, out_dir: pathlib.Path) -> pathlib.Path:
+    syn = report.synthetic
+    lines = [f"# USDe stress spot-check — {report.header.run_block}", "",
+             "inputs: " + ", ".join(f"{k} {v}" for k, v in syn["inputs"].items()
+                                    if k != "reference_point"), "",
+             "| cell | loss | post-loss backing | ratio |", "|---|---|---|---|",
+             *[f"| {c['id']} | {c.get('loss', '—')} | {c.get('post_loss_backing', '—')} | "
+               f"{c.get('post_loss_ratio', c.get('depeg_pressure_ratio'))} |"
+               for c in syn["cells"]]]
+    path = out_dir / "out/spotcheck" / bundle.header.token / \
+        f"stress-{bundle.header.run_block}.md"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    return path

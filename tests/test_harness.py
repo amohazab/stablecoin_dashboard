@@ -206,10 +206,10 @@ def test_det66_lusd_clause_requires_exactly_one_direct_path():
 
 
 def test_det66_fails_loud_for_a_token_with_no_clause():
-    """The ruled fail-loud dispatch OUTLIVES the three pilot clauses: a fourth
-    token raises rather than passing on the token-agnostic checks alone."""
-    other = a_bundle(header=a_bundle().header.model_copy(update={"token": "USDe"}))
-    with pytest.raises(NotYetImplemented, match="USDe"):
+    """The ruled fail-loud dispatch OUTLIVES the four clauses (USDe's at P-10.09): a
+    token with no clause raises rather than passing on the token-agnostic checks."""
+    other = a_bundle(header=a_bundle().header.model_copy(update={"token": "FRAX"}))
+    with pytest.raises(NotYetImplemented, match="FRAX"):
         det_66(other, a_ctx())
 
 

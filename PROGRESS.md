@@ -9808,3 +9808,76 @@ Status: OPEN (opened 2026-10-25, P-10.01)
   `config/usde_sheet.toml` · `out/logs/events_usde.jsonl` ·
   `src/factory/{synthetic_tree,validate/harness}.py`; `PROGRESS.md`.
 - **Follow-ups spawned:** commit 6 (P-10.09).
+
+## P-10.09 — USDe stress and the first promoted run
+
+- **Date:** 2026-10-26
+- **Type:** decision + implementation
+- **Confirmed by:** Amin
+- **Content:**
+  **RULINGS:**
+  - (a) A-39's DET-66 clause lands in this commit, so J5 is revised: DET-66 is no longer
+    owed at commit 7. The `[[frozen_pool_index]]` row is accepted as an implementer
+    default.
+  - (a) on A-37: DET-61's USDe branch is implemented now; T-07 fires at backing ÷
+    supply < 1.01; the run is re-promoted at a new block. The 26272236 run is moved to
+    `out/rehearsal/USDe/` (`*-promoted`).
+  - K: backing = status `totalBackingAssetsInUsd` for headline and stress (Q3). The tree
+    root = Σ categories from collateral-breakdown, printed beside the headline with the
+    difference, no trigger.
+  **FIRST FREEZE (J2)** at block 26272105, scope `factory-stable-ng`:
+  - legs curve_api 36,230,768 · defillama 36,222,550 · onchain_par 35,803,503;
+    M = 0.011793.
+  - F = {`0x5dc1…0743` FRAX/USDe, 34,251,555}; coverage 0.9567.
+  - Of the 21 excluded, 20 are below_dust_floor. USDT/USDe `0x5b03…8e96` (1,029,146) is
+    above the floor but outside K = 95% (memo #1 §5.5): the FRAX pool alone reaches
+    0.9567 of the 35,803,503 total, so the pool is cut as `tail_beyond_freeze_coverage`.
+  - `config/frozen_set_usde.json` `d8df0853`; `freeze` event appended after the intake
+    lines; DET-10 and DET-29a pass.
+  - `[[frozen_pool_index]]` row: index 35 of 1080, found at block 26272135.
+  **PROMOTED RUN** at block 26275087:
+  - bundle `f7814ee9` (first_run), S0/S1 21/21, triggers **T-07 (L1)**; tree `ef278abd`
+    11/11; stress `9bf64829` 7/7.
+  - Disclosure set at `out/disclosures/USDe/26275087.json`; spot-check sheets for run,
+    tree and stress.
+  - off-venue 0.22007; exit depth at s = 2%: 20,952,993.
+  **INPUTS:** basis 738,686,371 · F −0.25 · backing 4,588,774,288.12 · reserve fund
+  62,067,738.35 · supply_ruled 4,587,084,755.14 · tree root 4,586,234,862
+  (−2,539,426.12).
+  **CELLS** (post-loss ratio; reserve fund absorbs first, D3):
+  - S1-n30: loss 15,178,487 → 1.000368.
+  - **S1-n90**: loss 45,535,461 → **1.000368**.
+  - S1-n180: loss 91,070,922 → 0.994046.
+  - **S2-a**: Copper's 543,867,247 lost in full → **0.895334**, the row-2 headline.
+  - S2-b: Binance notional 471,249,486 × 30% → 0.983079, printed beside S2-a.
+  - **S3**: free float 1,261,077,783 and staked 1,185,895,473; cooldown 86,400 s < 7 d,
+    so X = 611,743,314. capacity_redeem = min(751,293,106; 20,000,000 × 50,400) =
+    751,293,106. The depeg-pressure ratio is **0**.
+  **COUNTERFACTUAL LINES (A-45):**
+  - `cf.basis_unwind_day0` on S1-n30/90/180: value null, literal "issuer unwinds the
+    basis at day 0; loss bounded by execution cost, unquantified".
+  - `cf.cooldown_branch` on S3: free float only, X 315,269,446, ratio 0.
+  **K ROWS (D2, on S3):** 80 / 90 / 95 = the one frozen pool, depth 20,952,993,
+  share_of_F 1, ratio 0.
+  **CODE:**
+  - `synthetic_cells.py`; `StressReport.synthetic`, excluded from serialisation when
+    None; stress fold dispatches on archetype.
+  - DET-44 (A-45), DET-69 (A-47), DET-66 (A-39) and DET-61 (A-37) USDe clauses. R7 is
+    `min(synthetic.reads.FR-U09, synthetic.reads.FR-U35)` (named default).
+  - The table.py M1 section is skipped on archetype #2.
+  - The adapter's frozen-set pool pass; `pool_pair` rows enter `cfg.paired`, and the
+    synthetic tree folds them (DET-11).
+  - DET-55 and DET-90 return None or a tuple, as `run_harness` requires.
+  **AS-COUNTED:** my rehearsal ran the harness through `evaluate_harness`, which drops
+  non-tuple returns, so it missed the string returns that stopped the first
+  `factory.run`.
+  **PROOFS:** CDP bundles, trees and stress re-serialise identically (GHO and LUSD bundles
+  modulo P-8.12's null keys, as at HEAD); suite **420 passed**.
+- **Artifacts:** `src/factory/{synthetic_cells,stress,schema,spotcheck,run,tree,config,`
+  `synthetic_tree,adapters/usde,report/table,validate/harness}.py` ·
+  `config/{frozen_set_usde.json,usde_roots.toml}` · `out/logs/events_usde.jsonl` ·
+  `out/{bundles,trees,stress,disclosures}/USDe/26275087.json` ·
+  `tests/test_usde_{stress,det66,config,tree}.py` · `tests/test_{harness,disclosure_snapshot}.py`;
+  `PROGRESS.md`.
+- **Follow-ups spawned:** commit 7 (the K print beside the headline lands with the
+  archetype-#2 report rows).

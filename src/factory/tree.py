@@ -375,9 +375,12 @@ def main(repo: pathlib.Path, token: str) -> tuple[pathlib.Path, bool, Verifiabil
     path, ok = emit(repo, bundle, tree)
     written = VerifiabilityTree.model_validate_json(path.read_text(encoding="utf-8"))
     from factory.config import TOKEN_FILES
-    from factory.spotcheck import write_tree
-    write_tree(bundle, written, cfg, TOKEN_FILES[token]["labels"],
-               repo / "out/spotcheck" / token)             # gitignored (P-3.13)
+    from factory.spotcheck import write_tree, write_tree_synthetic
+    if bundle.synthetic is not None:                       # archetype #2 (P-10.09)
+        write_tree_synthetic(bundle, written, repo / "out/spotcheck" / token)
+    else:
+        write_tree(bundle, written, cfg, TOKEN_FILES[token]["labels"],
+                   repo / "out/spotcheck" / token)         # gitignored (P-3.13)
     return path, ok, written
 
 

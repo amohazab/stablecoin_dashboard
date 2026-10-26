@@ -1351,6 +1351,9 @@ class StressReport(BaseModel):
     structural_zero: StructuralZero | None = None       # R-B11.8
     checks: list[GateResult] = []
     flags: list[str] = []
+    # Archetype #2 (P-10.09): the three stress rows' cells, headlines, counterfactual
+    # lines and K rows (memo #2 §6). Excluded from serialisation when None.
+    synthetic: dict[str, Any] | None = None
 
 
 def finalise_stress(report: StressReport) -> StressReport:
@@ -1358,7 +1361,8 @@ def finalise_stress(report: StressReport) -> StressReport:
     is NESTED - the stamp lives in `header`, unlike the tree's top-level
     `tree_hash` - so this takes `serialise(bundle)`'s form, not
     `finalise_tree`'s."""
-    payload = report.model_dump(mode="python", exclude={"header": {"stress_hash"}})
+    payload = report.model_dump(mode="python", exclude=_stress_exclude(
+        report, {"header": {"stress_hash"}}))
     h = hashlib.sha256(json.dumps(payload, sort_keys=True, separators=(",", ":"),
                                   ensure_ascii=False, default=_default)
                        .encode("utf-8")).hexdigest()
@@ -1367,5 +1371,11 @@ def finalise_stress(report: StressReport) -> StressReport:
 
 
 def serialise_stress(report: StressReport) -> str:
-    return json.dumps(report.model_dump(mode="python"), sort_keys=True,
-                      separators=(",", ":"), ensure_ascii=False, default=_default)
+    return json.dumps(report.model_dump(mode="python", exclude=_stress_exclude(report, {})),
+                      sort_keys=True, separators=(",", ":"), ensure_ascii=False,
+                      default=_default)
+
+
+def _stress_exclude(report: StressReport, base: dict) -> dict:
+    """P-10.09: an archetype-#1 report carries no `synthetic` key."""
+    return {**base, "synthetic": True} if report.synthetic is None else base

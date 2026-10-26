@@ -1201,6 +1201,7 @@ def fold(inputs: dict, rpc=None) -> StressReport:
     exit_depth = ExitDepth(lp_flight_literal=LP_FLIGHT_LITERAL)
     flags: list[str] = []
     cells: list = []
+    synthetic = None
     refs: list = []
     assumptions: dict = {}
     mech = Mechanism()
@@ -1219,8 +1220,15 @@ def fold(inputs: dict, rpc=None) -> StressReport:
                                       {p.address: p.label for p in t.paired_assets})
         flags += [f"T-21 GSM {v.gsm} {v.reason} — venue closed in every cell"
                   for v in venues if not v.enters]
-        mech = build_mechanism(b, cfg, rpc, inputs["raw"])
-        if mech.llamma is not None:
+        if b.synthetic is not None:        # archetype #2 (P-10.09): three rows, no mechanism
+            from factory.synthetic_cells import build as build_synthetic
+            synthetic = build_synthetic(b, exit_depth)
+            mech = Mechanism()
+        else:
+            mech = build_mechanism(b, cfg, rpc, inputs["raw"])
+        if b.synthetic is not None:
+            pass                           # the three rows are built above
+        elif mech.llamma is not None:
             cells, refs, notes, assumptions = build_crvusd_cells(
                 b, cfg, rpc, inputs["raw"], mech, states, numeraire, frozen, reads)
         elif b.gsms:                       # GHO: no AMM, an Aave book (B-5)
@@ -1264,9 +1272,10 @@ def fold(inputs: dict, rpc=None) -> StressReport:
         cells=cells,
         reference_points=refs,
         assumptions=assumptions,
-        structural_zero=structural_zero(b.header.token, cells, b.supply.supply_ruled,
-                                        assumptions),
-        flags=flags)
+        structural_zero=(None if synthetic is not None else
+                         structural_zero(b.header.token, cells, b.supply.supply_ruled,
+                                         assumptions)),
+        flags=flags, synthetic=synthetic)
 
 
 # ------------------------------------------------------------------ I/O -----
@@ -1285,7 +1294,7 @@ def emit(repo: pathlib.Path, bundle, tree, report: StressReport,
     report = report.model_copy(update={
         "checks": run_stress_checks(bundle, tree, report, m4_fields)})
     ok = (all(r.result == "pass" for r in report.checks)
-          and bool(report.cells)
+          and (bool(report.cells) or report.synthetic is not None)   # P-10.09
           and not report.header.stale_sheet)
     report = finalise_stress(report)
     token, blk = report.header.token, report.header.run_block
@@ -1297,8 +1306,11 @@ def emit(repo: pathlib.Path, bundle, tree, report: StressReport,
         # R17's hand-verification sheet rides the PROMOTION, not the fold: a
         # rehearsal artifact has nothing to verify by hand. Gitignored with the
         # rest of `out/spotcheck/`.
-        from factory.spotcheck import write_stress
-        write_stress(bundle, report, repo)
+        from factory.spotcheck import write_stress, write_stress_synthetic
+        if report.synthetic is not None:
+            write_stress_synthetic(bundle, report, repo)
+        else:
+            write_stress(bundle, report, repo)
     return path, ok
 
 

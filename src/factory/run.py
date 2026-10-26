@@ -808,10 +808,9 @@ def _promote(repo, cfg, token, bundle, extra, outcome, t0) -> dict:
     if token == "GHO":
         sheet_path = write_spotcheck_gho(stamped, repo / "out/spotcheck/GHO",
                                          gho=cfg.root("gho_token").address)
-    elif token == "USDe":
-        # NAMED IMPLEMENTER DEFAULT (P-10.06): USDe's spot-check sheet lands with its
-        # stress artifact (commit 6); until then the run writes none.
-        sheet_path = None
+    elif token == "USDe":                              # P-10.09: archetype #2's sheet
+        from factory.spotcheck import write_spotcheck_usde
+        sheet_path = write_spotcheck_usde(stamped, repo / "out/spotcheck")
     elif token == "LUSD":
         sheet_path = write_spotcheck_lusd(stamped, repo / "out/spotcheck/LUSD",
                                           lusd=cfg.root("lusd_token").address,

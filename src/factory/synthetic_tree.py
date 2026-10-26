@@ -111,6 +111,10 @@ def fold_synthetic(b: Bundle, cfg: Config) -> VerifiabilityTree:
                            companion=companion, status=None)
 
     qualifier, banner = qualifier_synthetic(b)
+    # DET-11 (P-10.09): the frozen pools' paired assets, labeled by the same join the
+    # archetype-#1 fold uses (FRAX and USDT are `pool_pair` label rows, `cfg.paired`).
+    from factory.tree import _paired
+    paired, concentration, pflags = _paired(b, cfg, {}, {})
 
     label_rows = []
     for s, row in sorted(cfg.label_rows.items()):
@@ -178,6 +182,7 @@ def fold_synthetic(b: Bundle, cfg: Config) -> VerifiabilityTree:
                       "truncated_share": "backing_value",
                       "truncated_nodes.share": "backing_value",
                       "staleness.D.share": "backing_value",
+                      "concentration.share_of_exit_depth": "frozen_set_freeze_tvl",
                       "root.backing_value": "amount", "root.backed_supply": "amount",
                       "root.supply_ruled": "amount", "root.residual": "amount",
                       "root.stabilizer_debt": "amount",
@@ -185,10 +190,10 @@ def fold_synthetic(b: Bundle, cfg: Config) -> VerifiabilityTree:
                       "stabilizer_slice.ceiling_aggregate": "amount",
                       "stabilizer_slice.ceiling_share_of_supply_ruled": "supply_ruled",
                       "synthetic.supply_classes": "amount"},
-        paired_assets=[], concentration=None,
+        paired_assets=paired, concentration=concentration,
         nodes=sorted((TreeNode(category=c, symbol=c, label=label[c], share=share[c])
                       for c in cats), key=lambda x: (-x.share, x.symbol)),
         stabilizer_slice=StabilizerSlice(debt=0, ceiling_aggregate=0, operation_count=0,
                                          ceiling_share_of_supply_ruled=Decimal(0)),
-        flags=[f"unlisted category {c} (memo #1 §8.2)" for c in unlisted],
+        flags=[f"unlisted category {c} (memo #1 §8.2)" for c in unlisted] + pflags,
         synthetic=synthetic)

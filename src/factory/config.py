@@ -464,6 +464,16 @@ def load(config_dir: Path, token: str) -> Config:
             raise ValueError(f"duplicate oracle_feed node_address: {a}")
         feeds[a] = dict(r)
     label_rows = _label_rows(labels_raw)
+    # P-10.09: an archetype-#2 label row with the `pool_pair` role is a DET-11 paired
+    # asset of a modeled pool (FRAX, USDT) - the par-eligibility the freeze and the
+    # per-run pool pass read through `cfg.paired`.
+    for row in label_rows.values():
+        if "pool_pair" in row.roles and row.address != "none":
+            if row.address in paired:
+                raise ValueError(f"duplicate paired-asset address: {row.address}")
+            paired[row.address] = PairedAsset(address=row.address, symbol=row.symbol,
+                                              label=row.label, label_source=row.label_source,
+                                              date=row.date)
     disclosures = join_disclosures(labels, sheet_raw)
     if categories:
         disclosures.update(join_category_disclosures(categories, label_rows, sheet_raw))
