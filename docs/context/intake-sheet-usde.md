@@ -123,8 +123,8 @@ Group (ii) — the union of the attestation's eleven wallets (the dated list bel
 | 0x8292bb45bf1ee4d140127049757c2e0ff06317ed | RLUSD | 0x26c46b7ad0012ca71f2298ada567dc9af14e7f2a | raw · RLUSD / USD | `deviation_heartbeat` | 0.3% | 86400 | Chainlink feed directory (data.chain.link), fetched 2026-10-25 | 2026-10-25 |
 | 0xe343167631d89b6ffc58b88d6b7fb0228795491d | USDG | 0x14f0737d6b705259e521ea6e9e3506ac78dbd311 | raw · USDG / USD | `deviation_heartbeat` | 0.25% | 86400 | Chainlink feed directory (data.chain.link), fetched 2026-10-25 | 2026-10-25 |
 | 0xc139190f447e929f090edeb554d95abb8b18ac1c | USDtb | 0x66704dad467a7ca508b3be15865d9b9f3e186c90 | raw · USDtb / USD | `deviation_heartbeat` | 0.5% | 86400 | Chainlink feed directory (data.chain.link), fetched 2026-10-25 | 2026-10-25 |
-| 0xdac17f958d2ee523a2206206994597c13d831ec7 | USDT | 0x260326c220e469358846b187ee53328303efe19c | capo-stable · Capped USDT/USD | `deviation_heartbeat` (bundle)` | 0.25% (USDT/USD) | 86400 | Chainlink feed directory (data.chain.link), fetched 2026-09-13 | 2026-09-13 |
-| 0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48 | USDC | 0x3f73f03aa83b2a48ed27e964ed0fdb590332095b | capo-stable · Capped USDC / USD | `deviation_heartbeat` (bundle)` | 0.25% (USDC/USD) | 82800 | Chainlink feed directory (data.chain.link), fetched 2026-09-13 | 2026-09-13 |
+| 0xdac17f958d2ee523a2206206994597c13d831ec7 | USDT | 0x3e7d1eab13ad0104d2750b8863b489d65364e32d | raw · USDT / USD | `deviation_heartbeat` | 0.25% | 86400 | Chainlink feed directory (data.chain.link), fetched 2026-10-25; `description()` verified at 26271959 | 2026-10-25 |
+| 0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48 | USDC | 0x8fffffd4afb6115b954bd326cbe7b4ba576818f6 | raw · USDC / USD | `deviation_heartbeat` | 0.25% | 82800 | Chainlink feed directory (data.chain.link), fetched 2026-10-25; `description()` verified at 26271959 | 2026-10-25 |
 
 **Redemption-rights (memo #2 §12) — holder paths: 1**
 

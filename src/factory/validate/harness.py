@@ -1123,6 +1123,17 @@ def det_70(b: Bundle, t: VerifiabilityTree) -> None:
     `admin_surface`; a qualifying row needs a bucket; the shares are identical
     with the qualifier block removed."""
     from factory.tree import QUALIFYING, fold_shares, qualifier_of
+    if b.synthetic is not None:                                       # A-51 (P-10.08)
+        from factory.synthetic_tree import qualifier_synthetic
+        rows, banner = qualifier_synthetic(b)
+        if any(q.delay_bucket is None for q in rows):
+            raise Level3("DET-70: a qualifying row has no delay_bucket")
+        if t.qualifier != rows:
+            raise Level3("DET-70: qualifier[] does not replay from admin_surface")
+        if t.banner != banner:
+            raise Level3(f"DET-70: banner {t.banner!r} != replay {banner!r}")
+        det_14(b, t)                    # the shares replay from the category values alone
+        return None
     rows, banner = qualifier_of(b)
     for q in rows:
         if q.delay_bucket is None:

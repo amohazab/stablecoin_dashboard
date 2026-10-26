@@ -1,1 +1,2 @@
 {"date":"2026-10-25","set_file_hash":null,"sheet_hash":"bf64d756","source":"P-10.02","token":"USDe","type":"intake_trigger"}
+{"date":"2026-10-25","set_file_hash":null,"sheet_hash":"a2e270cd","source":"P-10.07 — J3: the USDT and USDC reference-feed rows read the raw Chainlink USDT / USD and USDC / USD feeds in place of the GHO sheet's CAPO adapters","token":"USDe","type":"intake_trigger"}

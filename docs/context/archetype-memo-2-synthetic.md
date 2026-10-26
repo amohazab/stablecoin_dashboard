@@ -33,7 +33,7 @@
 - (iii) EthenaMinting V2's own balance of every supported asset [FIRST-RUN READ: V2 balances per supported asset]: the on-chain check of Σ `/api/stablecoin-collateral` [FIRST-RUN READ: per-run fetch], which row 3's `capacity_redeem` uses (§6); the V2 balances are a check, never an addend (F1).
 An address in two groups (the first attestation wallet 0x2d4d2a… is also a V2 custodian address) is read once and carries both labels.
 
-**Reconciliation (Q5, D17).** Σ on-chain buffer balances versus the disclosure's Liquid Stables + DeFi Lending + RWA categories, over entries with `chainSlug == ethereum` only; positions on other chains (Plasma, Mantle, Base, Solana, Robinhood, XRPL in the route at 2026-10-25) are disclosed as "balance not read by this pipeline (other chain)", labels unchanged — memo #1 §5.2's mainnet scope applied to backing. A gap beyond 5% of backing fires T-30, Level 1, with the gap printed (D5). Never a silent pick between the two.
+**Reconciliation (Q5, D17, J1).** Σ at par of the label-row assets held at the group (i)–(iii) addresses, each address once, versus the disclosure's Liquid Stables entries with `chainSlug == ethereum`; the DeFi Lending and RWA Ethereum entries are printed beside the gap as "disclosed, not reconciled (receipt tokens)" with their total. Positions on other chains (Plasma, Mantle, Base, Solana, Robinhood, XRPL in the route at 2026-10-25) are disclosed as "balance not read by this pipeline (other chain)", labels unchanged — memo #1 §5.2's mainnet scope applied to backing. A gap beyond 5% of backing fires T-30, Level 1, with the gap printed (D5). Never a silent pick between the two.
 
 **Reserve fund (Q6).** Outside backing; its own slice, §3.
 

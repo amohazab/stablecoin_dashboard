@@ -57,6 +57,21 @@ def cadence_days(text: str) -> int | None:
     return None
 
 
+def qualifier_synthetic(b: Bundle) -> tuple[list[QualifierRow], str]:
+    """A-51 (DET-70, archetype #2): the qualifying set adds `set_parameters` (memo #2
+    §13, Q12), and the banner ends with Q13's off-chain sentence, n = the route's
+    distinct custodian locations this run (FR-U36)."""
+    rows = [QualifierRow(power=a.power, holder_type=a.holder_type, signer_disclosure="n/a",
+                         delay_bucket=a.delay_bucket, veto=a.veto_address)
+            for a in b.admin_surface if a.power in QUALIFYING and a.holder_type != "none"]
+    n = len(set(b.synthetic.reads["FR-U36"].value.get("locations", [])))
+    head = ("Verifiability conditional on: " + "; ".join(
+        f"{q.power} — {q.holder_type} + {q.delay_bucket}" for q in rows) + "."
+            if rows else "No admin power can alter backing — immutable.")
+    return rows, (f"{head} Backing held by {n} custodians under issuer discretion; "
+                  "on-chain keys shown below.")
+
+
 def fold_synthetic(b: Bundle, cfg: Config) -> VerifiabilityTree:
     r = b.synthetic.reads
     cats: dict[str, int] = r["FR-U20"].value
@@ -95,14 +110,7 @@ def fold_synthetic(b: Bundle, cfg: Config) -> VerifiabilityTree:
                                                 share=w.share),
                            companion=companion, status=None)
 
-    qualifier = [QualifierRow(power=a.power, holder_type=a.holder_type, signer_disclosure="n/a",
-                              delay_bucket=a.delay_bucket, veto=a.veto_address)
-                 for a in b.admin_surface if a.power in QUALIFYING and a.holder_type != "none"]
-    n_cust = len(r["FR-U36"].value.get("locations", []))
-    banner = ("Verifiability conditional on: " + "; ".join(
-        f"{q.power} — {q.holder_type} + {q.delay_bucket}" for q in qualifier)
-        + f". Backing held by {n_cust} custodians under issuer discretion; "
-          "on-chain keys shown below.")
+    qualifier, banner = qualifier_synthetic(b)
 
     label_rows = []
     for s, row in sorted(cfg.label_rows.items()):

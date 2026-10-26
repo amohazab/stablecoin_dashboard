@@ -1,10 +1,10 @@
 # DERIVED MIRROR - NOT AUTHORITATIVE (P-3.04 binding).
 # Source of truth: docs/context/intake-sheet-usde.md, USDe section.
-# Derived from sheet version sha256_first8 = bf64d756.
+# Derived from sheet version sha256_first8 = a2e270cd.
 # DET-77's sheet_hash check binds this mirror to that source; drift is caught
 # mechanically, never trusted away. Regenerated, never hand-patched.
 schema_version = 1
-sheet_hash = "bf64d756"
+sheet_hash = "a2e270cd"
 
 near_bound_threshold = 0.80
 counterparties = "filled per memo #2 §14 (Q26, D6) — direct custodians Copper, Ceffu, Anchorage Digital Bank, Kraken Financial; lending counterparties FalconX International Lending Opportunities SPC (loans $236.64m, over-collateralised ~166% by BTC/ETH/SOL/XRP/USD/USDC at Anchorage, BitGo, Kraken under account-control agreements) and one unnamed borrower under Anchorage's secured lending arrangement ($81m against $145.54m BTC); derivatives Ripple Prime (Hidden Road Partners CIV US LLC d/b/a Ripple Prime), FCM for CME and Coinbase Derivatives Exchange; basis-hedge exchanges Binance (via Ceffu), OKX, Bybit, Deribit (via Copper), CDE (via Hidden Road); on-chain wallets, Coinbase-labeled; per-run shares from the backing-assets route (FR-U36), letters as monthly confirmation [ANALYST-SUPPLIED 2026-10-25: letter values — Copper Markets (Switzerland) AG $668,759,532.90 incl. unrealised P&L; Ceffu Digital Pte. Ltd. ≥ $733,212,922.85 (post headline $0.675bn); Anchorage Digital Bank NA $576,576,634 held + $81,000,000 USDC/USDT loaned against $145,541,292 BTC in tri-party custody (post headline $0.657bn); Kraken Financial $41,690.76; Ethena x FalconX SPV collateral $393,803,618.69 (Anchorage $137,516,667, BitGo $181,930,552, Payward/Kraken $74,408,775.45) against loans of $236,644,959.12; Ripple Prime FCM account equity $7,934,609.93; Coinbase on-chain wallets $2.620bn; MintRedeem contract $89.230m; total backing $4.953bn; reserve fund $62.095m; 101.34% incl. reserve fund; USDe supply 4.949bn; September attestation post and its custodian letters, https://ethena.fi/blog/custodian-attestations-of-assets-backing-usde-september-3; route https://app.ethena.fi/api/positions/current/backing-assets read 2026-10-25; as-of 2026-09-27]"
@@ -143,22 +143,22 @@ heartbeat_s = 86400
 [[oracle_feed]]
 node_address = "0xdac17f958d2ee523a2206206994597c13d831ec7"
 symbol = "USDT"
-feed = "0x260326c220e469358846b187ee53328303efe19c"
+feed = "0x3e7d1eab13ad0104d2750b8863b489d65364e32d"
 type = "deviation_heartbeat"
 heartbeat_form = "documented"
-source = "Chainlink feed directory (data.chain.link), fetched 2026-09-13"
-date = "2026-09-13"
+source = "Chainlink feed directory (data.chain.link), fetched 2026-10-25; `description()` verified at 26271959"
+date = "2026-10-25"
 deviation_bps = 25
 heartbeat_s = 86400
 
 [[oracle_feed]]
 node_address = "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
 symbol = "USDC"
-feed = "0x3f73f03aa83b2a48ed27e964ed0fdb590332095b"
+feed = "0x8fffffd4afb6115b954bd326cbe7b4ba576818f6"
 type = "deviation_heartbeat"
 heartbeat_form = "documented"
-source = "Chainlink feed directory (data.chain.link), fetched 2026-09-13"
-date = "2026-09-13"
+source = "Chainlink feed directory (data.chain.link), fetched 2026-10-25; `description()` verified at 26271959"
+date = "2026-10-25"
 deviation_bps = 25
 heartbeat_s = 82800
 

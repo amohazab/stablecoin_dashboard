@@ -9781,3 +9781,30 @@ Status: OPEN (opened 2026-10-25, P-10.01)
   `tests/test_{usde_tree,b10,b12,b13,s3,archetype_marker}.py`; `PROGRESS.md`.
 - **Follow-ups spawned:** sign J1 and J3 (one signed edit); rule A-51 (DET-70); the
   first freeze and promotion (commit 6); receipt-token reads at close.
+
+## P-10.08 — Signed edit J1 / J3; A-51 (DET-70)
+
+- **Date:** 2026-10-25
+- **Type:** decision + implementation
+- **Confirmed by:** Amin
+- **Content:**
+  **P-10.07 APPENDED** at `1a394b0`, pushed (draft = slice, `23cf05ba…`); suite last 410.
+  **SIGNED EDIT**, texts exactly as read back at P-10.07:
+  - J1: memo #2 §2's reconciliation sentence (memo `d317a78d` → `7ebdd7b0`); DET-90's
+    §1 text; A-50.
+  - J3: the USDT and USDC feed rows → raw Chainlink USDT / USD
+    `0x3e7d…e32d`, USDC / USD `0x8fff…18f6` (sheet `bf64d756` → `a2e270cd`);
+    `config/usde_sheet.toml` regenerated, `sheet_hash` `a2e270cd`; one `intake_trigger`
+    appended, its `source` as read back ("P-10.07 — J3: …").
+  - A-51 (DET-70, Q12 / Q13): the archetype-#2 qualifying set adds `set_parameters`;
+    the banner ends with the off-chain sentence, n = the route's distinct custodian
+    locations per run.
+  - Rubric line 7: memo `7ebdd7b0` · sheet `a2e270cd`; rubric `8753ac39` → `55932674`.
+  **CODE:** `synthetic_tree.qualifier_synthetic`, shared by the fold and DET-70's
+  archetype-#2 branch, which replays the qualifier and the banner and then runs DET-14
+  for the shares. DET-70 passes on the 26271944 rehearsal tree.
+  **PROOFS:** three CDP mirrors and three CDP trees byte-identical; suite **410 passed**.
+- **Artifacts:** `docs/context/{rubic_v1,archetype-memo-2-synthetic,intake-sheet-usde}.md` ·
+  `config/usde_sheet.toml` · `out/logs/events_usde.jsonl` ·
+  `src/factory/{synthetic_tree,validate/harness}.py`; `PROGRESS.md`.
+- **Follow-ups spawned:** commit 6 (P-10.09).
