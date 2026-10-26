@@ -292,7 +292,8 @@ def test_routing_blocks_the_site_and_records_the_outcome(tmp_path):
                 "docs/context", "templates"):
         if (REPO / sub).exists():
             shutil.copytree(REPO / sub, tmp_path / sub)
-    for code in ("src/factory/report/render.py", "src/factory/report/svg.py"):   # template_hash
+    for code in ("src/factory/report/render.py", "src/factory/report/svg.py",
+                 "src/factory/report/llm.py"):                                # template_hash
         (tmp_path / code).parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(REPO / code, tmp_path / code)
     from tests.llm_fake import pin_to_recorded

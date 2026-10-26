@@ -22,7 +22,10 @@ ORDER = ("bundle_hash", "tree_hash", "stress_hash", "table_hash", "template_hash
          "pipeline_version", "sheet_hash")
 
 
-TEMPLATE_CODE = ("src/factory/report/render.py", "src/factory/report/svg.py")
+# P-10.10 r6 (ruling a): the figure guard's code is template code - a guard change moves
+# template_hash, which is its resolution evidence (template_change)
+TEMPLATE_CODE = ("src/factory/report/llm.py", "src/factory/report/render.py",
+                 "src/factory/report/svg.py")
 
 
 def template_files(repo: pathlib.Path) -> list[pathlib.Path]:

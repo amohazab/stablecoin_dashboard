@@ -1,16 +1,22 @@
 {
  "a16": {
-  "count": 6,
-  "ids": [
-   "DET-09",
-   "DET-75",
-   "DET-76abcd",
-   "DET-81",
-   "DET-23abd",
-   "DET-64"
-  ]
+  "cdp": {
+   "count": 6,
+   "ids": [
+    "DET-09",
+    "DET-75",
+    "DET-76abcd",
+    "DET-81",
+    "DET-23abd",
+    "DET-64"
+   ]
+  },
+  "synthetic": {
+   "count": 0,
+   "ids": []
+  }
  },
- "behavioral_as_of": "2026-10-18",
+ "behavioral_as_of": "2026-10-26",
  "behavioral_status": {
   "fetched_at": "2026-10-18T12:36:57+00:00",
   "notes": {
@@ -21,13 +27,13 @@
   "snapshot_stamp": "20261018T123628Z"
  },
  "branch": "master",
- "log_rows": 37,
+ "log_rows": 41,
  "repo_url": "https://github.com/amohazab/stablecoin_dashboard",
  "tokens": {
   "GHO": {
    "behavioral": {
-    "age_days": 0,
-    "as_of": "2026-10-18",
+    "age_days": 8,
+    "as_of": "2026-10-26",
     "block_sha256": "baa8b563884d3349bafd9aaf3c1c8c444e1ae0484b3bf84cfec88bfd6aa9e25f",
     "captions": [
      "7-day max |deviation|: 23.1 bp",
@@ -69,6 +75,7 @@
     "supply_shown": true,
     "unknown_notes": []
    },
+   "counts": "90 evaluated",
    "figures": "Supply $699.0M · Bad debt, headline scenario $7.3M · Exit liquidity, headline scenario $23.0M",
    "finding": "The token's backing is split between assets checked directly on-chain, wrapped assets checked one layer down, and disclosures; 33.0% of the backing is held in assets whose value can be checked directly on-chain, 38.5% in wrapped assets whose value can be checked on-chain one layer down, and 28.5% through an issuer's or custodian's published disclosures.",
    "outcome": "published",
@@ -110,8 +117,8 @@
   },
   "LUSD": {
    "behavioral": {
-    "age_days": 0,
-    "as_of": "2026-10-18",
+    "age_days": 8,
+    "as_of": "2026-10-26",
     "block_sha256": "db4c2f6988d11197220f70fc55399676e7c17214e54e5e29cb756822ef837212",
     "captions": [
      "7-day max |deviation|: 103.4 bp",
@@ -151,6 +158,7 @@
     "supply_shown": true,
     "unknown_notes": []
    },
+   "counts": "90 evaluated",
    "figures": "Supply $26.2M · Bad debt, headline scenario $0, structurally zero · Exit liquidity, headline scenario $8.3M",
    "finding": "The structural-zero flag is set because no trove reaches the minimum collateral ratio on the ruled grid; the first liquidation occurs at an ETH shock of -82.55% (minimum ICR 6.3044 -> 1.1), recovery mode activates at -79.66% (TCR 7.3744 -> 1.5), and TCR falls below MCR at -85.08%, while Liquity v1 is wound down to 70 troves.",
    "outcome": "published",
@@ -190,10 +198,95 @@
    },
    "run_block": 26107477
   },
-  "crvUSD": {
+  "USDe": {
    "behavioral": {
     "age_days": 0,
-    "as_of": "2026-10-18",
+    "as_of": "2026-10-26",
+    "block_sha256": "9139cd20b2d0fb33f2147f8259aa7d637885998167eb4ffb66fd97dc5e46cfb3",
+    "captions": [
+     "7-day max |deviation|: 9.5 bp",
+     "Share of liquidity among the 10 Ethereum pools Webacy lists, $25.7M",
+     "Net supply change, per Webacy",
+     "Share of supply held, 47,757 holders"
+    ],
+    "daggers": 0,
+    "depeg_stale": false,
+    "donut_caption": "Share of liquidity among the 10 Ethereum pools Webacy lists, $25.7M",
+    "donut_excluded": 0,
+    "donut_slices": 6,
+    "fetched": "2026-10-26 07:48",
+    "fetched_at": "2026-10-26T07:48:56+00:00",
+    "hci_found": true,
+    "hci_page": 1,
+    "hci_stale": false,
+    "holder_bar": true,
+    "holder_caption": "Share of supply held, 47,757 holders",
+    "holder_segments": [
+     "4.8%",
+     "0.2%",
+     "95.0%"
+    ],
+    "liquidity_exceeds_supply": false,
+    "liquidity_shown": true,
+    "markets": 10,
+    "max_abs_bp": "9.5",
+    "notes": [],
+    "notes_line": [],
+    "snapshot": "out/behavioral/USDe/20261026T074848Z.json",
+    "snapshot_sha256": "df28a8132f0d5b297af6b8bdf6271e786ec87a44f30831c4805d61518f44e0ee",
+    "state": "rendered",
+    "suffixes": [],
+    "supply_bars": 3,
+    "supply_base": "$4.7B",
+    "supply_caption": "Net supply change, per Webacy",
+    "supply_not_shown": null,
+    "supply_shown": true,
+    "unknown_notes": []
+   },
+   "counts": "62 evaluated, 29 not applicable (archetype #2), 1 new",
+   "figures": "Supply $4.6B · Backing, as disclosed $4.6B · Exit liquidity, headline scenario $21.0M",
+   "finding": "This token's backing is held off-chain by its issuer and can only be checked through the issuer's disclosures, so all of it sits in the disclosure-dependent class.",
+   "outcome": "published",
+   "pill": "<span class=\"pill amber\">2 notice(s): mechanism near bound and a narrative section withheld (gate failure)</span>",
+   "report_hash": "321ca99aac237b8dd5a59d1cff879ae999fbd9caa23e1e423843968e3424132e",
+   "rewrites": {
+    "index.html": {
+     "after": "8f8b28f428de5940bb9c040a6486a605b080009d9c88e6a00bd4b26257a92931",
+     "before": "be32159bc753d672f74bc68dded0766f1237f2bf868f4b4d10b6f938d576db66",
+     "substitutions": [
+      {
+       "new": "href=\"https://github.com/amohazab/stablecoin_dashboard/blob/master/docs/context/archetype-memo-2-synthetic.md\"",
+       "old": "href=\"../../../docs/context/archetype-memo-2-synthetic.md\""
+      },
+      {
+       "new": "href=\"https://github.com/amohazab/stablecoin_dashboard/blob/master/docs/context/intake-sheet-usde.md\"",
+       "old": "href=\"../../../docs/context/intake-sheet-usde.md\""
+      },
+      {
+       "new": "<a href=\"../index.html\">all tokens</a><a href=\"index.html\">report</a><a href=\"appendix.html\">appendix</a><a href=\"verify.html\">verify</a>",
+       "old": "<a href=\"index.html\">report</a><a href=\"appendix.html\">appendix</a><a href=\"verify.html\">verify</a>"
+      },
+      {
+       "new": "The behavioral tier — how the token trades: peg deviation, liquidity, holder concentration and supply flows — is shown under \"How it trades\", from Webacy's data fetched at a timestamp rather than read at this report's block.",
+       "old": "The behavioral tier — how the token trades: peg deviation, liquidity, holder concentration and flows — will come from an external monitoring service and is pending."
+      },
+      {
+       "new": "<h2 class=\"specialists\">Detail for specialists</h2>\n",
+       "old": "<h2 class=\"specialists\">Detail for specialists</h2>\n<p class=\"meta\">behavioral tier: pending</p>\n"
+      },
+      {
+       "new": "<behavioral block, sha256 9139cd20b2d0fb33f2147f8259aa7d637885998167eb4ffb66fd97dc5e46cfb3><section id=\"check\">",
+       "old": "<section id=\"check\">"
+      }
+     ]
+    }
+   },
+   "run_block": 26275087
+  },
+  "crvUSD": {
+   "behavioral": {
+    "age_days": 8,
+    "as_of": "2026-10-26",
     "block_sha256": "ff2795e3bd229188689f2615024d562b9f8087f65e7796741e3d96478ac0c6b9",
     "captions": [
      "7-day max |deviation|: 33.8 bp",
@@ -229,6 +322,7 @@
     "supply_shown": true,
     "unknown_notes": []
    },
+   "counts": "90 evaluated",
    "figures": "Supply $2.1B · Bad debt, headline scenario $6, structurally zero · Exit liquidity, headline scenario $25.7M",
    "finding": "No written summary this run.",
    "outcome": "published",

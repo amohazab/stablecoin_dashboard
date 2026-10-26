@@ -25,7 +25,20 @@ def split(path: str) -> list[str]:
     return path.split("/")
 
 
+DIFFERENCE = "difference:"
+MINIMUM = "min:"
+
+
 def resolve(sources: dict[str, Any], path: str) -> Any:
+    """NAMED IMPLEMENTER DEFAULT (P-10.10, ruling K): `difference:<a>|<b>` is the signed
+    value a - b of two owned figures, each resolved here, so DET-84 replays it from the
+    same two owners; the only computed row form the table has."""
+    if path.startswith(DIFFERENCE):
+        a, b = path[len(DIFFERENCE):].split("|")
+        return str(Decimal(str(resolve(sources, a))) - Decimal(str(resolve(sources, b))))
+    if path.startswith(MINIMUM):          # P-10.10 NAMED DEFAULT: the lesser of two owned figures
+        a, b = path[len(MINIMUM):].split("|")
+        return str(min(Decimal(str(resolve(sources, a))), Decimal(str(resolve(sources, b)))))
     parts = split(path)
     if parts[0] not in sources:
         raise PathError(f"{path}: unknown artifact {parts[0]!r}")

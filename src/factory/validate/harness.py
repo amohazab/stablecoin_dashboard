@@ -176,9 +176,11 @@ def det90_figures(b: Bundle, ctx) -> dict:
     disclosed = Decimal(eth.get("Liquid Stables", "0"))
     backing = Decimal(r["FR-U21"].value["backing_usd"])
     gap = abs(onchain - disclosed)
+    nr = {k: Decimal(eth.get(k, "0")) for k in ("DeFi Lending", "RWA")}
     return {"buffer_onchain": onchain, "disclosure_onchain": disclosed, "gap": gap,
-            "backing": backing, "gap_share": gap / backing,
-            "not_reconciled": {k: Decimal(eth.get(k, "0")) for k in ("DeFi Lending", "RWA")},
+            "backing": backing, "gap_share": gap / backing, "not_reconciled": nr,
+            "buffer_share": onchain / backing,                         # P-10.10 r7
+            "not_reconciled_total": sum(nr.values(), Decimal(0)),       # A-50's total
             "fires": gap > DET90_THRESHOLD * backing}
 
 
@@ -356,17 +358,24 @@ A37_BACKING_RATIO_MIN = Decimal("1.01")
 A37_RESERVE_FUND_MIN = Decimal("0.005")
 
 
+def det61_figures(b: Bundle) -> dict:
+    """A-37's two archetype-#2 instances against `supply_ruled`, both from the status read
+    (FR-U21, Q3). P-10.10 NAMED IMPLEMENTER DEFAULT: the page's DET-61 row replays these
+    figures (`gate/DET-61/...`), so T-07's explanation cites what fired it."""
+    st = b.synthetic.reads["FR-U21"].value
+    supply = Decimal(b.supply.supply_ruled) / Decimal(10) ** 18
+    br = Decimal(st["backing_usd"]) / supply
+    rr = Decimal(st["reserve_fund_usd"]) / supply
+    return {"backing_ratio": br, "backing_ratio_bound": A37_BACKING_RATIO_MIN,
+            "reserve_fund_ratio": rr, "reserve_fund_ratio_bound": A37_RESERVE_FUND_MIN,
+            "fires": br < A37_BACKING_RATIO_MIN or rr < A37_RESERVE_FUND_MIN}
+
+
 def det_61(b: Bundle, ctx) -> tuple[str, int] | None:
     """Mechanism near bound -> T-07 at the sheet threshold (default 0.80)."""
     if b.synthetic is not None:                                       # A-37 (P-10.09)
-        # `backing_ratio` and `reserve_fund` against `supply_ruled`, both from the
-        # status read (FR-U21, Q3); `near_bound_threshold` does not apply to them.
-        st = b.synthetic.reads["FR-U21"].value
-        supply = Decimal(b.supply.supply_ruled) / Decimal(10) ** 18
-        if (Decimal(st["backing_usd"]) / supply < A37_BACKING_RATIO_MIN
-                or Decimal(st["reserve_fund_usd"]) / supply < A37_RESERVE_FUND_MIN):
-            return ("T-07", 1)
-        return None
+        # `near_bound_threshold` does not apply to archetype #2's two instances
+        return ("T-07", 1) if det61_figures(b)["fires"] else None
     thr = Decimal(str(ctx["sheet"].get("near_bound_threshold", 0.80)))
     for op in b.stabilizer.operations:
         if op.utilization is not None and op.utilization >= thr:
@@ -2514,6 +2523,10 @@ def det_84(b: Bundle, t: VerifiabilityTree, r: StressReport, page: dict) -> str:
                                      "bundle_hash": b.header.bundle_hash}},
                "tree": _json.loads(serialise_tree(t)), "stress": _json.loads(serialise_stress(r)),
                "mirror": page["mirror"], "wording": page.get("wording", {})}
+    if b.synthetic is not None:          # P-10.10: DET-90's figures, replayed by their owner
+        sources["gate"] = _json.loads(_json.dumps(
+            {"DET-90": det90_figures(b, {"label_rows": page["label_rows"]}),
+             "DET-61": det61_figures(b)}, default=str))
     ids = [row["field_id"] for row in doc["rows"]]
     if len(set(ids)) != len(ids):
         raise Level3("DET-84: duplicate field_id")
@@ -2769,8 +2782,14 @@ def _det_18_pair(b: Bundle, t: VerifiabilityTree, r: StressReport, page: dict) -
     truncated share > 0. Read in one element."""
     s = _s3(page)
     st = t.staleness
-    D = {n.address for n in t.nodes if n.label == "recurses"}
-    rows_d = {f.split(".")[2] for f in s["rows"] if re.match(r"verif\.staleness\.0x", f)}
+    if t.synthetic is not None:          # P-10.10: category nodes, keyed by slug (A-44)
+        from factory.report.synthetic_table import slug
+        D = {slug(n.category) for n in t.nodes if n.label == "recurses"}
+        rows_d = {f.split(".")[2] for f in s["rows"]
+                  if re.match(r"verif\.staleness\.[a-z0-9_]+\.last_disclosure_date$", f)}
+    else:
+        D = {n.address for n in t.nodes if n.label == "recurses"}
+        rows_d = {f.split(".")[2] for f in s["rows"] if re.match(r"verif\.staleness\.0x", f)}
     if rows_d != D:
         raise Level3(f"DET-18: staleness rows {sorted(rows_d ^ D)} differ from D")
     idx_txt = s["text"]["index"]
@@ -2904,15 +2923,20 @@ def det_53(b: Bundle, t: VerifiabilityTree, r: StressReport, page: dict) -> str:
     if not bias:
         raise Level3("DET-53: no bias rows")
     got = []
+    synthetic = t.synthetic is not None          # A-32 (P-10.10): `n/a` + reason, no ★ rows
+    enum = ("overstates", "understates", "both", *(("n/a",) if synthetic else ()))
     for i in bias:
         mech = s["rows"][f"bias.{i}.mechanism"]["value"]
         d = s["rows"][f"bias.{i}.direction"]["value"]
-        if d not in ("overstates", "understates", "both"):
+        if d not in enum:
             raise Level3(f"DET-53: direction {d!r} outside the enum")
+        why = s["rows"][f"bias.{i}.reason"]["value"]
+        if d == "n/a" and not (why and any(mech in e and why in e for e in els)):
+            raise Level3(f"DET-53: n/a row {mech!r} printed without its reason")
         if not any(mech in e and d in e for e in els):
             raise Level3(f"DET-53: row {mech!r} not rendered with its direction")
         got.append((mech.lower(), d))
-    for lit, d in BIAS_LITERALS:
+    for lit, d in () if synthetic else BIAS_LITERALS:
         if not any(lit in m and dd == d for m, dd in got):
             raise Level3(f"DET-53: mandatory row {lit!r} -> {d} absent")
     cap = [x for c in r.cells for x in c.lineage if "capacity" in x]
@@ -2929,6 +2953,11 @@ def det_54(b: Bundle, t: VerifiabilityTree, r: StressReport, page: dict) -> str:
     s = _s3(page)
     txt = _report_text(page)
     rows = s["rows"]
+    if t.synthetic is not None:                                       # A-46 (P-10.10)
+        for lit in (A46_ATTESTED, "instant observation at par"):
+            if lit not in txt:
+                raise Level3(f"DET-54: archetype-#2 literal not printed: {lit!r}")
+        return "attested value; buffer label rows at par"
     if page["table"]["token"] == "crvUSD":
         lit = ("instant observation — knowingly optimistic: LLAMMA prices off an EMA oracle; "
                "see counterfactual line EMA_lag")
@@ -2967,6 +2996,11 @@ def det_56(b: Bundle, t: VerifiabilityTree, r: StressReport, page: dict) -> str:
     """Failure-mode scope-out sentences, S3."""
     s = _s3(page)
     txt = _report_text(page)
+    if t.synthetic is not None:                                       # A-49 (P-10.10)
+        missing = [x for x in A49_SENTENCES if x not in txt]
+        if missing:
+            raise Level3(f"DET-56: not printed: {missing}")
+        return "archetype-#2 scope-out sentences printed"
     need = ["oracle manipulation out of scope — feed control reported under the "
             "admin-power surface", "sequencer/infra risk n/a — mainnet only"]
     lusd = page["table"]["token"] == "LUSD"
@@ -2983,6 +3017,14 @@ def det_56(b: Bundle, t: VerifiabilityTree, r: StressReport, page: dict) -> str:
     return "scope-out sentences printed"
 
 
+# A-46 / A-49 (P-10.04): archetype #2's printed literals, verbatim
+A46_ATTESTED = ("attested value — disclosure-category nodes are held at their attested value "
+                "until the next disclosure; their age is printed (memo #2 §7)")
+A49_SENTENCES = ("oracle manipulation out of scope — no oracle prices backing; attested values "
+                 "(memo #2 §7)", "sUSDe yield out of scope (Q7)",
+                 "other-chain positions disclosed, not read (D17)",
+                 "sequencer/infra risk n/a — mainnet only")
+
 DET57_REQUIRED = ("stock_only", "observation", "lp_sticky", "lp_grid", "sell_side_bound",
                   "par_numeraire", "shock_grid_fixed", "member2_target", "freeze_reference")
 
@@ -2995,6 +3037,20 @@ def det_57(b: Bundle, t: VerifiabilityTree, r: StressReport, page: dict) -> str:
     s = _s3(page)
     doc = page["table"]
     token = doc["token"]
+    if t.synthetic is not None:                                       # A-36 (P-10.10)
+        from factory.report.assumptions import REQUIRED_SYNTHETIC
+        got = {a["id"]: a for a in doc["assumptions"]}
+        missing = [x for x in REQUIRED_SYNTHETIC if x not in got]
+        empty = [x for x in REQUIRED_SYNTHETIC if x in got
+                 and not (got[x]["data_ref"] or got[x]["rule_ref"])]
+        unprinted = [x for x in REQUIRED_SYNTHETIC if x not in s["el"]["index"]
+                     and x not in s["text"]["index"]]
+        if missing or empty or unprinted:
+            raise Level3(f"DET-57: absent {missing}, no ref {empty}, not printed {unprinted}")
+        if "paired assets counted at 1.00 for depth" not in _report_text(page):
+            raise Level3('DET-57: par_numeraire literal "paired assets counted at 1.00 for '
+                         'depth" not printed')
+        return f"{len(REQUIRED_SYNTHETIC)} required IDs (A-36)"
     want = list(DET57_REQUIRED)
     if token == "GHO":
         want += ["h5_slippage_bound", "gsm_fee_exit"]
@@ -3055,6 +3111,17 @@ def det_73(b: Bundle, t: VerifiabilityTree, r: StressReport, page: dict) -> str:
     if lin:
         raise Level3(f"DET-73: audit_* in lineage {lin[:3]}")
     cp = rows["audit.counterparties"]["value"]
+    if t.synthetic is not None:                                       # A-30 (P-10.10)
+        sheet = page["mirror"].get("counterparties")
+        if not cp or cp != sheet:
+            raise Level3("DET-73: archetype-#2 counterparty enumeration absent or not "
+                         "verbatim from the sheet")
+        from factory.report.render import provenance_form
+        shown = provenance_form(cp, page["wording"])       # ruling 1 (P-10.10): no marker
+        if " ".join(shown.split()) not in " ".join(_report_text(page).split()):
+            raise Level3("DET-73: counterparty enumeration not printed in the analyst-supplied "
+                         "provenance form")
+        return f"{len(firms)} audits; bounty; lmc {lmc}; staleness_date {sd}; enumeration"
     if not (cp.startswith(COUNTERPARTY_LITERAL) and "WBTC" in cp):
         raise Level3("DET-73: counterparties literal or WBTC note absent from the sheet row")
     if cp not in _report_text(page):
@@ -3584,9 +3651,12 @@ def det_80(b: Bundle, t: VerifiabilityTree, r: StressReport, page: dict) -> str:
     non-empty `prose-slot` block on the index, and no slot paragraph appears outside its
     block (no LLM text inside a template-rendered element). NAMED DEFAULT: a paragraph
     of 40+ characters counts; its first 60 characters are searched."""
+    from factory.mirror import archetype
+    from factory.report.llm import declared_slots
     html = page["html"]["index"]
     blocks = dict(PROSE_BLOCK.findall(html))
-    want = [x["id"] for x in page["manifest"]["prose_slots"]]
+    tok = b.header.token if b is not None else (page.get("table") or {}).get("token", "")
+    want = declared_slots(page["manifest"], archetype(tok))                       # A-31
     empty = [x for x in want if not _page_text(blocks.get(x, "")).strip()]
     if empty:
         raise Level3(f"DET-80: slot(s) absent or empty {empty}")

@@ -37,7 +37,8 @@ patterns = ['\[[A-Z][A-Z -]+:', 'block N\b', '\bN%', 'P-\d+\.\d+']
 # artifact literals and the verify sheet are verbatim (R11, R19).
 index_only = ['P-\d+\.\d+', '}}']
 
-# DET-80's seven prose slots.
+# DET-80's prose slots, per archetype (A-31, Q46): a slot without `archetype` is
+# archetype #1's (default `cdp`); archetype #2 declares its six (Q31).
 [[prose_slots]]
 id = "verifiability_narrative"
 [[prose_slots]]
@@ -52,3 +53,22 @@ id = "counterfactual_explanations"
 id = "admin_surface_narrative"
 [[prose_slots]]
 id = "structural_summary"
+
+[[prose_slots]]
+id = "structural_summary"
+archetype = "synthetic"
+[[prose_slots]]
+id = "verifiability_narrative"
+archetype = "synthetic"
+[[prose_slots]]
+id = "stress_opening"
+archetype = "synthetic"
+[[prose_slots]]
+id = "flag_explanations"
+archetype = "synthetic"
+[[prose_slots]]
+id = "admin_surface_narrative"
+archetype = "synthetic"
+[[prose_slots]]
+id = "counterfactual_explanations"
+archetype = "synthetic"

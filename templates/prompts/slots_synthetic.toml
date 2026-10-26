@@ -1,0 +1,97 @@
+# P-10.10 (A-31, Q31): archetype #2's six prose slots - the rows each receives, by
+# flat-table field_id prefix, plus the assumptions block; never the bundle, tree or
+# stress JSON. Same keys as slots.toml (page_section, paragraphs, prefixes, obligations).
+max_entities_per_group = 8
+# P-10.10: the wording tables every archetype-#2 slot input reads in place of archetype #1's
+# (the admin rows' power names come from [synthetic.powers], as the page prints them)
+wording_overlay = "synthetic"
+
+[slot.structural_summary]
+paragraphs = [1, 2]
+page_section = "finding"
+prefixes = ["header.archetype", "supply.supply_ruled", "supply.class.", "tree.root.backing_value", "tree.root.status_backing", "verif.bar.", "verif.reserve_fund.", "stress.headline.", "cell.S1-n90.post_loss_ratio", "cell.S2-a.post_loss_ratio", "cell.S2-b.post_loss_ratio", "cell.S3.depeg_pressure_ratio", "exit.offvenue.x"]
+obligations = """- The first paragraph states the single structural fact a reader must know: this token's backing is held off-chain by its issuer and can only be checked through the issuer's disclosures, so all of it sits in the disclosure-dependent class; present this as the design's finding, not as missing backing.
+- Never write "unbacked", "not backed" or "untraced"; the classes describe how backing can be checked, not whether it exists.
+- Then summarise what the three stress rows show, citing each row's headline cell.
+- State no conclusion the rows do not support; no grades, scores or verdicts.
+- One to two paragraphs."""
+
+[slot.verifiability_narrative]
+exact_strings = true             # P-10.10 r4: each value is the page's printed string
+paragraphs = [2, 3]
+page_section = "backing"
+prefixes = ["verif.bar.", "verif.truncated", "verif.staleness.", "verif.t29.", "verif.banner", "verif.reserve_fund.", "tree.node.", "tree.root.backing_value", "tree.root.status_backing", "recon.buffer_onchain", "recon.disclosure_onchain", "recon.gap_share", "recon.not_reconciled_total"]
+obligations = """- Explain that the backing is six disclosure categories held at attested value, name the largest categories with their shares, and say which categories stop at a truncation and why.
+- Say how old the disclosures are, naming the oldest, and what that means for checking the backing.
+- Explain the reserve fund: outside backing, never credited, the first absorber of losses.
+- Explain the on-chain buffer reconciliation: the two sums compared, the gap as a share of backing, and the receipt-token total, which is disclosed, not reconciled.
+- Explain the governance banner row: which rules can change, by whom, with what delay, and that custody sits with custodians under the issuer's discretion.
+- Cite every figure and date exactly as its row's value string: never round, re-format or shorten one (write "118.0 days", never "118 days"; write a date as given, never its year alone).
+- Cite only the figures in `cite_only`, each with exactly that value string, and list in `references_field_ids` the `field_id` given beside each figure you cite; no other field id.
+- Write exactly two or three paragraphs (`paragraph_bound`), separated by a single blank line; never four."""
+
+[slot.stress_opening]
+# P-10.10: one call per stress row; each part carries only that row's own inputs and
+# memo #2 §6's mechanism sentence for it (`part.mechanism`), joined in row order
+cap = false
+split = "stress_row"
+paragraphs = [3, 3]
+page_section = "break"
+prefixes = []
+obligations = """- Write one paragraph for the stress row named in `part`.
+- Open with why this shock fits this token's design, in the terms of `part.mechanism`, before stating any result.
+- Then give the row's full line from the rows only: for rows one and two the loss, what the reserve fund absorbed and the post-loss ratio; for row three the redemptions, the redemption capacity, the exit liquidity and the depeg-pressure ratio.
+- State nothing the rows do not show.
+- One paragraph."""
+
+[[slot.stress_opening.rows]]
+name = "Row 1 funding reversal"
+mechanism = "The hedge earns funding; a sustained negative rate is the loss that fits a basis book."
+prefixes = ["cell.S1-n90.N", "cell.S1-n90.loss", "cell.S1-n90.rf_absorbed", "cell.S1-n90.post_loss_ratio"]
+
+[[slot.stress_opening.rows]]
+name = "Row 2 venue loss"
+mechanism = "Backing sits at named custodians and venues; losing one is the failure custody concentration implies."
+prefixes = ["cell.S2-a.location", "cell.S2-a.loss", "cell.S2-a.rf_absorbed", "cell.S2-a.post_loss_ratio", "cell.S2-b.exchange", "cell.S2-b.loss", "cell.S2-b.rf_absorbed", "cell.S2-b.post_loss_ratio"]
+
+[[slot.stress_opening.rows]]
+name = "Row 3 redemptions"
+mechanism = "Redemption is whitelisted and rate-capped; a run tests the liquid buffer and the exit pools together."
+prefixes = ["cell.S3.X", "cell.S3.capacity_redeem", "cell.S3.exit_depth_2pct", "cell.S3.depeg_pressure_ratio"]
+
+[slot.flag_explanations]
+split = "flag"
+paragraphs = "per_flag"
+page_section = "oracle"
+prefixes = []
+owners_from_flags = true
+obligations = """- For every entry in `open_level1_flags`, explain what fired (using its literal), what the underlying rows show, and what a reader should take from it. Mention each entry id once.
+- `part.rule` is the archetype memo's sentence for the notice; a bound in it is a floor: the notice fires when the figure is below it.
+- Where `part.comparisons` is given, state each comparison exactly as written there; never compare figures yourself.
+- If there are no open flags, write one short paragraph saying no notices are open for this token this run.
+- One short paragraph per open flag."""
+
+[slot.admin_surface_narrative]
+cap = false
+paragraphs = [2, 3]
+page_section = "rules"
+prefixes = ["admin."]
+obligations = """- Explain who holds each power that can change minting, redemption limits, supported assets, custodians or staking parameters, how quickly a change takes effect, and whether anyone can veto it, from the rows.
+- Where several powers share a holder and a delay, state that delay once for the group.
+- Where a power is held through a role, say how many holders the role has.
+- Never claim that no one can alter backing if any row shows a holder of minting, parameter or seizure powers.
+- Two to three paragraphs."""
+
+[slot.counterfactual_explanations]
+cap = false
+paragraphs = [2, 2]
+page_section = "break"
+prefixes = ["cell.S1-n90.cf.", "cell.S1-n90.loss", "cell.S3.cf.", "cell.S3.X", "cell.S3.branch", "cell.S3.depeg_pressure_ratio", "cell.S3.cooldown_s"]
+obligations = """- Write one paragraph per counterfactual line: first the basis unwind on the first day of the funding reversal, then the other branch of the redemption scenario.
+- For the redemption line, state `branch_note` as written: which branch the run took and why, and that the counterfactual is the other case.
+- For each, explain what the line changes and what it does to the row's result, from the rows; where a line carries no computed value, say so and say why.
+- Two paragraphs."""
+
+# P-10.10: the memo's own sentence per trigger, given to that flag's part as `part.rule`
+[slot.flag_explanations.rules]
+T-07 = "Near bound — backing ratio < 101% or reserve fund < 0.5% of supply — Level 1 (memo #2 §8(d))."

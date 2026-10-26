@@ -56,10 +56,14 @@ from factory import behavioral, eventlog
 from factory.report.render import Formatter, environment, structural_zero
 from factory.rubric import read_trigger_table
 
-TOKEN_ORDER = ("crvUSD", "GHO", "LUSD")
+TOKEN_ORDER = ("crvUSD", "GHO", "LUSD", "USDe")
 PAGE_SET = ("index.html", "appendix.html", "verify.html", "data")
 CARD_ROWS = (("supply_card", "supply.supply_ruled"), ("bad_debt_card", "headline.m2.bad_debt"),
              ("exit_card", "headline.m3.exit_depth"))
+# P-10.10: archetype #2's three stat cards (index_synthetic.html.j2's `card-value` titles)
+CARD_ROWS_SYNTHETIC = (("supply_card", "supply.supply_ruled"),
+                       ("backing_card", "tree.root.status_backing"),
+                       ("exit_card", "exit.curve.s0.02.total"))
 SLOT = re.compile(r'<div class="prose-slot" data-slot="structural_summary">(.*?)</div>', re.S)
 PILLS = re.compile(r'<div class="pills">\n?(.*?)\n?</div>', re.S)
 PILL = re.compile(r'<span class="pill [a-z]+">[^<]*</span>')
@@ -91,12 +95,14 @@ def first_sentence(text: str) -> str:
     return head + "." if sep else para
 
 
-def rewrites(w: dict) -> list[tuple[str, str]]:
+def rewrites(w: dict, arch: str = "cdp") -> list[tuple[str, str]]:
     """D4: (old, new) pairs - the memo/sheet hrefs to the repository on its branch, and
-    the header nav gaining the selector link, both exactly as the fixed templates render."""
+    the header nav gaining the selector link, both exactly as the fixed templates render.
+    P-10.10: an archetype-#2 page links memo #2 and its own sheet."""
     blob = f'{w["repo"]["url"]}/blob/{w["repo"]["branch"]}'
-    pairs = [(f'href="../../../{w["memo"][k]}"', f'href="{blob}/{w["memo"][k]}"')
-             for k in ("section", "sheet")]
+    docs = ([w["synthetic"]["memo"], w["synthetic"]["sheet"]] if arch == "synthetic"
+            else [w["memo"][k] for k in ("section", "sheet")])
+    pairs = [(f'href="../../../{d}"', f'href="{blob}/{d}"') for d in docs]
     pairs.append((HEADER_NAV, f'<a href="../index.html">{w["nav"]["all_tokens"]}</a>' + HEADER_NAV))
     return pairs
 
@@ -224,9 +230,13 @@ def token_card(repo: pathlib.Path, token: str, w: dict, mf: dict, pairs, as_of: 
         finding = first_sentence(top["text"])
 
     # D5's addition: the three stat-card figures, compact, from the cards' own rows
+    from factory.mirror import archetype
+    arch = archetype(token)
+    if arch == "synthetic":
+        pairs = rewrites(w, arch)
     sz_flag, _ = structural_zero(rows)
     figures = []
-    for key, fid in CARD_ROWS:
+    for key, fid in CARD_ROWS_SYNTHETIC if arch == "synthetic" else CARD_ROWS:
         r = rows[fid]
         text = fmt(r["value"], r["unit"], r["denominator"], compact=True)
         card = re.search(rf'<div class="card-value" title="{re.escape(fid)}">([^<]*)</div>', page)
@@ -278,7 +288,8 @@ def token_card(repo: pathlib.Path, token: str, w: dict, mf: dict, pairs, as_of: 
         eventlog.read(repo / "out/logs" / f"events_{token.lower()}.jsonl"), token)
     last_ok = w["banner"]["last"].format(date=last.date if last else w["banner"]["none"])
     return {
-        "last_ok": last_ok,
+        "last_ok": last_ok, "archetype": w["site"]["archetype"][arch],
+        "counts": counts_line(token, rec), "not_applicable": rec.get("not_applicable", []),
         "token": token, "run_block": blk, "report_hash": man["report_hash"],
         "read": fmt(ts["value"], ts["unit"], ts["denominator"]),
         "finding": finding, "figures": " · ".join(figures),
@@ -337,6 +348,21 @@ def checks_line(results: list[dict]) -> str:
             + (f", {skipped} not evaluated (judge withdrawn)" if skipped else ""))
 
 
+def counts_line(token: str, rec: dict) -> str:
+    """A-33 / Q32: "n evaluated, k not applicable (archetype #2), m new" - n over the
+    record's evaluated results, k its `not_applicable[]`, m the evaluated rows registered
+    for archetype #2 alone (DET-90)."""
+    from factory.mirror import archetype
+    from factory.validate.harness import CHECKS
+    done = [x for x in rec["results"] if x["result"] != "not_evaluated"]
+    if archetype(token) != "synthetic":                  # P-10.10: k and m omitted on #1
+        return f"{len(done)} evaluated"
+    only = {c.entry_id for c in CHECKS if c.archetypes == frozenset({"synthetic"})}
+    k = len(rec.get("not_applicable") or [])
+    m = sum(1 for x in done if x["entry_id"] in only)
+    return f"{len(done)} evaluated, {k} not applicable (archetype #2), {m} new"
+
+
 def notices_sentence(cards: list[dict]) -> str:
     """The open-notices sentence from the records' outcomes (§3.3), never a token list;
     the ruling id is the committed record's `publication.ruling`."""
@@ -388,9 +414,11 @@ def plan(repo: pathlib.Path, as_of: dt.date | None = None) -> dict[str, bytes]:
     # D2; E4 (P-10.04): the unregistered lists agree within an archetype - since
     # ruling 2(a) a record lists only its own archetype's queue items.
     from factory.mirror import archetype
-    unreg = [c["unregistered"] for c in cards]  # unreg[0]: the methodology's A-16 line (commit 7)
+    a16 = {}                         # P-10.10: the A-16 line reads the per-archetype lists
     for arch in sorted({archetype(c["token"]) for c in cards}):
         same = [c for c in cards if archetype(c["token"]) == arch]
+        a16[arch] = {"name": w["site"]["archetype"][arch], "ids": same[0]["unregistered"],
+                     "count": len(same[0]["unregistered"])}
         if any(c["unregistered"] != same[0]["unregistered"] for c in same):
             raise SiteStop("gate records disagree on unregistered: "
                            + "; ".join(f"{c['token']} {[x['entry_id'] for x in c['unregistered']]}"
@@ -400,7 +428,7 @@ def plan(repo: pathlib.Path, as_of: dt.date | None = None) -> dict[str, bytes]:
     repo_url = w["repo"]["url"]
     blob = f"{repo_url}/blob/{w['repo']['branch']}"
     outcomes = [{**{k: c[k] for k in ("token", "run_block", "report_hash", "outcome",
-                                      "passed", "total", "checks")},
+                                      "passed", "total", "checks", "counts", "archetype")},
                  "open": opened[c["token"]],
                  "record_url": f"{blob}/out/evaluation/{c['token']}/{c['run_block']}.json"}
                 for c in cards]
@@ -412,7 +440,7 @@ def plan(repo: pathlib.Path, as_of: dt.date | None = None) -> dict[str, bytes]:
     index = env.get_template("site/index.html.j2").render(**ctx, cards=cards)
     method = env.get_template("site/methodology.html.j2").render(
         **ctx, log_rows=rows, n_log=len(rows), outcomes=outcomes,
-        a16={"count": len(unreg[0]), "ids": unreg[0]}, notices_sentence=notices_sentence(cards))
+        a16=a16, notices_sentence=notices_sentence(cards))
 
     rendered = method.count('<tr class="log-row">')                            # D1
     if rendered != n_lines:
@@ -427,9 +455,11 @@ def plan(repo: pathlib.Path, as_of: dt.date | None = None) -> dict[str, bytes]:
         "repo_url": repo_url, "branch": w["repo"]["branch"], "log_rows": len(rows),
         "behavioral_as_of": as_of.isoformat(),
         "behavioral_status": behavioral.read_status(repo),
-        "a16": {"count": len(unreg[0]), "ids": [x["entry_id"] for x in unreg[0]]},
+        "a16": {a: {"count": x["count"], "ids": [u["entry_id"] for u in x["ids"]]}
+                for a, x in a16.items()},
         "tokens": {c["token"]: {"run_block": c["run_block"], "report_hash": c["report_hash"],
                                 "outcome": c["outcome"], "pill": str(c["pill"]),
+                                "counts": c["counts"],
                                 "finding": c["finding"], "figures": c["figures"],
                                 "behavioral": c["behavioral"],
                                 "rewrites": {"index.html": c["rewrite"]}} for c in cards},
@@ -460,7 +490,8 @@ if __name__ == "__main__":
         print(f"SITE STOPPED: {exc}")
         sys.exit(1)
     _rec = json.loads(_out["site.json"])
-    print(f"site built | log rows {_rec['log_rows']} | A-16 {_rec['a16']['count']} | "
+    print(f"site built | log rows {_rec['log_rows']} | A-16 "
+          f"{ {a: x['count'] for a, x in _rec['a16'].items()} } | "
           + " · ".join(f"{t} {v['report_hash'][:8]} {v['rewrites']['index.html']['before'][:8]}"
                        f"->{v['rewrites']['index.html']['after'][:8]}"
                        for t, v in _rec["tokens"].items()))

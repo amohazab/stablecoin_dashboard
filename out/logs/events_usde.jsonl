@@ -1,3 +1,14 @@
 {"date":"2026-10-25","set_file_hash":null,"sheet_hash":"bf64d756","source":"P-10.02","token":"USDe","type":"intake_trigger"}
 {"date":"2026-10-25","set_file_hash":null,"sheet_hash":"a2e270cd","source":"P-10.07 — J3: the USDT and USDC reference-feed rows read the raw Chainlink USDT / USD and USDC / USD feeds in place of the GHO sheet's CAPO adapters","token":"USDe","type":"intake_trigger"}
 {"date":"2026-10-25","freeze_block":26272105,"set_file_hash":"d8df0853","set_file_path":"config/frozen_set_usde.json","source":"P-10.09 — USDe first freeze (J2), |F| = 1 at coverage 0.9567, M = 0.011793, no R-20 waiver","token":"USDe","type":"freeze"}
+{"date":"2026-10-26","level":1,"resolution_date":null,"resolution_type":null,"token":"USDe","trigger":"T-07","type":"quarantine"}
+{"bundle_hash":"f7814ee9f41a773f7dee8c18df23aaa9b2268d3269e3a399c9c597935086c674","date":"2026-10-26","token":"USDe","type":"published"}
+{"date":"2026-10-26","level":1,"resolution_date":null,"resolution_type":null,"token":"USDe","trigger":"T-28","type":"quarantine"}
+{"bundle_hash":"f7814ee9f41a773f7dee8c18df23aaa9b2268d3269e3a399c9c597935086c674","date":"2026-10-26","token":"USDe","type":"published"}
+{"bundle_hash":"f7814ee9f41a773f7dee8c18df23aaa9b2268d3269e3a399c9c597935086c674","date":"2026-10-26","token":"USDe","type":"published"}
+{"date":"2026-10-26","level":2,"resolution_date":null,"resolution_type":null,"token":"USDe","trigger":"T-23","type":"quarantine"}
+{"date":"2026-10-26","level":2,"resolution_date":"2026-10-26","resolution_type":"template_change","token":"USDe","trigger":"T-23","type":"quarantine"}
+{"bundle_hash":"f7814ee9f41a773f7dee8c18df23aaa9b2268d3269e3a399c9c597935086c674","date":"2026-10-26","token":"USDe","type":"published"}
+{"bundle_hash":"f7814ee9f41a773f7dee8c18df23aaa9b2268d3269e3a399c9c597935086c674","date":"2026-10-26","token":"USDe","type":"published"}
+{"bundle_hash":"f7814ee9f41a773f7dee8c18df23aaa9b2268d3269e3a399c9c597935086c674","date":"2026-10-26","token":"USDe","type":"published"}
+{"bundle_hash":"f7814ee9f41a773f7dee8c18df23aaa9b2268d3269e3a399c9c597935086c674","date":"2026-10-26","token":"USDe","type":"published"}

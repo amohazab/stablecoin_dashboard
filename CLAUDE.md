@@ -122,6 +122,7 @@ rounds to delivery failures, and each rule below closes one of them.
    reproduces them through his own RPC; old-Vyper contracts return a padded
    return buffer, so a raw JSON-RPC check decodes the first 32-byte word.
 9. **The suite runs last** (ruled 2026-10-05, P-8.11): the test suite runs after the last artifact change and before the commit, and the reported count is that run's.
+10. **The Builder terminates only processes it started, by PID** (ruled 2026-10-26, P-10.10).
 
 ## Where implementation stands
 

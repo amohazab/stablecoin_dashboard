@@ -9881,3 +9881,73 @@ Status: OPEN (opened 2026-10-25, P-10.01)
   `PROGRESS.md`.
 - **Follow-ups spawned:** commit 7 (the K print beside the headline lands with the
   archetype-#2 report rows).
+
+## P-10.10 — USDe report, site and methodology count
+
+- **Date:** 2026-10-26
+- **Type:** decision + implementation
+- **Confirmed by:** Amin
+- **Content:**
+  **RULINGS:**
+  - (1) A-30 gains the analyst-supplied provenance form; signed and applied as A-52, the
+    text as read back (rubric `3b67085e`); DET-79 unchanged.
+  - (2) Ruling K's difference is computed in the table, signed (named default).
+  - (3) No site change; the commit lands with USDe published.
+  - Behavioral (a): USDe's Webacy snapshot fetched in this commit.
+  - Count label per A-33: k and m omitted on archetype #1; a CDP record's
+    `not_applicable` reason is its own archetype.
+  - Slot inputs, not prose, are fixed; the stopping rule; CLAUDE.md rule 10 ("terminates
+    only processes it started, by PID").
+  **REPORT (archetype #2):** `report/synthetic_table.py`, 516 rows, all replay (DET-84):
+  - the six categories (0 / 0 / 100), label rows, reserve fund (not credited), four
+    supply classes;
+  - three stress rows with the reserve fund absorbed (`min:`), bias table, R2 beside R8;
+  - the admin table and A-51 banner; §14 in the provenance form; Σ categories `difference:`
+    −2,539,426.12; DET-55 rows; DET-90's gap.
+  `render_synthetic` and three `*_synthetic.html.j2`. S3 clauses: DET-18, 53, 54, 56, 57,
+  73, 80 (A-32/46/49/36/30/52/31).
+  **SLOTS:** `manifest.toml` `archetype`; six USDe slots (`slots_synthetic.toml`). Inputs:
+  - only the rows each slot describes; `wording_overlay` keeps archetype #1's names out;
+  - T-07's comparisons pre-evaluated (DET-61 row, named default);
+  - the guard reads bucket labels and ignores a leading "$"; `llm.py` joins
+    `TEMPLATE_CODE`.
+  **r7 PAGE FIXES** (template hash `8239795b`):
+  - T-28's pill and notice read "a narrative section withheld (gate failure)": the label
+    leads and the literal stays, as DET-12/DET-58 require (named default).
+  - The backing paragraph cites DET-90's `buffer_share` (named default) and the gap.
+  - The tree note wraps; every role holder is shown, counted (pausing 4 keys;
+    blacklisting 2 keys + a multisig); the six DET-55 rows render.
+  - The LP-flight note is gone; escrow in tokens; feed answers as decimals; "OKX"; "and
+    seize assets"; 100.04%; "quarterly (worst issuer: USDT)".
+  - FLAG: the stabilizer rows stay, because DET-22-S3 (evaluated as-is, Q47) requires
+    "protocol stabilizer debt".
+  **USDe PUBLISHED in the repo** at block 26275087: report `321ca99a`; 61 of 62 evaluated
+  pass (DET-80); trigger line T-07 (L1) and T-28 (L1); no open Level-2 entry.
+  - Withheld, judge withdrawn (`withheld[]` in the gate record): `verifiability_narrative`
+    by instruction; `counterfactual_explanations`, which failed the guard on paragraph
+    count; `admin_surface_narrative` on Amin's read (holders misattributed).
+  - Re-publication trace: seven `published` lines (r2–r4, r6, r7 three times; r5
+    blocked); T-28 open since r3.
+  - r5's `data_correction` resolution failed DET-87 and fired T-23 (L2); resolved at r6 as
+    `template_change`.
+  **SITE:**
+  - strapline "structural risk reports for stablecoins"; four cards, archetype shown;
+    behavioral rendered on all four;
+  - counts: crvUSD, GHO, LUSD "90 evaluated"; USDe "62 evaluated, 29 not applicable
+    (archetype #2), 1 new";
+  - the A-16 lists per archetype (cdp 6, synthetic 0); the archetype-#2 methodology
+    paragraph.
+  **CDP RE-RENDER** (`--from-record`, isolated copy): on every page only the report-hash
+  lines moved (index 2, appendix 1, verify 1); the manifests' `report_hash` and
+  `template_hash` change.
+  **AS-COUNTED:** P-10.10 round 1's `taskkill` ended every `python.exe` on the machine
+  (Builder); rule 10 records the correction. The judge being withdrawn left the slot
+  defects to Amin's reading.
+  **PROOFS:** A-52 applied equal to the read-back; suite in the repo **423 passed**.
+- **Artifacts:** `src/factory/report/{synthetic_table,render,assumptions,llm,paths,__main__}.py`
+  · `src/factory/{site,spotcheck,behavioral,validate/harness}.py` · `templates/…` ·
+  `docs/context/rubic_v1.md` (A-52) · `CLAUDE.md` · `out/{report,evaluation,site}/USDe` ·
+  `out/behavioral/USDe` · `out/logs/events_usde.jsonl` · `out/site/{index,methodology}.html`
+  · tests; `PROGRESS.md`.
+- **Follow-ups spawned:** judge: restore or replace (close); the DET-22 / stabilizer-rows
+  ruling.

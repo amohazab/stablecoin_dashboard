@@ -26,7 +26,8 @@ def tmp_repo(tmp_path: pathlib.Path) -> pathlib.Path:
                 "config", "docs/context", "templates"):
         if (REPO / sub).exists():
             shutil.copytree(REPO / sub, tmp_path / sub)
-    for code in ("src/factory/report/render.py", "src/factory/report/svg.py"):
+    for code in ("src/factory/report/render.py", "src/factory/report/svg.py",
+                 "src/factory/report/llm.py"):                      # P-10.10 r6
         (tmp_path / code).parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(REPO / code, tmp_path / code)
     return pin_to_recorded(tmp_path)
@@ -215,7 +216,7 @@ def test_a_second_slip_shows_the_a25_notice_and_publishes(tmp_path):
 
     from factory import site
     from tests.test_b13 import REPO
-    for t in ("crvUSD", "GHO"):
+    for t in ("crvUSD", "GHO", "USDe"):                    # P-10.10: four tokens
         shutil.copytree(REPO / "out/site" / t, root / "out/site" / t)
         shutil.copytree(REPO / "out/evaluation" / t, root / "out/evaluation" / t,
                         dirs_exist_ok=True)
@@ -247,7 +248,7 @@ def test_guard_and_labels_units():
     two = rows + [{"field_id": "e", "printed": ["12.5%"]}]
     assert llm.guard(p, two) == {"numbers_not_printed": ["45.7%"],
                                  "missing_field_ids": ["d"]}
-    assert llm.printed_by(p.text, two) == {"$26.2M": ["supply.supply_ruled"],
+    assert llm.printed_by(p.text, two) == {"26.2M": ["supply.supply_ruled"],   # r5: no "$"
                                            "1.0 days": ["verif.staleness.worst.days"],
                                            "12.5%": ["d", "e"]}
     # previews ruling 4: the paragraph count

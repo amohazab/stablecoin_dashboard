@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>USDe: verify this report</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<main>
+<header class="page">
+  <h1>USDe: verify</h1>
+  
+  <div class="meta">
+    read 2026-10-26 06:31 UTC · block 26275087 ·
+    report <code title="321ca99aac237b8dd5a59d1cff879ae999fbd9caa23e1e423843968e3424132e">321ca99a</code> · intake sheet <code>a2e270cd</code>
+  </div>
+  <nav class="links meta">
+    <a href="../index.html">all tokens</a><a href="index.html">report</a><a href="appendix.html">appendix</a><a href="verify.html">verify</a>
+  </nav>
+</header>
+
+<p class="prose">Two kinds of figure appear in this report. On-chain figures were read from Ethereum at block 26275087: repeat any call the run sheet lists on your own node at that block. Disclosure figures come from the issuer's routes, fetched at the same run; the run sheet lists each snapshot's address and sha256, and the snapshot set is committed in the repository, so it is re-fetchable from the committed snapshot.</p>
+
+<p class="banner">This stress artifact carries no analyst verification row.</p>
+
+<h2>Run sheet: pinned reads and disclosure snapshots</h2>
+<pre class="sheet"># USDe spot-check — run 26275087
+
+bundle `f7814ee9` · sheet `a2e270cd` · frozen set `d8df0853`
+
+| FR | contract | function | args | block / pin |
+|---|---|---|---|---|
+| FR-U01 | `0x4c9edd5852cd905f086c759e8383e09bff1e68b3` | `owner()` | — | 26275087 |
+| FR-U01 | `0x4c9edd5852cd905f086c759e8383e09bff1e68b3` | `pendingOwner()` | — | 26275087 |
+| FR-U02 | `0x4c9edd5852cd905f086c759e8383e09bff1e68b3` | `minter()` | — | 26275087 |
+| FR-U03 | `0x4c9edd5852cd905f086c759e8383e09bff1e68b3` | `totalSupply()` | — | 26275087 |
+| FR-U04 | `0x9d39a5de30e57443bff2a8307a4256c8797a3497` | `cooldownDuration()` | — | 26275087 |
+| FR-U05 | `0x9d39a5de30e57443bff2a8307a4256c8797a3497` | `totalAssets()` | — | 26275087 |
+| FR-U05 | `0x9d39a5de30e57443bff2a8307a4256c8797a3497` | `totalSupply()` | — | 26275087 |
+| FR-U06 | `0x4c9edd5852cd905f086c759e8383e09bff1e68b3` | `balanceOf(address)` | 0x9D39A5DE30e57443BfF2A8307A4256c8797A3497 | 26275087 |
+| FR-U07 | `0x9d39a5de30e57443bff2a8307a4256c8797a3497` | `silo()` | — | 26275087 |
+| FR-U07 | `0x4c9edd5852cd905f086c759e8383e09bff1e68b3` | `balanceOf(address)` | 0x7FC7c91D556B400AFa565013E3F32055a0713425 | 26275087 |
+| FR-U08 | `0x4c9edd5852cd905f086c759e8383e09bff1e68b3` | `balanceOf(address)` | 0x5d3a1Ff2b6BAb83b63cd9AD0787074081a52ef34 | 26275087 |
+| FR-U08 | `0x5d3a1ff2b6bab83b63cd9ad0787074081a52ef34` | `approvalRequired()` | — | 26275087 |
+| FR-U09 | `0xe3490297a08d6fc8da46edb7b6142e4f461b62d3` | `globalConfig()` | — | 26275087 |
+| FR-U10 | `0xe3490297a08d6fc8da46edb7b6142e4f461b62d3` | `tokenConfig(address)` | 0x6c3ea9036406852006290770BEdFcAbA0e23A0e8 | 26275087 |
+| FR-U10 | `0xe3490297a08d6fc8da46edb7b6142e4f461b62d3` | `tokenConfig(address)` | 0xC139190F447e929f090Edeb554D95AbB8b18aC1C | 26275087 |
+| FR-U10 | `0xe3490297a08d6fc8da46edb7b6142e4f461b62d3` | `tokenConfig(address)` | 0xe343167631d89B6Ffc58B88d6b7fB0228795491D | 26275087 |
+| FR-U11 | `0xe3490297a08d6fc8da46edb7b6142e4f461b62d3` | `isCustodianAddress(address)` | 0x12FDB344e4D195fF6613D0f742a6E38344c8b455 | 26275087 |
+| FR-U11 | `0xe3490297a08d6fc8da46edb7b6142e4f461b62d3` | `isCustodianAddress(address)` | 0x2d4d2A025b10C09BDbd794B4FCe4F7ea8C7d7bB4 | 26275087 |
+| FR-U11 | `0xe3490297a08d6fc8da46edb7b6142e4f461b62d3` | `isCustodianAddress(address)` | 0x32b24247cbcE7c17b0017A2159a9FA481f401b16 | 26275087 |
+| FR-U12 | `0xe3490297a08d6fc8da46edb7b6142e4f461b62d3` | `isSupportedAsset(address)` | 0x6c3ea9036406852006290770BEdFcAbA0e23A0e8 | 26275087 |
+| FR-U12 | `0xe3490297a08d6fc8da46edb7b6142e4f461b62d3` | `isSupportedAsset(address)` | 0xC139190F447e929f090Edeb554D95AbB8b18aC1C | 26275087 |
+| FR-U12 | `0xe3490297a08d6fc8da46edb7b6142e4f461b62d3` | `isSupportedAsset(address)` | 0xe343167631d89B6Ffc58B88d6b7fB0228795491D | 26275087 |
+| FR-U13 | `0xe3490297a08d6fc8da46edb7b6142e4f461b62d3` | `hasRole(bytes32,address)` | 0x0000000000000000000000000000000000000000000000000000000000000000, 0xe8dc0fab349ea169283c48ccfd09d797e6db7c94 | 26275087 |
+| FR-U13 | `0xe3490297a08d6fc8da46edb7b6142e4f461b62d3` | `hasRole(bytes32,address)` | 0x9f2df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956a6, 0x03984ddef40850bb9862ec09037853630d7b6ae4 | 26275087 |
+| FR-U13 | `0xe3490297a08d6fc8da46edb7b6142e4f461b62d3` | `hasRole(bytes32,address)` | 0x9f2df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956a6, 0x0b23d23939a1731289eaa04f62ba1dd4ecdd5c7d | 26275087 |
+| FR-U14 | `0x9d39a5de30e57443bff2a8307a4256c8797a3497` | `hasRole(bytes32,address)` | 0x0000000000000000000000000000000000000000000000000000000000000000, 0xe8dc0fab349ea169283c48ccfd09d797e6db7c94 | 26275087 |
+| FR-U14 | `0x9d39a5de30e57443bff2a8307a4256c8797a3497` | `hasRole(bytes32,address)` | 0xbeec13769b5f410b0584f69811bfd923818456d5edcf426b0e31cf90eed7a3f6, 0x3b0aaf6e6fcd4a7ceef8c92c32dfea9e64dc1862 | 26275087 |
+| FR-U14 | `0x9d39a5de30e57443bff2a8307a4256c8797a3497` | `hasRole(bytes32,address)` | 0xbeec13769b5f410b0584f69811bfd923818456d5edcf426b0e31cf90eed7a3f6, 0x71e4f98e8f20c88112489de3dded4489802a3a87 | 26275087 |
+| FR-U15 | `0xe8dc0fab349ea169283c48ccfd09d797e6db7c94` | `getMinDelay()` | — | 26275087 |
+| FR-U16 | `0xe8dc0fab349ea169283c48ccfd09d797e6db7c94` | `hasRole(bytes32,address)` | 0xb09aa5aeb3702cfd50b6b62bc4532604938f21248a27a1d5ca736082b6819cc1, 0x3b0aaf6e6fcd4a7ceef8c92c32dfea9e64dc1862 | 26275087 |
+| FR-U16 | `0xe8dc0fab349ea169283c48ccfd09d797e6db7c94` | `hasRole(bytes32,address)` | 0xd8aa0f3194971a2a116679f7c2090f6939c8d4e01a2a8d7e41d55e5351469e63, 0x352040dc5f272563a2d6e0ef7abcd567a7440e8f | 26275087 |
+| FR-U16 | `0xe8dc0fab349ea169283c48ccfd09d797e6db7c94` | `hasRole(bytes32,address)` | 0xd8aa0f3194971a2a116679f7c2090f6939c8d4e01a2a8d7e41d55e5351469e63, 0x3b0aaf6e6fcd4a7ceef8c92c32dfea9e64dc1862 | 26275087 |
+| FR-U17 | `0x2b5ab59163a6e93b4486f6055d33ca4a115dd4d5` | `getOwners()` | — | 26275087 |
+| FR-U17 | `0x2b5ab59163a6e93b4486f6055d33ca4a115dd4d5` | `getThreshold()` | — | 26275087 |
+| FR-U17 | `0x3b0aaf6e6fcd4a7ceef8c92c32dfea9e64dc1862` | `getOwners()` | — | 26275087 |
+| FR-U18 | `0x4c9edd5852cd905f086c759e8383e09bff1e68b3` | eip1967_slot_read | — | 26275087 |
+| FR-U18 | `0x9d39a5de30e57443bff2a8307a4256c8797a3497` | eip1967_slot_read | — | 26275087 |
+| FR-U18 | `0xe3490297a08d6fc8da46edb7b6142e4f461b62d3` | eip1967_slot_read | — | 26275087 |
+| FR-U19 | `0x6c3ea9036406852006290770bedfcaba0e23a0e8` | `balanceOf(address)` | 0x2B5AB59163a6e93b4486f6055D33CA4a115Dd4D5 | 26275087 |
+| FR-U19 | `0x8292bb45bf1ee4d140127049757c2e0ff06317ed` | `balanceOf(address)` | 0x2B5AB59163a6e93b4486f6055D33CA4a115Dd4D5 | 26275087 |
+| FR-U19 | `0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48` | `balanceOf(address)` | 0x2B5AB59163a6e93b4486f6055D33CA4a115Dd4D5 | 26275087 |
+| FR-U20 | https://app.ethena.fi/api/collateral-breakdown | GET | as-of 2026-10-26 | sha256 `8bd86fb14bd043b6…` |
+| FR-U21 | https://app.ethena.fi/api/collateralization/status | GET | as-of 2026-10-26 | sha256 `39d61361bb1eb235…` |
+| FR-U22 | https://app.ethena.fi/api/por | GET | as-of 2026-10-23 | sha256 `44aa59429759813c…` |
+| FR-U23 | `0x6c3ea9036406852006290770bedfcaba0e23a0e8` | `balanceOf(address)` | 0x12FDB344e4D195fF6613D0f742a6E38344c8b455 | 26275087 |
+| FR-U23 | `0x8292bb45bf1ee4d140127049757c2e0ff06317ed` | `balanceOf(address)` | 0x12FDB344e4D195fF6613D0f742a6E38344c8b455 | 26275087 |
+| FR-U23 | `0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48` | `balanceOf(address)` | 0x12FDB344e4D195fF6613D0f742a6E38344c8b455 | 26275087 |
+| FR-U24 | `0x6c3ea9036406852006290770bedfcaba0e23a0e8` | `balanceOf(address)` | 0x1A52abd3DE0cACEB71C5871386BEc4f6EB80Cc8e | 26275087 |
+| FR-U24 | `0x8292bb45bf1ee4d140127049757c2e0ff06317ed` | `balanceOf(address)` | 0x1A52abd3DE0cACEB71C5871386BEc4f6EB80Cc8e | 26275087 |
+| FR-U24 | `0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48` | `balanceOf(address)` | 0x1A52abd3DE0cACEB71C5871386BEc4f6EB80Cc8e | 26275087 |
+| FR-U25 | `0x5dc1bf6f1e983c0b21efb003c105133736fa0743` | `balances(uint256)` | — | 26275087 |
+| FR-U25 | `0x5b03cccab7ba3010fa5cad23746cbf0794938e96` | `balances(uint256)` | — | 26275087 |
+| FR-U27 | `0x5dc1bf6f1e983c0b21efb003c105133736fa0743` | `balances(uint256)` | — | 26275087 |
+| FR-U28 | `0x8f1df6d7f2db73eece86a18b4381f4707b918fb1` | `latestRoundData()` | — | 26275087 |
+| FR-U28 | `0x26c46b7ad0012ca71f2298ada567dc9af14e7f2a` | `latestRoundData()` | — | 26275087 |
+| FR-U28 | `0x14f0737d6b705259e521ea6e9e3506ac78dbd311` | `latestRoundData()` | — | 26275087 |
+| FR-U29 | `0xe3490297a08d6fc8da46edb7b6142e4f461b62d3` | `redeem((string,uint8,uint120,uint128,address,address,address,uint128,uint128),(uint8,bytes))` | selector_present | 26275087 |
+| FR-U30 | `0x9d39a5de30e57443bff2a8307a4256c8797a3497` | `redistributeLockedAmount(address,address)` | selector_present | 26275087 |
+| FR-U31 | `0x4c9edd5852cd905f086c759e8383e09bff1e68b3` | selector_absence_scan | — | 26275087 |
+| FR-U31 | `0x9d39a5de30e57443bff2a8307a4256c8797a3497` | selector_absence_scan | — | 26275087 |
+| FR-U31 | `0xe3490297a08d6fc8da46edb7b6142e4f461b62d3` | selector_absence_scan | — | 26275087 |
+| FR-U32 | `0x9d39a5de30e57443bff2a8307a4256c8797a3497` | `hasRole(bytes32,address)` | 0x0a4af4bcc1942295207d9f047442ebdae6170a6e324850f758b14cf99b65c3bd, 0x0017f7adf1b404298efa3015ca0b56961fea4c34 | 26275087 |
+| FR-U33 | `0x6c3ea9036406852006290770bedfcaba0e23a0e8` | `balanceOf(address)` | 0xe3490297a08d6fC8Da46Edb7B6142E4F461b62D3 | 26275087 |
+| FR-U33 | `0x8292bb45bf1ee4d140127049757c2e0ff06317ed` | `balanceOf(address)` | 0xe3490297a08d6fC8Da46Edb7B6142E4F461b62D3 | 26275087 |
+| FR-U33 | `0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48` | `balanceOf(address)` | 0xe3490297a08d6fC8Da46Edb7B6142E4F461b62D3 | 26275087 |
+| FR-U34 | https://app.ethena.fi/api/institutional-lending | GET | as-of 2026-10-25 | sha256 `1757a8cb2e1ee66d…` |
+| FR-U35 | https://app.ethena.fi/api/stablecoin-collateral | GET | as-of 2026-10-26 | sha256 `7d699bf9a16bcbca…` |
+| FR-U36 | https://app.ethena.fi/api/positions/current/backing-assets | GET | as-of 2026-10-26 | sha256 `6d3231aacfbd8b65…` |
+| FR-U37 | https://app.ethena.fi/api/funding/quarterly | GET | as-of 2026-10-26 | sha256 `9e66a1206474a3dd…` |
+</pre>
+<h2>Stress sheet</h2>
+<pre class="sheet"># USDe stress spot-check — 26275087
+
+inputs: F -0.25, backing 4588774288.12, basis 738686371, reserve_fund 62067738.34583983, supply_ruled 4587084755.138508992523503861
+
+| cell | loss | post-loss backing | ratio |
+|---|---|---|---|
+| S1-n30 | 15178487.07534246575342465753 | 4588774288.12 | 1.000368323907596948533629736 |
+| S1-n90 | 45535461.22602739726027397260 | 4588774288.12 | 1.000368323907596948533629736 |
+| S1-n180 | 91070922.45205479452054794521 | 4559771104.013785035479452055 | 0.9940455316213359982645644415 |
+| S2-a | 543867247 | 4106974779.46583983 | 0.8953344005395051751577321502 |
+| S2-b | 141374845.80 | 4509467180.66583983 | 0.9830791060954954021650306674 |
+| S3 | — | — | 0 |
+</pre>
+
+</main>
+</body>
+</html>

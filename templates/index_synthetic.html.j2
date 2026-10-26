@@ -1,0 +1,224 @@
+{% extends "base.html.j2" %}
+{% block subtitle %}<p class="lede">{{ sw.what_this_is.format(token=token, block=v('header.run_block'), verify='see the verify page') }}</p>
+<p class="meta">{{ v('header.archetype') }} · disclosures as of {{ v('header.disclosure_as_of') }}</p>{% endblock %}
+{% macro flags(key) -%}
+{% for f in log.flags.get(key, []) %}<p class="flag" data-section="{{ f.section }}" data-entry="{{ f.id }}">{% if f.trigger in sw.flag_label %}{{ w.flag.format(name=sw.flag_label[f.trigger] ~ ' (' ~ f.name ~ ')', id=f.id, date=f.date) }}{% else %}{{ w.flag.format(name=f.name, id=f.id, date=f.date) }}{% endif %}</p>
+{% endfor %}
+{%- endmacro %}
+{% macro post(cid) -%}{{ v('cell.' ~ cid ~ '.post_loss_ratio') }}{%- endmacro %}
+{% block body %}
+{% if log.banner %}<div class="banner quarantine"><p>{{ log.banner.last }}</p>{% if log.banner.current %}<p>{{ log.banner.current }}</p>{% endif %}</div>{% endif %}
+{% if log.banner and log.banner.review %}<p class="banner quarantine">{{ log.banner.review }}</p>{% else %}
+{# ===================== the reader layer (R-B11.1) ===================== #}
+{{ flags('pills') }}
+<div class="pills">
+{% for colour, text in pills %}<span class="pill {{ colour }}">{{ text }}</span>{% endfor %}
+</div>
+
+<section class="finding" id="finding">
+<h2>The finding {{ tip('finding') }}</h2>
+{{ flags('finding') }}
+{{ slot('structural_summary') }}
+<div class="cards">
+  <div class="card"><div class="card-label">{{ w.labels.supply_card }} {{ tip('supply') }}</div><div class="card-value" title="supply.supply_ruled">{{ c('supply.supply_ruled') }}</div></div>
+  <div class="card"><div class="card-label">backing {{ tip('backing_card') }}</div><div class="card-value" title="tree.root.status_backing">{{ c('tree.root.status_backing') }}</div><div class="card-note" title="tree.root.backing_value">categories sum {{ c('tree.root.backing_value') }} (<span title="tree.root.backing_difference">{{ c('tree.root.backing_difference') }}</span>)</div></div>
+  <div class="card"><div class="card-label">{{ w.labels.exit_card }} {{ tip('exit_card') }}</div><div class="card-value" title="exit.curve.s0.02.total">{{ c('exit.curve.s0.02.total') }}</div></div>
+</div>
+</section>
+
+<section id="backing">
+<h2>Where the backing sits {{ tip('backing') }}</h2>
+{{ flags('backing') }}
+<p class="prose" title="recon.buffer_onchain recon.buffer_share recon.gap_share">{{ sw.backing_lead.format(buffer=c('recon.buffer_onchain'), share=v('recon.buffer_share'), gap=v('recon.gap_share')) }}</p>
+<figure class="wide tree">{{ tree_svg | safe }}</figure>
+<p class="prose">{{ sw.reserve_fund_line }} <span title="verif.reserve_fund.disclosed_usd">{{ c('verif.reserve_fund.disclosed_usd') }}</span></p>
+<p class="prose">{{ governance }}</p>
+<p class="prose">{{ v('verif.banner') }}</p>
+{{ slot('verifiability_narrative') }}
+</section>
+
+<section id="break">
+<h2>What could break it {{ tip('break') }}</h2>
+{{ flags('break') }}
+{{ flags('headline') }}
+<p class="prose">{{ sw.why_rows }}</p>
+<p class="prose" title="near_bound.backing_ratio near_bound.reserve_fund_ratio">{{ sw.near_bound_line.format(br=c('near_bound.backing_ratio'), brb=c('near_bound.backing_ratio_bound'), rr=c('near_bound.reserve_fund_ratio'), rrb=c('near_bound.reserve_fund_ratio_bound')) }}</p>
+{{ slot('stress_opening') }}
+<h3>{{ sw.row1_title }}</h3>
+<p class="prose">{{ sw.row1_sentence.format(F=v('stress.input.F'), N=v('cell.S1-n90.N'), loss=c('cell.S1-n90.loss'), ratio=post('S1-n90')) }} {{ sw.f3_sentence }}</p>
+<table class="striped"><tr><th>horizon</th><th class="num">loss</th><th class="num">reserve fund absorbed</th><th class="num">post-loss backing</th><th class="num">post-loss ratio</th></tr>
+{% for cid in ('S1-n30', 'S1-n90', 'S1-n180') %}<tr><td>{{ v('cell.' ~ cid ~ '.N') }} days{% if cid == cells[0] %} ({{ sw.headline_mark }}){% endif %}</td><td class="num" title="cell.{{ cid }}.loss">{{ v('cell.' ~ cid ~ '.loss') }}</td><td class="num" title="cell.{{ cid }}.rf_absorbed">{{ v('cell.' ~ cid ~ '.rf_absorbed') }}</td><td class="num">{{ v('cell.' ~ cid ~ '.post_loss_backing') }}</td><td class="num" title="cell.{{ cid }}.post_loss_ratio">{{ post(cid) }}</td></tr>
+{% endfor %}</table>
+<h3>{{ sw.row2_title }}</h3>
+<p class="prose">{{ sw.row2a_sentence.format(location=v('cell.S2-a.location'), amount=c('cell.S2-a.location_total'), ratio=post('S2-a')) }}{% if cells[1] == 'S2-a' %} ({{ sw.headline_mark }}){% endif %}</p>
+<p class="prose">{{ sw.row2b_sentence.format(exchange=v('cell.S2-b.exchange'), notional=c('cell.S2-b.notional'), loss=c('cell.S2-b.loss'), ratio=post('S2-b')) }}{% if cells[1] == 'S2-b' %} ({{ sw.headline_mark }}){% endif %}</p>
+<h3>{{ sw.row3_title }}</h3>
+<p class="prose">{{ sw.row3_sentence.format(X=c('cell.S3.X'), branch=v('cell.S3.branch'), capacity=c('cell.S3.capacity_redeem'), exit=c('cell.S3.exit_depth_2pct'), ratio=v('cell.S3.depeg_pressure_ratio')) }}</p>
+<table class="striped"><tr><th>subset of the frozen set</th><th class="num">exit liquidity at 2%</th><th class="num">depeg-pressure ratio</th></tr>
+{% for f in ids('cell.S3.K') if f.endswith('.ratio') %}{% set p = f[:-6] %}<tr><td>K = {{ p.split('.K')[1] }}%</td><td class="num">{{ v(p ~ '.depth_at_2pct') }}</td><td class="num" title="{{ f }}">{{ v(f) }}</td></tr>
+{% endfor %}</table>
+<p class="meta">{{ sw.k_rows_line }}</p>
+<h3>{{ sw.cf_title }}</h3>
+<ul class="plain">
+<li>{{ w.counterfactual['cf.basis_unwind_day0'] }}: {{ v('cell.S1-n90.cf.cf.basis_unwind_day0.literal') }}</li>
+<li>{{ w.counterfactual['cf.cooldown_branch'] }}: {{ v('cell.S3.cf.cf.cooldown_branch.branch') }}, redemptions {{ c('cell.S3.cf.cf.cooldown_branch.X') }}, depeg-pressure ratio {{ v('cell.S3.cf.cf.cooldown_branch.value_counterfactual') }}</li>
+</ul>
+{{ slot('counterfactual_explanations') }}
+</section>
+
+<section id="rules">
+<h2>Who can change the rules {{ tip('rules') }}</h2>
+<ul class="plain">{% for s in power_sentences %}<li>{{ s }}</li>{% endfor %}</ul>
+<h3>{{ sw.redemption_title }}</h3>
+<p class="prose" title="redemption.r2_who redemption.r8">{{ sw.redemption_line.format(r2_words=v('redemption.r2_words'), r8=(v('redemption.r8') | replace('_', ' '))) }}</p>
+{{ slot('admin_surface_narrative') }}
+</section>
+
+<section id="check">
+<h2>How to check this {{ tip('check') }}</h2>
+<p class="prose">{{ sw.check_this }} <a href="verify.html">Verify page</a> · report fingerprint <code title="{{ man.report_hash }}">{{ man.report_hash[:16] }}</code></p>
+<p class="prose">{{ w.behavioral_tier }} {{ w.structural_only }}</p>
+</section>
+
+{# ===================== the specialist layer ===================== #}
+<h2 class="specialists">{{ w.specialists }}</h2>
+<p class="meta">{{ w.behavioral_pending }}</p>
+
+<details id="tree-nodes"><summary>{{ sw.summaries.categories }}</summary>
+<table class="striped"><tr><th>disclosure category</th><th>label</th><th class="num">attested value</th><th class="num">share of backing</th><th>last disclosure</th><th class="num">days old</th></tr>
+{% for f in ids('tree.node.') if f.endswith('.symbol') %}{% set s = f.split('.')[2] %}
+<tr><td>{{ v(f) }}</td><td>{{ v('tree.node.' ~ s ~ '.label') | replace('_', ' ') }}</td><td class="num" title="tree.node.{{ s }}.usd">{{ v('tree.node.' ~ s ~ '.usd') }}</td><td class="num" title="tree.node.{{ s }}.share">{{ v('tree.node.' ~ s ~ '.share') }}</td>
+<td>{% if ('verif.staleness.' ~ s ~ '.last_disclosure_date') in rows %}{{ v('verif.staleness.' ~ s ~ '.last_disclosure_date') }}{% else %}—{% endif %}</td><td class="num">{% if ('verif.staleness.' ~ s ~ '.staleness_days') in rows %}{{ v('verif.staleness.' ~ s ~ '.staleness_days') }}{% else %}{{ w.tree.truncated_pill }}{% endif %}</td></tr>
+{% endfor %}</table>
+{% if ids('verif.truncated.') %}
+<table class="striped"><tr><th>depth-truncated category</th><th>reason</th><th class="num">share of backing</th></tr>
+{% for f in ids('verif.truncated.') if f.endswith('.share') %}<tr><td>{{ rows[f].label[11:] }}</td><td>{{ v(f[:-6] ~ '.reason') }}</td><td class="num" title="{{ f }}">{{ v(f) }}</td></tr>
+{% endfor %}</table>
+{% endif %}
+<table class="striped"><tr><th>category</th><th>disclosure cadence</th><th class="num">age</th><th>overdue</th></tr>
+{% set ns = namespace(issuer=None, date=None) %}{% for f in ids('tree.label_row.') if f.endswith('.last_disclosure_date') and raw(f) and 'buffer' in raw(f[:-21] ~ '.roles') %}{% if ns.date is none or raw(f) < ns.date %}{% set ns.date = raw(f) %}{% set ns.issuer = raw(f[:-21] ~ '.symbol') %}{% endif %}{% endfor %}
+{% for f in ids('verif.t29.') if f.endswith('.category') %}{% set p = f[:-9] %}<tr><td>{{ v(f) }}</td><td>{% if raw(f) == 'Liquid Stables' and ns.issuer %}{{ sw.worst_issuer.format(cadence=v(p ~ '.cadence').split(' ')[0], issuer=ns.issuer) }}{% else %}{{ v(p ~ '.cadence') }}{% endif %}</td><td class="num">{{ v(p ~ '.age_days') }}</td><td>{{ v(p ~ '.overdue') }}</td></tr>
+{% endfor %}</table>
+{% if raw('verif.staleness.companion') %}<p class="meta">{{ v('verif.staleness.companion') }}</p>{% endif %}
+</details>
+
+<details id="label-rows"><summary>{{ sw.summaries.label_rows }}</summary>
+<table class="striped"><tr><th>asset</th><th>label</th><th>recurses into</th><th>chain</th><th>role</th><th>last disclosure</th></tr>
+{% for f in ids('tree.label_row.') if f.endswith('.symbol') %}{% set p = f[:-7] %}<tr><td>{{ v(f) }}</td><td>{{ v(p ~ '.label') | replace('_', ' ') }}</td><td>{{ v(p ~ '.recurses_into') }}</td><td>{{ v(p ~ '.chain') }}</td><td>{{ v(p ~ '.roles') | replace('_', ' ') }}</td><td>{{ v(p ~ '.last_disclosure_date') }}</td></tr>
+{% endfor %}</table>
+</details>
+
+<details id="supply"><summary>{{ sw.summaries.supply }}</summary>
+<table class="striped">
+<tr><th>figure</th><th class="num">value</th></tr>
+<tr><td>supply</td><td class="num" title="supply.supply_ruled">{{ v('supply.supply_ruled') }}</td></tr>
+<tr><td>backing (status route)</td><td class="num" title="tree.root.status_backing">{{ v('tree.root.status_backing') }}</td></tr>
+<tr><td>sum of the six disclosure categories</td><td class="num" title="tree.root.backing_value">{{ v('tree.root.backing_value') }}</td></tr>
+<tr><td>difference (categories less status backing)</td><td class="num" title="tree.root.backing_difference">{{ v('tree.root.backing_difference') }}</td></tr>
+<tr><td>staked (sUSDe) · {{ sw.cooldown_beside.format(cooldown=v('supply.cooldown_s')) }}</td><td class="num" title="supply.class.staked">{{ v('supply.class.staked') }}</td></tr>
+<tr><td>cooling (silo)</td><td class="num" title="supply.class.cooling">{{ v('supply.class.cooling') }}</td></tr>
+<tr><td>bridged escrow (OFT adapter)</td><td class="num" title="supply.class.bridged_escrow">{{ v('supply.class.bridged_escrow') }}</td></tr>
+<tr><td>free float</td><td class="num" title="supply.class.free_float">{{ v('supply.class.free_float') }}</td></tr>
+<tr><td>originated supply</td><td class="num" title="supply.origination_sum">{{ v('supply.origination_sum') }}</td></tr>
+<tr><td>residual (supply − originated)</td><td class="num" title="supply.residual">{{ v('supply.residual') }}</td></tr>
+<tr><td>{{ w.rubric.slice_row }}</td><td class="num" title="stabilizer.slice.debt">{{ v('stabilizer.slice.debt') }} ({{ v('supply.stabilizer_over_supply') }} of supply)</td></tr>
+<tr><td>{{ w.rubric.ceiling_row }}</td><td class="num" title="stabilizer.slice.ceiling_aggregate">{{ v('stabilizer.slice.ceiling_aggregate') }} ({{ v('stabilizer.slice.ceiling_share') }} of supply)</td></tr>
+</table>
+<p class="meta" title="supply.class.bridged_escrow">{{ sw.escrow_line.format(amount=v('supply.class.bridged_escrow')) }}</p>
+</details>
+
+<details id="headline"><summary>{{ sw.summaries.stress }}</summary>
+<table class="striped"><tr><th>input</th><th class="num">value</th></tr>
+{% for f in ids('stress.input.') %}<tr><td title="{{ f }}">{{ rows[f].label[13:] }}</td><td class="num">{{ v(f) }}</td></tr>{% endfor %}
+<tr><td>funding reference point</td><td class="num">{{ v('stress.refpoint.quarter') }}: {{ v('stress.refpoint.value_pct') }} percent, the lowest quarterly funding (negative quarter observed: {{ v('stress.refpoint.negative_quarter_observed') }})</td></tr>
+</table>
+<table class="striped"><tr><th>cell</th><th>figure</th><th class="num">value</th></tr>
+{% for f in ids('cell.') if '.cf.' not in f and '.K' not in f %}<tr><td><code>{{ f.split('.')[1] }}</code></td><td>{{ f.split('.')[2] | replace('_', ' ') }}</td><td class="num" title="{{ f }}">{{ v(f) }}</td></tr>
+{% endfor %}</table>
+</details>
+
+<details id="counterfactuals"><summary>{{ w.summaries.counterfactuals }}</summary>
+<table class="striped"><tr><th>cell</th><th>counterfactual</th><th>figure</th><th class="num">value</th></tr>
+{% for f in ids('cell.') if '.cf.' in f %}<tr><td><code>{{ f.split('.')[1] }}</code></td><td>{{ f.split('.cf.')[1].rsplit('.', 1)[0] }}</td><td>{{ f.rsplit('.', 1)[1] | replace('_', ' ') }}</td><td class="num" title="{{ f }}">{{ v(f) }}</td></tr>
+{% endfor %}</table>
+</details>
+
+<details id="exit-liquidity"><summary>{{ w.summaries.chart_b }}</summary>
+{{ flags('chart_b') }}
+<figure class="wide">{{ chart_b | safe }}<figcaption>{{ w.charts.b_caption }}</figcaption></figure>
+<p class="meta">{{ w.rubric.freeze_line.format(date=v('header.freeze_date')) }} {{ w.rubric.k_share.format(share=v('exit.sensitivity.K90.share_of_F')) }}</p>
+<p class="meta">{{ v('exit.offvenue.literal') }}</p>
+</details>
+
+<details id="assumptions"><summary>{{ sw.summaries.assumptions }}</summary>
+<table class="striped"><tr><th>assumption</th><th>what it means</th><th>data</th><th>source</th></tr>
+{% for a in doc.assumptions %}
+<tr><td><code>{{ a.id }}</code></td>
+<td>{{ sw.assumption[a.id] if a.id in sw.assumption else w.assumption.additional }}</td>
+<td>{% if a.data_ref %}{% for f in a.data_ref[:4] %}<span title="{{ f }}">{{ rows[f].label | replace('_', ' ') }}: {{ v(f) }}</span>{% if not loop.last %}<br>{% endif %}{% endfor %}{% if a.data_ref | length > 4 %}<br>… {{ a.data_ref | length - 4 }} more in table.json{% endif %}{% else %}—{% endif %}</td>
+<td>{{ a.rule_ref or '—' }}</td></tr>
+{% endfor %}
+</table>
+<p class="meta">{{ sw.sell_side_literal }}</p>
+</details>
+
+<details id="bias"><summary>{{ sw.summaries.bias }}</summary>
+<h3>stock-only capacity — direction of error per mechanism</h3>
+<table class="striped"><tr><th>mechanism</th><th>tokens</th><th>direction</th><th>reason</th></tr>
+{% for f in ids('bias.') if f.endswith('.direction') %}{% set p = f[:-10] %}
+<tr><td>{{ v(p ~ '.mechanism') }}</td><td>{{ v(p ~ '.tokens') }}</td><td>{{ v(f) }}</td><td>{{ v(p ~ '.reason') }}</td></tr>
+{% endfor %}</table>
+</details>
+
+<details id="admin"><summary>{{ sw.summaries.admin }}</summary>
+<table class="striped"><tr><th>power</th><th>holder</th><th>type</th><th>delay</th><th>veto</th><th>upgradeable</th><th>scope</th><th>evidence</th></tr>
+{% for f in ids('admin.') if f.endswith('.holder_type') %}{% set p = f[:-12] %}
+<tr><td>{{ w.powers[f.split('.')[1]] }}</td><td><code>{{ v(p ~ '.holder_address') }}</code></td><td>{{ w.holders[raw(f)] if raw(f) != 'none' else 'none' }}</td>
+<td>{{ v(p ~ '.delay_bucket') }}</td><td>{{ v(p ~ '.veto_address') }}</td><td>{{ v(p ~ '.upgradeability') }}</td>
+<td>{% for a in raw(p ~ '.scope') or [] %}<code>{{ a | fmt('address') }}</code> {% endfor %}</td>
+<td>{{ v(p ~ '.A8') | replace('_', ' ') }}{% if (p ~ '.A8.function') in rows %}: {{ v(p ~ '.A8.function') }}{% endif %}</td></tr>
+{% for h in role_holders(f.split('.')[1]) if h.address != raw(p ~ '.holder_address') %}<tr><td>{{ w.powers[f.split('.')[1]] }}</td><td><code title="{{ h.fid }}">{{ h.address | fmt('address') }}</code></td><td>{% if h.safe %}multisig ({{ h.threshold }} of {{ h.owners }}){% else %}{{ w.holders.eoa }}{% endif %}</td><td>{{ v(p ~ '.delay_bucket') }}</td><td>—</td><td>—</td><td></td><td>role holder, read at the report's block</td></tr>
+{% endfor %}{% endfor %}</table>
+<p class="meta">Fully restricted sUSDe addresses: <span title="admin.restricted_count">{{ v('admin.restricted_count') }}</span></p>
+</details>
+
+<details id="oracle"><summary>{{ sw.summaries.oracle }}</summary>
+{{ flags('oracle') }}
+<table class="striped"><tr><th>disclosure category</th><th>price source</th><th>update rule</th><th>staleness</th><th>assumption</th></tr>
+{% for f in ids('oracle.attested.') if f.endswith('.literal') %}{% set p = f[:-8] %}<tr><td>{{ rows[f].label.split(' oracle row')[0] }}</td><td>{{ v(f) }}</td><td>{{ v(p ~ '.update_condition_type') }}</td><td>{{ v(p ~ '.staleness_check') | replace('_', ' ') }}</td><td>{{ v(p ~ '.assumption_applied') | replace('_', ' ') }}</td></tr>
+{% endfor %}</table>
+<table class="striped"><tr><th>buffer asset</th><th>reference feed</th><th class="num">threshold</th><th class="num">heartbeat</th><th class="num">answer</th></tr>
+{% for f in ids('oracle.sheet.') if f.endswith('.symbol') %}{% set p = f[:-7] %}{% set sym = raw(f) %}<tr><td>{{ sym }}</td><td><code>{{ v(p ~ '.feed') }}</code></td><td class="num">{{ v(p ~ '.deviation_bps') }}</td><td class="num">{{ v(p ~ '.heartbeat_s') }}</td><td class="num">{% if ('oracle.feed.' ~ sym ~ '.answer') in rows %}{{ v('oracle.feed.' ~ sym ~ '.answer') }}{% else %}—{% endif %}</td></tr>
+{% endfor %}</table>
+<p class="meta">{{ sw.observation_literal }}; {{ sw.buffer_observation }}.</p>
+<p class="meta">{% for s in sw.scope_lines %}{{ s }}{% if not loop.last %} · {% endif %}{% endfor %}</p>
+{{ slot('flag_explanations') }}
+</details>
+
+<details id="recon"><summary>{{ sw.summaries.recon }}</summary>
+<p class="prose">{{ sw.recon_line.format(onchain=v('recon.buffer_onchain'), disclosed=v('recon.disclosure_onchain'), gap=v('recon.gap'), share=v('recon.gap_share'), nr=v('recon.not_reconciled_total')) }}</p>
+<table class="striped">{% for f in ids('recon.not_reconciled.') %}<tr><td>{{ rows[f].label }}</td><td class="num" title="{{ f }}">{{ v(f) }}</td></tr>{% endfor %}</table>
+</details>
+
+<details id="audits"><summary>{{ sw.summaries.audits }}</summary>
+<h3>{{ sw.counterparty_title }}</h3>
+<p class="meta">{{ sw.counterparty_lead }}</p>
+<table class="striped"><tr><th>counterparty</th><th>role</th><th class="num">value</th></tr>
+{% for f in ids('counterparty.') %}{% set nm = rows[f].label.split(' ', 2)[2] %}<tr><td>{{ sw.names.get(nm, nm) }}</td><td>{{ rows[f].label.split(' ', 2)[0] }} {{ rows[f].label.split(' ', 2)[1] }}</td><td class="num" title="{{ f }}">{{ v(f) }}</td></tr>{% endfor %}
+</table>
+<p class="meta">Counterparties: {{ provenance(v('audit.counterparties')) }}</p>
+<ul class="plain">{% for f in ids('audit.') if f.endswith('.firm') %}<li>{{ v(f) }} {{ v(f[:-5] ~ '.date') }}: {{ v(f[:-5] ~ '.scope') }}</li>{% endfor %}</ul>
+{% if 'audit.tag_date.audits' in rows %}<p class="meta">Audit list {{ w.rubric.tag_date.format(date=v('audit.tag_date.audits')) }}</p>{% endif %}
+<p class="meta">Bug bounty: {{ v('audit.bug_bounty.platform') }}, max {{ v('audit.bug_bounty.max') }}{% if 'audit.tag_date.bug_bounty' in rows %} {{ w.rubric.tag_date.format(date=v('audit.tag_date.bug_bounty')) }}{% endif %}. Last material change audited: {{ v('audit.last_material_change_audited') }}{% if 'audit.tag_date.last_material_change_audited' in rows %} {{ w.rubric.tag_date.format(date=v('audit.tag_date.last_material_change_audited')) }}{% endif %}. {{ w.rubric.audit_status.format(date=v('audit.staleness_date')) }}</p>
+</details>
+
+<nav class="links">
+  <a href="{{ w.repo.url }}/blob/{{ w.repo.branch }}/{{ sw.memo }}">archetype memo</a>
+  <a href="{{ w.repo.url }}/blob/{{ w.repo.branch }}/{{ sw.sheet }}">intake sheet</a>
+  <a href="verify.html">verify</a>
+  <a href="appendix.html">appendix</a>
+  <a href="data/table.json">table.json</a>
+  <a href="data/evaluation-{{ doc.run_block }}.json">gate record</a>
+</nav>
+{% endif %}
+{% endblock %}

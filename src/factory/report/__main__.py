@@ -125,7 +125,8 @@ def log_view(entries: list, token: str, ttable: dict, wording: dict) -> dict:
         row = ttable[e.trigger]
         if e.level == 1:
             flags.setdefault(place[row["section"]], []).append(
-                {"id": eid, "name": row["name"], "date": e.date, "section": row["section"]})
+                {"id": eid, "name": row["name"], "date": e.date, "section": row["section"],
+                 "trigger": e.trigger})
         else:
             heavy.append(row["name"])
     banner = None
@@ -305,7 +306,8 @@ def replayed_prose(rec: dict) -> dict[str, str]:
 
 def build(repo: pathlib.Path, token: str, client=None, extra_fired: tuple = (),
           preview: bool = False, judge_withdrawn: str | None = "default",
-          replay: dict | None = None) -> dict:
+          replay: dict | None = None, regenerate: tuple[str, ...] = (),
+          withhold: tuple[str, ...] = ()) -> dict:
     """`client` = None is a REHEARSAL (Amin, 2026-09-14): no generation, no judgment, the
     slots stay placeholders; pages stay in `out/rehearsal/`, the record's outcome is
     "rehearsal" and it is written beside them, not to `out/evaluation/`; nothing is
@@ -334,13 +336,22 @@ def build(repo: pathlib.Path, token: str, client=None, extra_fired: tuple = (),
     tree_j, stress_j = json.loads(serialise_tree(t)), json.loads(serialise_stress(s))
     mirror_j = json.loads(json.dumps(cfg.sheet, default=str))
     template_j = tomllib.loads((repo / "templates/wording.toml").read_text(encoding="utf-8"))
-    rows = table.build_rows(bundle_j, tree_j, stress_j, mirror_j, template_j)
+    if b.synthetic is not None:              # archetype #2 (P-10.10)
+        from factory.report import synthetic_table
+        from factory.validate.harness import det61_figures, det90_figures
+        g90 = det90_figures(b, harness_ctx(repo, cfg, b, token))
+        gate = json.loads(json.dumps({"DET-90": g90, "DET-61": det61_figures(b)}, default=str))
+        rows = synthetic_table.build_rows(bundle_j, tree_j, stress_j, mirror_j, template_j,
+                                          gate)
+    else:
+        rows = table.build_rows(bundle_j, tree_j, stress_j, mirror_j, template_j)
     doc = {"token": token, "run_block": b.header.run_block, "rows": rows,
            "assumptions": assumptions.build(token, rows)}
     grid = table.build_grid(stress_j)
     doc["table_hash"] = table.table_hash(doc, grid)
     report_checks = run_report_checks(b, t, s, {"table": doc, "grid": grid, "mirror": mirror_j,
-                                                "wording": template_j})
+                                                "wording": template_j,
+                                                "label_rows": cfg.label_rows})
     parts = {"bundle_hash": b.header.bundle_hash, "tree_hash": t.tree_hash,
              "stress_hash": s.header.stress_hash, "table_hash": doc["table_hash"],
              "template_hash": manifest.template_hash(repo),
@@ -351,6 +362,14 @@ def build(repo: pathlib.Path, token: str, client=None, extra_fired: tuple = (),
     ttable = trigger_table(rubric)
     wording = tomllib.loads((repo / "templates/wording.toml").read_text(encoding="utf-8"))
     mf = tomllib.loads((repo / "templates/manifest.toml").read_text(encoding="utf-8"))
+    arch = archetype(token)
+    declared = llm.declared_slots(mf, arch)                       # A-31 (P-10.10)
+    # P-10.10: an archetype's slot file names the wording tables its inputs read
+    ov = tomllib.loads((repo / "templates/prompts/slots_synthetic.toml").read_text(
+        encoding="utf-8")).get("wording_overlay") if arch == "synthetic" else None
+    if ov:
+        wording = {**wording, "powers": {**wording["powers"], **wording[ov]["powers"]},
+                   "labels": {**wording["labels"], **wording[ov]["labels"]}}
     ok = all(g.result == "pass" for g in report_checks)
     blk = b.header.run_block
     stage = repo / "out/rehearsal" / token / str(blk)
@@ -395,7 +414,7 @@ def build(repo: pathlib.Path, token: str, client=None, extra_fired: tuple = (),
         last_prose[0] = prose
         if client is None:
             return []
-        return [x["id"] for x in mf["prose_slots"] if not (prose.get(x["id"]) or "").strip()]
+        return [x for x in declared if not (prose.get(x) or "").strip()]
 
     def evaluate(prose: dict, judge_state: dict, instability: bool, pass_no: int):
         """Render and run S3 until the failing set is stable (the B-12 loop), then - with a
@@ -442,7 +461,7 @@ def build(repo: pathlib.Path, token: str, client=None, extra_fired: tuple = (),
         return settle(prose, judge_state, instability)
 
     def settle(prose: dict, judge_state: dict, instability: bool):
-        from factory.report.render import render_token
+        from factory.report.render import render_synthetic, render_token
         nonlocal s3, planned, evidence, gate
         s3, seen = [], None
         for _loop in range(4):
@@ -464,7 +483,8 @@ def build(repo: pathlib.Path, token: str, client=None, extra_fired: tuple = (),
                 shutil.rmtree(stage)
             pre = {"triggers": rec_triggers, "log": log_view(after, token, ttable, wording),
                    "prose": prose, "slots_missing": slots_missing(prose)}
-            pages = render_token(repo, token, doc, grid, man, pre, b, s, stage)
+            pages = (render_synthetic if b.synthetic is not None else render_token)(
+                repo, token, doc, grid, man, pre, b, s, stage)
             index_html = pages["index"].read_text(encoding="utf-8")
             if client is not None and not judge_state.get("sections") \
                     and not judge_state.get("withdrawn"):
@@ -499,7 +519,7 @@ def build(repo: pathlib.Path, token: str, client=None, extra_fired: tuple = (),
         call reads (A-22)."""
         if inputs_memo:
             return inputs_memo
-        spec = llm.prompts(repo)["slots"]
+        spec = llm.prompts(repo, arch)["slots"]
         displays = row_displays(repo, doc)
         opened = eventlog.open_entries([*entries, *eventlog.plan_quarantine(
             entries, token, date, [(x["trigger"], x["level"]) for x in fired_checks])], token)
@@ -510,23 +530,65 @@ def build(repo: pathlib.Path, token: str, client=None, extra_fired: tuple = (),
                  for eid, e in opened if e.level == 1]
         owners = sorted({o for _eid, e in opened if e.level == 1
                          for o in ttable[e.trigger]["owners"]})
-        for slot in (x["id"] for x in mf["prose_slots"]):
+        for slot in declared:
             sp = {**spec[slot], "owners": owners if spec[slot].get("owners_from_flags") else []}
-            inputs_memo[slot] = llm.slot_input(slot, sp, doc, displays, flags, wording)
+            inputs_memo[slot] = llm.slot_input(slot, sp, doc, displays, flags, wording,
+                                               buckets=mf["display_rule"]["buckets"])
+            if arch == "synthetic" and slot == "counterfactual_explanations":
+                inputs_memo[slot] = json.dumps({**json.loads(inputs_memo[slot]),
+                                                "branch_note": branch_note()},
+                                               ensure_ascii=False, sort_keys=True)
         return inputs_memo
+
+    def branch_note() -> str:
+        """P-10.10 r7: row 3's branch, evaluated here from the cooldown read (Q17)."""
+        rows = {r["field_id"]: r for r in doc["rows"]}
+        shown = row_displays(repo, doc)
+        short = int(rows["cell.S3.cooldown_s"]["value"]) < 7 * 86_400
+        return wording["synthetic"]["branch_note"].format(
+            taken=rows["cell.S3.branch"]["value"], cooldown=shown["cell.S3.cooldown_s"][0],
+            cmp="<" if short else "≥",
+            other=rows["cell.S3.cf.cf.cooldown_branch.branch"]["value"],
+            other_case="≥ 7-day" if short else "< 7-day")
+
+    def near_bound_phrases() -> list[str]:
+        """P-10.10 r4: A-37's two comparisons, evaluated here from the DET-61 rows and stated
+        with the page's printed (compact) forms, so the model restates, never compares."""
+        from decimal import Decimal
+        rows = {r["field_id"]: r for r in doc["rows"]}
+        shown = row_displays(repo, doc)
+
+        def compact(fid: str) -> str:
+            return min(shown[fid], key=lambda x: (-len(x), x))
+
+        out = []
+        for what, f in (("reserve fund", "reserve_fund_ratio"), ("backing", "backing_ratio")):
+            v, b = (Decimal(str(rows[f"near_bound.{x}"]["value"])) for x in (f, f + "_bound"))
+            side = "below" if v < b else "above"
+            out.append(wording["synthetic"]["near_bound_phrase"].format(
+                what=what, value=compact(f"near_bound.{f}"),
+                side=side, bound=compact(f"near_bound.{f}_bound")))
+        return out
 
     def slot_parts(slot: str) -> list[str] | None:
         """P-8.07: a split slot's per-part inputs - one per counterfactual line (table order)
         or one per open Level-1 flag (log order, each with its own trigger's owners); None
         for an unsplit slot or a flag slot with no open flag."""
-        sp = llm.prompts(repo)["slots"][slot]
+        sp = llm.prompts(repo, arch)["slots"][slot]
         if not sp.get("split"):
             return None
         displays = row_displays(repo, doc)
+        bk = mf["display_rule"]["buckets"]
+        if sp["split"] == "stress_row":          # P-10.10: one part per row, its own inputs
+            return [llm.slot_input(slot, {**sp, "prefixes": row["prefixes"], "owners": []}, doc,
+                                   displays, [], wording,
+                                   {"row": row["name"], "mechanism": row["mechanism"],
+                                    "index": i, "of": len(sp["rows"])}, buckets=bk)
+                    for i, row in enumerate(sp["rows"])]
         if sp["split"] == "counterfactual_line":
             lines = llm.counterfactual_lines(doc)
             return [llm.slot_input(slot, {**sp, "owners": []}, doc, displays, [], wording,
-                                   {"line": ln, "index": i, "of": len(lines)})
+                                   {"line": ln, "index": i, "of": len(lines)}, buckets=bk)
                     for i, ln in enumerate(lines)] or None
         opened = eventlog.open_entries([*entries, *eventlog.plan_quarantine(
             entries, token, date, [(x["trigger"], x["level"]) for x in fired_checks])], token)
@@ -537,7 +599,13 @@ def build(repo: pathlib.Path, token: str, client=None, extra_fired: tuple = (),
                                            "section": ttable[e.trigger]["section"],
                                            "fire_date": e.date, "meaning": wording.get(
                                                "flag_meaning", {}).get(e.trigger)}],
-                               wording, {"flag": eid, "index": i, "of": len(l1)})
+                               wording, {"flag": eid, "index": i, "of": len(l1),
+                                         **({"rule": sp["rules"][e.trigger]}
+                                            if e.trigger in sp.get("rules", {}) else {}),
+                                         **({"comparisons": near_bound_phrases()}
+                                            if e.trigger == "T-07" and arch == "synthetic"
+                                            else {})},
+                               buckets=bk)
                 for i, (eid, e) in enumerate(l1)] or None
 
     def generate_all(pass_no: int, own: dict[str, list[dict]] | None = None,
@@ -548,15 +616,22 @@ def build(repo: pathlib.Path, token: str, client=None, extra_fired: tuple = (),
         carries its own pass-1 text and only its own defects (seventh live run, ruling a)."""
         if client is None:
             return {}
-        if replay is not None and own is None:     # --from-record: no model call (P-8.10)
-            prose = replayed_prose(replay)
-            llm_rec["generation"].extend({**g, "replayed_from": replay["run_block"]}
-                                         for g in replay.get("generation", []))
-            return {x["id"]: prose[x["id"]] for x in mf["prose_slots"] if x["id"] in prose}
-        spec = llm.prompts(repo)["slots"]
-        users = slot_users()
+        todo = declared
         prose = {}
-        for slot in (x["id"] for x in mf["prose_slots"]):
+        if replay is not None and own is None:     # --from-record: no model call (P-8.10)
+            kept = replayed_prose(replay)
+            # P-10.10 r4: `regenerate` names slots generated afresh; the rest replay
+            llm_rec["generation"].extend({**g, "replayed_from": replay["run_block"]}
+                                         for g in replay.get("generation", [])
+                                         if g.get("slot") not in regenerate)
+            prose = {x: kept[x] for x in declared if x in kept and x not in regenerate
+                     and x not in withhold}
+            if not regenerate:
+                return prose
+            todo = [x for x in declared if x in regenerate]
+        spec = llm.prompts(repo, arch)["slots"]
+        users = slot_users()
+        for slot in todo:
             if carry is not None and slot in carry:
                 prose[slot] = carry[slot]
                 g1 = next(g for g in llm_rec["generation"] if g["pass"] == 1 and g["slot"] == slot)
@@ -626,7 +701,7 @@ def build(repo: pathlib.Path, token: str, client=None, extra_fired: tuple = (),
             d1 = [{"index": i, **x} for i, x in enumerate(
                 {"criterion": c["id"], **dd} for c in j1["envelope"]["criteria"]
                 for dd in c["defects"])]
-            slots = llm.prompts(repo)["slots"]
+            slots = llm.prompts(repo, arch)["slots"]
             own = llm.defects_by_slot(d1, prose1, {s: slots[s]["page_section"] for s in prose1})
             # NAMED DEFAULT (span replacement): only a defect whose span is in the slot's own
             # pass-1 text can be replaced; a slot left with none carries verbatim
@@ -669,6 +744,10 @@ def build(repo: pathlib.Path, token: str, client=None, extra_fired: tuple = (),
     det_fail = [g for g in s3 if not g.entry_id.startswith("LLM-") and g.result != "pass"
                 and g.entry_id not in ("DET-85", "DET-13", *LEVEL1_CHECKS)]   # A-25
     llm_rec["slots_missing"] = slots_missing(last_prose[0]) if client is not None else []
+    # P-10.10 r7 (stopping rule): a slot withheld by instruction, or regenerated this run and
+    # failing the guard, is recorded "withheld, judge withdrawn" and shown as the notice
+    llm_rec["withheld"] = [{"slot": x, "note": "withheld, judge withdrawn"}
+                           for x in llm_rec["slots_missing"] if x in (*withhold, *regenerate)]
     # A-24: `not_evaluated` rows are ignored by the outcome rule
     llm_bad = [g for g in s3 if g.entry_id.startswith("LLM-") and g.result in ("fail", "error")]
     tail_bad = [g for g in s3 if g.entry_id in ("DET-85", "DET-13") and g.result != "pass"]
@@ -834,6 +913,24 @@ if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("usage: python -m factory.report <TOKEN> [--llm [--preview]]  (crvUSD | GHO | LUSD)")
         sys.exit(2)
+    if len(sys.argv) in (5, 7) and sys.argv[2] == "--regenerate":
+        # P-10.10 r4: at the latest record's block, regenerate the named slots with the local
+        # model; every other slot replays its guard-passed text from that record
+        from factory.report.llm import OllamaClient
+        _tok, _slots = sys.argv[1], tuple(sys.argv[3].split(","))
+        _blk = int(sys.argv[4])
+        _rec = json.loads((_repo / "out/evaluation" / _tok / f"{_blk}.json")
+                          .read_text(encoding="utf-8"))
+        _held = tuple(sys.argv[6].split(",")) if len(sys.argv) == 7 and \
+            sys.argv[5] == "--withhold" else ()
+        r = build(_repo, _tok, client=OllamaClient(), replay=_rec, regenerate=_slots,
+                  withhold=_held)
+        _rr = r["record"]
+        print(f"regenerate {_tok}@{_blk} {list(_slots)} withhold {list(_held)} | "
+              f"outcome {_rr.outcome} | report "
+              f"{_rr.report_hash[:8]} | slots missing {_rr.slots_missing} | triggers "
+              f"{[(x['trigger'], x['level'], x['source_entry']) for x in _rr.triggers]}")
+        sys.exit(0)
     if len(sys.argv) == 4 and sys.argv[2] == "--from-record":
         # P-8.10: republish at a record's block from its guard-passed slot texts, the missing
         # slots as the A-25 notice; no model call

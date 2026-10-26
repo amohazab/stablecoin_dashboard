@@ -1,0 +1,5314 @@
+{
+ "assumptions": [
+  {
+   "data_ref": [
+    "bias.0.direction",
+    "bias.0.mechanism",
+    "bias.0.tokens",
+    "bias.0.reason",
+    "bias.1.direction",
+    "bias.1.mechanism",
+    "bias.1.tokens",
+    "bias.1.reason",
+    "bias.2.direction",
+    "bias.2.mechanism",
+    "bias.2.tokens",
+    "bias.2.reason",
+    "bias.3.direction",
+    "bias.3.mechanism",
+    "bias.3.tokens",
+    "bias.3.reason"
+   ],
+   "id": "stock_only",
+   "required": true,
+   "rule_ref": "memo #1 §7.1"
+  },
+  {
+   "data_ref": [
+    "oracle.attested.crypto_basis.assumption_applied",
+    "oracle.attested.defi_lending.assumption_applied",
+    "oracle.attested.equity_and_rwa_basis.assumption_applied",
+    "oracle.attested.institutional_lending.assumption_applied",
+    "oracle.attested.liquid_stables.assumption_applied",
+    "oracle.attested.rwa.assumption_applied"
+   ],
+   "id": "observation",
+   "required": true,
+   "rule_ref": "memo #2 §7"
+  },
+  {
+   "data_ref": [
+    "assumption.par_numeraire"
+   ],
+   "id": "par_numeraire",
+   "required": true,
+   "rule_ref": "memo #1 §6.1.3"
+  },
+  {
+   "data_ref": [
+    "stress.input.F",
+    "assumption.funding_reversal_rate"
+   ],
+   "id": "funding_reversal_rate",
+   "required": true,
+   "rule_ref": "memo #2 §6 row 1"
+  },
+  {
+   "data_ref": [
+    "assumption.venue_loss_shock"
+   ],
+   "id": "venue_loss_shock",
+   "required": true,
+   "rule_ref": "memo #2 §6 row 2"
+  },
+  {
+   "data_ref": [
+    "assumption.redemption_fraction"
+   ],
+   "id": "redemption_fraction",
+   "required": true,
+   "rule_ref": "memo #2 §6 row 3"
+  },
+  {
+   "data_ref": [
+    "assumption.blocks_7d"
+   ],
+   "id": "blocks_7d",
+   "required": true,
+   "rule_ref": "memo #2 §6 row 3 (E8)"
+  },
+  {
+   "data_ref": [
+    "header.freeze_date",
+    "assumption.freeze_reference"
+   ],
+   "id": "freeze_reference",
+   "required": true,
+   "rule_ref": "memo #1 §5.7"
+  }
+ ],
+ "rows": [
+  {
+   "denominator": null,
+   "field_id": "header.token",
+   "label": "token",
+   "owner_entry": "DET-83",
+   "section": "header",
+   "source_path": "bundle/header/token",
+   "unit": "literal",
+   "value": "USDe"
+  },
+  {
+   "denominator": null,
+   "field_id": "header.run_block",
+   "label": "run block",
+   "owner_entry": "DET-83",
+   "section": "header",
+   "source_path": "bundle/header/run_block",
+   "unit": "block",
+   "value": 26275087
+  },
+  {
+   "denominator": null,
+   "field_id": "header.block_timestamp",
+   "label": "block timestamp",
+   "owner_entry": "DET-83",
+   "section": "header",
+   "source_path": "bundle/header/block_timestamp",
+   "unit": "unix_s",
+   "value": 1792996307
+  },
+  {
+   "denominator": null,
+   "field_id": "header.sheet_hash",
+   "label": "sheet hash",
+   "owner_entry": "DET-77",
+   "section": "header",
+   "source_path": "bundle/header/sheet_hash",
+   "unit": "hash",
+   "value": "a2e270cd"
+  },
+  {
+   "denominator": null,
+   "field_id": "header.bundle_hash",
+   "label": "bundle hash",
+   "owner_entry": "DET-13",
+   "section": "header",
+   "source_path": "bundle/header/bundle_hash",
+   "unit": "hash",
+   "value": "f7814ee9f41a773f7dee8c18df23aaa9b2268d3269e3a399c9c597935086c674"
+  },
+  {
+   "denominator": null,
+   "field_id": "header.pipeline_version",
+   "label": "pipeline version",
+   "owner_entry": "DET-87",
+   "section": "header",
+   "source_path": "bundle/header/pipeline_version",
+   "unit": "literal",
+   "value": "0.1.0"
+  },
+  {
+   "denominator": null,
+   "field_id": "header.freeze_date",
+   "label": "freeze date",
+   "owner_entry": "DET-29",
+   "section": "header",
+   "source_path": "bundle/header/freeze_date",
+   "unit": "date",
+   "value": "2026-10-25"
+  },
+  {
+   "denominator": null,
+   "field_id": "header.tree_hash",
+   "label": "tree hash",
+   "owner_entry": "DET-84",
+   "section": "header",
+   "source_path": "tree/tree_hash",
+   "unit": "hash",
+   "value": "ef278abd27fab9d49ea769472f1616d9619bdbe139af7acd4d06374fddec1856"
+  },
+  {
+   "denominator": null,
+   "field_id": "header.stress_hash",
+   "label": "stress hash",
+   "owner_entry": "DET-84",
+   "section": "header",
+   "source_path": "stress/header/stress_hash",
+   "unit": "hash",
+   "value": "9bf648293d9b34e33b746389a29a2c7c91e1e534c4dde47c1f2afee8dc063a22"
+  },
+  {
+   "denominator": null,
+   "field_id": "header.disclosure_as_of",
+   "label": "disclosure as-of (status route)",
+   "owner_entry": "DET-74",
+   "section": "header",
+   "source_path": "bundle/synthetic/reads/FR-U21/value/as_of",
+   "unit": "literal",
+   "value": "2026-10-26T05:59:53.000000Z"
+  },
+  {
+   "denominator": null,
+   "field_id": "header.archetype",
+   "label": "archetype",
+   "owner_entry": "DET-83",
+   "section": "header",
+   "source_path": "wording/synthetic/archetype_name",
+   "unit": "literal",
+   "value": "synthetic dollar (archetype #2)"
+  },
+  {
+   "denominator": "backing_value",
+   "field_id": "verif.bar.terminal",
+   "label": "bar 1: terminal",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/bars/[name=terminal]/share",
+   "unit": "ratio",
+   "value": "0"
+  },
+  {
+   "denominator": "backing_value",
+   "field_id": "verif.bar.terminal_other_layer",
+   "label": "bar 2: terminal_other_layer",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/bars/[name=terminal_other_layer]/share",
+   "unit": "ratio",
+   "value": "0"
+  },
+  {
+   "denominator": "backing_value",
+   "field_id": "verif.bar.disclosure_dependent",
+   "label": "bar 3: disclosure_dependent",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/bars/[name=disclosure_dependent]/share",
+   "unit": "ratio",
+   "value": "1.000000000000000000000000000"
+  },
+  {
+   "denominator": "backing_value",
+   "field_id": "verif.truncated_share",
+   "label": "depth-truncated share of bar 3",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/truncated_share",
+   "unit": "ratio",
+   "value": "0.4060444619680709234467460642"
+  },
+  {
+   "denominator": "backing_value",
+   "field_id": "verif.truncated.defi_lending.share",
+   "label": "truncated: DeFi Lending",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/truncated_nodes/[category=DeFi Lending]/share",
+   "unit": "ratio",
+   "value": "0.3440472940175386944673222887"
+  },
+  {
+   "denominator": null,
+   "field_id": "verif.truncated.defi_lending.reason",
+   "label": "truncated reason: DeFi Lending",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/truncated_nodes/[category=DeFi Lending]/reason",
+   "unit": "literal",
+   "value": "lending positions; underlying stables not attributed by the disclosure"
+  },
+  {
+   "denominator": "backing_value",
+   "field_id": "verif.truncated.rwa.share",
+   "label": "truncated: RWA",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/truncated_nodes/[category=RWA]/share",
+   "unit": "ratio",
+   "value": "0.06199716795053222897942377553"
+  },
+  {
+   "denominator": null,
+   "field_id": "verif.truncated.rwa.reason",
+   "label": "truncated reason: RWA",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/truncated_nodes/[category=RWA]/reason",
+   "unit": "literal",
+   "value": "the funds' off-chain holdings - not analyzed (JAAA, STAC)"
+  },
+  {
+   "denominator": "backing_value",
+   "field_id": "verif.unlisted_share",
+   "label": "unclassified — pending intake (U)",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/shares/unlisted",
+   "unit": "ratio",
+   "value": "0"
+  },
+  {
+   "denominator": null,
+   "field_id": "verif.unclassified_literal",
+   "label": "unclassified literal",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/unclassified_literal",
+   "unit": "null",
+   "value": null
+  },
+  {
+   "denominator": null,
+   "field_id": "verif.staleness.weighted_days",
+   "label": "staleness weighted days",
+   "owner_entry": "DET-18",
+   "section": "verifiability",
+   "source_path": "tree/staleness/weighted_days",
+   "unit": "days",
+   "value": "70.86933155339508488374144754"
+  },
+  {
+   "denominator": null,
+   "field_id": "verif.staleness.status",
+   "label": "staleness status",
+   "owner_entry": "DET-18",
+   "section": "verifiability",
+   "source_path": "tree/staleness/status",
+   "unit": "null",
+   "value": null
+  },
+  {
+   "denominator": null,
+   "field_id": "verif.staleness.companion",
+   "label": "staleness companion",
+   "owner_entry": "DET-18",
+   "section": "verifiability",
+   "source_path": "tree/staleness/companion",
+   "unit": "literal",
+   "value": "40.6% of backing depth-truncated — staleness not assessed"
+  },
+  {
+   "denominator": null,
+   "field_id": "verif.staleness.worst.symbol",
+   "label": "worst node symbol",
+   "owner_entry": "DET-18",
+   "section": "verifiability",
+   "source_path": "tree/staleness/worst/symbol",
+   "unit": "literal",
+   "value": "Liquid Stables"
+  },
+  {
+   "denominator": null,
+   "field_id": "verif.staleness.worst.days",
+   "label": "worst node days",
+   "owner_entry": "DET-18",
+   "section": "verifiability",
+   "source_path": "tree/staleness/worst/days",
+   "unit": "days",
+   "value": 118
+  },
+  {
+   "denominator": "backing_value",
+   "field_id": "verif.staleness.worst.share",
+   "label": "worst node share",
+   "owner_entry": "DET-18",
+   "section": "verifiability",
+   "source_path": "tree/staleness/worst/share",
+   "unit": "ratio",
+   "value": "0.2794215882003820501244970912"
+  },
+  {
+   "denominator": null,
+   "field_id": "verif.staleness.crypto_basis.last_disclosure_date",
+   "label": "Crypto Basis last disclosure date",
+   "owner_entry": "DET-18",
+   "section": "verifiability",
+   "source_path": "tree/staleness/D/[category=Crypto Basis]/last_disclosure_date",
+   "unit": "date",
+   "value": "2026-09-27"
+  },
+  {
+   "denominator": null,
+   "field_id": "verif.staleness.crypto_basis.staleness_days",
+   "label": "Crypto Basis staleness days",
+   "owner_entry": "DET-18",
+   "section": "verifiability",
+   "source_path": "tree/staleness/D/[category=Crypto Basis]/staleness_days",
+   "unit": "days",
+   "value": 29
+  },
+  {
+   "denominator": "backing_value",
+   "field_id": "verif.staleness.crypto_basis.share",
+   "label": "Crypto Basis share",
+   "owner_entry": "DET-18",
+   "section": "verifiability",
+   "source_path": "tree/staleness/D/[category=Crypto Basis]/share",
+   "unit": "ratio",
+   "value": "0.1499705393849060144360308602"
+  },
+  {
+   "denominator": null,
+   "field_id": "verif.staleness.equity_and_rwa_basis.last_disclosure_date",
+   "label": "Equity and RWA Basis last disclosure date",
+   "owner_entry": "DET-18",
+   "section": "verifiability",
+   "source_path": "tree/staleness/D/[category=Equity and RWA Basis]/last_disclosure_date",
+   "unit": "date",
+   "value": "2026-09-27"
+  },
+  {
+   "denominator": null,
+   "field_id": "verif.staleness.equity_and_rwa_basis.staleness_days",
+   "label": "Equity and RWA Basis staleness days",
+   "owner_entry": "DET-18",
+   "section": "verifiability",
+   "source_path": "tree/staleness/D/[category=Equity and RWA Basis]/staleness_days",
+   "unit": "days",
+   "value": 29
+  },
+  {
+   "denominator": "backing_value",
+   "field_id": "verif.staleness.equity_and_rwa_basis.share",
+   "label": "Equity and RWA Basis share",
+   "owner_entry": "DET-18",
+   "section": "verifiability",
+   "source_path": "tree/staleness/D/[category=Equity and RWA Basis]/share",
+   "unit": "ratio",
+   "value": "0.01109543155358797671622600823"
+  },
+  {
+   "denominator": null,
+   "field_id": "verif.staleness.institutional_lending.last_disclosure_date",
+   "label": "Institutional Lending last disclosure date",
+   "owner_entry": "DET-18",
+   "section": "verifiability",
+   "source_path": "tree/staleness/D/[category=Institutional Lending]/last_disclosure_date",
+   "unit": "date",
+   "value": "2026-09-27"
+  },
+  {
+   "denominator": null,
+   "field_id": "verif.staleness.institutional_lending.staleness_days",
+   "label": "Institutional Lending staleness days",
+   "owner_entry": "DET-18",
+   "section": "verifiability",
+   "source_path": "tree/staleness/D/[category=Institutional Lending]/staleness_days",
+   "unit": "days",
+   "value": 29
+  },
+  {
+   "denominator": "backing_value",
+   "field_id": "verif.staleness.institutional_lending.share",
+   "label": "Institutional Lending share",
+   "owner_entry": "DET-18",
+   "section": "verifiability",
+   "source_path": "tree/staleness/D/[category=Institutional Lending]/share",
+   "unit": "ratio",
+   "value": "0.1534679788930530352764999762"
+  },
+  {
+   "denominator": null,
+   "field_id": "verif.staleness.liquid_stables.last_disclosure_date",
+   "label": "Liquid Stables last disclosure date",
+   "owner_entry": "DET-18",
+   "section": "verifiability",
+   "source_path": "tree/staleness/D/[category=Liquid Stables]/last_disclosure_date",
+   "unit": "date",
+   "value": "2026-06-30"
+  },
+  {
+   "denominator": null,
+   "field_id": "verif.staleness.liquid_stables.staleness_days",
+   "label": "Liquid Stables staleness days",
+   "owner_entry": "DET-18",
+   "section": "verifiability",
+   "source_path": "tree/staleness/D/[category=Liquid Stables]/staleness_days",
+   "unit": "days",
+   "value": 118
+  },
+  {
+   "denominator": "backing_value",
+   "field_id": "verif.staleness.liquid_stables.share",
+   "label": "Liquid Stables share",
+   "owner_entry": "DET-18",
+   "section": "verifiability",
+   "source_path": "tree/staleness/D/[category=Liquid Stables]/share",
+   "unit": "ratio",
+   "value": "0.2794215882003820501244970912"
+  },
+  {
+   "denominator": null,
+   "field_id": "verif.t29.0.category",
+   "label": "disclosure cadence category",
+   "owner_entry": "DET-18",
+   "section": "verifiability",
+   "source_path": "tree/synthetic/t29/0/category",
+   "unit": "literal",
+   "value": "Crypto Basis"
+  },
+  {
+   "denominator": null,
+   "field_id": "verif.t29.0.cadence",
+   "label": "disclosure cadence cadence",
+   "owner_entry": "DET-18",
+   "section": "verifiability",
+   "source_path": "tree/synthetic/t29/0/cadence",
+   "unit": "literal",
+   "value": "monthly attestation + weekly PoR"
+  },
+  {
+   "denominator": null,
+   "field_id": "verif.t29.0.age_days",
+   "label": "disclosure cadence age days",
+   "owner_entry": "DET-18",
+   "section": "verifiability",
+   "source_path": "tree/synthetic/t29/0/age_days",
+   "unit": "days",
+   "value": 29
+  },
+  {
+   "denominator": null,
+   "field_id": "verif.t29.0.overdue",
+   "label": "disclosure cadence overdue",
+   "owner_entry": "DET-18",
+   "section": "verifiability",
+   "source_path": "tree/synthetic/t29/0/overdue",
+   "unit": "boolean",
+   "value": false
+  },
+  {
+   "denominator": null,
+   "field_id": "verif.t29.1.category",
+   "label": "disclosure cadence category",
+   "owner_entry": "DET-18",
+   "section": "verifiability",
+   "source_path": "tree/synthetic/t29/1/category",
+   "unit": "literal",
+   "value": "Equity and RWA Basis"
+  },
+  {
+   "denominator": null,
+   "field_id": "verif.t29.1.cadence",
+   "label": "disclosure cadence cadence",
+   "owner_entry": "DET-18",
+   "section": "verifiability",
+   "source_path": "tree/synthetic/t29/1/cadence",
+   "unit": "literal",
+   "value": "monthly attestation + weekly PoR"
+  },
+  {
+   "denominator": null,
+   "field_id": "verif.t29.1.age_days",
+   "label": "disclosure cadence age days",
+   "owner_entry": "DET-18",
+   "section": "verifiability",
+   "source_path": "tree/synthetic/t29/1/age_days",
+   "unit": "days",
+   "value": 29
+  },
+  {
+   "denominator": null,
+   "field_id": "verif.t29.1.overdue",
+   "label": "disclosure cadence overdue",
+   "owner_entry": "DET-18",
+   "section": "verifiability",
+   "source_path": "tree/synthetic/t29/1/overdue",
+   "unit": "boolean",
+   "value": false
+  },
+  {
+   "denominator": null,
+   "field_id": "verif.t29.2.category",
+   "label": "disclosure cadence category",
+   "owner_entry": "DET-18",
+   "section": "verifiability",
+   "source_path": "tree/synthetic/t29/2/category",
+   "unit": "literal",
+   "value": "Institutional Lending"
+  },
+  {
+   "denominator": null,
+   "field_id": "verif.t29.2.cadence",
+   "label": "disclosure cadence cadence",
+   "owner_entry": "DET-18",
+   "section": "verifiability",
+   "source_path": "tree/synthetic/t29/2/cadence",
+   "unit": "literal",
+   "value": "monthly attestation"
+  },
+  {
+   "denominator": null,
+   "field_id": "verif.t29.2.age_days",
+   "label": "disclosure cadence age days",
+   "owner_entry": "DET-18",
+   "section": "verifiability",
+   "source_path": "tree/synthetic/t29/2/age_days",
+   "unit": "days",
+   "value": 29
+  },
+  {
+   "denominator": null,
+   "field_id": "verif.t29.2.overdue",
+   "label": "disclosure cadence overdue",
+   "owner_entry": "DET-18",
+   "section": "verifiability",
+   "source_path": "tree/synthetic/t29/2/overdue",
+   "unit": "boolean",
+   "value": false
+  },
+  {
+   "denominator": null,
+   "field_id": "verif.t29.3.category",
+   "label": "disclosure cadence category",
+   "owner_entry": "DET-18",
+   "section": "verifiability",
+   "source_path": "tree/synthetic/t29/3/category",
+   "unit": "literal",
+   "value": "Liquid Stables"
+  },
+  {
+   "denominator": null,
+   "field_id": "verif.t29.3.cadence",
+   "label": "disclosure cadence cadence",
+   "owner_entry": "DET-18",
+   "section": "verifiability",
+   "source_path": "tree/synthetic/t29/3/cadence",
+   "unit": "literal",
+   "value": "quarterly BDO attestation"
+  },
+  {
+   "denominator": null,
+   "field_id": "verif.t29.3.age_days",
+   "label": "disclosure cadence age days",
+   "owner_entry": "DET-18",
+   "section": "verifiability",
+   "source_path": "tree/synthetic/t29/3/age_days",
+   "unit": "days",
+   "value": 118
+  },
+  {
+   "denominator": null,
+   "field_id": "verif.t29.3.overdue",
+   "label": "disclosure cadence overdue",
+   "owner_entry": "DET-18",
+   "section": "verifiability",
+   "source_path": "tree/synthetic/t29/3/overdue",
+   "unit": "boolean",
+   "value": false
+  },
+  {
+   "denominator": null,
+   "field_id": "verif.banner",
+   "label": "admin qualifier banner",
+   "owner_entry": "DET-70",
+   "section": "verifiability",
+   "source_path": "tree/banner",
+   "unit": "literal",
+   "value": "Verifiability conditional on: mint — timelock + 1–7d; set_parameters — timelock + 1–7d; seize — timelock + 1–7d. Backing held by 3 custodians under issuer discretion; on-chain keys shown below."
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.node.defi_lending.symbol",
+   "label": "disclosure category",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/nodes/[category=DeFi Lending]/symbol",
+   "unit": "literal",
+   "value": "DeFi Lending"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.node.defi_lending.label",
+   "label": "node label",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/nodes/[category=DeFi Lending]/label",
+   "unit": "literal",
+   "value": "recurses_truncated"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.node.defi_lending.bar",
+   "label": "backing class of the node",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "wording/tree/node_bar/recurses_truncated",
+   "unit": "literal",
+   "value": "disclosure_dependent"
+  },
+  {
+   "denominator": "backing_value",
+   "field_id": "tree.node.defi_lending.share",
+   "label": "DeFi Lending share of backing",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/nodes/[category=DeFi Lending]/share",
+   "unit": "ratio",
+   "value": "0.3440472940175386944673222887"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.node.defi_lending.usd",
+   "label": "DeFi Lending attested value",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "bundle/synthetic/reads/FR-U20/value/DeFi Lending",
+   "unit": "usd",
+   "value": 1577881694
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.node.liquid_stables.symbol",
+   "label": "disclosure category",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/nodes/[category=Liquid Stables]/symbol",
+   "unit": "literal",
+   "value": "Liquid Stables"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.node.liquid_stables.label",
+   "label": "node label",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/nodes/[category=Liquid Stables]/label",
+   "unit": "literal",
+   "value": "recurses"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.node.liquid_stables.bar",
+   "label": "backing class of the node",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "wording/tree/node_bar/recurses",
+   "unit": "literal",
+   "value": "disclosure_dependent"
+  },
+  {
+   "denominator": "backing_value",
+   "field_id": "tree.node.liquid_stables.share",
+   "label": "Liquid Stables share of backing",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/nodes/[category=Liquid Stables]/share",
+   "unit": "ratio",
+   "value": "0.2794215882003820501244970912"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.node.liquid_stables.usd",
+   "label": "Liquid Stables attested value",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "bundle/synthetic/reads/FR-U20/value/Liquid Stables",
+   "unit": "usd",
+   "value": 1281493029
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.node.institutional_lending.symbol",
+   "label": "disclosure category",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/nodes/[category=Institutional Lending]/symbol",
+   "unit": "literal",
+   "value": "Institutional Lending"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.node.institutional_lending.label",
+   "label": "node label",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/nodes/[category=Institutional Lending]/label",
+   "unit": "literal",
+   "value": "recurses"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.node.institutional_lending.bar",
+   "label": "backing class of the node",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "wording/tree/node_bar/recurses",
+   "unit": "literal",
+   "value": "disclosure_dependent"
+  },
+  {
+   "denominator": "backing_value",
+   "field_id": "tree.node.institutional_lending.share",
+   "label": "Institutional Lending share of backing",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/nodes/[category=Institutional Lending]/share",
+   "unit": "ratio",
+   "value": "0.1534679788930530352764999762"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.node.institutional_lending.usd",
+   "label": "Institutional Lending attested value",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "bundle/synthetic/reads/FR-U20/value/Institutional Lending",
+   "unit": "usd",
+   "value": 703840195
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.node.crypto_basis.symbol",
+   "label": "disclosure category",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/nodes/[category=Crypto Basis]/symbol",
+   "unit": "literal",
+   "value": "Crypto Basis"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.node.crypto_basis.label",
+   "label": "node label",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/nodes/[category=Crypto Basis]/label",
+   "unit": "literal",
+   "value": "recurses"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.node.crypto_basis.bar",
+   "label": "backing class of the node",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "wording/tree/node_bar/recurses",
+   "unit": "literal",
+   "value": "disclosure_dependent"
+  },
+  {
+   "denominator": "backing_value",
+   "field_id": "tree.node.crypto_basis.share",
+   "label": "Crypto Basis share of backing",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/nodes/[category=Crypto Basis]/share",
+   "unit": "ratio",
+   "value": "0.1499705393849060144360308602"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.node.crypto_basis.usd",
+   "label": "Crypto Basis attested value",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "bundle/synthetic/reads/FR-U20/value/Crypto Basis",
+   "unit": "usd",
+   "value": 687800116
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.node.rwa.symbol",
+   "label": "disclosure category",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/nodes/[category=RWA]/symbol",
+   "unit": "literal",
+   "value": "RWA"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.node.rwa.label",
+   "label": "node label",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/nodes/[category=RWA]/label",
+   "unit": "literal",
+   "value": "recurses_truncated"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.node.rwa.bar",
+   "label": "backing class of the node",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "wording/tree/node_bar/recurses_truncated",
+   "unit": "literal",
+   "value": "disclosure_dependent"
+  },
+  {
+   "denominator": "backing_value",
+   "field_id": "tree.node.rwa.share",
+   "label": "RWA share of backing",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/nodes/[category=RWA]/share",
+   "unit": "ratio",
+   "value": "0.06199716795053222897942377553"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.node.rwa.usd",
+   "label": "RWA attested value",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "bundle/synthetic/reads/FR-U20/value/RWA",
+   "unit": "usd",
+   "value": 284333573
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.node.equity_and_rwa_basis.symbol",
+   "label": "disclosure category",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/nodes/[category=Equity and RWA Basis]/symbol",
+   "unit": "literal",
+   "value": "Equity and RWA Basis"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.node.equity_and_rwa_basis.label",
+   "label": "node label",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/nodes/[category=Equity and RWA Basis]/label",
+   "unit": "literal",
+   "value": "recurses"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.node.equity_and_rwa_basis.bar",
+   "label": "backing class of the node",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "wording/tree/node_bar/recurses",
+   "unit": "literal",
+   "value": "disclosure_dependent"
+  },
+  {
+   "denominator": "backing_value",
+   "field_id": "tree.node.equity_and_rwa_basis.share",
+   "label": "Equity and RWA Basis share of backing",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/nodes/[category=Equity and RWA Basis]/share",
+   "unit": "ratio",
+   "value": "0.01109543155358797671622600823"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.node.equity_and_rwa_basis.usd",
+   "label": "Equity and RWA Basis attested value",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "bundle/synthetic/reads/FR-U20/value/Equity and RWA Basis",
+   "unit": "usd",
+   "value": 50886255
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.label_row.0.symbol",
+   "label": "label row symbol",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/synthetic/label_rows/0/symbol",
+   "unit": "literal",
+   "value": "FRAX"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.label_row.0.label",
+   "label": "label row label",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/synthetic/label_rows/0/label",
+   "unit": "literal",
+   "value": "recurses"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.label_row.0.recurses_into",
+   "label": "label row recurses into",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/synthetic/label_rows/0/recurses_into",
+   "unit": "literal",
+   "value": "Frax disclosure - none published, dated absence"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.label_row.0.chain",
+   "label": "label row chain",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/synthetic/label_rows/0/chain",
+   "unit": "literal",
+   "value": "ethereum"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.label_row.0.roles",
+   "label": "label row roles",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/synthetic/label_rows/0/roles",
+   "unit": "list",
+   "value": [
+    "pool_pair"
+   ]
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.label_row.0.last_disclosure_date",
+   "label": "label row last disclosure",
+   "owner_entry": "DET-18",
+   "section": "verifiability",
+   "source_path": "tree/synthetic/label_rows/0/last_disclosure_date",
+   "unit": "null",
+   "value": null
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.label_row.1.symbol",
+   "label": "label row symbol",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/synthetic/label_rows/1/symbol",
+   "unit": "literal",
+   "value": "PYUSD"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.label_row.1.label",
+   "label": "label row label",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/synthetic/label_rows/1/label",
+   "unit": "literal",
+   "value": "recurses"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.label_row.1.recurses_into",
+   "label": "label row recurses into",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/synthetic/label_rows/1/recurses_into",
+   "unit": "literal",
+   "value": "Paxos"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.label_row.1.chain",
+   "label": "label row chain",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/synthetic/label_rows/1/chain",
+   "unit": "literal",
+   "value": "ethereum"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.label_row.1.roles",
+   "label": "label row roles",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/synthetic/label_rows/1/roles",
+   "unit": "list",
+   "value": [
+    "buffer"
+   ]
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.label_row.1.last_disclosure_date",
+   "label": "label row last disclosure",
+   "owner_entry": "DET-18",
+   "section": "verifiability",
+   "source_path": "tree/synthetic/label_rows/1/last_disclosure_date",
+   "unit": "date",
+   "value": "2026-09-30"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.label_row.2.symbol",
+   "label": "label row symbol",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/synthetic/label_rows/2/symbol",
+   "unit": "literal",
+   "value": "RLUSD"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.label_row.2.label",
+   "label": "label row label",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/synthetic/label_rows/2/label",
+   "unit": "literal",
+   "value": "recurses"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.label_row.2.recurses_into",
+   "label": "label row recurses into",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/synthetic/label_rows/2/recurses_into",
+   "unit": "literal",
+   "value": "Ripple"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.label_row.2.chain",
+   "label": "label row chain",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/synthetic/label_rows/2/chain",
+   "unit": "literal",
+   "value": "ethereum"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.label_row.2.roles",
+   "label": "label row roles",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/synthetic/label_rows/2/roles",
+   "unit": "list",
+   "value": [
+    "buffer"
+   ]
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.label_row.2.last_disclosure_date",
+   "label": "label row last disclosure",
+   "owner_entry": "DET-18",
+   "section": "verifiability",
+   "source_path": "tree/synthetic/label_rows/2/last_disclosure_date",
+   "unit": "date",
+   "value": "2026-08-31"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.label_row.3.symbol",
+   "label": "label row symbol",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/synthetic/label_rows/3/symbol",
+   "unit": "literal",
+   "value": "USDC"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.label_row.3.label",
+   "label": "label row label",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/synthetic/label_rows/3/label",
+   "unit": "literal",
+   "value": "recurses"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.label_row.3.recurses_into",
+   "label": "label row recurses into",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/synthetic/label_rows/3/recurses_into",
+   "unit": "literal",
+   "value": "Circle"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.label_row.3.chain",
+   "label": "label row chain",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/synthetic/label_rows/3/chain",
+   "unit": "literal",
+   "value": "ethereum"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.label_row.3.roles",
+   "label": "label row roles",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/synthetic/label_rows/3/roles",
+   "unit": "list",
+   "value": [
+    "buffer"
+   ]
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.label_row.3.last_disclosure_date",
+   "label": "label row last disclosure",
+   "owner_entry": "DET-18",
+   "section": "verifiability",
+   "source_path": "tree/synthetic/label_rows/3/last_disclosure_date",
+   "unit": "date",
+   "value": "2026-08-31"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.label_row.4.symbol",
+   "label": "label row symbol",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/synthetic/label_rows/4/symbol",
+   "unit": "literal",
+   "value": "USDG"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.label_row.4.label",
+   "label": "label row label",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/synthetic/label_rows/4/label",
+   "unit": "literal",
+   "value": "recurses"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.label_row.4.recurses_into",
+   "label": "label row recurses into",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/synthetic/label_rows/4/recurses_into",
+   "unit": "literal",
+   "value": "Paxos"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.label_row.4.chain",
+   "label": "label row chain",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/synthetic/label_rows/4/chain",
+   "unit": "literal",
+   "value": "ethereum"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.label_row.4.roles",
+   "label": "label row roles",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/synthetic/label_rows/4/roles",
+   "unit": "list",
+   "value": [
+    "buffer"
+   ]
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.label_row.4.last_disclosure_date",
+   "label": "label row last disclosure",
+   "owner_entry": "DET-18",
+   "section": "verifiability",
+   "source_path": "tree/synthetic/label_rows/4/last_disclosure_date",
+   "unit": "date",
+   "value": "2026-09-30"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.label_row.5.symbol",
+   "label": "label row symbol",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/synthetic/label_rows/5/symbol",
+   "unit": "literal",
+   "value": "USDT"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.label_row.5.label",
+   "label": "label row label",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/synthetic/label_rows/5/label",
+   "unit": "literal",
+   "value": "recurses"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.label_row.5.recurses_into",
+   "label": "label row recurses into",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/synthetic/label_rows/5/recurses_into",
+   "unit": "literal",
+   "value": "Tether"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.label_row.5.chain",
+   "label": "label row chain",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/synthetic/label_rows/5/chain",
+   "unit": "literal",
+   "value": "ethereum"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.label_row.5.roles",
+   "label": "label row roles",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/synthetic/label_rows/5/roles",
+   "unit": "list",
+   "value": [
+    "buffer",
+    "pool_pair"
+   ]
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.label_row.5.last_disclosure_date",
+   "label": "label row last disclosure",
+   "owner_entry": "DET-18",
+   "section": "verifiability",
+   "source_path": "tree/synthetic/label_rows/5/last_disclosure_date",
+   "unit": "date",
+   "value": "2026-06-30"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.label_row.6.symbol",
+   "label": "label row symbol",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/synthetic/label_rows/6/symbol",
+   "unit": "literal",
+   "value": "USDT0"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.label_row.6.label",
+   "label": "label row label",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/synthetic/label_rows/6/label",
+   "unit": "literal",
+   "value": "recurses"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.label_row.6.recurses_into",
+   "label": "label row recurses into",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/synthetic/label_rows/6/recurses_into",
+   "unit": "literal",
+   "value": "Tether"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.label_row.6.chain",
+   "label": "label row chain",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/synthetic/label_rows/6/chain",
+   "unit": "literal",
+   "value": "other"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.label_row.6.roles",
+   "label": "label row roles",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/synthetic/label_rows/6/roles",
+   "unit": "list",
+   "value": [
+    "buffer"
+   ]
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.label_row.6.last_disclosure_date",
+   "label": "label row last disclosure",
+   "owner_entry": "DET-18",
+   "section": "verifiability",
+   "source_path": "tree/synthetic/label_rows/6/last_disclosure_date",
+   "unit": "date",
+   "value": "2026-06-30"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.label_row.7.symbol",
+   "label": "label row symbol",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/synthetic/label_rows/7/symbol",
+   "unit": "literal",
+   "value": "USDtb"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.label_row.7.label",
+   "label": "label row label",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/synthetic/label_rows/7/label",
+   "unit": "literal",
+   "value": "recurses"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.label_row.7.recurses_into",
+   "label": "label row recurses into",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/synthetic/label_rows/7/recurses_into",
+   "unit": "literal",
+   "value": "Anchorage Digital Bank NA"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.label_row.7.chain",
+   "label": "label row chain",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/synthetic/label_rows/7/chain",
+   "unit": "literal",
+   "value": "ethereum"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.label_row.7.roles",
+   "label": "label row roles",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/synthetic/label_rows/7/roles",
+   "unit": "list",
+   "value": [
+    "buffer"
+   ]
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.label_row.7.last_disclosure_date",
+   "label": "label row last disclosure",
+   "owner_entry": "DET-18",
+   "section": "verifiability",
+   "source_path": "tree/synthetic/label_rows/7/last_disclosure_date",
+   "unit": "date",
+   "value": "2026-08-31"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.label_row.8.symbol",
+   "label": "label row symbol",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/synthetic/label_rows/8/symbol",
+   "unit": "literal",
+   "value": "sGHO"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.label_row.8.label",
+   "label": "label row label",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/synthetic/label_rows/8/label",
+   "unit": "literal",
+   "value": "transparent_wrapper"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.label_row.8.recurses_into",
+   "label": "label row recurses into",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/synthetic/label_rows/8/recurses_into",
+   "unit": "literal",
+   "value": "GHO (memo #1 §4.1 analyzed-set link)"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.label_row.8.chain",
+   "label": "label row chain",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/synthetic/label_rows/8/chain",
+   "unit": "literal",
+   "value": "other"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.label_row.8.roles",
+   "label": "label row roles",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/synthetic/label_rows/8/roles",
+   "unit": "list",
+   "value": [
+    "buffer"
+   ]
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.label_row.8.last_disclosure_date",
+   "label": "label row last disclosure",
+   "owner_entry": "DET-18",
+   "section": "verifiability",
+   "source_path": "tree/synthetic/label_rows/8/last_disclosure_date",
+   "unit": "null",
+   "value": null
+  },
+  {
+   "denominator": null,
+   "field_id": "verif.reserve_fund.slice",
+   "label": "reserve fund",
+   "owner_entry": "DET-19",
+   "section": "verifiability",
+   "source_path": "tree/synthetic/reserve_fund/slice",
+   "unit": "literal",
+   "value": "protocol reserve fund, discretionary"
+  },
+  {
+   "denominator": null,
+   "field_id": "verif.reserve_fund.credited",
+   "label": "reserve fund credited as backing",
+   "owner_entry": "DET-19",
+   "section": "verifiability",
+   "source_path": "tree/synthetic/reserve_fund/credited",
+   "unit": "boolean",
+   "value": false
+  },
+  {
+   "denominator": null,
+   "field_id": "verif.reserve_fund.disclosed_usd",
+   "label": "reserve fund (status route)",
+   "owner_entry": "DET-19",
+   "section": "verifiability",
+   "source_path": "tree/synthetic/reserve_fund/disclosed_usd",
+   "unit": "usd",
+   "value": "62067738.34583983"
+  },
+  {
+   "denominator": null,
+   "field_id": "denominator.bars",
+   "label": "denominator of bars",
+   "owner_entry": "DET-19",
+   "section": "verifiability",
+   "source_path": "tree/denominators/bars",
+   "unit": "denominator",
+   "value": "backing_value"
+  },
+  {
+   "denominator": null,
+   "field_id": "denominator.concentration.share_of_exit_depth",
+   "label": "denominator of concentration.share_of_exit_depth",
+   "owner_entry": "DET-19",
+   "section": "verifiability",
+   "source_path": "tree/denominators/concentration.share_of_exit_depth",
+   "unit": "denominator",
+   "value": "frozen_set_freeze_tvl"
+  },
+  {
+   "denominator": null,
+   "field_id": "denominator.root.backed_supply",
+   "label": "denominator of root.backed_supply",
+   "owner_entry": "DET-19",
+   "section": "verifiability",
+   "source_path": "tree/denominators/root.backed_supply",
+   "unit": "denominator",
+   "value": "amount"
+  },
+  {
+   "denominator": null,
+   "field_id": "denominator.root.backing_value",
+   "label": "denominator of root.backing_value",
+   "owner_entry": "DET-19",
+   "section": "verifiability",
+   "source_path": "tree/denominators/root.backing_value",
+   "unit": "denominator",
+   "value": "amount"
+  },
+  {
+   "denominator": null,
+   "field_id": "denominator.root.residual",
+   "label": "denominator of root.residual",
+   "owner_entry": "DET-19",
+   "section": "verifiability",
+   "source_path": "tree/denominators/root.residual",
+   "unit": "denominator",
+   "value": "amount"
+  },
+  {
+   "denominator": null,
+   "field_id": "denominator.root.stabilizer_debt",
+   "label": "denominator of root.stabilizer_debt",
+   "owner_entry": "DET-19",
+   "section": "verifiability",
+   "source_path": "tree/denominators/root.stabilizer_debt",
+   "unit": "denominator",
+   "value": "amount"
+  },
+  {
+   "denominator": null,
+   "field_id": "denominator.root.supply_ruled",
+   "label": "denominator of root.supply_ruled",
+   "owner_entry": "DET-19",
+   "section": "verifiability",
+   "source_path": "tree/denominators/root.supply_ruled",
+   "unit": "denominator",
+   "value": "amount"
+  },
+  {
+   "denominator": null,
+   "field_id": "denominator.shares",
+   "label": "denominator of shares",
+   "owner_entry": "DET-19",
+   "section": "verifiability",
+   "source_path": "tree/denominators/shares",
+   "unit": "denominator",
+   "value": "backing_value"
+  },
+  {
+   "denominator": null,
+   "field_id": "denominator.stabilizer_slice.ceiling_aggregate",
+   "label": "denominator of stabilizer_slice.ceiling_aggregate",
+   "owner_entry": "DET-19",
+   "section": "verifiability",
+   "source_path": "tree/denominators/stabilizer_slice.ceiling_aggregate",
+   "unit": "denominator",
+   "value": "amount"
+  },
+  {
+   "denominator": null,
+   "field_id": "denominator.stabilizer_slice.ceiling_share_of_supply_ruled",
+   "label": "denominator of stabilizer_slice.ceiling_share_of_supply_ruled",
+   "owner_entry": "DET-19",
+   "section": "verifiability",
+   "source_path": "tree/denominators/stabilizer_slice.ceiling_share_of_supply_ruled",
+   "unit": "denominator",
+   "value": "supply_ruled"
+  },
+  {
+   "denominator": null,
+   "field_id": "denominator.stabilizer_slice.debt",
+   "label": "denominator of stabilizer_slice.debt",
+   "owner_entry": "DET-19",
+   "section": "verifiability",
+   "source_path": "tree/denominators/stabilizer_slice.debt",
+   "unit": "denominator",
+   "value": "amount"
+  },
+  {
+   "denominator": null,
+   "field_id": "denominator.staleness.D.share",
+   "label": "denominator of staleness.D.share",
+   "owner_entry": "DET-19",
+   "section": "verifiability",
+   "source_path": "tree/denominators/staleness.D.share",
+   "unit": "denominator",
+   "value": "backing_value"
+  },
+  {
+   "denominator": null,
+   "field_id": "denominator.synthetic.supply_classes",
+   "label": "denominator of synthetic.supply_classes",
+   "owner_entry": "DET-19",
+   "section": "verifiability",
+   "source_path": "tree/denominators/synthetic.supply_classes",
+   "unit": "denominator",
+   "value": "amount"
+  },
+  {
+   "denominator": null,
+   "field_id": "denominator.truncated_nodes.share",
+   "label": "denominator of truncated_nodes.share",
+   "owner_entry": "DET-19",
+   "section": "verifiability",
+   "source_path": "tree/denominators/truncated_nodes.share",
+   "unit": "denominator",
+   "value": "backing_value"
+  },
+  {
+   "denominator": null,
+   "field_id": "denominator.truncated_share",
+   "label": "denominator of truncated_share",
+   "owner_entry": "DET-19",
+   "section": "verifiability",
+   "source_path": "tree/denominators/truncated_share",
+   "unit": "denominator",
+   "value": "backing_value"
+  },
+  {
+   "denominator": null,
+   "field_id": "supply.total_supply",
+   "label": "total supply",
+   "owner_entry": "DET-15",
+   "section": "supply",
+   "source_path": "bundle/supply/total_supply",
+   "unit": "base_units",
+   "value": 4587084755138508992523503861
+  },
+  {
+   "denominator": null,
+   "field_id": "supply.supply_ruled",
+   "label": "supply ruled",
+   "owner_entry": "DET-15",
+   "section": "supply",
+   "source_path": "bundle/supply/supply_ruled",
+   "unit": "base_units",
+   "value": 4587084755138508992523503861
+  },
+  {
+   "denominator": null,
+   "field_id": "supply.origination_sum",
+   "label": "origination sum",
+   "owner_entry": "DET-15",
+   "section": "supply",
+   "source_path": "bundle/supply/origination_sum",
+   "unit": "base_units",
+   "value": 4587084755138508992523503861
+  },
+  {
+   "denominator": null,
+   "field_id": "supply.residual",
+   "label": "residual",
+   "owner_entry": "DET-15",
+   "section": "supply",
+   "source_path": "bundle/supply/residual",
+   "unit": "base_units",
+   "value": 0
+  },
+  {
+   "denominator": null,
+   "field_id": "supply.residual_unexplained",
+   "label": "residual unexplained",
+   "owner_entry": "DET-15",
+   "section": "supply",
+   "source_path": "bundle/supply/residual_unexplained",
+   "unit": "base_units",
+   "value": 0
+  },
+  {
+   "denominator": "supply_ruled",
+   "field_id": "supply.stabilizer_over_supply",
+   "label": "stabilizer debt / supply_ruled",
+   "owner_entry": "DET-16",
+   "section": "supply",
+   "source_path": "bundle/supply/stabilizer_over_supply",
+   "unit": "ratio",
+   "value": "0"
+  },
+  {
+   "denominator": null,
+   "field_id": "supply.class.staked",
+   "label": "supply class: staked",
+   "owner_entry": "DET-15",
+   "section": "supply",
+   "source_path": "tree/synthetic/supply_classes/staked",
+   "unit": "base_units",
+   "value": 1185895473093937867929423056
+  },
+  {
+   "denominator": null,
+   "field_id": "supply.class.cooling",
+   "label": "supply class: cooling",
+   "owner_entry": "DET-15",
+   "section": "supply",
+   "source_path": "tree/synthetic/supply_classes/cooling",
+   "unit": "base_units",
+   "value": 7833952598906553020802686
+  },
+  {
+   "denominator": null,
+   "field_id": "supply.class.bridged_escrow",
+   "label": "supply class: bridged escrow",
+   "owner_entry": "DET-15",
+   "section": "supply",
+   "source_path": "tree/synthetic/supply_classes/bridged_escrow",
+   "unit": "base_units",
+   "value": 2132277546836481471165449406
+  },
+  {
+   "denominator": null,
+   "field_id": "supply.class.free_float",
+   "label": "supply class: free float",
+   "owner_entry": "DET-15",
+   "section": "supply",
+   "source_path": "tree/synthetic/supply_classes/free_float",
+   "unit": "base_units",
+   "value": 1261077782609183100407828713
+  },
+  {
+   "denominator": null,
+   "field_id": "supply.cooldown_s",
+   "label": "sUSDe cooldownDuration()",
+   "owner_entry": "DET-15",
+   "section": "supply",
+   "source_path": "bundle/synthetic/reads/FR-U04/value",
+   "unit": "seconds",
+   "value": 86400
+  },
+  {
+   "denominator": null,
+   "field_id": "supply.bridge_disclosure",
+   "label": "bridge line",
+   "owner_entry": "DET-33",
+   "section": "supply",
+   "source_path": "bundle/supply/bridge_disclosure",
+   "unit": "literal",
+   "value": "one lock_and_mint escrow, the OFT adapter, holds 2132277546836481471165449406 USDe inside totalSupply (Q20)"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.root.backing_value",
+   "label": "backing value",
+   "owner_entry": "DET-15",
+   "section": "supply",
+   "source_path": "tree/root/backing_value",
+   "unit": "usd",
+   "value": 4586234862
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.root.value_scale",
+   "label": "value scale",
+   "owner_entry": "DET-15",
+   "section": "supply",
+   "source_path": "tree/root/value_scale",
+   "unit": "count",
+   "value": 1
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.root.backed_supply",
+   "label": "backed supply",
+   "owner_entry": "DET-15",
+   "section": "supply",
+   "source_path": "tree/root/backed_supply",
+   "unit": "base_units",
+   "value": 4587084755138508992523503861
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.root.perimeter",
+   "label": "perimeter",
+   "owner_entry": "DET-15",
+   "section": "supply",
+   "source_path": "tree/root/perimeter",
+   "unit": "literal",
+   "value": "USDe is minted only through EthenaMinting V2 (by minter()); its backing is the six disclosure categories of the issuer's backing-assets route, attested monthly (memo #2 §2)"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.root.status_backing",
+   "label": "backing (status route totalBackingAssetsInUsd)",
+   "owner_entry": "DET-15",
+   "section": "supply",
+   "source_path": "tree/synthetic/status_backing_usd",
+   "unit": "usd",
+   "value": "4588774288.12"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.root.backing_difference",
+   "label": "sum of categories less status backing",
+   "owner_entry": "DET-15",
+   "section": "supply",
+   "source_path": "difference:tree/root/backing_value|tree/synthetic/status_backing_usd",
+   "unit": "usd",
+   "value": "-2539426.12"
+  },
+  {
+   "denominator": null,
+   "field_id": "stabilizer.slice.debt",
+   "label": "protocol stabilizer debt",
+   "owner_entry": "DET-22",
+   "section": "supply",
+   "source_path": "tree/stabilizer_slice/debt",
+   "unit": "base_units",
+   "value": 0
+  },
+  {
+   "denominator": null,
+   "field_id": "stabilizer.slice.ceiling_aggregate",
+   "label": "stabilizer ceiling aggregate",
+   "owner_entry": "DET-22",
+   "section": "supply",
+   "source_path": "tree/stabilizer_slice/ceiling_aggregate",
+   "unit": "base_units",
+   "value": 0
+  },
+  {
+   "denominator": "supply_ruled",
+   "field_id": "stabilizer.slice.ceiling_share",
+   "label": "stabilizer ceiling aggregate / supply_ruled",
+   "owner_entry": "DET-22",
+   "section": "supply",
+   "source_path": "tree/stabilizer_slice/ceiling_share_of_supply_ruled",
+   "unit": "ratio",
+   "value": "0"
+  },
+  {
+   "denominator": "supply_ruled",
+   "field_id": "near_bound.backing_ratio",
+   "label": "backing / supply_ruled",
+   "owner_entry": "DET-61",
+   "section": "mechanism state",
+   "source_path": "gate/DET-61/backing_ratio",
+   "unit": "ratio",
+   "value": "1.000368323907596948533629736"
+  },
+  {
+   "denominator": "supply_ruled",
+   "field_id": "near_bound.backing_ratio_bound",
+   "label": "backing ratio bound (T-07 below it)",
+   "owner_entry": "DET-61",
+   "section": "mechanism state",
+   "source_path": "gate/DET-61/backing_ratio_bound",
+   "unit": "ratio",
+   "value": "1.01"
+  },
+  {
+   "denominator": "supply_ruled",
+   "field_id": "near_bound.reserve_fund_ratio",
+   "label": "reserve fund / supply_ruled",
+   "owner_entry": "DET-61",
+   "section": "mechanism state",
+   "source_path": "gate/DET-61/reserve_fund_ratio",
+   "unit": "ratio",
+   "value": "0.01353097700588827860170107490"
+  },
+  {
+   "denominator": "supply_ruled",
+   "field_id": "near_bound.reserve_fund_ratio_bound",
+   "label": "reserve fund ratio bound (T-07 below it)",
+   "owner_entry": "DET-61",
+   "section": "mechanism state",
+   "source_path": "gate/DET-61/reserve_fund_ratio_bound",
+   "unit": "ratio",
+   "value": "0.005"
+  },
+  {
+   "denominator": null,
+   "field_id": "recon.buffer_onchain",
+   "label": "on-chain buffer at par",
+   "owner_entry": "DET-90",
+   "section": "verifiability",
+   "source_path": "gate/DET-90/buffer_onchain",
+   "unit": "usd",
+   "value": "697923051.649266257778726948"
+  },
+  {
+   "denominator": null,
+   "field_id": "recon.disclosure_onchain",
+   "label": "route Liquid Stables, Ethereum entries",
+   "owner_entry": "DET-90",
+   "section": "verifiability",
+   "source_path": "gate/DET-90/disclosure_onchain",
+   "unit": "usd",
+   "value": "896379333"
+  },
+  {
+   "denominator": null,
+   "field_id": "recon.gap",
+   "label": "reconciliation gap",
+   "owner_entry": "DET-90",
+   "section": "verifiability",
+   "source_path": "gate/DET-90/gap",
+   "unit": "usd",
+   "value": "198456281.350733742221273052"
+  },
+  {
+   "denominator": null,
+   "field_id": "recon.not_reconciled_total",
+   "label": "disclosed, not reconciled (receipt tokens)",
+   "owner_entry": "DET-90",
+   "section": "verifiability",
+   "source_path": "gate/DET-90/not_reconciled_total",
+   "unit": "usd",
+   "value": "613359964"
+  },
+  {
+   "denominator": "backing",
+   "field_id": "recon.gap_share",
+   "label": "gap / backing",
+   "owner_entry": "DET-90",
+   "section": "verifiability",
+   "source_path": "gate/DET-90/gap_share",
+   "unit": "ratio",
+   "value": "0.04324821158986235080440495397"
+  },
+  {
+   "denominator": "backing",
+   "field_id": "recon.buffer_share",
+   "label": "on-chain buffer / backing",
+   "owner_entry": "DET-90",
+   "section": "verifiability",
+   "source_path": "gate/DET-90/buffer_share",
+   "unit": "ratio",
+   "value": "0.1520935674382890958366815745"
+  },
+  {
+   "denominator": null,
+   "field_id": "recon.not_reconciled.defi_lending",
+   "label": "not reconciled: DeFi Lending",
+   "owner_entry": "DET-90",
+   "section": "verifiability",
+   "source_path": "gate/DET-90/not_reconciled/DeFi Lending",
+   "unit": "usd",
+   "value": "613359964"
+  },
+  {
+   "denominator": null,
+   "field_id": "recon.not_reconciled.rwa",
+   "label": "not reconciled: RWA",
+   "owner_entry": "DET-90",
+   "section": "verifiability",
+   "source_path": "gate/DET-90/not_reconciled/RWA",
+   "unit": "usd",
+   "value": "0"
+  },
+  {
+   "denominator": null,
+   "field_id": "stress.input.basis",
+   "label": "stress input basis",
+   "owner_entry": "DET-57",
+   "section": "stress",
+   "source_path": "stress/synthetic/inputs/basis",
+   "unit": "usd",
+   "value": "738686371"
+  },
+  {
+   "denominator": "per_year",
+   "field_id": "stress.input.F",
+   "label": "stress input F",
+   "owner_entry": "DET-57",
+   "section": "stress",
+   "source_path": "stress/synthetic/inputs/F",
+   "unit": "ratio",
+   "value": "-0.25"
+  },
+  {
+   "denominator": null,
+   "field_id": "stress.input.backing",
+   "label": "stress input backing",
+   "owner_entry": "DET-57",
+   "section": "stress",
+   "source_path": "stress/synthetic/inputs/backing",
+   "unit": "usd",
+   "value": "4588774288.12"
+  },
+  {
+   "denominator": null,
+   "field_id": "stress.input.reserve_fund",
+   "label": "stress input reserve fund",
+   "owner_entry": "DET-57",
+   "section": "stress",
+   "source_path": "stress/synthetic/inputs/reserve_fund",
+   "unit": "usd",
+   "value": "62067738.34583983"
+  },
+  {
+   "denominator": null,
+   "field_id": "stress.input.supply_ruled",
+   "label": "stress input supply ruled",
+   "owner_entry": "DET-57",
+   "section": "stress",
+   "source_path": "stress/synthetic/inputs/supply_ruled",
+   "unit": "usd",
+   "value": "4587084755.138508992523503861"
+  },
+  {
+   "denominator": null,
+   "field_id": "stress.refpoint.quarter",
+   "label": "funding reference point quarter",
+   "owner_entry": "DET-48",
+   "section": "stress",
+   "source_path": "stress/synthetic/inputs/reference_point/quarter",
+   "unit": "literal",
+   "value": "2022-Q3"
+  },
+  {
+   "denominator": null,
+   "field_id": "stress.refpoint.value_pct",
+   "label": "funding reference point value pct",
+   "owner_entry": "DET-48",
+   "section": "stress",
+   "source_path": "stress/synthetic/inputs/reference_point/value_pct",
+   "unit": "ratio",
+   "value": "0.12058389774444533"
+  },
+  {
+   "denominator": null,
+   "field_id": "stress.refpoint.negative_quarter_observed",
+   "label": "funding reference point negative quarter observed",
+   "owner_entry": "DET-48",
+   "section": "stress",
+   "source_path": "stress/synthetic/inputs/reference_point/negative_quarter_observed",
+   "unit": "boolean",
+   "value": false
+  },
+  {
+   "denominator": null,
+   "field_id": "stress.headline.row1",
+   "label": "headline cell, row1",
+   "owner_entry": "DET-38",
+   "section": "stress",
+   "source_path": "stress/synthetic/headlines/row1",
+   "unit": "literal",
+   "value": "S1-n90"
+  },
+  {
+   "denominator": null,
+   "field_id": "stress.headline.row2",
+   "label": "headline cell, row2",
+   "owner_entry": "DET-38",
+   "section": "stress",
+   "source_path": "stress/synthetic/headlines/row2",
+   "unit": "literal",
+   "value": "S2-a"
+  },
+  {
+   "denominator": null,
+   "field_id": "stress.headline.row2_beside",
+   "label": "headline cell, row2 beside",
+   "owner_entry": "DET-38",
+   "section": "stress",
+   "source_path": "stress/synthetic/headlines/row2_beside",
+   "unit": "literal",
+   "value": "S2-b"
+  },
+  {
+   "denominator": null,
+   "field_id": "stress.headline.row3",
+   "label": "headline cell, row3",
+   "owner_entry": "DET-38",
+   "section": "stress",
+   "source_path": "stress/synthetic/headlines/row3",
+   "unit": "literal",
+   "value": "S3"
+  },
+  {
+   "denominator": null,
+   "field_id": "cell.S1-n30.N",
+   "label": "S1-n30 N",
+   "owner_entry": "DET-39",
+   "section": "stress",
+   "source_path": "stress/synthetic/cells/[id=S1-n30]/N",
+   "unit": "count",
+   "value": 30
+  },
+  {
+   "denominator": null,
+   "field_id": "cell.S1-n30.loss",
+   "label": "S1-n30 loss",
+   "owner_entry": "DET-39",
+   "section": "stress",
+   "source_path": "stress/synthetic/cells/[id=S1-n30]/loss",
+   "unit": "usd",
+   "value": "15178487.07534246575342465753"
+  },
+  {
+   "denominator": null,
+   "field_id": "cell.S1-n30.post_loss_backing",
+   "label": "S1-n30 post loss backing",
+   "owner_entry": "DET-39",
+   "section": "stress",
+   "source_path": "stress/synthetic/cells/[id=S1-n30]/post_loss_backing",
+   "unit": "usd",
+   "value": "4588774288.12"
+  },
+  {
+   "denominator": "supply_ruled",
+   "field_id": "cell.S1-n30.post_loss_ratio",
+   "label": "S1-n30 post loss ratio",
+   "owner_entry": "DET-39",
+   "section": "stress",
+   "source_path": "stress/synthetic/cells/[id=S1-n30]/post_loss_ratio",
+   "unit": "ratio",
+   "value": "1.000368323907596948533629736"
+  },
+  {
+   "denominator": null,
+   "field_id": "cell.S1-n30.rf_absorbed",
+   "label": "S1-n30 reserve fund absorbed",
+   "owner_entry": "DET-39",
+   "section": "stress",
+   "source_path": "min:stress/synthetic/cells/[id=S1-n30]/loss|stress/synthetic/inputs/reserve_fund",
+   "unit": "usd",
+   "value": "15178487.07534246575342465753"
+  },
+  {
+   "denominator": null,
+   "field_id": "cell.S1-n30.cf.cf.basis_unwind_day0.literal",
+   "label": "S1-n30 counterfactual literal",
+   "owner_entry": "DET-44",
+   "section": "stress",
+   "source_path": "stress/synthetic/cells/[id=S1-n30]/counterfactual_lines/[id=cf.basis_unwind_day0]/literal",
+   "unit": "literal",
+   "value": "issuer unwinds the basis at day 0; loss bounded by execution cost, unquantified"
+  },
+  {
+   "denominator": null,
+   "field_id": "cell.S1-n30.cf.cf.basis_unwind_day0.value_counterfactual",
+   "label": "S1-n30 counterfactual value_counterfactual",
+   "owner_entry": "DET-44",
+   "section": "stress",
+   "source_path": "stress/synthetic/cells/[id=S1-n30]/counterfactual_lines/[id=cf.basis_unwind_day0]/value_counterfactual",
+   "unit": "null",
+   "value": null
+  },
+  {
+   "denominator": null,
+   "field_id": "cell.S1-n90.N",
+   "label": "S1-n90 N",
+   "owner_entry": "DET-39",
+   "section": "stress",
+   "source_path": "stress/synthetic/cells/[id=S1-n90]/N",
+   "unit": "count",
+   "value": 90
+  },
+  {
+   "denominator": null,
+   "field_id": "cell.S1-n90.loss",
+   "label": "S1-n90 loss",
+   "owner_entry": "DET-39",
+   "section": "stress",
+   "source_path": "stress/synthetic/cells/[id=S1-n90]/loss",
+   "unit": "usd",
+   "value": "45535461.22602739726027397260"
+  },
+  {
+   "denominator": null,
+   "field_id": "cell.S1-n90.post_loss_backing",
+   "label": "S1-n90 post loss backing",
+   "owner_entry": "DET-39",
+   "section": "stress",
+   "source_path": "stress/synthetic/cells/[id=S1-n90]/post_loss_backing",
+   "unit": "usd",
+   "value": "4588774288.12"
+  },
+  {
+   "denominator": "supply_ruled",
+   "field_id": "cell.S1-n90.post_loss_ratio",
+   "label": "S1-n90 post loss ratio",
+   "owner_entry": "DET-39",
+   "section": "stress",
+   "source_path": "stress/synthetic/cells/[id=S1-n90]/post_loss_ratio",
+   "unit": "ratio",
+   "value": "1.000368323907596948533629736"
+  },
+  {
+   "denominator": null,
+   "field_id": "cell.S1-n90.rf_absorbed",
+   "label": "S1-n90 reserve fund absorbed",
+   "owner_entry": "DET-39",
+   "section": "stress",
+   "source_path": "min:stress/synthetic/cells/[id=S1-n90]/loss|stress/synthetic/inputs/reserve_fund",
+   "unit": "usd",
+   "value": "45535461.22602739726027397260"
+  },
+  {
+   "denominator": null,
+   "field_id": "cell.S1-n90.cf.cf.basis_unwind_day0.literal",
+   "label": "S1-n90 counterfactual literal",
+   "owner_entry": "DET-44",
+   "section": "stress",
+   "source_path": "stress/synthetic/cells/[id=S1-n90]/counterfactual_lines/[id=cf.basis_unwind_day0]/literal",
+   "unit": "literal",
+   "value": "issuer unwinds the basis at day 0; loss bounded by execution cost, unquantified"
+  },
+  {
+   "denominator": null,
+   "field_id": "cell.S1-n90.cf.cf.basis_unwind_day0.value_counterfactual",
+   "label": "S1-n90 counterfactual value_counterfactual",
+   "owner_entry": "DET-44",
+   "section": "stress",
+   "source_path": "stress/synthetic/cells/[id=S1-n90]/counterfactual_lines/[id=cf.basis_unwind_day0]/value_counterfactual",
+   "unit": "null",
+   "value": null
+  },
+  {
+   "denominator": null,
+   "field_id": "cell.S1-n180.N",
+   "label": "S1-n180 N",
+   "owner_entry": "DET-39",
+   "section": "stress",
+   "source_path": "stress/synthetic/cells/[id=S1-n180]/N",
+   "unit": "count",
+   "value": 180
+  },
+  {
+   "denominator": null,
+   "field_id": "cell.S1-n180.loss",
+   "label": "S1-n180 loss",
+   "owner_entry": "DET-39",
+   "section": "stress",
+   "source_path": "stress/synthetic/cells/[id=S1-n180]/loss",
+   "unit": "usd",
+   "value": "91070922.45205479452054794521"
+  },
+  {
+   "denominator": null,
+   "field_id": "cell.S1-n180.post_loss_backing",
+   "label": "S1-n180 post loss backing",
+   "owner_entry": "DET-39",
+   "section": "stress",
+   "source_path": "stress/synthetic/cells/[id=S1-n180]/post_loss_backing",
+   "unit": "usd",
+   "value": "4559771104.013785035479452055"
+  },
+  {
+   "denominator": "supply_ruled",
+   "field_id": "cell.S1-n180.post_loss_ratio",
+   "label": "S1-n180 post loss ratio",
+   "owner_entry": "DET-39",
+   "section": "stress",
+   "source_path": "stress/synthetic/cells/[id=S1-n180]/post_loss_ratio",
+   "unit": "ratio",
+   "value": "0.9940455316213359982645644415"
+  },
+  {
+   "denominator": null,
+   "field_id": "cell.S1-n180.rf_absorbed",
+   "label": "S1-n180 reserve fund absorbed",
+   "owner_entry": "DET-39",
+   "section": "stress",
+   "source_path": "min:stress/synthetic/cells/[id=S1-n180]/loss|stress/synthetic/inputs/reserve_fund",
+   "unit": "usd",
+   "value": "62067738.34583983"
+  },
+  {
+   "denominator": null,
+   "field_id": "cell.S1-n180.cf.cf.basis_unwind_day0.literal",
+   "label": "S1-n180 counterfactual literal",
+   "owner_entry": "DET-44",
+   "section": "stress",
+   "source_path": "stress/synthetic/cells/[id=S1-n180]/counterfactual_lines/[id=cf.basis_unwind_day0]/literal",
+   "unit": "literal",
+   "value": "issuer unwinds the basis at day 0; loss bounded by execution cost, unquantified"
+  },
+  {
+   "denominator": null,
+   "field_id": "cell.S1-n180.cf.cf.basis_unwind_day0.value_counterfactual",
+   "label": "S1-n180 counterfactual value_counterfactual",
+   "owner_entry": "DET-44",
+   "section": "stress",
+   "source_path": "stress/synthetic/cells/[id=S1-n180]/counterfactual_lines/[id=cf.basis_unwind_day0]/value_counterfactual",
+   "unit": "null",
+   "value": null
+  },
+  {
+   "denominator": null,
+   "field_id": "cell.S2-a.loss",
+   "label": "S2-a loss",
+   "owner_entry": "DET-39",
+   "section": "stress",
+   "source_path": "stress/synthetic/cells/[id=S2-a]/loss",
+   "unit": "usd",
+   "value": "543867247"
+  },
+  {
+   "denominator": null,
+   "field_id": "cell.S2-a.post_loss_backing",
+   "label": "S2-a post loss backing",
+   "owner_entry": "DET-39",
+   "section": "stress",
+   "source_path": "stress/synthetic/cells/[id=S2-a]/post_loss_backing",
+   "unit": "usd",
+   "value": "4106974779.46583983"
+  },
+  {
+   "denominator": "supply_ruled",
+   "field_id": "cell.S2-a.post_loss_ratio",
+   "label": "S2-a post loss ratio",
+   "owner_entry": "DET-39",
+   "section": "stress",
+   "source_path": "stress/synthetic/cells/[id=S2-a]/post_loss_ratio",
+   "unit": "ratio",
+   "value": "0.8953344005395051751577321502"
+  },
+  {
+   "denominator": null,
+   "field_id": "cell.S2-a.location",
+   "label": "S2-a location",
+   "owner_entry": "DET-39",
+   "section": "stress",
+   "source_path": "stress/synthetic/cells/[id=S2-a]/location",
+   "unit": "literal",
+   "value": "Copper"
+  },
+  {
+   "denominator": null,
+   "field_id": "cell.S2-a.location_total",
+   "label": "S2-a location total",
+   "owner_entry": "DET-39",
+   "section": "stress",
+   "source_path": "stress/synthetic/cells/[id=S2-a]/location_total",
+   "unit": "usd",
+   "value": "543867247"
+  },
+  {
+   "denominator": null,
+   "field_id": "cell.S2-a.rf_absorbed",
+   "label": "S2-a reserve fund absorbed",
+   "owner_entry": "DET-39",
+   "section": "stress",
+   "source_path": "min:stress/synthetic/cells/[id=S2-a]/loss|stress/synthetic/inputs/reserve_fund",
+   "unit": "usd",
+   "value": "62067738.34583983"
+  },
+  {
+   "denominator": null,
+   "field_id": "cell.S2-b.loss",
+   "label": "S2-b loss",
+   "owner_entry": "DET-39",
+   "section": "stress",
+   "source_path": "stress/synthetic/cells/[id=S2-b]/loss",
+   "unit": "usd",
+   "value": "141374845.80"
+  },
+  {
+   "denominator": null,
+   "field_id": "cell.S2-b.post_loss_backing",
+   "label": "S2-b post loss backing",
+   "owner_entry": "DET-39",
+   "section": "stress",
+   "source_path": "stress/synthetic/cells/[id=S2-b]/post_loss_backing",
+   "unit": "usd",
+   "value": "4509467180.66583983"
+  },
+  {
+   "denominator": "supply_ruled",
+   "field_id": "cell.S2-b.post_loss_ratio",
+   "label": "S2-b post loss ratio",
+   "owner_entry": "DET-39",
+   "section": "stress",
+   "source_path": "stress/synthetic/cells/[id=S2-b]/post_loss_ratio",
+   "unit": "ratio",
+   "value": "0.9830791060954954021650306674"
+  },
+  {
+   "denominator": null,
+   "field_id": "cell.S2-b.exchange",
+   "label": "S2-b exchange",
+   "owner_entry": "DET-39",
+   "section": "stress",
+   "source_path": "stress/synthetic/cells/[id=S2-b]/exchange",
+   "unit": "literal",
+   "value": "Binance"
+  },
+  {
+   "denominator": null,
+   "field_id": "cell.S2-b.notional",
+   "label": "S2-b notional",
+   "owner_entry": "DET-39",
+   "section": "stress",
+   "source_path": "stress/synthetic/cells/[id=S2-b]/notional",
+   "unit": "usd",
+   "value": "471249486"
+  },
+  {
+   "denominator": null,
+   "field_id": "cell.S2-b.rf_absorbed",
+   "label": "S2-b reserve fund absorbed",
+   "owner_entry": "DET-39",
+   "section": "stress",
+   "source_path": "min:stress/synthetic/cells/[id=S2-b]/loss|stress/synthetic/inputs/reserve_fund",
+   "unit": "usd",
+   "value": "62067738.34583983"
+  },
+  {
+   "denominator": null,
+   "field_id": "cell.S3.X",
+   "label": "S3 X",
+   "owner_entry": "DET-41",
+   "section": "stress",
+   "source_path": "stress/synthetic/cells/[id=S3]/X",
+   "unit": "usd",
+   "value": "611743313.9257802420843129422"
+  },
+  {
+   "denominator": null,
+   "field_id": "cell.S3.free_float",
+   "label": "S3 free float",
+   "owner_entry": "DET-41",
+   "section": "stress",
+   "source_path": "stress/synthetic/cells/[id=S3]/free_float",
+   "unit": "usd",
+   "value": "1261077782.609183100407828713"
+  },
+  {
+   "denominator": null,
+   "field_id": "cell.S3.staked",
+   "label": "S3 staked",
+   "owner_entry": "DET-41",
+   "section": "stress",
+   "source_path": "stress/synthetic/cells/[id=S3]/staked",
+   "unit": "usd",
+   "value": "1185895473.093937867929423056"
+  },
+  {
+   "denominator": null,
+   "field_id": "cell.S3.cooldown_s",
+   "label": "S3 cooldown s",
+   "owner_entry": "DET-41",
+   "section": "stress",
+   "source_path": "stress/synthetic/cells/[id=S3]/cooldown_s",
+   "unit": "seconds",
+   "value": 86400
+  },
+  {
+   "denominator": null,
+   "field_id": "cell.S3.branch",
+   "label": "S3 branch",
+   "owner_entry": "DET-41",
+   "section": "stress",
+   "source_path": "stress/synthetic/cells/[id=S3]/branch",
+   "unit": "literal",
+   "value": "free float + staked"
+  },
+  {
+   "denominator": null,
+   "field_id": "cell.S3.capacity_redeem",
+   "label": "S3 capacity redeem",
+   "owner_entry": "DET-41",
+   "section": "stress",
+   "source_path": "stress/synthetic/cells/[id=S3]/capacity_redeem",
+   "unit": "usd",
+   "value": "751293106"
+  },
+  {
+   "denominator": null,
+   "field_id": "cell.S3.stablecoin_collateral",
+   "label": "S3 stablecoin collateral",
+   "owner_entry": "DET-41",
+   "section": "stress",
+   "source_path": "stress/synthetic/cells/[id=S3]/stablecoin_collateral",
+   "unit": "usd",
+   "value": "751293106"
+  },
+  {
+   "denominator": null,
+   "field_id": "cell.S3.rate_cap_7d",
+   "label": "S3 rate cap 7d",
+   "owner_entry": "DET-41",
+   "section": "stress",
+   "source_path": "stress/synthetic/cells/[id=S3]/rate_cap_7d",
+   "unit": "usd",
+   "value": "1008000000000"
+  },
+  {
+   "denominator": null,
+   "field_id": "cell.S3.exit_depth_2pct",
+   "label": "S3 exit depth 2pct",
+   "owner_entry": "DET-41",
+   "section": "stress",
+   "source_path": "stress/synthetic/cells/[id=S3]/exit_depth_2pct",
+   "unit": "usd",
+   "value": "20952993.05439503376411448"
+  },
+  {
+   "denominator": null,
+   "field_id": "cell.S3.depeg_pressure_ratio",
+   "label": "S3 depeg pressure ratio",
+   "owner_entry": "DET-41",
+   "section": "stress",
+   "source_path": "stress/synthetic/cells/[id=S3]/depeg_pressure_ratio",
+   "unit": "ratio",
+   "value": "0"
+  },
+  {
+   "denominator": null,
+   "field_id": "cell.S3.cf.cf.cooldown_branch.branch",
+   "label": "S3 counterfactual branch",
+   "owner_entry": "DET-44",
+   "section": "stress",
+   "source_path": "stress/synthetic/cells/[id=S3]/counterfactual_lines/[id=cf.cooldown_branch]/branch",
+   "unit": "literal",
+   "value": "free float only"
+  },
+  {
+   "denominator": null,
+   "field_id": "cell.S3.cf.cf.cooldown_branch.X",
+   "label": "S3 counterfactual X",
+   "owner_entry": "DET-44",
+   "section": "stress",
+   "source_path": "stress/synthetic/cells/[id=S3]/counterfactual_lines/[id=cf.cooldown_branch]/X",
+   "unit": "usd",
+   "value": "315269445.6522957751019571782"
+  },
+  {
+   "denominator": null,
+   "field_id": "cell.S3.cf.cf.cooldown_branch.value_counterfactual",
+   "label": "S3 counterfactual value_counterfactual",
+   "owner_entry": "DET-44",
+   "section": "stress",
+   "source_path": "stress/synthetic/cells/[id=S3]/counterfactual_lines/[id=cf.cooldown_branch]/value_counterfactual",
+   "unit": "ratio",
+   "value": "0"
+  },
+  {
+   "denominator": null,
+   "field_id": "cell.S3.K80.depth_at_2pct",
+   "label": "K-subset 80% depth",
+   "owner_entry": "DET-30",
+   "section": "stress",
+   "source_path": "stress/synthetic/cells/[id=S3]/k_rows/[k=80]/depth_at_2pct",
+   "unit": "usd",
+   "value": "20952993.05439503376411448"
+  },
+  {
+   "denominator": null,
+   "field_id": "cell.S3.K80.ratio",
+   "label": "K-subset 80% depeg-pressure ratio",
+   "owner_entry": "DET-30",
+   "section": "stress",
+   "source_path": "stress/synthetic/cells/[id=S3]/k_rows/[k=80]/ratio",
+   "unit": "ratio",
+   "value": "0"
+  },
+  {
+   "denominator": null,
+   "field_id": "cell.S3.K90.depth_at_2pct",
+   "label": "K-subset 90% depth",
+   "owner_entry": "DET-30",
+   "section": "stress",
+   "source_path": "stress/synthetic/cells/[id=S3]/k_rows/[k=90]/depth_at_2pct",
+   "unit": "usd",
+   "value": "20952993.05439503376411448"
+  },
+  {
+   "denominator": null,
+   "field_id": "cell.S3.K90.ratio",
+   "label": "K-subset 90% depeg-pressure ratio",
+   "owner_entry": "DET-30",
+   "section": "stress",
+   "source_path": "stress/synthetic/cells/[id=S3]/k_rows/[k=90]/ratio",
+   "unit": "ratio",
+   "value": "0"
+  },
+  {
+   "denominator": null,
+   "field_id": "cell.S3.K95.depth_at_2pct",
+   "label": "K-subset 95% depth",
+   "owner_entry": "DET-30",
+   "section": "stress",
+   "source_path": "stress/synthetic/cells/[id=S3]/k_rows/[k=95]/depth_at_2pct",
+   "unit": "usd",
+   "value": "20952993.05439503376411448"
+  },
+  {
+   "denominator": null,
+   "field_id": "cell.S3.K95.ratio",
+   "label": "K-subset 95% depeg-pressure ratio",
+   "owner_entry": "DET-30",
+   "section": "stress",
+   "source_path": "stress/synthetic/cells/[id=S3]/k_rows/[k=95]/ratio",
+   "unit": "ratio",
+   "value": "0"
+  },
+  {
+   "denominator": null,
+   "field_id": "assumption.blocks_7d",
+   "label": "assumption: blocks_7d",
+   "owner_entry": "DET-57",
+   "section": "assumptions",
+   "source_path": "stress/synthetic/assumptions/blocks_7d",
+   "unit": "literal",
+   "value": "50,400 = 7 × 86,400 ÷ 12"
+  },
+  {
+   "denominator": null,
+   "field_id": "assumption.freeze_reference",
+   "label": "assumption: freeze_reference",
+   "owner_entry": "DET-57",
+   "section": "assumptions",
+   "source_path": "stress/synthetic/assumptions/freeze_reference",
+   "unit": "literal",
+   "value": "the frozen set at its freeze block"
+  },
+  {
+   "denominator": null,
+   "field_id": "assumption.funding_reversal_rate",
+   "label": "assumption: funding_reversal_rate",
+   "owner_entry": "DET-57",
+   "section": "assumptions",
+   "source_path": "stress/synthetic/assumptions/funding_reversal_rate",
+   "unit": "literal",
+   "value": "F = -25% annualised, N in {30, 90, 180}"
+  },
+  {
+   "denominator": null,
+   "field_id": "assumption.observation",
+   "label": "assumption: observation",
+   "owner_entry": "DET-57",
+   "section": "assumptions",
+   "source_path": "stress/synthetic/assumptions/observation",
+   "unit": "literal",
+   "value": "attested value (memo #2 §7)"
+  },
+  {
+   "denominator": null,
+   "field_id": "assumption.par_numeraire",
+   "label": "assumption: par_numeraire",
+   "owner_entry": "DET-57",
+   "section": "assumptions",
+   "source_path": "stress/synthetic/assumptions/par_numeraire",
+   "unit": "literal",
+   "value": "paired assets counted at 1.00 for depth"
+  },
+  {
+   "denominator": null,
+   "field_id": "assumption.redemption_fraction",
+   "label": "assumption: redemption_fraction",
+   "owner_entry": "DET-57",
+   "section": "assumptions",
+   "source_path": "stress/synthetic/assumptions/redemption_fraction",
+   "unit": "literal",
+   "value": "25% of free float in 7 days (+25% of staked when cooldownDuration() < 7 d)"
+  },
+  {
+   "denominator": null,
+   "field_id": "assumption.stock_only",
+   "label": "assumption: stock_only",
+   "owner_entry": "DET-57",
+   "section": "assumptions",
+   "source_path": "stress/synthetic/assumptions/stock_only",
+   "unit": "literal",
+   "value": "memo #1 §7.1; per-row direction in the bias table"
+  },
+  {
+   "denominator": null,
+   "field_id": "assumption.venue_loss_shock",
+   "label": "assumption: venue_loss_shock",
+   "owner_entry": "DET-57",
+   "section": "assumptions",
+   "source_path": "stress/synthetic/assumptions/venue_loss_shock",
+   "unit": "literal",
+   "value": "-30% on the largest exchange's unhedged notional"
+  },
+  {
+   "denominator": null,
+   "field_id": "exit.sensitivity.K80.depth",
+   "label": "K-subset 80% depth at s = 2%",
+   "owner_entry": "DET-30",
+   "section": "exit liquidity",
+   "source_path": "stress/exit_depth/sensitivity_rows/[k=80]/depth_at_2pct",
+   "unit": "base_units",
+   "value": 20952993054395033764114480
+  },
+  {
+   "denominator": "frozen_set_tvl",
+   "field_id": "exit.sensitivity.K80.share_of_F",
+   "label": "K-subset 80% share of F",
+   "owner_entry": "DET-30",
+   "section": "exit liquidity",
+   "source_path": "stress/exit_depth/sensitivity_rows/[k=80]/share_of_F",
+   "unit": "ratio",
+   "value": "1"
+  },
+  {
+   "denominator": null,
+   "field_id": "exit.sensitivity.K90.depth",
+   "label": "K-subset 90% depth at s = 2%",
+   "owner_entry": "DET-30",
+   "section": "exit liquidity",
+   "source_path": "stress/exit_depth/sensitivity_rows/[k=90]/depth_at_2pct",
+   "unit": "base_units",
+   "value": 20952993054395033764114480
+  },
+  {
+   "denominator": "frozen_set_tvl",
+   "field_id": "exit.sensitivity.K90.share_of_F",
+   "label": "K-subset 90% share of F",
+   "owner_entry": "DET-30",
+   "section": "exit liquidity",
+   "source_path": "stress/exit_depth/sensitivity_rows/[k=90]/share_of_F",
+   "unit": "ratio",
+   "value": "1"
+  },
+  {
+   "denominator": null,
+   "field_id": "exit.sensitivity.K95.depth",
+   "label": "K-subset 95% depth at s = 2%",
+   "owner_entry": "DET-30",
+   "section": "exit liquidity",
+   "source_path": "stress/exit_depth/sensitivity_rows/[k=95]/depth_at_2pct",
+   "unit": "base_units",
+   "value": 20952993054395033764114480
+  },
+  {
+   "denominator": "frozen_set_tvl",
+   "field_id": "exit.sensitivity.K95.share_of_F",
+   "label": "K-subset 95% share of F",
+   "owner_entry": "DET-30",
+   "section": "exit liquidity",
+   "source_path": "stress/exit_depth/sensitivity_rows/[k=95]/share_of_F",
+   "unit": "ratio",
+   "value": "1"
+  },
+  {
+   "denominator": "price_impact",
+   "field_id": "exit.curve.s0.005.s",
+   "label": "depth curve price impact 0.005",
+   "owner_entry": "DET-31",
+   "section": "exit liquidity",
+   "source_path": "stress/exit_depth/depth_curve/[s=0.005]/s",
+   "unit": "ratio",
+   "value": "0.005"
+  },
+  {
+   "denominator": null,
+   "field_id": "exit.curve.s0.005.total",
+   "label": "depth curve s = 0.005 total",
+   "owner_entry": "DET-31",
+   "section": "exit liquidity",
+   "source_path": "stress/exit_depth/depth_curve/[s=0.005]/total",
+   "unit": "base_units",
+   "value": 16235904410399205951067765
+  },
+  {
+   "denominator": "price_impact",
+   "field_id": "exit.curve.s0.01.s",
+   "label": "depth curve price impact 0.01",
+   "owner_entry": "DET-31",
+   "section": "exit liquidity",
+   "source_path": "stress/exit_depth/depth_curve/[s=0.01]/s",
+   "unit": "ratio",
+   "value": "0.01"
+  },
+  {
+   "denominator": null,
+   "field_id": "exit.curve.s0.01.total",
+   "label": "depth curve s = 0.01 total",
+   "owner_entry": "DET-31",
+   "section": "exit liquidity",
+   "source_path": "stress/exit_depth/depth_curve/[s=0.01]/total",
+   "unit": "base_units",
+   "value": 18843321771648671278210966
+  },
+  {
+   "denominator": "price_impact",
+   "field_id": "exit.curve.s0.02.s",
+   "label": "depth curve price impact 0.02",
+   "owner_entry": "DET-31",
+   "section": "exit liquidity",
+   "source_path": "stress/exit_depth/depth_curve/[s=0.02]/s",
+   "unit": "ratio",
+   "value": "0.02"
+  },
+  {
+   "denominator": null,
+   "field_id": "exit.curve.s0.02.total",
+   "label": "depth curve s = 0.02 total",
+   "owner_entry": "DET-31",
+   "section": "exit liquidity",
+   "source_path": "stress/exit_depth/depth_curve/[s=0.02]/total",
+   "unit": "base_units",
+   "value": 20952993054395033764114480
+  },
+  {
+   "denominator": "price_impact",
+   "field_id": "exit.curve.s0.05.s",
+   "label": "depth curve price impact 0.05",
+   "owner_entry": "DET-31",
+   "section": "exit liquidity",
+   "source_path": "stress/exit_depth/depth_curve/[s=0.05]/s",
+   "unit": "ratio",
+   "value": "0.05"
+  },
+  {
+   "denominator": null,
+   "field_id": "exit.curve.s0.05.total",
+   "label": "depth curve s = 0.05 total",
+   "owner_entry": "DET-31",
+   "section": "exit liquidity",
+   "source_path": "stress/exit_depth/depth_curve/[s=0.05]/total",
+   "unit": "base_units",
+   "value": 22978655046166844936231920
+  },
+  {
+   "denominator": null,
+   "field_id": "exit.lp_flight_literal",
+   "label": "LP-flight assumption line",
+   "owner_entry": "DET-36",
+   "section": "exit liquidity",
+   "source_path": "stress/exit_depth/lp_flight_literal",
+   "unit": "literal",
+   "value": "LP capital assumed sticky; haircut grid 0% / 30% / 60% - assumed scenario modifier, not data-derived; LP flight modeled as single-sided withdrawal of the paired asset."
+  },
+  {
+   "denominator": null,
+   "field_id": "exit.concentration.largest_paired_asset",
+   "label": "concentration largest paired asset",
+   "owner_entry": "DET-11",
+   "section": "exit liquidity",
+   "source_path": "stress/exit_depth/concentration/largest_paired_asset",
+   "unit": "address",
+   "value": "0x853d955acef822db058eb8505911ed77f175b99e"
+  },
+  {
+   "denominator": "exit_depth",
+   "field_id": "exit.concentration.share_of_exit_depth",
+   "label": "concentration share of exit depth",
+   "owner_entry": "DET-11",
+   "section": "exit liquidity",
+   "source_path": "stress/exit_depth/concentration/share_of_exit_depth",
+   "unit": "ratio",
+   "value": "1"
+  },
+  {
+   "denominator": null,
+   "field_id": "exit.concentration.label",
+   "label": "concentration label",
+   "owner_entry": "DET-11",
+   "section": "exit liquidity",
+   "source_path": "stress/exit_depth/concentration/label",
+   "unit": "literal",
+   "value": "recurses"
+  },
+  {
+   "denominator": null,
+   "field_id": "exit.pool.0x5dc1bf6f1e983c0b21efb003c105133736fa0743.tvl",
+   "label": "frozen pool TVL at par",
+   "owner_entry": "DET-10",
+   "section": "exit liquidity",
+   "source_path": "bundle/pools/[address=0x5dc1bf6f1e983c0b21efb003c105133736fa0743]/tvl_at_par",
+   "unit": "usd_whole",
+   "value": 34251632
+  },
+  {
+   "denominator": null,
+   "field_id": "exit.offvenue.dex_liquidity_total_discovered",
+   "label": "off-venue dex liquidity total discovered",
+   "owner_entry": "DET-32",
+   "section": "exit liquidity",
+   "source_path": "bundle/offvenue_share/dex_liquidity_total_discovered",
+   "unit": "usd_whole",
+   "value": 46438269
+  },
+  {
+   "denominator": null,
+   "field_id": "exit.offvenue.curve_mainnet_liquidity",
+   "label": "off-venue curve mainnet liquidity",
+   "owner_entry": "DET-32",
+   "section": "exit liquidity",
+   "source_path": "bundle/offvenue_share/curve_mainnet_liquidity",
+   "unit": "usd_whole",
+   "value": 36218484
+  },
+  {
+   "denominator": "dex_liquidity_total_discovered",
+   "field_id": "exit.offvenue.x",
+   "label": "off-venue x",
+   "owner_entry": "DET-32",
+   "section": "exit liquidity",
+   "source_path": "bundle/offvenue_share/x",
+   "unit": "ratio",
+   "value": "0.2200724794457777915882265121"
+  },
+  {
+   "denominator": null,
+   "field_id": "exit.offvenue.literal",
+   "label": "off-venue literal",
+   "owner_entry": "DET-32",
+   "section": "exit liquidity",
+   "source_path": "bundle/offvenue_share/literal",
+   "unit": "literal",
+   "value": "22.0% of discovered DEX liquidity lies outside modeled venues"
+  },
+  {
+   "denominator": null,
+   "field_id": "exit.offvenue.source",
+   "label": "off-venue source",
+   "owner_entry": "DET-32",
+   "section": "exit liquidity",
+   "source_path": "bundle/offvenue_share/source",
+   "unit": "literal",
+   "value": "https://yields.llama.fi/pools + https://api.llama.fi/protocols (category 'Dexs', Curve 'curve-dex')"
+  },
+  {
+   "denominator": null,
+   "field_id": "exit.offvenue.date",
+   "label": "off-venue date",
+   "owner_entry": "DET-32",
+   "section": "exit liquidity",
+   "source_path": "bundle/offvenue_share/date",
+   "unit": "date",
+   "value": "2026-10-26"
+  },
+  {
+   "denominator": null,
+   "field_id": "bias.0.direction",
+   "label": "bias direction",
+   "owner_entry": "DET-53",
+   "section": "stress",
+   "source_path": "mirror/bias_table/0/direction",
+   "unit": "literal",
+   "value": "overstates"
+  },
+  {
+   "denominator": null,
+   "field_id": "bias.0.mechanism",
+   "label": "bias mechanism",
+   "owner_entry": "DET-53",
+   "section": "stress",
+   "source_path": "mirror/bias_table/0/mechanism",
+   "unit": "literal",
+   "value": "Row 3 — liquid buffer treated as instantly available"
+  },
+  {
+   "denominator": null,
+   "field_id": "bias.0.tokens",
+   "label": "bias tokens",
+   "owner_entry": "DET-53",
+   "section": "stress",
+   "source_path": "mirror/bias_table/0/tokens",
+   "unit": "list",
+   "value": [
+    "USDe"
+   ]
+  },
+  {
+   "denominator": null,
+   "field_id": "bias.0.reason",
+   "label": "bias reason",
+   "owner_entry": "DET-53",
+   "section": "stress",
+   "source_path": "mirror/bias_table/0/reason",
+   "unit": "literal",
+   "value": "the full category is redeemable within the window"
+  },
+  {
+   "denominator": null,
+   "field_id": "bias.1.direction",
+   "label": "bias direction",
+   "owner_entry": "DET-53",
+   "section": "stress",
+   "source_path": "mirror/bias_table/1/direction",
+   "unit": "literal",
+   "value": "understates"
+  },
+  {
+   "denominator": null,
+   "field_id": "bias.1.mechanism",
+   "label": "bias mechanism",
+   "owner_entry": "DET-53",
+   "section": "stress",
+   "source_path": "mirror/bias_table/1/mechanism",
+   "unit": "literal",
+   "value": "Row 3 — no issuer top-up of the buffer"
+  },
+  {
+   "denominator": null,
+   "field_id": "bias.1.tokens",
+   "label": "bias tokens",
+   "owner_entry": "DET-53",
+   "section": "stress",
+   "source_path": "mirror/bias_table/1/tokens",
+   "unit": "list",
+   "value": [
+    "USDe"
+   ]
+  },
+  {
+   "denominator": null,
+   "field_id": "bias.1.reason",
+   "label": "bias reason",
+   "owner_entry": "DET-53",
+   "section": "stress",
+   "source_path": "mirror/bias_table/1/reason",
+   "unit": "literal",
+   "value": "no rebalancing from the basis book during the run"
+  },
+  {
+   "denominator": null,
+   "field_id": "bias.2.direction",
+   "label": "bias direction",
+   "owner_entry": "DET-53",
+   "section": "stress",
+   "source_path": "mirror/bias_table/2/direction",
+   "unit": "literal",
+   "value": "n/a"
+  },
+  {
+   "denominator": null,
+   "field_id": "bias.2.mechanism",
+   "label": "bias mechanism",
+   "owner_entry": "DET-53",
+   "section": "stress",
+   "source_path": "mirror/bias_table/2/mechanism",
+   "unit": "literal",
+   "value": "Row 1 — funding reversal"
+  },
+  {
+   "denominator": null,
+   "field_id": "bias.2.tokens",
+   "label": "bias tokens",
+   "owner_entry": "DET-53",
+   "section": "stress",
+   "source_path": "mirror/bias_table/2/tokens",
+   "unit": "list",
+   "value": [
+    "USDe"
+   ]
+  },
+  {
+   "denominator": null,
+   "field_id": "bias.2.reason",
+   "label": "bias reason",
+   "owner_entry": "DET-53",
+   "section": "stress",
+   "source_path": "mirror/bias_table/2/reason",
+   "unit": "literal",
+   "value": "a loss over a stated horizon, not a stock-only capacity"
+  },
+  {
+   "denominator": null,
+   "field_id": "bias.3.direction",
+   "label": "bias direction",
+   "owner_entry": "DET-53",
+   "section": "stress",
+   "source_path": "mirror/bias_table/3/direction",
+   "unit": "literal",
+   "value": "n/a"
+  },
+  {
+   "denominator": null,
+   "field_id": "bias.3.mechanism",
+   "label": "bias mechanism",
+   "owner_entry": "DET-53",
+   "section": "stress",
+   "source_path": "mirror/bias_table/3/mechanism",
+   "unit": "literal",
+   "value": "Row 2 — venue loss"
+  },
+  {
+   "denominator": null,
+   "field_id": "bias.3.tokens",
+   "label": "bias tokens",
+   "owner_entry": "DET-53",
+   "section": "stress",
+   "source_path": "mirror/bias_table/3/tokens",
+   "unit": "list",
+   "value": [
+    "USDe"
+   ]
+  },
+  {
+   "denominator": null,
+   "field_id": "bias.3.reason",
+   "label": "bias reason",
+   "owner_entry": "DET-53",
+   "section": "stress",
+   "source_path": "mirror/bias_table/3/reason",
+   "unit": "literal",
+   "value": "a balance-sheet write-down, not a stock-only capacity"
+  },
+  {
+   "denominator": null,
+   "field_id": "redemption.r1_path",
+   "label": "redemption R1",
+   "owner_entry": "DET-66",
+   "section": "redemption",
+   "source_path": "bundle/redemption_paths/0/r1_path",
+   "unit": "literal",
+   "value": "module_on_chain"
+  },
+  {
+   "denominator": null,
+   "field_id": "redemption.r2_who",
+   "label": "redemption R2",
+   "owner_entry": "DET-66",
+   "section": "redemption",
+   "source_path": "bundle/redemption_paths/0/r2_who",
+   "unit": "literal",
+   "value": "whitelisted"
+  },
+  {
+   "denominator": null,
+   "field_id": "redemption.r3_received",
+   "label": "redemption R3",
+   "owner_entry": "DET-66",
+   "section": "redemption",
+   "source_path": "bundle/redemption_paths/0/r3_received",
+   "unit": "list",
+   "value": [
+    "0x6c3ea9036406852006290770bedfcaba0e23a0e8",
+    "0xc139190f447e929f090edeb554d95abb8b18ac1c",
+    "0xe343167631d89b6ffc58b88d6b7fb0228795491d",
+    "0xec2af1c8b110a61fd9c3fa6a554a031ca9943926"
+   ]
+  },
+  {
+   "denominator": null,
+   "field_id": "redemption.r4_rate",
+   "label": "redemption R4",
+   "owner_entry": "DET-66",
+   "section": "redemption",
+   "source_path": "bundle/redemption_paths/0/r4_rate",
+   "unit": "literal",
+   "value": "face_value"
+  },
+  {
+   "denominator": null,
+   "field_id": "redemption.r5_minimum",
+   "label": "redemption R5",
+   "owner_entry": "DET-66",
+   "section": "redemption",
+   "source_path": "bundle/redemption_paths/0/r5_minimum",
+   "unit": "literal",
+   "value": "none"
+  },
+  {
+   "denominator": null,
+   "field_id": "redemption.r7_capacity",
+   "label": "redemption R7",
+   "owner_entry": "DET-66",
+   "section": "redemption",
+   "source_path": "bundle/redemption_paths/0/r7_capacity",
+   "unit": "literal",
+   "value": "min(synthetic.reads.FR-U09, synthetic.reads.FR-U35)"
+  },
+  {
+   "denominator": null,
+   "field_id": "redemption.r8",
+   "label": "redemption R8",
+   "owner_entry": "DET-66",
+   "section": "redemption",
+   "source_path": "bundle/redemption_paths/0/r8",
+   "unit": "literal",
+   "value": "enforceable_unless_paused (see R7)"
+  },
+  {
+   "denominator": null,
+   "field_id": "redemption.r9_legal_claim",
+   "label": "redemption R9",
+   "owner_entry": "DET-66",
+   "section": "redemption",
+   "source_path": "bundle/redemption_paths/0/r9_legal_claim",
+   "unit": "literal",
+   "value": "disclaimed"
+  },
+  {
+   "denominator": null,
+   "field_id": "redemption.r2_words",
+   "label": "who can redeem, in words",
+   "owner_entry": "DET-66",
+   "section": "redemption",
+   "source_path": "wording/synthetic/r2/whitelisted",
+   "unit": "literal",
+   "value": "redeemable by approved counterparties only"
+  },
+  {
+   "denominator": null,
+   "field_id": "redemption.r6.0",
+   "label": "redemption R6 gate",
+   "owner_entry": "DET-66",
+   "section": "redemption",
+   "source_path": "bundle/redemption_paths/0/r6_gates/0/kind",
+   "unit": "literal",
+   "value": "capacity_limited"
+  },
+  {
+   "denominator": null,
+   "field_id": "redemption.r6.1",
+   "label": "redemption R6 gate",
+   "owner_entry": "DET-66",
+   "section": "redemption",
+   "source_path": "bundle/redemption_paths/0/r6_gates/1/kind",
+   "unit": "literal",
+   "value": "pausable"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.attested.crypto_basis.assumption_applied",
+   "label": "Crypto Basis oracle row assumption applied",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "tree/synthetic/attested_rows/Crypto Basis/assumption_applied",
+   "unit": "literal",
+   "value": "attested_value"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.attested.crypto_basis.counterfactual_ref",
+   "label": "Crypto Basis oracle row counterfactual ref",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "tree/synthetic/attested_rows/Crypto Basis/counterfactual_ref",
+   "unit": "null",
+   "value": null
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.attested.crypto_basis.literal",
+   "label": "Crypto Basis oracle row literal",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "tree/synthetic/attested_rows/Crypto Basis/literal",
+   "unit": "literal",
+   "value": "no on-chain price source; attested value"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.attested.crypto_basis.staleness_check",
+   "label": "Crypto Basis oracle row staleness check",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "tree/synthetic/attested_rows/Crypto Basis/staleness_check",
+   "unit": "literal",
+   "value": "not_applicable_attested"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.attested.crypto_basis.update_condition_type",
+   "label": "Crypto Basis oracle row update condition type",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "tree/synthetic/attested_rows/Crypto Basis/update_condition_type",
+   "unit": "literal",
+   "value": "attested"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.attested.defi_lending.assumption_applied",
+   "label": "DeFi Lending oracle row assumption applied",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "tree/synthetic/attested_rows/DeFi Lending/assumption_applied",
+   "unit": "literal",
+   "value": "attested_value"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.attested.defi_lending.counterfactual_ref",
+   "label": "DeFi Lending oracle row counterfactual ref",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "tree/synthetic/attested_rows/DeFi Lending/counterfactual_ref",
+   "unit": "null",
+   "value": null
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.attested.defi_lending.literal",
+   "label": "DeFi Lending oracle row literal",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "tree/synthetic/attested_rows/DeFi Lending/literal",
+   "unit": "literal",
+   "value": "no on-chain price source; attested value"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.attested.defi_lending.staleness_check",
+   "label": "DeFi Lending oracle row staleness check",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "tree/synthetic/attested_rows/DeFi Lending/staleness_check",
+   "unit": "literal",
+   "value": "not_applicable_attested"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.attested.defi_lending.update_condition_type",
+   "label": "DeFi Lending oracle row update condition type",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "tree/synthetic/attested_rows/DeFi Lending/update_condition_type",
+   "unit": "literal",
+   "value": "attested"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.attested.equity_and_rwa_basis.assumption_applied",
+   "label": "Equity and RWA Basis oracle row assumption applied",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "tree/synthetic/attested_rows/Equity and RWA Basis/assumption_applied",
+   "unit": "literal",
+   "value": "attested_value"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.attested.equity_and_rwa_basis.counterfactual_ref",
+   "label": "Equity and RWA Basis oracle row counterfactual ref",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "tree/synthetic/attested_rows/Equity and RWA Basis/counterfactual_ref",
+   "unit": "null",
+   "value": null
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.attested.equity_and_rwa_basis.literal",
+   "label": "Equity and RWA Basis oracle row literal",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "tree/synthetic/attested_rows/Equity and RWA Basis/literal",
+   "unit": "literal",
+   "value": "no on-chain price source; attested value"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.attested.equity_and_rwa_basis.staleness_check",
+   "label": "Equity and RWA Basis oracle row staleness check",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "tree/synthetic/attested_rows/Equity and RWA Basis/staleness_check",
+   "unit": "literal",
+   "value": "not_applicable_attested"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.attested.equity_and_rwa_basis.update_condition_type",
+   "label": "Equity and RWA Basis oracle row update condition type",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "tree/synthetic/attested_rows/Equity and RWA Basis/update_condition_type",
+   "unit": "literal",
+   "value": "attested"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.attested.institutional_lending.assumption_applied",
+   "label": "Institutional Lending oracle row assumption applied",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "tree/synthetic/attested_rows/Institutional Lending/assumption_applied",
+   "unit": "literal",
+   "value": "attested_value"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.attested.institutional_lending.counterfactual_ref",
+   "label": "Institutional Lending oracle row counterfactual ref",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "tree/synthetic/attested_rows/Institutional Lending/counterfactual_ref",
+   "unit": "null",
+   "value": null
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.attested.institutional_lending.literal",
+   "label": "Institutional Lending oracle row literal",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "tree/synthetic/attested_rows/Institutional Lending/literal",
+   "unit": "literal",
+   "value": "no on-chain price source; attested value"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.attested.institutional_lending.staleness_check",
+   "label": "Institutional Lending oracle row staleness check",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "tree/synthetic/attested_rows/Institutional Lending/staleness_check",
+   "unit": "literal",
+   "value": "not_applicable_attested"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.attested.institutional_lending.update_condition_type",
+   "label": "Institutional Lending oracle row update condition type",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "tree/synthetic/attested_rows/Institutional Lending/update_condition_type",
+   "unit": "literal",
+   "value": "attested"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.attested.liquid_stables.assumption_applied",
+   "label": "Liquid Stables oracle row assumption applied",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "tree/synthetic/attested_rows/Liquid Stables/assumption_applied",
+   "unit": "literal",
+   "value": "attested_value"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.attested.liquid_stables.counterfactual_ref",
+   "label": "Liquid Stables oracle row counterfactual ref",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "tree/synthetic/attested_rows/Liquid Stables/counterfactual_ref",
+   "unit": "null",
+   "value": null
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.attested.liquid_stables.literal",
+   "label": "Liquid Stables oracle row literal",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "tree/synthetic/attested_rows/Liquid Stables/literal",
+   "unit": "literal",
+   "value": "no on-chain price source; attested value"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.attested.liquid_stables.staleness_check",
+   "label": "Liquid Stables oracle row staleness check",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "tree/synthetic/attested_rows/Liquid Stables/staleness_check",
+   "unit": "literal",
+   "value": "not_applicable_attested"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.attested.liquid_stables.update_condition_type",
+   "label": "Liquid Stables oracle row update condition type",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "tree/synthetic/attested_rows/Liquid Stables/update_condition_type",
+   "unit": "literal",
+   "value": "attested"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.attested.rwa.assumption_applied",
+   "label": "RWA oracle row assumption applied",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "tree/synthetic/attested_rows/RWA/assumption_applied",
+   "unit": "literal",
+   "value": "attested_value"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.attested.rwa.counterfactual_ref",
+   "label": "RWA oracle row counterfactual ref",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "tree/synthetic/attested_rows/RWA/counterfactual_ref",
+   "unit": "null",
+   "value": null
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.attested.rwa.literal",
+   "label": "RWA oracle row literal",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "tree/synthetic/attested_rows/RWA/literal",
+   "unit": "literal",
+   "value": "no on-chain price source; attested value"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.attested.rwa.staleness_check",
+   "label": "RWA oracle row staleness check",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "tree/synthetic/attested_rows/RWA/staleness_check",
+   "unit": "literal",
+   "value": "not_applicable_attested"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.attested.rwa.update_condition_type",
+   "label": "RWA oracle row update condition type",
+   "owner_entry": "DET-55",
+   "section": "oracle table",
+   "source_path": "tree/synthetic/attested_rows/RWA/update_condition_type",
+   "unit": "literal",
+   "value": "attested"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.feed.PYUSD.answer",
+   "label": "PYUSD Chainlink reference answer",
+   "owner_entry": "DET-54",
+   "section": "oracle table",
+   "source_path": "bundle/synthetic/reads/FR-U28/value/PYUSD/answer",
+   "unit": "decimal8",
+   "value": 99996324
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.feed.PYUSD.updated_at",
+   "label": "PYUSD reference updated at",
+   "owner_entry": "DET-54",
+   "section": "oracle table",
+   "source_path": "bundle/synthetic/reads/FR-U28/value/PYUSD/updated_at",
+   "unit": "unix_s",
+   "value": 1792958315
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.feed.RLUSD.answer",
+   "label": "RLUSD Chainlink reference answer",
+   "owner_entry": "DET-54",
+   "section": "oracle table",
+   "source_path": "bundle/synthetic/reads/FR-U28/value/RLUSD/answer",
+   "unit": "decimal8",
+   "value": 100005588
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.feed.RLUSD.updated_at",
+   "label": "RLUSD reference updated at",
+   "owner_entry": "DET-54",
+   "section": "oracle table",
+   "source_path": "bundle/synthetic/reads/FR-U28/value/RLUSD/updated_at",
+   "unit": "unix_s",
+   "value": 1792990583
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.feed.USDC.answer",
+   "label": "USDC Chainlink reference answer",
+   "owner_entry": "DET-54",
+   "section": "oracle table",
+   "source_path": "bundle/synthetic/reads/FR-U28/value/USDC/answer",
+   "unit": "decimal8",
+   "value": 99982308
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.feed.USDC.updated_at",
+   "label": "USDC reference updated at",
+   "owner_entry": "DET-54",
+   "section": "oracle table",
+   "source_path": "bundle/synthetic/reads/FR-U28/value/USDC/updated_at",
+   "unit": "unix_s",
+   "value": 1792964807
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.feed.USDG.answer",
+   "label": "USDG Chainlink reference answer",
+   "owner_entry": "DET-54",
+   "section": "oracle table",
+   "source_path": "bundle/synthetic/reads/FR-U28/value/USDG/answer",
+   "unit": "decimal8",
+   "value": 99996499
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.feed.USDG.updated_at",
+   "label": "USDG reference updated at",
+   "owner_entry": "DET-54",
+   "section": "oracle table",
+   "source_path": "bundle/synthetic/reads/FR-U28/value/USDG/updated_at",
+   "unit": "unix_s",
+   "value": 1792958843
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.feed.USDT.answer",
+   "label": "USDT Chainlink reference answer",
+   "owner_entry": "DET-54",
+   "section": "oracle table",
+   "source_path": "bundle/synthetic/reads/FR-U28/value/USDT/answer",
+   "unit": "decimal8",
+   "value": 99872000
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.feed.USDT.updated_at",
+   "label": "USDT reference updated at",
+   "owner_entry": "DET-54",
+   "section": "oracle table",
+   "source_path": "bundle/synthetic/reads/FR-U28/value/USDT/updated_at",
+   "unit": "unix_s",
+   "value": 1792939475
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.feed.USDtb.answer",
+   "label": "USDtb Chainlink reference answer",
+   "owner_entry": "DET-54",
+   "section": "oracle table",
+   "source_path": "bundle/synthetic/reads/FR-U28/value/USDtb/answer",
+   "unit": "decimal8",
+   "value": 99966337
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.feed.USDtb.updated_at",
+   "label": "USDtb reference updated at",
+   "owner_entry": "DET-54",
+   "section": "oracle table",
+   "source_path": "bundle/synthetic/reads/FR-U28/value/USDtb/updated_at",
+   "unit": "unix_s",
+   "value": 1792959731
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.sheet.0.symbol",
+   "label": "reference feed symbol",
+   "owner_entry": "DET-54",
+   "section": "oracle table",
+   "source_path": "mirror/oracle_feed/0/symbol",
+   "unit": "literal",
+   "value": "PYUSD"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.sheet.0.feed",
+   "label": "reference feed feed",
+   "owner_entry": "DET-54",
+   "section": "oracle table",
+   "source_path": "mirror/oracle_feed/0/feed",
+   "unit": "address",
+   "value": "0x8f1df6d7f2db73eece86a18b4381f4707b918fb1"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.sheet.0.deviation_bps",
+   "label": "reference feed deviation bps",
+   "owner_entry": "DET-54",
+   "section": "oracle table",
+   "source_path": "mirror/oracle_feed/0/deviation_bps",
+   "unit": "bps",
+   "value": 30
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.sheet.0.heartbeat_s",
+   "label": "reference feed heartbeat s",
+   "owner_entry": "DET-54",
+   "section": "oracle table",
+   "source_path": "mirror/oracle_feed/0/heartbeat_s",
+   "unit": "seconds",
+   "value": 86400
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.sheet.1.symbol",
+   "label": "reference feed symbol",
+   "owner_entry": "DET-54",
+   "section": "oracle table",
+   "source_path": "mirror/oracle_feed/1/symbol",
+   "unit": "literal",
+   "value": "RLUSD"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.sheet.1.feed",
+   "label": "reference feed feed",
+   "owner_entry": "DET-54",
+   "section": "oracle table",
+   "source_path": "mirror/oracle_feed/1/feed",
+   "unit": "address",
+   "value": "0x26c46b7ad0012ca71f2298ada567dc9af14e7f2a"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.sheet.1.deviation_bps",
+   "label": "reference feed deviation bps",
+   "owner_entry": "DET-54",
+   "section": "oracle table",
+   "source_path": "mirror/oracle_feed/1/deviation_bps",
+   "unit": "bps",
+   "value": 30
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.sheet.1.heartbeat_s",
+   "label": "reference feed heartbeat s",
+   "owner_entry": "DET-54",
+   "section": "oracle table",
+   "source_path": "mirror/oracle_feed/1/heartbeat_s",
+   "unit": "seconds",
+   "value": 86400
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.sheet.2.symbol",
+   "label": "reference feed symbol",
+   "owner_entry": "DET-54",
+   "section": "oracle table",
+   "source_path": "mirror/oracle_feed/2/symbol",
+   "unit": "literal",
+   "value": "USDG"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.sheet.2.feed",
+   "label": "reference feed feed",
+   "owner_entry": "DET-54",
+   "section": "oracle table",
+   "source_path": "mirror/oracle_feed/2/feed",
+   "unit": "address",
+   "value": "0x14f0737d6b705259e521ea6e9e3506ac78dbd311"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.sheet.2.deviation_bps",
+   "label": "reference feed deviation bps",
+   "owner_entry": "DET-54",
+   "section": "oracle table",
+   "source_path": "mirror/oracle_feed/2/deviation_bps",
+   "unit": "bps",
+   "value": 25
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.sheet.2.heartbeat_s",
+   "label": "reference feed heartbeat s",
+   "owner_entry": "DET-54",
+   "section": "oracle table",
+   "source_path": "mirror/oracle_feed/2/heartbeat_s",
+   "unit": "seconds",
+   "value": 86400
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.sheet.3.symbol",
+   "label": "reference feed symbol",
+   "owner_entry": "DET-54",
+   "section": "oracle table",
+   "source_path": "mirror/oracle_feed/3/symbol",
+   "unit": "literal",
+   "value": "USDtb"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.sheet.3.feed",
+   "label": "reference feed feed",
+   "owner_entry": "DET-54",
+   "section": "oracle table",
+   "source_path": "mirror/oracle_feed/3/feed",
+   "unit": "address",
+   "value": "0x66704dad467a7ca508b3be15865d9b9f3e186c90"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.sheet.3.deviation_bps",
+   "label": "reference feed deviation bps",
+   "owner_entry": "DET-54",
+   "section": "oracle table",
+   "source_path": "mirror/oracle_feed/3/deviation_bps",
+   "unit": "bps",
+   "value": 50
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.sheet.3.heartbeat_s",
+   "label": "reference feed heartbeat s",
+   "owner_entry": "DET-54",
+   "section": "oracle table",
+   "source_path": "mirror/oracle_feed/3/heartbeat_s",
+   "unit": "seconds",
+   "value": 86400
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.sheet.4.symbol",
+   "label": "reference feed symbol",
+   "owner_entry": "DET-54",
+   "section": "oracle table",
+   "source_path": "mirror/oracle_feed/4/symbol",
+   "unit": "literal",
+   "value": "USDT"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.sheet.4.feed",
+   "label": "reference feed feed",
+   "owner_entry": "DET-54",
+   "section": "oracle table",
+   "source_path": "mirror/oracle_feed/4/feed",
+   "unit": "address",
+   "value": "0x3e7d1eab13ad0104d2750b8863b489d65364e32d"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.sheet.4.deviation_bps",
+   "label": "reference feed deviation bps",
+   "owner_entry": "DET-54",
+   "section": "oracle table",
+   "source_path": "mirror/oracle_feed/4/deviation_bps",
+   "unit": "bps",
+   "value": 25
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.sheet.4.heartbeat_s",
+   "label": "reference feed heartbeat s",
+   "owner_entry": "DET-54",
+   "section": "oracle table",
+   "source_path": "mirror/oracle_feed/4/heartbeat_s",
+   "unit": "seconds",
+   "value": 86400
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.sheet.5.symbol",
+   "label": "reference feed symbol",
+   "owner_entry": "DET-54",
+   "section": "oracle table",
+   "source_path": "mirror/oracle_feed/5/symbol",
+   "unit": "literal",
+   "value": "USDC"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.sheet.5.feed",
+   "label": "reference feed feed",
+   "owner_entry": "DET-54",
+   "section": "oracle table",
+   "source_path": "mirror/oracle_feed/5/feed",
+   "unit": "address",
+   "value": "0x8fffffd4afb6115b954bd326cbe7b4ba576818f6"
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.sheet.5.deviation_bps",
+   "label": "reference feed deviation bps",
+   "owner_entry": "DET-54",
+   "section": "oracle table",
+   "source_path": "mirror/oracle_feed/5/deviation_bps",
+   "unit": "bps",
+   "value": 25
+  },
+  {
+   "denominator": null,
+   "field_id": "oracle.sheet.5.heartbeat_s",
+   "label": "reference feed heartbeat s",
+   "owner_entry": "DET-54",
+   "section": "oracle table",
+   "source_path": "mirror/oracle_feed/5/heartbeat_s",
+   "unit": "seconds",
+   "value": 82800
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.mint.0xe8dc0fab349ea169283c48ccfd09d797e6db7c94.holder_address",
+   "label": "mint A2 holder",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=mint,holder_address=0xe8dc0fab349ea169283c48ccfd09d797e6db7c94]/holder_address",
+   "unit": "address",
+   "value": "0xe8dc0fab349ea169283c48ccfd09d797e6db7c94"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.mint.0xe8dc0fab349ea169283c48ccfd09d797e6db7c94.holder_type",
+   "label": "mint A2 type",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=mint,holder_address=0xe8dc0fab349ea169283c48ccfd09d797e6db7c94]/holder_type",
+   "unit": "literal",
+   "value": "timelock"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.mint.0xe8dc0fab349ea169283c48ccfd09d797e6db7c94.delay_seconds",
+   "label": "mint A4 delay",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=mint,holder_address=0xe8dc0fab349ea169283c48ccfd09d797e6db7c94]/delay_seconds",
+   "unit": "seconds",
+   "value": 86400
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.mint.0xe8dc0fab349ea169283c48ccfd09d797e6db7c94.delay_bucket",
+   "label": "mint A4 bucket",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=mint,holder_address=0xe8dc0fab349ea169283c48ccfd09d797e6db7c94]/delay_bucket",
+   "unit": "literal",
+   "value": "1–7d"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.mint.0xe8dc0fab349ea169283c48ccfd09d797e6db7c94.veto_address",
+   "label": "mint A5 veto",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=mint,holder_address=0xe8dc0fab349ea169283c48ccfd09d797e6db7c94]/veto_address",
+   "unit": "null",
+   "value": null
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.mint.0xe8dc0fab349ea169283c48ccfd09d797e6db7c94.upgradeability",
+   "label": "mint A6",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=mint,holder_address=0xe8dc0fab349ea169283c48ccfd09d797e6db7c94]/upgradeability",
+   "unit": "null",
+   "value": null
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.mint.0xe8dc0fab349ea169283c48ccfd09d797e6db7c94.scope",
+   "label": "mint A7 scope",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=mint,holder_address=0xe8dc0fab349ea169283c48ccfd09d797e6db7c94]/scope",
+   "unit": "list",
+   "value": [
+    "0x4c9edd5852cd905f086c759e8383e09bff1e68b3",
+    "0xe3490297a08d6fc8da46edb7b6142e4f461b62d3"
+   ]
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.mint.0xe8dc0fab349ea169283c48ccfd09d797e6db7c94.A8",
+   "label": "mint A8 provenance",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=mint,holder_address=0xe8dc0fab349ea169283c48ccfd09d797e6db7c94]/provenance/kind",
+   "unit": "literal",
+   "value": "contract_read"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.mint.0xe8dc0fab349ea169283c48ccfd09d797e6db7c94.A8.function",
+   "label": "mint A8 function",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=mint,holder_address=0xe8dc0fab349ea169283c48ccfd09d797e6db7c94]/provenance/function",
+   "unit": "literal",
+   "value": "owner()"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.set_ceiling.0xe8dc0fab349ea169283c48ccfd09d797e6db7c94.holder_address",
+   "label": "set_ceiling A2 holder",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=set_ceiling,holder_address=0xe8dc0fab349ea169283c48ccfd09d797e6db7c94]/holder_address",
+   "unit": "address",
+   "value": "0xe8dc0fab349ea169283c48ccfd09d797e6db7c94"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.set_ceiling.0xe8dc0fab349ea169283c48ccfd09d797e6db7c94.holder_type",
+   "label": "set_ceiling A2 type",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=set_ceiling,holder_address=0xe8dc0fab349ea169283c48ccfd09d797e6db7c94]/holder_type",
+   "unit": "literal",
+   "value": "timelock"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.set_ceiling.0xe8dc0fab349ea169283c48ccfd09d797e6db7c94.delay_seconds",
+   "label": "set_ceiling A4 delay",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=set_ceiling,holder_address=0xe8dc0fab349ea169283c48ccfd09d797e6db7c94]/delay_seconds",
+   "unit": "seconds",
+   "value": 86400
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.set_ceiling.0xe8dc0fab349ea169283c48ccfd09d797e6db7c94.delay_bucket",
+   "label": "set_ceiling A4 bucket",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=set_ceiling,holder_address=0xe8dc0fab349ea169283c48ccfd09d797e6db7c94]/delay_bucket",
+   "unit": "literal",
+   "value": "1–7d"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.set_ceiling.0xe8dc0fab349ea169283c48ccfd09d797e6db7c94.veto_address",
+   "label": "set_ceiling A5 veto",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=set_ceiling,holder_address=0xe8dc0fab349ea169283c48ccfd09d797e6db7c94]/veto_address",
+   "unit": "null",
+   "value": null
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.set_ceiling.0xe8dc0fab349ea169283c48ccfd09d797e6db7c94.upgradeability",
+   "label": "set_ceiling A6",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=set_ceiling,holder_address=0xe8dc0fab349ea169283c48ccfd09d797e6db7c94]/upgradeability",
+   "unit": "null",
+   "value": null
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.set_ceiling.0xe8dc0fab349ea169283c48ccfd09d797e6db7c94.scope",
+   "label": "set_ceiling A7 scope",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=set_ceiling,holder_address=0xe8dc0fab349ea169283c48ccfd09d797e6db7c94]/scope",
+   "unit": "list",
+   "value": [
+    "0xe3490297a08d6fc8da46edb7b6142e4f461b62d3"
+   ]
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.set_ceiling.0xe8dc0fab349ea169283c48ccfd09d797e6db7c94.A8",
+   "label": "set_ceiling A8 provenance",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=set_ceiling,holder_address=0xe8dc0fab349ea169283c48ccfd09d797e6db7c94]/provenance/kind",
+   "unit": "literal",
+   "value": "contract_read"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.set_ceiling.0xe8dc0fab349ea169283c48ccfd09d797e6db7c94.A8.function",
+   "label": "set_ceiling A8 function",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=set_ceiling,holder_address=0xe8dc0fab349ea169283c48ccfd09d797e6db7c94]/provenance/function",
+   "unit": "literal",
+   "value": "owner()"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.upgrade.None.holder_address",
+   "label": "upgrade A2 holder",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=upgrade,holder_address=None]/holder_address",
+   "unit": "null",
+   "value": null
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.upgrade.None.holder_type",
+   "label": "upgrade A2 type",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=upgrade,holder_address=None]/holder_type",
+   "unit": "literal",
+   "value": "none"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.upgrade.None.delay_seconds",
+   "label": "upgrade A4 delay",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=upgrade,holder_address=None]/delay_seconds",
+   "unit": "seconds",
+   "value": 0
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.upgrade.None.delay_bucket",
+   "label": "upgrade A4 bucket",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=upgrade,holder_address=None]/delay_bucket",
+   "unit": "literal",
+   "value": "none"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.upgrade.None.veto_address",
+   "label": "upgrade A5 veto",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=upgrade,holder_address=None]/veto_address",
+   "unit": "null",
+   "value": null
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.upgrade.None.upgradeability",
+   "label": "upgrade A6",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=upgrade,holder_address=None]/upgradeability",
+   "unit": "literal",
+   "value": "immutable"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.upgrade.None.scope",
+   "label": "upgrade A7 scope",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=upgrade,holder_address=None]/scope",
+   "unit": "list",
+   "value": []
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.upgrade.None.A8",
+   "label": "upgrade A8 provenance",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=upgrade,holder_address=None]/provenance/kind",
+   "unit": "literal",
+   "value": "absence_read"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.pause.0x0f566cc38677239bed459047065925654b6d5bd9.holder_address",
+   "label": "pause A2 holder",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=pause,holder_address=0x0f566cc38677239bed459047065925654b6d5bd9]/holder_address",
+   "unit": "address",
+   "value": "0x0f566cc38677239bed459047065925654b6d5bd9"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.pause.0x0f566cc38677239bed459047065925654b6d5bd9.holder_type",
+   "label": "pause A2 type",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=pause,holder_address=0x0f566cc38677239bed459047065925654b6d5bd9]/holder_type",
+   "unit": "literal",
+   "value": "eoa"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.pause.0x0f566cc38677239bed459047065925654b6d5bd9.delay_seconds",
+   "label": "pause A4 delay",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=pause,holder_address=0x0f566cc38677239bed459047065925654b6d5bd9]/delay_seconds",
+   "unit": "seconds",
+   "value": 0
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.pause.0x0f566cc38677239bed459047065925654b6d5bd9.delay_bucket",
+   "label": "pause A4 bucket",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=pause,holder_address=0x0f566cc38677239bed459047065925654b6d5bd9]/delay_bucket",
+   "unit": "literal",
+   "value": "none"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.pause.0x0f566cc38677239bed459047065925654b6d5bd9.veto_address",
+   "label": "pause A5 veto",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=pause,holder_address=0x0f566cc38677239bed459047065925654b6d5bd9]/veto_address",
+   "unit": "null",
+   "value": null
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.pause.0x0f566cc38677239bed459047065925654b6d5bd9.upgradeability",
+   "label": "pause A6",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=pause,holder_address=0x0f566cc38677239bed459047065925654b6d5bd9]/upgradeability",
+   "unit": "null",
+   "value": null
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.pause.0x0f566cc38677239bed459047065925654b6d5bd9.scope",
+   "label": "pause A7 scope",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=pause,holder_address=0x0f566cc38677239bed459047065925654b6d5bd9]/scope",
+   "unit": "list",
+   "value": [
+    "0xe3490297a08d6fc8da46edb7b6142e4f461b62d3"
+   ]
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.pause.0x0f566cc38677239bed459047065925654b6d5bd9.A8",
+   "label": "pause A8 provenance",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=pause,holder_address=0x0f566cc38677239bed459047065925654b6d5bd9]/provenance/kind",
+   "unit": "literal",
+   "value": "contract_read"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.pause.0x0f566cc38677239bed459047065925654b6d5bd9.A8.function",
+   "label": "pause A8 function",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=pause,holder_address=0x0f566cc38677239bed459047065925654b6d5bd9]/provenance/function",
+   "unit": "literal",
+   "value": "hasRole(bytes32,address)"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.freeze_asset.0xe8dc0fab349ea169283c48ccfd09d797e6db7c94.holder_address",
+   "label": "freeze_asset A2 holder",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=freeze_asset,holder_address=0xe8dc0fab349ea169283c48ccfd09d797e6db7c94]/holder_address",
+   "unit": "address",
+   "value": "0xe8dc0fab349ea169283c48ccfd09d797e6db7c94"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.freeze_asset.0xe8dc0fab349ea169283c48ccfd09d797e6db7c94.holder_type",
+   "label": "freeze_asset A2 type",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=freeze_asset,holder_address=0xe8dc0fab349ea169283c48ccfd09d797e6db7c94]/holder_type",
+   "unit": "literal",
+   "value": "timelock"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.freeze_asset.0xe8dc0fab349ea169283c48ccfd09d797e6db7c94.delay_seconds",
+   "label": "freeze_asset A4 delay",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=freeze_asset,holder_address=0xe8dc0fab349ea169283c48ccfd09d797e6db7c94]/delay_seconds",
+   "unit": "seconds",
+   "value": 86400
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.freeze_asset.0xe8dc0fab349ea169283c48ccfd09d797e6db7c94.delay_bucket",
+   "label": "freeze_asset A4 bucket",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=freeze_asset,holder_address=0xe8dc0fab349ea169283c48ccfd09d797e6db7c94]/delay_bucket",
+   "unit": "literal",
+   "value": "1–7d"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.freeze_asset.0xe8dc0fab349ea169283c48ccfd09d797e6db7c94.veto_address",
+   "label": "freeze_asset A5 veto",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=freeze_asset,holder_address=0xe8dc0fab349ea169283c48ccfd09d797e6db7c94]/veto_address",
+   "unit": "null",
+   "value": null
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.freeze_asset.0xe8dc0fab349ea169283c48ccfd09d797e6db7c94.upgradeability",
+   "label": "freeze_asset A6",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=freeze_asset,holder_address=0xe8dc0fab349ea169283c48ccfd09d797e6db7c94]/upgradeability",
+   "unit": "null",
+   "value": null
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.freeze_asset.0xe8dc0fab349ea169283c48ccfd09d797e6db7c94.scope",
+   "label": "freeze_asset A7 scope",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=freeze_asset,holder_address=0xe8dc0fab349ea169283c48ccfd09d797e6db7c94]/scope",
+   "unit": "list",
+   "value": [
+    "0xe3490297a08d6fc8da46edb7b6142e4f461b62d3"
+   ]
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.freeze_asset.0xe8dc0fab349ea169283c48ccfd09d797e6db7c94.A8",
+   "label": "freeze_asset A8 provenance",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=freeze_asset,holder_address=0xe8dc0fab349ea169283c48ccfd09d797e6db7c94]/provenance/kind",
+   "unit": "literal",
+   "value": "contract_read"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.freeze_asset.0xe8dc0fab349ea169283c48ccfd09d797e6db7c94.A8.function",
+   "label": "freeze_asset A8 function",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=freeze_asset,holder_address=0xe8dc0fab349ea169283c48ccfd09d797e6db7c94]/provenance/function",
+   "unit": "literal",
+   "value": "owner()"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.blacklist_address.0x21f9236e8ee76474284fe8cde6ece6c8d19d781e.holder_address",
+   "label": "blacklist_address A2 holder",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=blacklist_address,holder_address=0x21f9236e8ee76474284fe8cde6ece6c8d19d781e]/holder_address",
+   "unit": "address",
+   "value": "0x21f9236e8ee76474284fe8cde6ece6c8d19d781e"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.blacklist_address.0x21f9236e8ee76474284fe8cde6ece6c8d19d781e.holder_type",
+   "label": "blacklist_address A2 type",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=blacklist_address,holder_address=0x21f9236e8ee76474284fe8cde6ece6c8d19d781e]/holder_type",
+   "unit": "literal",
+   "value": "eoa"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.blacklist_address.0x21f9236e8ee76474284fe8cde6ece6c8d19d781e.delay_seconds",
+   "label": "blacklist_address A4 delay",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=blacklist_address,holder_address=0x21f9236e8ee76474284fe8cde6ece6c8d19d781e]/delay_seconds",
+   "unit": "seconds",
+   "value": 0
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.blacklist_address.0x21f9236e8ee76474284fe8cde6ece6c8d19d781e.delay_bucket",
+   "label": "blacklist_address A4 bucket",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=blacklist_address,holder_address=0x21f9236e8ee76474284fe8cde6ece6c8d19d781e]/delay_bucket",
+   "unit": "literal",
+   "value": "none"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.blacklist_address.0x21f9236e8ee76474284fe8cde6ece6c8d19d781e.veto_address",
+   "label": "blacklist_address A5 veto",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=blacklist_address,holder_address=0x21f9236e8ee76474284fe8cde6ece6c8d19d781e]/veto_address",
+   "unit": "null",
+   "value": null
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.blacklist_address.0x21f9236e8ee76474284fe8cde6ece6c8d19d781e.upgradeability",
+   "label": "blacklist_address A6",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=blacklist_address,holder_address=0x21f9236e8ee76474284fe8cde6ece6c8d19d781e]/upgradeability",
+   "unit": "null",
+   "value": null
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.blacklist_address.0x21f9236e8ee76474284fe8cde6ece6c8d19d781e.scope",
+   "label": "blacklist_address A7 scope",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=blacklist_address,holder_address=0x21f9236e8ee76474284fe8cde6ece6c8d19d781e]/scope",
+   "unit": "list",
+   "value": [
+    "0x9d39a5de30e57443bff2a8307a4256c8797a3497"
+   ]
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.blacklist_address.0x21f9236e8ee76474284fe8cde6ece6c8d19d781e.A8",
+   "label": "blacklist_address A8 provenance",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=blacklist_address,holder_address=0x21f9236e8ee76474284fe8cde6ece6c8d19d781e]/provenance/kind",
+   "unit": "literal",
+   "value": "contract_read"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.blacklist_address.0x21f9236e8ee76474284fe8cde6ece6c8d19d781e.A8.function",
+   "label": "blacklist_address A8 function",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=blacklist_address,holder_address=0x21f9236e8ee76474284fe8cde6ece6c8d19d781e]/provenance/function",
+   "unit": "literal",
+   "value": "hasRole(bytes32,address)"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.set_oracle.None.holder_address",
+   "label": "set_oracle A2 holder",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=set_oracle,holder_address=None]/holder_address",
+   "unit": "null",
+   "value": null
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.set_oracle.None.holder_type",
+   "label": "set_oracle A2 type",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=set_oracle,holder_address=None]/holder_type",
+   "unit": "literal",
+   "value": "none"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.set_oracle.None.delay_seconds",
+   "label": "set_oracle A4 delay",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=set_oracle,holder_address=None]/delay_seconds",
+   "unit": "seconds",
+   "value": 0
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.set_oracle.None.delay_bucket",
+   "label": "set_oracle A4 bucket",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=set_oracle,holder_address=None]/delay_bucket",
+   "unit": "literal",
+   "value": "none"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.set_oracle.None.veto_address",
+   "label": "set_oracle A5 veto",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=set_oracle,holder_address=None]/veto_address",
+   "unit": "null",
+   "value": null
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.set_oracle.None.upgradeability",
+   "label": "set_oracle A6",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=set_oracle,holder_address=None]/upgradeability",
+   "unit": "null",
+   "value": null
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.set_oracle.None.scope",
+   "label": "set_oracle A7 scope",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=set_oracle,holder_address=None]/scope",
+   "unit": "list",
+   "value": []
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.set_oracle.None.A8",
+   "label": "set_oracle A8 provenance",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=set_oracle,holder_address=None]/provenance/kind",
+   "unit": "literal",
+   "value": "absence_read"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.set_parameters.0xe8dc0fab349ea169283c48ccfd09d797e6db7c94.holder_address",
+   "label": "set_parameters A2 holder",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=set_parameters,holder_address=0xe8dc0fab349ea169283c48ccfd09d797e6db7c94]/holder_address",
+   "unit": "address",
+   "value": "0xe8dc0fab349ea169283c48ccfd09d797e6db7c94"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.set_parameters.0xe8dc0fab349ea169283c48ccfd09d797e6db7c94.holder_type",
+   "label": "set_parameters A2 type",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=set_parameters,holder_address=0xe8dc0fab349ea169283c48ccfd09d797e6db7c94]/holder_type",
+   "unit": "literal",
+   "value": "timelock"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.set_parameters.0xe8dc0fab349ea169283c48ccfd09d797e6db7c94.delay_seconds",
+   "label": "set_parameters A4 delay",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=set_parameters,holder_address=0xe8dc0fab349ea169283c48ccfd09d797e6db7c94]/delay_seconds",
+   "unit": "seconds",
+   "value": 86400
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.set_parameters.0xe8dc0fab349ea169283c48ccfd09d797e6db7c94.delay_bucket",
+   "label": "set_parameters A4 bucket",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=set_parameters,holder_address=0xe8dc0fab349ea169283c48ccfd09d797e6db7c94]/delay_bucket",
+   "unit": "literal",
+   "value": "1–7d"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.set_parameters.0xe8dc0fab349ea169283c48ccfd09d797e6db7c94.veto_address",
+   "label": "set_parameters A5 veto",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=set_parameters,holder_address=0xe8dc0fab349ea169283c48ccfd09d797e6db7c94]/veto_address",
+   "unit": "null",
+   "value": null
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.set_parameters.0xe8dc0fab349ea169283c48ccfd09d797e6db7c94.upgradeability",
+   "label": "set_parameters A6",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=set_parameters,holder_address=0xe8dc0fab349ea169283c48ccfd09d797e6db7c94]/upgradeability",
+   "unit": "null",
+   "value": null
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.set_parameters.0xe8dc0fab349ea169283c48ccfd09d797e6db7c94.scope",
+   "label": "set_parameters A7 scope",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=set_parameters,holder_address=0xe8dc0fab349ea169283c48ccfd09d797e6db7c94]/scope",
+   "unit": "list",
+   "value": [
+    "0x9d39a5de30e57443bff2a8307a4256c8797a3497",
+    "0xe3490297a08d6fc8da46edb7b6142e4f461b62d3"
+   ]
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.set_parameters.0xe8dc0fab349ea169283c48ccfd09d797e6db7c94.A8",
+   "label": "set_parameters A8 provenance",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=set_parameters,holder_address=0xe8dc0fab349ea169283c48ccfd09d797e6db7c94]/provenance/kind",
+   "unit": "literal",
+   "value": "contract_read"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.set_parameters.0xe8dc0fab349ea169283c48ccfd09d797e6db7c94.A8.function",
+   "label": "set_parameters A8 function",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=set_parameters,holder_address=0xe8dc0fab349ea169283c48ccfd09d797e6db7c94]/provenance/function",
+   "unit": "literal",
+   "value": "hasRole(bytes32,address)"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.seize.0xe8dc0fab349ea169283c48ccfd09d797e6db7c94.holder_address",
+   "label": "seize A2 holder",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=seize,holder_address=0xe8dc0fab349ea169283c48ccfd09d797e6db7c94]/holder_address",
+   "unit": "address",
+   "value": "0xe8dc0fab349ea169283c48ccfd09d797e6db7c94"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.seize.0xe8dc0fab349ea169283c48ccfd09d797e6db7c94.holder_type",
+   "label": "seize A2 type",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=seize,holder_address=0xe8dc0fab349ea169283c48ccfd09d797e6db7c94]/holder_type",
+   "unit": "literal",
+   "value": "timelock"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.seize.0xe8dc0fab349ea169283c48ccfd09d797e6db7c94.delay_seconds",
+   "label": "seize A4 delay",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=seize,holder_address=0xe8dc0fab349ea169283c48ccfd09d797e6db7c94]/delay_seconds",
+   "unit": "seconds",
+   "value": 86400
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.seize.0xe8dc0fab349ea169283c48ccfd09d797e6db7c94.delay_bucket",
+   "label": "seize A4 bucket",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=seize,holder_address=0xe8dc0fab349ea169283c48ccfd09d797e6db7c94]/delay_bucket",
+   "unit": "literal",
+   "value": "1–7d"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.seize.0xe8dc0fab349ea169283c48ccfd09d797e6db7c94.veto_address",
+   "label": "seize A5 veto",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=seize,holder_address=0xe8dc0fab349ea169283c48ccfd09d797e6db7c94]/veto_address",
+   "unit": "null",
+   "value": null
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.seize.0xe8dc0fab349ea169283c48ccfd09d797e6db7c94.upgradeability",
+   "label": "seize A6",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=seize,holder_address=0xe8dc0fab349ea169283c48ccfd09d797e6db7c94]/upgradeability",
+   "unit": "null",
+   "value": null
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.seize.0xe8dc0fab349ea169283c48ccfd09d797e6db7c94.scope",
+   "label": "seize A7 scope",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=seize,holder_address=0xe8dc0fab349ea169283c48ccfd09d797e6db7c94]/scope",
+   "unit": "list",
+   "value": [
+    "0x9d39a5de30e57443bff2a8307a4256c8797a3497"
+   ]
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.seize.0xe8dc0fab349ea169283c48ccfd09d797e6db7c94.A8",
+   "label": "seize A8 provenance",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=seize,holder_address=0xe8dc0fab349ea169283c48ccfd09d797e6db7c94]/provenance/kind",
+   "unit": "literal",
+   "value": "contract_read"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.seize.0xe8dc0fab349ea169283c48ccfd09d797e6db7c94.A8.function",
+   "label": "seize A8 function",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/admin_surface/[power=seize,holder_address=0xe8dc0fab349ea169283c48ccfd09d797e6db7c94]/provenance/function",
+   "unit": "literal",
+   "value": "hasRole(bytes32,address)"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.restricted_count",
+   "label": "fully restricted sUSDe addresses",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/synthetic/reads/FR-U32/value",
+   "unit": "count",
+   "value": 1035
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.role.pause.0.holder",
+   "label": "pause role holder (GATEKEEPER_ROLE)",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/synthetic/reads/FR-U13/value/GATEKEEPER_ROLE/0",
+   "unit": "address",
+   "value": "0x0f566cc38677239bed459047065925654b6d5bd9"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.role.pause.1.holder",
+   "label": "pause role holder (GATEKEEPER_ROLE)",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/synthetic/reads/FR-U13/value/GATEKEEPER_ROLE/1",
+   "unit": "address",
+   "value": "0x496011675b197cc136b48bc19d848fe26d3a8996"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.role.pause.2.holder",
+   "label": "pause role holder (GATEKEEPER_ROLE)",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/synthetic/reads/FR-U13/value/GATEKEEPER_ROLE/2",
+   "unit": "address",
+   "value": "0xab9110d36b030bae812cd3bb7b9de805a64aa7dc"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.role.pause.3.holder",
+   "label": "pause role holder (GATEKEEPER_ROLE)",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/synthetic/reads/FR-U13/value/GATEKEEPER_ROLE/3",
+   "unit": "address",
+   "value": "0xb6ecae7413a3e78a3e10f15afe3066e79566cca3"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.role.blacklist_address.0.holder",
+   "label": "blacklist_address role holder (BLACKLIST_MANAGER_ROLE)",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/synthetic/reads/FR-U14/value/BLACKLIST_MANAGER_ROLE/0",
+   "unit": "address",
+   "value": "0x21f9236e8ee76474284fe8cde6ece6c8d19d781e"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.role.blacklist_address.1.holder",
+   "label": "blacklist_address role holder (BLACKLIST_MANAGER_ROLE)",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/synthetic/reads/FR-U14/value/BLACKLIST_MANAGER_ROLE/1",
+   "unit": "address",
+   "value": "0x3b0aaf6e6fcd4a7ceef8c92c32dfea9e64dc1862"
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.role.blacklist_address.1.safe_threshold",
+   "label": "blacklist_address holder Safe threshold",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/synthetic/reads/FR-U17/value/0x3b0aaf6e6fcd4a7ceef8c92c32dfea9e64dc1862/threshold",
+   "unit": "count",
+   "value": 5
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.role.blacklist_address.1.safe_owners",
+   "label": "blacklist_address holder Safe owners",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/synthetic/reads/FR-U17/value/0x3b0aaf6e6fcd4a7ceef8c92c32dfea9e64dc1862/owners",
+   "unit": "list",
+   "value": [
+    "0x66096e581863ec2682e4e317da41b80510a274f6",
+    "0x18d32b1ab042b5e9a3430e77fde8b4783a019234",
+    "0xb93c042c688f1cf038bab03c4f832f2630bb7d8f",
+    "0x66892c66711b2640360c3123e6c23c0cfa50550f",
+    "0xe3f95f2e1adec092337fb5d93c1fe87558658b11",
+    "0x99682f56f4cccf61bd7e449924f2f62d395e1e45",
+    "0x980742edea6b0df3566c19ff4945c57e95449a13",
+    "0x54d0d64f7326b128959bf37ed7b5f2510656a471",
+    "0xe987e14b2e204fdf5827a3cfca7d476e8df6a99e",
+    "0xe5ca87da3a209ad85fdcbb515e1bd92644e9e1a6"
+   ]
+  },
+  {
+   "denominator": null,
+   "field_id": "admin.role.blacklist_address.2.holder",
+   "label": "blacklist_address role holder (BLACKLIST_MANAGER_ROLE)",
+   "owner_entry": "DET-68",
+   "section": "admin surface",
+   "source_path": "bundle/synthetic/reads/FR-U14/value/BLACKLIST_MANAGER_ROLE/2",
+   "unit": "address",
+   "value": "0x49e9f81a5ce0d492799c14049aef12df7bc955fe"
+  },
+  {
+   "denominator": null,
+   "field_id": "counterparty.location.ceffu",
+   "label": "custody location Ceffu",
+   "owner_entry": "DET-73",
+   "section": "audit",
+   "source_path": "bundle/synthetic/reads/FR-U36/value/location_totals/Ceffu",
+   "unit": "usd",
+   "value": "471249486"
+  },
+  {
+   "denominator": null,
+   "field_id": "counterparty.location.copper",
+   "label": "custody location Copper",
+   "owner_entry": "DET-73",
+   "section": "audit",
+   "source_path": "bundle/synthetic/reads/FR-U36/value/location_totals/Copper",
+   "unit": "usd",
+   "value": "543867247"
+  },
+  {
+   "denominator": null,
+   "field_id": "counterparty.location.hrp",
+   "label": "custody location HRP",
+   "owner_entry": "DET-73",
+   "section": "audit",
+   "source_path": "bundle/synthetic/reads/FR-U36/value/location_totals/HRP",
+   "unit": "usd",
+   "value": "23888367"
+  },
+  {
+   "denominator": null,
+   "field_id": "counterparty.exchange.binance",
+   "label": "hedge exchange Binance",
+   "owner_entry": "DET-73",
+   "section": "audit",
+   "source_path": "bundle/synthetic/reads/FR-U36/value/exchange_notional/Binance",
+   "unit": "usd",
+   "value": "471249486"
+  },
+  {
+   "denominator": null,
+   "field_id": "counterparty.exchange.bybit",
+   "label": "hedge exchange Bybit",
+   "owner_entry": "DET-73",
+   "section": "audit",
+   "source_path": "bundle/synthetic/reads/FR-U36/value/exchange_notional/Bybit",
+   "unit": "usd",
+   "value": "86319228"
+  },
+  {
+   "denominator": null,
+   "field_id": "counterparty.exchange.cde",
+   "label": "hedge exchange CDE",
+   "owner_entry": "DET-73",
+   "section": "audit",
+   "source_path": "bundle/synthetic/reads/FR-U36/value/exchange_notional/CDE",
+   "unit": "usd",
+   "value": "23888367"
+  },
+  {
+   "denominator": null,
+   "field_id": "counterparty.exchange.deribit",
+   "label": "hedge exchange Deribit",
+   "owner_entry": "DET-73",
+   "section": "audit",
+   "source_path": "bundle/synthetic/reads/FR-U36/value/exchange_notional/Deribit",
+   "unit": "usd",
+   "value": "18932784"
+  },
+  {
+   "denominator": null,
+   "field_id": "counterparty.exchange.okx",
+   "label": "hedge exchange Okx",
+   "owner_entry": "DET-73",
+   "section": "audit",
+   "source_path": "bundle/synthetic/reads/FR-U36/value/exchange_notional/Okx",
+   "unit": "usd",
+   "value": "138256674"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.0.firm",
+   "label": "audit firm",
+   "owner_entry": "DET-73",
+   "section": "static metadata",
+   "source_path": "bundle/static_metadata/audits/0/firm",
+   "unit": "literal",
+   "value": "Quantstamp"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.0.date",
+   "label": "audit date",
+   "owner_entry": "DET-73",
+   "section": "static metadata",
+   "source_path": "bundle/static_metadata/audits/0/date",
+   "unit": "date",
+   "value": "2023-10-18"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.0.scope",
+   "label": "audit scope",
+   "owner_entry": "DET-73",
+   "section": "static metadata",
+   "source_path": "bundle/static_metadata/audits/0/scope",
+   "unit": "literal",
+   "value": "v1"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.1.firm",
+   "label": "audit firm",
+   "owner_entry": "DET-73",
+   "section": "static metadata",
+   "source_path": "bundle/static_metadata/audits/1/firm",
+   "unit": "literal",
+   "value": "Spearbit"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.1.date",
+   "label": "audit date",
+   "owner_entry": "DET-73",
+   "section": "static metadata",
+   "source_path": "bundle/static_metadata/audits/1/date",
+   "unit": "date",
+   "value": "2023-10-18"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.1.scope",
+   "label": "audit scope",
+   "owner_entry": "DET-73",
+   "section": "static metadata",
+   "source_path": "bundle/static_metadata/audits/1/scope",
+   "unit": "literal",
+   "value": "v1"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.2.firm",
+   "label": "audit firm",
+   "owner_entry": "DET-73",
+   "section": "static metadata",
+   "source_path": "bundle/static_metadata/audits/2/firm",
+   "unit": "literal",
+   "value": "Pashov"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.2.date",
+   "label": "audit date",
+   "owner_entry": "DET-73",
+   "section": "static metadata",
+   "source_path": "bundle/static_metadata/audits/2/date",
+   "unit": "date",
+   "value": "2023-10-22"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.2.scope",
+   "label": "audit scope",
+   "owner_entry": "DET-73",
+   "section": "static metadata",
+   "source_path": "bundle/static_metadata/audits/2/scope",
+   "unit": "literal",
+   "value": "v1"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.3.firm",
+   "label": "audit firm",
+   "owner_entry": "DET-73",
+   "section": "static metadata",
+   "source_path": "bundle/static_metadata/audits/3/firm",
+   "unit": "literal",
+   "value": "Code4rena"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.3.date",
+   "label": "audit date",
+   "owner_entry": "DET-73",
+   "section": "static metadata",
+   "source_path": "bundle/static_metadata/audits/3/date",
+   "unit": "date",
+   "value": "2023-11-13"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.3.scope",
+   "label": "audit scope",
+   "owner_entry": "DET-73",
+   "section": "static metadata",
+   "source_path": "bundle/static_metadata/audits/3/scope",
+   "unit": "literal",
+   "value": "v1 (public)"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.4.firm",
+   "label": "audit firm",
+   "owner_entry": "DET-73",
+   "section": "static metadata",
+   "source_path": "bundle/static_metadata/audits/4/firm",
+   "unit": "literal",
+   "value": "Pashov"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.4.date",
+   "label": "audit date",
+   "owner_entry": "DET-73",
+   "section": "static metadata",
+   "source_path": "bundle/static_metadata/audits/4/date",
+   "unit": "date",
+   "value": "2023-12-22"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.4.scope",
+   "label": "audit scope",
+   "owner_entry": "DET-73",
+   "section": "static metadata",
+   "source_path": "bundle/static_metadata/audits/4/scope",
+   "unit": "literal",
+   "value": "ENA and LP staking"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.5.firm",
+   "label": "audit firm",
+   "owner_entry": "DET-73",
+   "section": "static metadata",
+   "source_path": "bundle/static_metadata/audits/5/firm",
+   "unit": "literal",
+   "value": "Pashov"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.5.date",
+   "label": "audit date",
+   "owner_entry": "DET-73",
+   "section": "static metadata",
+   "source_path": "bundle/static_metadata/audits/5/date",
+   "unit": "date",
+   "value": "2024-05-23"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.5.scope",
+   "label": "audit scope",
+   "owner_entry": "DET-73",
+   "section": "static metadata",
+   "source_path": "bundle/static_metadata/audits/5/scope",
+   "unit": "literal",
+   "value": "V2 contracts"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.6.firm",
+   "label": "audit firm",
+   "owner_entry": "DET-73",
+   "section": "static metadata",
+   "source_path": "bundle/static_metadata/audits/6/firm",
+   "unit": "literal",
+   "value": "Pashov"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.6.date",
+   "label": "audit date",
+   "owner_entry": "DET-73",
+   "section": "static metadata",
+   "source_path": "bundle/static_metadata/audits/6/date",
+   "unit": "date",
+   "value": "2024-09-02"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.6.scope",
+   "label": "audit scope",
+   "owner_entry": "DET-73",
+   "section": "static metadata",
+   "source_path": "bundle/static_metadata/audits/6/scope",
+   "unit": "literal",
+   "value": "sENA"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.7.firm",
+   "label": "audit firm",
+   "owner_entry": "DET-73",
+   "section": "static metadata",
+   "source_path": "bundle/static_metadata/audits/7/firm",
+   "unit": "literal",
+   "value": "Pashov"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.7.date",
+   "label": "audit date",
+   "owner_entry": "DET-73",
+   "section": "static metadata",
+   "source_path": "bundle/static_metadata/audits/7/date",
+   "unit": "date",
+   "value": "2024-10-20"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.7.scope",
+   "label": "audit scope",
+   "owner_entry": "DET-73",
+   "section": "static metadata",
+   "source_path": "bundle/static_metadata/audits/7/scope",
+   "unit": "literal",
+   "value": "USDtb"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.8.firm",
+   "label": "audit firm",
+   "owner_entry": "DET-73",
+   "section": "static metadata",
+   "source_path": "bundle/static_metadata/audits/8/firm",
+   "unit": "literal",
+   "value": "Quantstamp"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.8.date",
+   "label": "audit date",
+   "owner_entry": "DET-73",
+   "section": "static metadata",
+   "source_path": "bundle/static_metadata/audits/8/date",
+   "unit": "date",
+   "value": "2024-10-25"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.8.scope",
+   "label": "audit scope",
+   "owner_entry": "DET-73",
+   "section": "static metadata",
+   "source_path": "bundle/static_metadata/audits/8/scope",
+   "unit": "literal",
+   "value": "USDtb"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.9.firm",
+   "label": "audit firm",
+   "owner_entry": "DET-73",
+   "section": "static metadata",
+   "source_path": "bundle/static_metadata/audits/9/firm",
+   "unit": "literal",
+   "value": "Cyfrin"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.9.date",
+   "label": "audit date",
+   "owner_entry": "DET-73",
+   "section": "static metadata",
+   "source_path": "bundle/static_metadata/audits/9/date",
+   "unit": "date",
+   "value": "2024-10-31"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.9.scope",
+   "label": "audit scope",
+   "owner_entry": "DET-73",
+   "section": "static metadata",
+   "source_path": "bundle/static_metadata/audits/9/scope",
+   "unit": "literal",
+   "value": "USDtb"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.bug_bounty.platform",
+   "label": "bug bounty platform",
+   "owner_entry": "DET-73",
+   "section": "static metadata",
+   "source_path": "bundle/static_metadata/bug_bounty/platform",
+   "unit": "literal",
+   "value": "Immunefi"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.bug_bounty.max",
+   "label": "bug bounty max",
+   "owner_entry": "DET-73",
+   "section": "static metadata",
+   "source_path": "bundle/static_metadata/bug_bounty/max",
+   "unit": "literal",
+   "value": "USD 3,000,000"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.last_material_change_audited",
+   "label": "last material change audited",
+   "owner_entry": "DET-73",
+   "section": "static metadata",
+   "source_path": "bundle/static_metadata/last_material_change_audited",
+   "unit": "literal",
+   "value": "yes"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.staleness_date",
+   "label": "staleness date",
+   "owner_entry": "DET-73",
+   "section": "static metadata",
+   "source_path": "bundle/static_metadata/staleness_date",
+   "unit": "date",
+   "value": "2026-10-25"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.counterparties",
+   "label": "counterparties",
+   "owner_entry": "DET-73",
+   "section": "static metadata",
+   "source_path": "bundle/static_metadata/counterparties",
+   "unit": "literal",
+   "value": "filled per memo #2 §14 (Q26, D6) — direct custodians Copper, Ceffu, Anchorage Digital Bank, Kraken Financial; lending counterparties FalconX International Lending Opportunities SPC (loans $236.64m, over-collateralised ~166% by BTC/ETH/SOL/XRP/USD/USDC at Anchorage, BitGo, Kraken under account-control agreements) and one unnamed borrower under Anchorage's secured lending arrangement ($81m against $145.54m BTC); derivatives Ripple Prime (Hidden Road Partners CIV US LLC d/b/a Ripple Prime), FCM for CME and Coinbase Derivatives Exchange; basis-hedge exchanges Binance (via Ceffu), OKX, Bybit, Deribit (via Copper), CDE (via Hidden Road); on-chain wallets, Coinbase-labeled; per-run shares from the backing-assets route (FR-U36), letters as monthly confirmation [ANALYST-SUPPLIED 2026-10-25: letter values — Copper Markets (Switzerland) AG $668,759,532.90 incl. unrealised P&L; Ceffu Digital Pte. Ltd. ≥ $733,212,922.85 (post headline $0.675bn); Anchorage Digital Bank NA $576,576,634 held + $81,000,000 USDC/USDT loaned against $145,541,292 BTC in tri-party custody (post headline $0.657bn); Kraken Financial $41,690.76; Ethena x FalconX SPV collateral $393,803,618.69 (Anchorage $137,516,667, BitGo $181,930,552, Payward/Kraken $74,408,775.45) against loans of $236,644,959.12; Ripple Prime FCM account equity $7,934,609.93; Coinbase on-chain wallets $2.620bn; MintRedeem contract $89.230m; total backing $4.953bn; reserve fund $62.095m; 101.34% incl. reserve fund; USDe supply 4.949bn; September attestation post and its custodian letters, https://ethena.fi/blog/custodian-attestations-of-assets-backing-usde-september-3; route https://app.ethena.fi/api/positions/current/backing-assets read 2026-10-25; as-of 2026-09-27]"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.tag_date.audits",
+   "label": "audits analyst-supplied date",
+   "owner_entry": "DET-74",
+   "section": "audit",
+   "source_path": "mirror/audit_tag_date/audits",
+   "unit": "date",
+   "value": "2026-10-25"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.tag_date.bug_bounty",
+   "label": "bug_bounty analyst-supplied date",
+   "owner_entry": "DET-74",
+   "section": "audit",
+   "source_path": "mirror/audit_tag_date/bug_bounty",
+   "unit": "date",
+   "value": "2026-10-25"
+  },
+  {
+   "denominator": null,
+   "field_id": "audit.tag_date.last_material_change_audited",
+   "label": "last_material_change_audited analyst-supplied date",
+   "owner_entry": "DET-74",
+   "section": "audit",
+   "source_path": "mirror/audit_tag_date/last_material_change_audited",
+   "unit": "date",
+   "value": "2026-10-25"
+  }
+ ],
+ "run_block": 26275087,
+ "table_hash": "8caa2a58b0674ea6c35308e2613929f4946646c23988f9e8f7c124cbdd30b9a8",
+ "token": "USDe"
+}

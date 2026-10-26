@@ -124,6 +124,13 @@ def fixture_snapshot(token: str, *, stale=False, hci_stale=False, covered=False,
     return behavioral.assemble(token, a, depeg, supply, [hci])
 
 
+def usde_snapshot() -> dict:
+    """P-10.10 (Q36): USDe joins the behavioral roots; its site-build fixture is assembled
+    from the committed fixtures under its own address (no USDe response is fixtured)."""
+    return behavioral.assemble("USDe", addresses()["USDe"], unit(fixture("LUSD_depeg.json")),
+                               None, [unit(fixture("hci.json"))])
+
+
 def tmp_repo(tmp_path: pathlib.Path, snapshots: dict[str, dict] | None = None) -> pathlib.Path:
     for sub in ("out/site", "out/evaluation", "out/logs", "docs/context", "templates", "config"):
         shutil.copytree(REPO / sub, tmp_path / sub)
@@ -245,7 +252,7 @@ def test_webacy_stale_flags_get_the_webacy_suffix():
 # ---- the site build -----------------------------------------------------------------------
 
 def test_the_block_lands_and_a_second_build_is_byte_identical(tmp_path):
-    root = tmp_repo(tmp_path, {t: fixture_snapshot(t) for t in TOKENS})
+    root = tmp_repo(tmp_path, {t: fixture_snapshot(t) for t in TOKENS} | {"USDe": usde_snapshot()})
     out = site.build(root, FETCHED)
     first = files(root)
     site.build(root, FETCHED)
@@ -358,7 +365,7 @@ def test_fetch_makes_seven_requests_and_never_writes_the_key(tmp_path):
     key = "wk_live_" + "9" * 24
     seen, gaps = [], []
     r = behavioral.fetch(root, key, get=fake_get(fetch_bodies("GHO"), seen), sleep=gaps.append,
-                         now=dt.datetime(2026, 9, 24, 12, tzinfo=dt.UTC))
+                         now=dt.datetime(2026, 9, 24, 12, tzinfo=dt.UTC), tokens=TOKENS)
     assert len(seen) == 7 and gaps == [behavioral.GAP_S] * 6
     assert "pageSize=500" in seen[-1][0] and not any("/v3/" in u for u, _ in seen)
     assert r["written"]["GHO"]["hci_found"] and not r["written"]["LUSD"]["hci_found"]
@@ -378,13 +385,14 @@ def test_a_shape_mismatch_or_a_non_200_writes_nothing(tmp_path):
     bodies = fetch_bodies()
     del bodies[f"/rwa/{addresses()['GHO']}?"]["snapshot"]["price"]
     with pytest.raises(behavioral.BehavioralStop, match="response shape"):
-        behavioral.fetch(root, "k", get=fake_get(bodies, []), sleep=lambda s: None)
+        behavioral.fetch(root, "k", get=fake_get(bodies, []), sleep=lambda s: None,
+                         tokens=TOKENS)
     assert not (root / "out/behavioral").exists() and not (root / "out/behavioral-raw").exists()
 
     def refused(url, key):
         raise behavioral.BehavioralStop(f"{url} -> HTTP 401")
     with pytest.raises(behavioral.BehavioralStop, match="HTTP 401"):
-        behavioral.fetch(root, "k", get=refused, sleep=lambda s: None)
+        behavioral.fetch(root, "k", get=refused, sleep=lambda s: None, tokens=TOKENS)
     assert not (root / "out/behavioral").exists()
 
 
@@ -666,7 +674,7 @@ def test_status_is_written_with_a_plain_reason(tmp_path):
                       "instance of Cohort")
     assert behavioral.plain_reason("x -> HTTP 503: <html>secret</html>") == \
         "the request returned HTTP 503"
-    for t in TOKENS:
+    for t in behavioral.ROOTS:                       # P-10.10: every root, USDe included
         (tmp_path / "out/behavioral" / t).mkdir(parents=True)
         (tmp_path / "out/behavioral" / t / "20260927T000000Z.json").write_text("{}")
     st = behavioral.write_status(tmp_path, False, reason,
@@ -677,7 +685,7 @@ def test_status_is_written_with_a_plain_reason(tmp_path):
 
 
 def test_a_failed_refresh_is_disclosed_on_every_page_and_absent_when_ok(tmp_path):
-    root = tmp_repo(tmp_path, {t: fixture_snapshot(t) for t in TOKENS})
+    root = tmp_repo(tmp_path, {t: fixture_snapshot(t) for t in TOKENS} | {"USDe": usde_snapshot()})
     behavioral.write_status(root, False, "holderConcentration.top30: Input should be a "
                             "valid dictionary", dt.datetime(2026, 10, 4, 7, tzinfo=dt.UTC))
     out = site.build(root, FETCHED)

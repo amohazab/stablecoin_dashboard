@@ -1010,15 +1010,20 @@ def _synthetic_read_rows(bundle) -> list[str]:
     return out
 
 
-def write_spotcheck_usde(bundle, out_dir: pathlib.Path) -> pathlib.Path:
+def spotcheck_usde_text(bundle) -> str:
+    """The run sheet's text; the verify page renders the same text (P-10.10)."""
     h = bundle.header
     lines = [f"# USDe spot-check — run {h.run_block}", "",
              f"bundle `{h.bundle_hash[:8]}` · sheet `{h.sheet_hash}` · "
              f"frozen set `{h.frozen_set_hash}`", "",
              *_synthetic_read_rows(bundle)]
-    path = out_dir / "USDe" / f"{h.run_block}.md"
+    return "\n".join(lines) + "\n"
+
+
+def write_spotcheck_usde(bundle, out_dir: pathlib.Path) -> pathlib.Path:
+    path = out_dir / "USDe" / f"{bundle.header.run_block}.md"
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    path.write_text(spotcheck_usde_text(bundle), encoding="utf-8")
     return path
 
 
@@ -1035,7 +1040,8 @@ def write_tree_synthetic(bundle, tree, out_dir: pathlib.Path) -> pathlib.Path:
     return p
 
 
-def write_stress_synthetic(bundle, report, out_dir: pathlib.Path) -> pathlib.Path:
+def stress_sheet_text_synthetic(bundle, report) -> str:
+    """The stress sheet's text; the verify page renders the same text (P-10.10)."""
     syn = report.synthetic
     lines = [f"# USDe stress spot-check — {report.header.run_block}", "",
              "inputs: " + ", ".join(f"{k} {v}" for k, v in syn["inputs"].items()
@@ -1044,8 +1050,12 @@ def write_stress_synthetic(bundle, report, out_dir: pathlib.Path) -> pathlib.Pat
              *[f"| {c['id']} | {c.get('loss', '—')} | {c.get('post_loss_backing', '—')} | "
                f"{c.get('post_loss_ratio', c.get('depeg_pressure_ratio'))} |"
                for c in syn["cells"]]]
+    return "\n".join(lines) + "\n"
+
+
+def write_stress_synthetic(bundle, report, out_dir: pathlib.Path) -> pathlib.Path:
     path = out_dir / "out/spotcheck" / bundle.header.token / \
         f"stress-{bundle.header.run_block}.md"
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    path.write_text(stress_sheet_text_synthetic(bundle, report), encoding="utf-8")
     return path

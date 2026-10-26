@@ -37,8 +37,9 @@ from factory.report import svg
 
 E18 = Decimal(10) ** 18
 NUMERIC = {"base_units", "value_scale_units", "token_units", "usd_whole", "ratio", "bps",
-           "seconds", "days", "count"}
-AMOUNTS = {"base_units", "value_scale_units", "token_units", "usd_whole"}
+           "seconds", "days", "count", "usd"}
+# P-10.10: `usd` - an attested or derived USD figure as a decimal string (archetype #2)
+AMOUNTS = {"base_units", "value_scale_units", "token_units", "usd_whole", "usd"}
 QUALIFYING = ("mint", "upgrade", "set_oracle", "seize")          # DET-70 (tree.QUALIFYING)
 
 
@@ -125,6 +126,8 @@ class Formatter:
                 h = n // 3600
                 return f"{h} hour" if h == 1 else f"{h} hours"
             return f"{n:,} s"
+        if unit == "decimal8":                     # P-10.10 r7: an 8-dp feed answer
+            return f"{Decimal(int(value)) / Decimal(10) ** 8}"
         if unit == "price":                        # B-13 ruling E: a target price, 2 dp
             return f"{self._q(Decimal(str(value)), 2)}"
         if unit == "days":
@@ -514,6 +517,207 @@ def render_token(repo: pathlib.Path, token: str, doc: dict, grid: dict, man: dic
                  if x["artifact_hash"] == stress.header.stress_hash), None)
     html = env.get_template("verify.html.j2").render(
         **ctx, sheet=stress_sheet_text(bundle, stress, repo), vrow=vrow)
+    (out / "verify.html").write_text(html, encoding="utf-8", newline="")
+    files["verify"] = out / "verify.html"
+    blk = doc["run_block"]
+    for nm, obj in (("table.json", doc), ("grid.json", grid), ("manifest.json", man),
+                    (f"evaluation-{blk}.json", rec)):
+        (out / "data" / nm).write_text(json.dumps(obj, sort_keys=True, indent=1,
+                                                  ensure_ascii=False) + "\n",
+                                       encoding="utf-8", newline="")
+    return files
+
+
+
+# ---- archetype #2 (P-10.10) ----------------------------------------------------------
+QUALIFYING_SYNTHETIC = (*QUALIFYING, "set_parameters")              # A-51 (memo #2 §13)
+ANALYST_TAG = re.compile(r"\[ANALYST-SUPPLIED (\d{4}-\d{2}-\d{2}): (.*?)\]", re.S)
+
+
+def provenance_form(text: str, w: dict) -> str:
+    """Ruling 1 (P-10.10, A-30): an `[ANALYST-SUPPLIED <date>: <content>]` tag renders as
+    its content followed by the page's analyst-supplied provenance form, "(analyst-supplied
+    <date>)"; the content carries its own source. The marker never reaches the page."""
+    return ANALYST_TAG.sub(
+        lambda m: f"{m.group(2)} {w['rubric']['tag_date'].format(date=m.group(1))}", text)
+
+
+def _governance(rows: dict, w: dict, qualifying: tuple) -> str:
+    held = [a for a in admin_rows(rows) if a["power"] in qualifying and a["holder_type"] != "none"]
+    if not held:
+        return w["governance"]["immutable"]
+    groups: dict[tuple, list[str]] = {}
+    for a in held:
+        groups.setdefault((a["holder_type"], a["bucket"]), []).append(a["power"])
+    parts = []
+    for (h, b), ps in groups.items():
+        change = [w["powers"][p] for p in ps if p != "seize"]
+        verbs = ([f"change {join_words(change)}"] if change else []) + \
+            ([w["synthetic"]["seize_verb"]] if "seize" in ps else [])
+        parts.append(f"{w['holders'][h]} can {join_words(verbs)} {w['delays'][b or 'none']}")
+    s = "; ".join(parts) + "."
+    return s[0].upper() + s[1:]
+
+
+def _role_holders(rows: dict, power: str) -> list[dict]:
+    """(4): every holder of the role behind `power`, a Safe's threshold beside it."""
+    out, i = [], 0
+    while f"admin.role.{power}.{i}.holder" in rows:
+        p = f"admin.role.{power}.{i}"
+        th = rows.get(f"{p}.safe_threshold")
+        out.append({"fid": f"{p}.holder", "address": rows[f"{p}.holder"]["value"],
+                    "safe": th is not None,
+                    "threshold": th["value"] if th else None,
+                    "owners": len(rows[f"{p}.safe_owners"]["value"]) if th else None})
+        i += 1
+    return out
+
+
+def _power_sentences_synthetic(rows: dict, w: dict) -> list[str]:
+    """(4): one bullet per power; a power held through a role names every holder, counted."""
+    sw = w["synthetic"]
+    out = []
+    for a in admin_rows(rows):
+        name = w["powers"][a["power"]]
+        name = name[0].upper() + name[1:]
+        hs = _role_holders(rows, a["power"])
+        if a["holder_type"] == "none":
+            out.append(f"{name}: {w['holders']['none']}.")
+            continue
+        if hs:
+            keys = sum(1 for h in hs if not h["safe"])
+            safes = len(hs) - keys
+            who = join_words(([sw["n_keys"].format(n=keys) if keys != 1 else sw["one_key"]]
+                              if keys else []) +
+                             ([sw["n_safes"].format(n=safes) if safes != 1 else sw["one_safe"]]
+                              if safes else []))
+        else:
+            who = w["holders"][a["holder_type"]]
+        out.append(f"{name}: {who}, {w['delays'][a['bucket'] or 'none']}.")
+    return out
+
+
+def render_synthetic(repo: pathlib.Path, token: str, doc: dict, grid: dict, man: dict,
+                     rec: dict, bundle, stress, out: pathlib.Path) -> dict:
+    """The archetype-#2 page set: the same two layers, the same formatter and the same
+    tree diagram as `render_token`; the stress section is memo #2's three rows."""
+    tpl = repo / "templates"
+    mf = tomllib.loads((tpl / "manifest.toml").read_text(encoding="utf-8"))
+    w = tomllib.loads((tpl / "wording.toml").read_text(encoding="utf-8"))
+    sw = w["synthetic"]
+    w = {**w, "powers": {**w["powers"], **sw["powers"]},         # Q12's power names
+         "trigger_pill": {**w.get("trigger_pill", {}), **sw["trigger_pill"]}}
+    rows = {r["field_id"]: r for r in doc["rows"]}
+    fmt = Formatter(mf["display_rule"], mf["compact"], int(rows["tree.root.value_scale"]["value"]))
+
+    def v(fid: str) -> str:
+        r = rows[fid]
+        return fmt(r["value"], r["unit"], r["denominator"])
+
+    def c(fid: str) -> str:
+        r = rows[fid]
+        return fmt(r["value"], r["unit"], r["denominator"], compact=True)
+
+    def raw(fid: str) -> Any:
+        return rows[fid]["value"] if fid in rows else None
+
+    def ids(prefix: str) -> list[str]:
+        return [f for f in rows if f.startswith(prefix)]
+
+    rubric = (repo / "docs/context/rubic_v1.md").read_bytes().replace(b"\r\n", b"\n").decode()
+    from factory.rubric import trigger_table
+    tnames = {k: (x["name"], x["section"]) for k, x in trigger_table(rubric).items()}
+    log = rec.get("log") or {"flags": {}, "banner": None}
+
+    # ---- the tree diagram: 0 / 0 / 100 over the six categories ------------------------
+    # (3): the note wraps inside the 420-px root box
+    import textwrap
+    root_lines = [f"{w['labels'].get('supply', 'supply')} {c('supply.supply_ruled')}",
+                  *textwrap.wrap(sw["backing_pair"].format(
+                      status=c("tree.root.status_backing"), root=c("tree.root.backing_value"),
+                      diff=c("tree.root.backing_difference")), sw["root_wrap"])]
+    node_bar = w["tree"]["node_bar"]
+    bars, columns = [], []
+    for name in w["tree"]["bars"]:
+        labels = tuple(k for k, x in node_bar.items() if x == name)
+        bars.append((w["tree"]["bars"][name], Decimal(str(raw(f"verif.bar.{name}"))),
+                     v(f"verif.bar.{name}")))
+        col = []
+        for f in ids("tree.node."):
+            if not f.endswith(".label") or raw(f) not in labels:
+                continue
+            s = f.split(".")[2]
+            pill = None
+            if raw(f) == "recurses_truncated":
+                pill = w["tree"]["truncated_pill"]
+            elif f"verif.staleness.{s}.staleness_days" in rows:
+                d = f"verif.staleness.{s}.staleness_days"
+                pill = (w["tree"]["days_pill_zero"] if Decimal(str(raw(d))) == 0
+                        else w["tree"]["days_pill"].format(days=v(d)))
+            col.append((raw(f"tree.node.{s}.symbol"), v(f"tree.node.{s}.share"), pill))
+        columns.append(col)
+    tree_svg = svg.tree_diagram(root_lines, None, bars, columns, w["tree"]["caption"])
+
+    def tip(key: str) -> Markup:
+        text = sw["tips"].get(key, w["tips"].get(key, "")).format(
+            token=token, block=v("header.run_block"), scope="")
+        return Markup('<span class="tip" tabindex="0" role="button" aria-label="{}">?'
+                      '<span class="tip-text" role="tooltip">{}</span></span>').format(
+                          escape(text), escape(text))
+
+    curve = [(v(f"exit.curve.s{p}.s"), Decimal(raw(f"exit.curve.s{p}.total")), Decimal(0),
+              c(f"exit.curve.s{p}.total")) for p in ("0.005", "0.01", "0.02", "0.05")]
+    chart_b = svg.stacked_columns(curve, w["charts"]["b_title"],
+                                  (w["charts"]["b_pool"], w["charts"]["b_gsm"]),
+                                  w["charts"]["b_x"], w["charts"]["b_y"],
+                                  [(Decimal(0), fmt(0, "base_units", compact=True)),
+                                   (Decimal(raw("exit.curve.s0.05.total")),
+                                    c("exit.curve.s0.05.total"))])
+    prose = rec.get("prose") or {}
+
+    def slot(name: str) -> Markup:
+        text = (prose.get(name) or "").strip()
+        if not text and name in (rec.get("slots_missing") or []):        # A-25
+            return Markup('<div class="slot-missing" data-slot="{}"><p>{}</p></div>').format(
+                name, w["slot_missing"])
+        if not text:
+            return Markup('<div class="slot">{}</div>').format(f"[slot: {name} — pending B-13]")
+        paras = [x.strip() for x in re.split(r"\n\s*\n", text) if x.strip()]
+        return Markup('<div class="prose-slot" data-slot="{}">{}</div>').format(
+            name, Markup("").join(Markup("<p>{}</p>").format(x) for x in paras))
+
+    cells = [raw(f"stress.headline.{k}") for k in ("row1", "row2", "row2_beside", "row3")]
+    env = environment(tpl)
+    env.filters["fmt"] = fmt
+    held = [a for a in admin_rows(rows) if a["power"] in QUALIFYING_SYNTHETIC
+            and a["holder_type"] != "none"]
+    shortest = next((b for b in ("none", "<24h", "1–7d", ">7d")
+                     if b in {a["bucket"] or "none" for a in held}), None)
+    pl = pills(rows, rec, tnames, w, v)
+    if shortest:                                   # A-51's qualifying set on the pill
+        pl[1] = ("red" if shortest in ("none", "<24h") else "amber",
+                 w["pills"]["governance"].format(delay=w["delay_short"][shortest]))
+    ctx = dict(token=token, rows=rows, v=v, c=c, raw=raw, ids=ids, cells=cells, grid=grid,
+               doc=doc, man=man, rec=rec, w=w, sw=sw, tnames=tnames, log=log,
+               tree_svg=tree_svg, chart_b=chart_b, fmt=fmt, pills=pl,
+               governance=_governance(rows, w, QUALIFYING_SYNTHETIC),
+               power_sentences=_power_sentences_synthetic(rows, w), tip=tip, slot=slot,
+               role_holders=lambda p: _role_holders(rows, p),
+               provenance=lambda s: provenance_form(s, w))
+    (out / "data").mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(tpl / "style.css", out.parent / "style.css")
+    files = {}
+    for name in ("index", "appendix"):
+        html = env.get_template(f"{name}_synthetic.html.j2").render(**ctx)
+        (out / f"{name}.html").write_text(html, encoding="utf-8", newline="")
+        files[name] = out / f"{name}.html"
+    from factory.spotcheck import spotcheck_usde_text, stress_sheet_text_synthetic
+    ver = tomllib.loads((repo / "config/verifications.toml").read_text(encoding="utf-8"))
+    vrow = next((x for x in ver.get("verification", [])
+                 if x["artifact_hash"] == stress.header.stress_hash), None)
+    html = env.get_template("verify_synthetic.html.j2").render(
+        **ctx, sheet=spotcheck_usde_text(bundle),
+        stress_sheet=stress_sheet_text_synthetic(bundle, stress), vrow=vrow)
     (out / "verify.html").write_text(html, encoding="utf-8", newline="")
     files["verify"] = out / "verify.html"
     blk = doc["run_block"]

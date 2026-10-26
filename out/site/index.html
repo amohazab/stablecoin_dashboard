@@ -11,7 +11,7 @@
 <main>
 <header class="page">
   <h1>Stablecoin Dashboard</h1>
-  <p class="meta">structural risk reports for CDP stablecoins · Amin Mohazab · github.com/amohazab</p>
+  <p class="meta">structural risk reports for stablecoins · Amin Mohazab · github.com/amohazab</p>
   <p class="lede">Automated structural risk reports: every figure is read from Ethereum at one fixed block and traces to the contract call that produced it. See <a href="methodology.html">the methodology page</a> and <a href="https://github.com/amohazab/stablecoin_dashboard">the repository</a>.</p>
 
 
@@ -21,6 +21,7 @@
 
 <article class="token-card">
   <h2><a href="crvUSD/index.html">crvUSD</a></h2>
+  <p class="meta">collateralised debt position (archetype #1)</p>
   <p class="meta">read 2026-10-07 21:22 UTC · block 26143168 · report <code title="07f460c0eb45a1caf656c9c2dc8396f02d80956b6889c3aa9cc9b297ba7a423b">07f460c0</code></p>
   <p class="meta last-ok">Last successful run: 2026-10-07</p>
   <p class="finding">No written summary this run.</p>
@@ -31,6 +32,7 @@
 
 <article class="token-card">
   <h2><a href="GHO/index.html">GHO</a></h2>
+  <p class="meta">collateralised debt position (archetype #1)</p>
   <p class="meta">read 2026-10-01 21:58 UTC · block 26100308 · report <code title="d07a2702518115972175c76bcd6e994b8739506744c16781a81a54f12386992b">d07a2702</code></p>
   <p class="meta last-ok">Last successful run: 2026-10-01</p>
   <p class="finding">The token&#39;s backing is split between assets checked directly on-chain, wrapped assets checked one layer down, and disclosures; 33.0% of the backing is held in assets whose value can be checked directly on-chain, 38.5% in wrapped assets whose value can be checked on-chain one layer down, and 28.5% through an issuer&#39;s or custodian&#39;s published disclosures.</p>
@@ -41,12 +43,24 @@
 
 <article class="token-card">
   <h2><a href="LUSD/index.html">LUSD</a></h2>
+  <p class="meta">collateralised debt position (archetype #1)</p>
   <p class="meta">read 2026-10-02 21:58 UTC · block 26107477 · report <code title="ba9b2bb87138655e43907ea7fd7b6233e34e33c8be41c5c5ce690f8d66fbdecb">ba9b2bb8</code></p>
   <p class="meta last-ok">Last successful run: 2026-10-02</p>
   <p class="finding">The structural-zero flag is set because no trove reaches the minimum collateral ratio on the ruled grid; the first liquidation occurs at an ETH shock of -82.55% (minimum ICR 6.3044 -&gt; 1.1), recovery mode activates at -79.66% (TCR 7.3744 -&gt; 1.5), and TCR falls below MCR at -85.08%, while Liquity v1 is wound down to 70 troves.</p>
   <p class="meta figures">Supply $26.2M · Bad debt, headline scenario $0, structurally zero · Exit liquidity, headline scenario $8.3M</p>
   <div class="pills"><span class="pill amber">1 notice(s): gate failure</span></div>
   <nav class="links"><a href="LUSD/index.html">report</a><a href="LUSD/appendix.html">appendix</a><a href="LUSD/verify.html">verify</a></nav>
+</article>
+
+<article class="token-card">
+  <h2><a href="USDe/index.html">USDe</a></h2>
+  <p class="meta">synthetic dollar (archetype #2)</p>
+  <p class="meta">read 2026-10-26 06:31 UTC · block 26275087 · report <code title="321ca99aac237b8dd5a59d1cff879ae999fbd9caa23e1e423843968e3424132e">321ca99a</code></p>
+  <p class="meta last-ok">Last successful run: 2026-10-26</p>
+  <p class="finding">This token&#39;s backing is held off-chain by its issuer and can only be checked through the issuer&#39;s disclosures, so all of it sits in the disclosure-dependent class.</p>
+  <p class="meta figures">Supply $4.6B · Backing, as disclosed $4.6B · Exit liquidity, headline scenario $21.0M</p>
+  <div class="pills"><span class="pill amber">2 notice(s): mechanism near bound and a narrative section withheld (gate failure)</span></div>
+  <nav class="links"><a href="USDe/index.html">report</a><a href="USDe/appendix.html">appendix</a><a href="USDe/verify.html">verify</a></nav>
 </article>
 
 </div>

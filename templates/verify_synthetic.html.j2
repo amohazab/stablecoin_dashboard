@@ -1,0 +1,15 @@
+{% extends "base.html.j2" %}
+{% block title %}{{ token }}: verify this report{% endblock %}
+{% block heading %}{{ token }}: verify{% endblock %}
+{% block body %}
+<p class="prose">Two kinds of figure appear in this report. On-chain figures were read from Ethereum at block {{ v('header.run_block') }}: repeat any call the run sheet lists on your own node at that block. Disclosure figures come from the issuer's routes, fetched at the same run; the run sheet lists each snapshot's address and sha256, and the snapshot set is committed in the repository, so it is re-fetchable from the committed snapshot.</p>
+{% if vrow %}
+<p class="banner">Hand-verified by the analyst on {{ vrow.date }}: {{ vrow.method }} (stress artifact <code>{{ vrow.artifact_hash[:8] }}</code>).</p>
+{% else %}
+<p class="banner">This stress artifact carries no analyst verification row.</p>
+{% endif %}
+<h2>Run sheet: pinned reads and disclosure snapshots</h2>
+<pre class="sheet">{{ sheet }}</pre>
+<h2>Stress sheet</h2>
+<pre class="sheet">{{ stress_sheet }}</pre>
+{% endblock %}

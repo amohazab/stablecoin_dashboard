@@ -1,0 +1,31 @@
+{% extends "base.html.j2" %}
+{% block title %}{{ token }}: appendix{% endblock %}
+{% block heading %}{{ token }}: appendix{% endblock %}
+{% block body %}
+<p class="prose">Every stress cell of the three rows, the artifact literals the report body paraphrases, and the map from every table field to the rubric entry that owns it.</p>
+
+<h2>Every stress cell</h2>
+<div class="scroll">
+<table class="striped"><tr><th>cell</th><th>figure</th><th class="num">value</th></tr>
+{% for f in ids('cell.') %}<tr><td><code>{{ f.split('.')[1] }}</code></td><td>{{ f.split('.', 2)[2] }}</td><td class="num">{{ v(f) }}</td></tr>
+{% endfor %}</table>
+</div>
+
+<h2>Artifact literals, verbatim; P-references are entries in the project's decision log</h2>
+<table class="striped">
+<tr><td><code>perimeter</code></td><td>{{ v('tree.root.perimeter') }}</td></tr>
+<tr><td><code>admin banner</code></td><td>{{ v('verif.banner') }}</td></tr>
+<tr><td><code>redemption R7</code></td><td>{{ v('redemption.r7_capacity') }}</td></tr>
+{% for f in ids('assumption.') %}<tr><td><code>{{ f[11:] }}</code></td><td>{{ v(f) }}</td></tr>{% endfor %}
+</table>
+
+<h2>Denominators</h2>
+<table class="striped">{% for f in ids('denominator.') %}<tr><td><code>{{ f[12:] }}</code></td><td>{{ v(f) }}</td></tr>{% endfor %}</table>
+
+<h2>Rubric map: every table field and its owner</h2>
+<div class="scroll">
+<table class="striped"><tr><th>field</th><th>owner</th><th>denominator</th><th>section</th></tr>
+{% for r in doc.rows %}<tr><td><code>{{ r.field_id }}</code></td><td>{{ r.owner_entry }}</td><td>{{ r.denominator or '' }}</td><td>{{ r.section }}</td></tr>{% endfor %}
+</table>
+</div>
+{% endblock %}

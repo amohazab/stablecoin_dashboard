@@ -239,13 +239,24 @@ class Remediation(_Strict):
 # ---- prompts, hashes, the page as the judge reads it -----------------------------------------
 
 
-def prompts(repo: pathlib.Path) -> dict[str, Any]:
+def prompts(repo: pathlib.Path, archetype: str = "cdp") -> dict[str, Any]:
+    """`slots` is the archetype's slot table: `slots.toml` for archetype #1,
+    `slots_synthetic.toml` for archetype #2 (P-10.10). NAMED DEFAULT: `prompt_hash`
+    keeps hashing `slots.toml` only, so archetype #1's recorded fixtures stay current;
+    the archetype-#2 file enters `template_hash` with every file under templates/."""
     tpl = repo / "templates/prompts"
+    name = "slots_synthetic.toml" if archetype == "synthetic" else "slots.toml"
     return {"generate": (tpl / "generate.md").read_text(encoding="utf-8"),
             "judge": (tpl / "judge.md").read_text(encoding="utf-8"),
             "remediate": (tpl / "remediate.md").read_text(encoding="utf-8"),
             "revise": (tpl / "revise.md").read_text(encoding="utf-8"),
-            "slots": _slots(tpl / "slots.toml")}
+            "slots": _slots(tpl / name)}
+
+
+def declared_slots(mf: dict, archetype: str) -> list[str]:
+    """A-31: the template's `prose_slots[]` declared for the token's archetype
+    (`archetype`, default `cdp`)."""
+    return [x["id"] for x in mf["prose_slots"] if x.get("archetype", "cdp") == archetype]
 
 
 def _slots(path: pathlib.Path) -> dict:
@@ -565,7 +576,8 @@ def counterfactual_lines(doc: dict) -> list[str]:
 
 
 def slot_input(slot: str, spec: dict, doc: dict, displays: dict, flags: list[dict],
-               wording: dict | None = None, part: dict | None = None) -> str:
+               wording: dict | None = None, part: dict | None = None,
+               buckets: dict | None = None) -> str:
     """The user content for one slot: that slot's rows (each with its plain label and the
     printed forms the page uses - the only forms a number may be cited in, compact
     first), the assumptions block, and - for flag explanations - the open Level-1
@@ -599,10 +611,48 @@ def slot_input(slot: str, spec: dict, doc: dict, displays: dict, flags: list[dic
              "value": r["value"], "unit": r["unit"], "denominator": r["denominator"],
              "printed": sorted(displays.get(r["field_id"], []), key=lambda x: (len(x), x))}
             for r in cap_groups(chosen, spec)]
+    if spec.get("exact_strings"):
+        # P-10.10 r4: every value is the exact string the page prints (the full form), a
+        # share of backing reads "<x>% of backing", and that string is its only printed form
+        for r in rows:
+            forms = r["printed"] or [str(r["value"])]
+            # the full form (DET-89): an amount's comma form; a percentage's 1-dp form
+            full = next((x for x in forms if "," in x), None) or \
+                min(forms, key=lambda x: (len(x.split(".")[-1]) if x.endswith("%") else 0,
+                                          -len(x)))
+            if r["denominator"] in ("backing", "backing_value") and full.endswith("%"):
+                full = f"{full} of backing"
+            r["value"], r["printed"] = full, [full]
+        # P-10.10 r6: one citable row per figure - a figure printed by several rows keeps
+        # its first row only, so a cited number names exactly one field id
+        seen: set[str] = set()
+        kept = []
+        for r in rows:
+            fig = r["value"] if number_tokens(str(r["value"])) else None
+            if fig is not None and fig in seen:
+                continue
+            seen.add(fig) if fig is not None else None
+            kept.append(r)
+        rows = kept
     admin_words(rows, wording)
+    # P-10.10: a printed form carrying a delay-bucket code ("1–7d") also stands in the
+    # bucket's printed label ("1–7 days", manifest `display_rule.buckets`)
+    for r in rows:
+        extra = []
+        for form in r["printed"]:
+            alt = form
+            for code, lab in (buckets or {}).items():
+                alt = alt.replace(code, lab)
+            if alt != form:
+                extra.append(alt)
+        r["printed"] = [*r["printed"], *extra]
     assumptions = code_words(rows, doc["assumptions"], wording)
     undash(rows)
     body = {"token": doc["token"], "slot": slot, "rows": rows, "assumptions": assumptions}
+    if spec.get("exact_strings"):            # P-10.10 r6: the citable figures and the bound
+        body["cite_only"] = [{"field_id": r["field_id"], "value": r["value"]} for r in rows
+                             if number_tokens(str(r["value"]))]
+        body["paragraph_bound"] = list(spec["paragraphs"])
     if slot == "flag_explanations":
         body["open_level1_flags"] = flags
     if part:
@@ -678,9 +728,11 @@ def code_words(rows: list[dict], assumptions: list[dict], wording: dict) -> list
 
 def number_tokens(text: str) -> list[str]:
     """Amin, previews ruling 1: the guard reads numbers with DET-89's tokenizer - one owner
-    (dates, addresses and bare integers below 1,000 are not figures)."""
+    (dates, addresses and bare integers below 1,000 are not figures). P-10.10 r5 (Amin): the
+    guard ignores a leading currency sign, so "$697,923,051.65" matches the printed
+    "697,923,051.65" (and "$62.1M" its own form); DET-89 keeps its tokens unchanged."""
     from factory.validate.harness import _num_tokens
-    return _num_tokens(text)
+    return [t[1:] if t.startswith("$") else t for t in _num_tokens(text)]
 
 
 DASHES = "\u2014\u2013"     # the em dash and the en dash, never written in a slot (rule 17)

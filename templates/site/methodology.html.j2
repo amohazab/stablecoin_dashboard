@@ -6,7 +6,7 @@
 {% block body %}
 {% if beh_notice %}<p class="meta notice">{{ beh_notice }}</p>
 {% endif %}<div class="method">
-<p class="lede">{{ s.title }} publishes structural risk reports for stablecoins backed by collateralised debt positions: what backs each token, how much of that backing can be checked on-chain, and how it holds up under stress. An automated pipeline produces them; this page explains the rules it follows.</p>
+<p class="lede">{{ s.title }} publishes structural risk reports for stablecoins: what backs each token, how much of that backing can be checked on-chain, and how it holds up under stress. An automated pipeline produces them; this page explains the rules it follows.</p>
 
 <section>
 <h2>Every number traces to a pinned call</h2>
@@ -27,6 +27,12 @@
 <section>
 <h2>Same scenarios, each protocol's own mechanics</h2>
 <p class="prose">The archetype fixes the scenarios so the three pages are comparable; what happens under each shock is modelled from each protocol's own contracts.</p>
+</section>
+
+<section>
+<h2>A second family: synthetic dollars</h2>
+<p class="prose">USDe belongs to a second archetype. Its backing is held off-chain by the issuer, split between hedged positions at custodians and a buffer of other stablecoins, and published as disclosure categories. Nothing about that backing can be checked on-chain, so its report shows all of it as dependent on disclosures; each disclosure is pinned by hash at the run, and the on-chain buffer is reconciled against it. Its stress rows are this family's own: a reversal of the funding the basis trade earns, the loss of one custody venue or hedge exchange, and a run of redemptions. They are not comparable with the collateral-crash grid of the other three pages, by design.</p>
+<p class="prose">The same principle governs both families: every judgment is made once, when the archetype's rules and the token's intake sheet are written, and the pipeline enforces those rules on every run, with no judgment left to the run itself.</p>
 </section>
 
 <section>
@@ -63,20 +69,20 @@
 </details>
 
 <details>
-<summary>Rubric entries not yet registered ({{ a16.count }})</summary>
-<p class="prose">{{ a16.count }} rubric entries are not yet registered in the harness. Until they are, a report's completeness is measured over the registered entries (rubric amendment A-16); each is listed here with its queue item.</p>
+<summary>Rubric entries not yet registered</summary>
+{% for arch, x in a16.items() %}<p class="prose">{{ x.name }}: {{ x.count }} rubric entries are not yet registered in the harness. Until they are, a report's completeness is measured over the registered entries (rubric amendment A-16); each is listed here with its queue item.</p>
 <table class="striped">
 <tr><th>entry</th><th>queue item</th></tr>
-{% for u in a16.ids %}<tr><td><code>{{ u.entry_id }}</code></td><td>{{ u.queue_item }}</td></tr>
+{% for u in x.ids %}<tr><td><code>{{ u.entry_id }}</code></td><td>{{ u.queue_item }}</td></tr>
 {% endfor %}
 </table>
-</details>
+{% endfor %}</details>
 
 <details>
 <summary>Outcome per token</summary>
 <table class="striped">
-<tr><th>token</th><th>block</th><th>report</th><th class="num">checks passed</th><th>outcome</th><th>open log entries</th><th>gate record</th></tr>
-{% for o in outcomes %}<tr><td><a href="{{ o.token }}/index.html">{{ o.token }}</a></td><td>{{ o.run_block }}</td><td><code title="{{ o.report_hash }}">{{ o.report_hash[:8] }}</code></td><td class="num">{{ o.checks }}</td><td><code>{{ o.outcome }}</code></td><td>{% if o.open %}{% for e in o.open %}<code>{{ e.id }}</code> {{ e.trigger }}{% if not loop.last %}, {% endif %}{% endfor %}{% else %}none{% endif %}</td><td><a href="{{ o.record_url }}">committed record</a></td></tr>
+<tr><th>token</th><th>archetype</th><th>block</th><th>report</th><th class="num">checks passed</th><th>rubric rows</th><th>outcome</th><th>open log entries</th><th>gate record</th></tr>
+{% for o in outcomes %}<tr><td><a href="{{ o.token }}/index.html">{{ o.token }}</a></td><td>{{ o.archetype }}</td><td>{{ o.run_block }}</td><td><code title="{{ o.report_hash }}">{{ o.report_hash[:8] }}</code></td><td class="num">{{ o.checks }}</td><td>{{ o.counts }}</td><td><code>{{ o.outcome }}</code></td><td>{% if o.open %}{% for e in o.open %}<code>{{ e.id }}</code> {{ e.trigger }}{% if not loop.last %}, {% endif %}{% endfor %}{% else %}none{% endif %}</td><td><a href="{{ o.record_url }}">committed record</a></td></tr>
 {% endfor %}
 </table>
 <p class="prose">Each page's <code>data/evaluation-&lt;block&gt;.json</code> is the gate record as rendered; the ruled outcome is in the committed record, linked in the last column.</p>
@@ -96,7 +102,7 @@
 {% for r in log_rows %}<tr class="log-row"><td><code>{{ r.id }}</code></td><td>{{ r.date }}</td><td>{{ r.token }}</td><td>{{ r.category }}</td><td>{{ r.trigger }}</td><td class="num">{{ r.level }}</td><td>{{ r.resolution_type }}</td><td>{{ r.resolution_date }}</td><td>{{ r.status }}</td></tr>
 {% endfor %}
 </table>
-<p class="meta">{{ n_log }} rows, one per quarantine line in the three token logs.</p>
+<p class="meta">{{ n_log }} rows, one per quarantine line in the token logs.</p>
 </details>
 
 <nav class="links">

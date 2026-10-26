@@ -40,7 +40,8 @@ def test_build_on_the_committed_state(tmp_path):
     assert "<script" not in index + method
     ids = ["DET-09", "DET-75", "DET-76abcd", "DET-81", "DET-23abd", "DET-64"]
     assert "6 rubric entries are not yet registered in the harness" in method
-    assert all(f"<code>{i}</code>" in method for i in ids) and rec["a16"]["ids"] == ids
+    # P-10.10: the A-16 line reads the per-archetype lists
+    assert all(f"<code>{i}</code>" in method for i in ids) and rec["a16"]["cdp"]["ids"] == ids
     lines = sum(len(eventlog.quarantine_lines(
         eventlog.read(root / f"out/logs/events_{t.lower()}.jsonl"), t)) for t in site.TOKEN_ORDER)
     # the recorded state: every scheduled run can add a line, so the count is the logs' own
@@ -56,7 +57,8 @@ def test_rewrites_are_applied_once_and_a_second_build_is_byte_identical(tmp_path
     rec = json.loads(first["out/site/site.json"])
     for t in site.TOKEN_ORDER:
         page = first[f"out/site/{t}/index.html"].decode()
-        assert page.count("/blob/master/docs/context/archetype-memo-1-cdp.md") == 1
+        memo = "memo-2-synthetic" if t == "USDe" else "memo-1-cdp"         # P-10.10
+        assert page.count(f"/blob/master/docs/context/archetype-{memo}.md") == 1
         assert page.count('<a href="../index.html">all tokens</a>') == 1
         assert "../../../docs/context" not in page
         rw = rec["tokens"][t]["rewrites"]["index.html"]

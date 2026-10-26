@@ -161,7 +161,7 @@ def test_structural_zero_branch_on_each_page(token, flag, tmp_path):
                 "templates"):
         shutil.copytree(REPO / sub, tmp_path / sub)
     for code in ("src/factory/report/render.py", "src/factory/report/svg.py",
-                 f"out/raw/{BLOCKS[token]}.json"):
+                 "src/factory/report/llm.py", f"out/raw/{BLOCKS[token]}.json"):
         (tmp_path / code).parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(REPO / code, tmp_path / code)
     from tests.llm_fake import pin_to_recorded

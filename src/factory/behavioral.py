@@ -42,7 +42,8 @@ BASE = "https://api.webacy.com"
 # token -> (roots config file, root id) : the address is read, never restated here
 ROOTS = {"crvUSD": ("discovery_roots.toml", "crvusd_token"),
          "GHO": ("gho_roots.toml", "gho_token"),
-         "LUSD": ("lusd_roots.toml", "lusd_token")}
+         "LUSD": ("lusd_roots.toml", "lusd_token"),
+         "USDe": ("usde_roots.toml", "usde_token")}           # Q36 (P-10.10)
 RATE = ("X-RateLimit-Limit", "X-RateLimit-Remaining", "X-RateLimit-Reset")
 GAP_S = 1.1
 HCI_PAGE_SIZE = 500
@@ -612,11 +613,13 @@ def _get(url: str, key: str) -> dict:
     return env
 
 
-def fetch(repo: pathlib.Path, key: str, get=_get, sleep=time.sleep, now=None) -> dict:
-    """All requests first, every shape validated, then every file written."""
+def fetch(repo: pathlib.Path, key: str, get=_get, sleep=time.sleep, now=None,
+          tokens: tuple[str, ...] | None = None) -> dict:
+    """All requests first, every shape validated, then every file written. `tokens`
+    (P-10.10) limits the fetch to those tokens; the scheduled CLI fetches every token."""
     now = now or dt.datetime.now(dt.UTC)
     stamp = now.strftime("%Y%m%dT%H%M%SZ")
-    addr = addresses(repo)
+    addr = {t: a for t, a in addresses(repo).items() if tokens is None or t in tokens}
     calls = []
 
     def call(url):

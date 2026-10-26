@@ -172,6 +172,7 @@ named_causes = "named causes"
 supply_card = "Supply"
 bad_debt_card = "Bad debt, headline scenario"
 exit_card = "Exit liquidity, headline scenario"
+backing_card = "Backing, as disclosed"
 m1_pre = "collateral coverage before the shock"
 m1_post = "collateral coverage after the shock"
 m1_gap = "coverage restored by the liquidation mechanism"
@@ -348,6 +349,8 @@ H1_kill = "the PegKeepers are switched off and can no longer mint or burn to def
 EMA_lag = "the oracle lags the market by its moving-average window"
 H2_freezer = "the GSM freezer does not act in the depeg scenario, so the GSMs stay open as exit venues"
 Tellor_fallback = "the price feed falls back from Chainlink to the Tellor oracle"
+"cf.basis_unwind_day0" = "the issuer unwinds the basis trade on the first day of the reversal"
+"cf.cooldown_branch" = "the other branch of the redemption scenario, set by the sUSDe cooldown"
 
 # Ruling on the third live run, defect 3: what both `headline.cf.<id>.value_*` rows of a
 # line measure, and in what unit - passed to the generator as those rows' label.
@@ -431,11 +434,13 @@ all_tokens = "all tokens"
 # Step 9 (P-9.01): the selector and methodology pages.
 [site]
 title = "Stablecoin Dashboard"
-author = "structural risk reports for CDP stablecoins · Amin Mohazab · github.com/amohazab"
+author = "structural risk reports for stablecoins · Amin Mohazab · github.com/amohazab"
 lede = "Automated structural risk reports: every figure is read from Ethereum at one fixed block and traces to the contract call that produced it. See"
 lede_methodology = "the methodology page"
 lede_repository = "the repository"
 no_summary = "No written summary this run."   # A-25: the card when structural_summary is missing
+# P-10.10: the archetype each card and the methodology's per-token rows name
+archetype = { cdp = "collateralised debt position (archetype #1)", synthetic = "synthetic dollar (archetype #2)" }
 
 # Step 8 (P-8.01): the behavioral tier, rendered at the site stage from the latest
 # Webacy snapshot. Every figure arrives formatted from factory.behavioral (A-20).
@@ -507,3 +512,108 @@ uniswap-v4-ethereum = "Uniswap v4"
 balancer_ethereum = "Balancer"
 curve = "Curve"
 uniswap_v3 = "Uniswap v3"
+
+# P-10.10: archetype #2 (memo #2; synthetic dollar). Template text only - every figure
+# comes from table.json through fmt. Rubric literals verbatim where a clause names one.
+[synthetic]
+archetype_name = "synthetic dollar (archetype #2)"
+archetype_short = "synthetic dollar"
+what_this_is = "An automated structural risk report on {token}: on-chain figures are read from Ethereum at block {block}; the backing figures are the issuer's attested disclosures, each pinned by hash at that run ({verify})."
+backing_lead = "No category can be verified on-chain as a whole, which is this archetype's finding. Of the Liquid Stables category, {buffer} ({share} of backing) is read on-chain at the disclosed addresses each run and reconciled against the disclosure within {gap}."
+root_wrap = 52
+seize_verb = "seize assets"
+one_key = "a single key"
+n_keys = "{n} single keys"
+one_safe = "a multisig"
+n_safes = "{n} multisigs"
+escrow_line = "One lock-and-mint escrow, the OFT adapter, holds {amount} USDe inside totalSupply."
+worst_issuer = "{cadence} (worst issuer: {issuer})"
+branch_note = "branch taken: {taken} (cooldown {cooldown} {cmp} 7 d); counterfactual: {other}, the {other_case} case"
+reserve_fund_line = "Reserve fund — protocol reserve fund, discretionary: outside backing and never credited; it absorbs losses first in stress rows 1 and 2."
+backing_pair = "Backing at the status route's total: {status}. Sum of the six disclosure categories: {root} ({diff} against it)."
+recon_line = "On-chain buffer at par {onchain} against the route's Ethereum Liquid Stables entries {disclosed}: a gap of {gap} ({share} of backing). Disclosed, not reconciled (receipt tokens): {nr}."
+why_rows = "Three stress rows, each a different way this design can lose: a reversal of the funding rate the basis trade earns, the loss of one custody venue or hedge exchange, and a run of redemptions against the liquid buffer. Results are not comparable with the collateral-crash grid of an on-chain-collateralised token."
+row1_title = "Row 1 — funding reversal"
+row1_sentence = "With funding reversed to {F} a year for {N} days on the basis book, the loss is {loss}; after the reserve fund absorbs first, backing covers {ratio} of supply."
+f3_sentence = "F = −25% has no analogue in the issuer's own record"
+near_bound_phrase = "{what} {value} of supply, {side} its {bound} floor"
+near_bound_line = "Backing covers {br} of supply against a bound of {brb}; the reserve fund is {rr} of supply against a bound of {rrb}. Below either bound the report raises the mechanism-near-bound notice."
+row2_title = "Row 2 — one venue lost"
+row2a_sentence = "If the largest custody location, {location}, were lost in full ({amount}), backing would cover {ratio} of supply."
+row2b_sentence = "If the largest hedge exchange, {exchange}, failed and its {notional} of hedges went unhedged into a 30% fall, the loss is {loss} and backing would cover {ratio} of supply."
+row3_title = "Row 3 — redemptions"
+row3_sentence = "Redemptions of {X} in seven days ({branch}) meet redemption capacity of {capacity}; the excess over capacity divided by the exit liquidity of {exit} gives a depeg-pressure ratio of {ratio}."
+cooldown_beside = "cooldown {cooldown}"
+k_rows_line = "The same ratio over the largest pools covering 80%, 90% and 95% of the frozen set."
+headline_mark = "headline"
+cf_title = "Counterfactual lines"
+redemption_title = "Who can redeem"
+redemption_line = "Redemption: {r2_words} (R2) · {r8} (R8) · paid in the supported assets at face value; the issuer disclaims a legal claim (R9)."
+counterparty_title = "Counterparties"
+counterparty_lead = "Custody locations and hedge exchanges named by the backing-assets route this run, with the value at each."
+attested_title = "Price sources"
+observation_literal = "attested value — disclosure-category nodes are held at their attested value until the next disclosure; their age is printed (memo #2 §7)"
+buffer_observation = "buffer label rows: instant observation at par"
+scope_lines = ["oracle manipulation out of scope — no oracle prices backing; attested values (memo #2 §7)", "sUSDe yield out of scope (Q7)", "other-chain positions disclosed, not read (D17)", "sequencer/infra risk n/a — mainnet only"]
+sell_side_literal = "no collateral-sell-side bound — no on-chain liquidation path (memo #2 §1)"
+memo = "docs/context/archetype-memo-2-synthetic.md"
+sheet = "docs/context/intake-sheet-usde.md"
+check_this = "Every on-chain figure is pinned to one block; every disclosure figure to a fetched snapshot and its sha256. Reproduce either from the verify page."
+
+# (1): the T-28 pill on this archetype's pages; the notice element keeps the rubric
+# literal beside it (DET-58), NAMED DEFAULT
+[synthetic.trigger_pill]
+T-28 = "a narrative section withheld (gate failure)"
+
+[synthetic.flag_label]
+T-28 = "a narrative section withheld"
+
+# (6): display names for the route's lower-case venue keys
+[synthetic.names]
+Okx = "OKX"
+
+[synthetic.r2]
+whitelisted = "redeemable by approved counterparties only"
+
+# archetype #2's labels for rows whose archetype-#1 label would name another thing (slot inputs)
+[synthetic.labels]
+supply_class_staked = "staked supply (held by sUSDe)"
+supply_class_cooling = "supply in the sUSDe cooldown silo"
+supply_class_bridged_escrow = "supply locked in the bridge escrow"
+supply_class_free_float = "free-float supply"
+
+# archetype #2's names for the powers whose archetype-#1 wording names CDP objects (Q12)
+[synthetic.powers]
+set_ceiling = "per-block mint and redeem limits"
+set_parameters = "the staking cooldown, custodian list and supported assets"
+
+[synthetic.summaries]
+categories = "The six disclosure categories, their labels and how old each disclosure is"
+label_rows = "Assets inside the categories and the pool pairs, with their labels"
+supply = "Supply by holder class"
+stress = "Every figure in the three stress rows"
+assumptions = "The modelling assumptions and the data behind each"
+bias = "How a stock-only reading errs, row by row"
+admin = "The admin-power table, row by row"
+oracle = "Price sources: attested values and reference feeds"
+recon = "On-chain buffer against the disclosure"
+audits = "Audits, bug bounty and counterparties"
+
+[synthetic.tips]
+backing = "The six categories the issuer discloses behind {token}, each held at its attested value, as published at this run."
+break = "Three stress rows specific to a synthetic dollar; each row's headline cell is marked."
+rules = "Who holds each administrative power over {token}'s contracts and how long a change takes, read at block {block}."
+check = "On-chain reads are pinned to block {block}; disclosure figures to the snapshot hashes on the verify page."
+supply = "Every {token} on Ethereum at block {block}, split by who holds it."
+backing_card = "Backing at the status route's total, as published at this run."
+exit_card = "{token} that could be sold into the frozen exit pool before its price falls 2%, at block {block}."
+
+[synthetic.assumption]
+stock_only = "Capacity is measured as a stock at the run; how each row's stock-only reading errs is the bias table below."
+observation = "Disclosure categories are held at their attested value until the next disclosure; buffer stablecoins at par, with their reference feeds beside them."
+par_numeraire = "paired assets counted at 1.00 for depth"
+funding_reversal_rate = "The funding rate the basis book earns reverses to the fixed rate shown, over 30, 90 and 180 days."
+venue_loss_shock = "A failed hedge exchange leaves its hedges unhedged into a 30% price fall."
+redemption_fraction = "A quarter of the free float is redeemed within seven days, plus a quarter of staked supply when the sUSDe cooldown is under seven days."
+blocks_7d = "Seven days of blocks at twelve seconds each bound the per-block redemption cap."
+freeze_reference = "Exit venues are the pool set frozen on the freeze date shown."

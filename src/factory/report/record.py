@@ -73,12 +73,16 @@ class GateRecord(BaseModel):
     # A-33 / E4 (P-10.04): registered rows not run on this token's archetype, each with
     # its reason; the key is omitted when empty, so archetype-#1 records do not move.
     not_applicable: list[dict[str, str]] = []
+    # P-10.10 r7 (stopping rule): prose slots withheld this publication, each "withheld,
+    # judge withdrawn"; omitted when empty, so no earlier record moves
+    withheld: list[dict[str, str]] = []
 
     @model_serializer(mode="wrap")
     def _omit_empty_not_applicable(self, handler):
         d = handler(self)
-        if not d.get("not_applicable"):
-            d.pop("not_applicable", None)
+        for k in ("not_applicable", "withheld"):
+            if not d.get(k):
+                d.pop(k, None)
         return d
     # P-8.04 Q6: {backend, version, model, digest} of the run's model (null offline)
     llm: dict[str, Any] | None = None
@@ -166,6 +170,7 @@ def build(parts: dict, manifest: dict, s01, tree_checks, stress_checks, report_c
                       revision_count=llm.get("revision_count", 0),
                       pass2_skipped=llm.get("pass2_skipped"),
                       slots_missing=llm.get("slots_missing", []),
+                      withheld=llm.get("withheld", []),
                       revision_cause=llm.get("revision_cause", []),
                       report_hash=manifest["report_hash"],
                       **{k: parts[k] for k in ("bundle_hash", "tree_hash", "stress_hash",
