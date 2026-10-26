@@ -538,8 +538,7 @@ def build(cfg, rpc, http_get=None, key: str = "", from_block: int = 0):
             bridge_address=b["address"], amount=int(r.one()),
             bridge_type=b["bridge_type"],
             reads={"amount": r.provenance,
-                   "bridge_type": AnalystSupplied(value=b["bridge_type"],
-                                                  source=b["source"],
+                   "bridge_type": AnalystSupplied(source=b["source"],
                                                   date=str(b["date"]))}))
 
     positions: list[GhoPosition] = []

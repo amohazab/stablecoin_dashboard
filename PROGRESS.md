@@ -10006,3 +10006,37 @@ Status: OPEN (opened 2026-10-25, P-10.01)
   `templates/index_synthetic.html.j2` · `templates/prompts/slots_synthetic.toml` ·
   `tests/test_usde_report.py`; `PROGRESS.md`.
 - **Follow-ups spawned:** T-28's resolution at USDe's 4 November run; the judge (Step 11).
+
+## P-10.13 — Q37, E9, Q50, measure_entry
+
+- **Date:** 2026-10-26
+- **Type:** decision + implementation
+- **Confirmed by:** Amin
+- **Content:**
+  **E9:** crvUSD's adapter runs the selector-absence scans its registry specifies (FR-18 R10,
+  FR-29 freeze_asset A2, FR-30 blacklist_address A2) over `eth_getCode` of CRVUSD and the
+  ControllerFactory (`reads.absence_scan`).
+  - Named default: the candidate signatures per family, and a positive control per
+    contract (`transfer`, `admin`); a control not found reads "inconclusive", never "absent".
+  - Verdicts at block 26279232: FR-18 absent, FR-29 absent, FR-30 absent, every control
+    found; each matches its registered expectation.
+  - Fail-closed (confirmed): a selector found, or a dispatcher the scan cannot read, stops
+    crvUSD's run before promotion. The scan's evidence enters crvUSD's next bundle; stored
+    outputs are untouched.
+  **Q50:** the dead `AnalystSupplied(value=…)` argument is removed at `gho.py` and `lusd.py`;
+  the model has no `value` field, so output is unchanged.
+  **TOOL:** `tools/measure_entry.py` committed (delivery rule 3).
+  **Q37, signed (STOP B ruled (a)):**
+  - GHO's sUSDe node becomes the memo §4.1 analyzed-set link (sUSDe wraps USDe, §4.3):
+    `recurses_truncated` in `gho_labels.toml` and the GHO sheet row, texts as read back.
+  - Stamps: sheet `29682310` → `45614b2b`; rubric line 7; rubric `227c9e92` → `833a0be7`.
+  - Three CDP mirrors regenerated; one `intake_trigger` per CDP log.
+  - All of it is held as `out/reports/q37.patch` (checked with `git apply --check` on a
+    scratch copy), with an apply note. Applied 31 October as P-10.14; nothing from it is in
+    the repo now.
+  **PROOFS:** suite **423 passed**.
+- **Artifacts:** `src/factory/{reads,run}.py` · `src/factory/adapters/{gho,lusd}.py` ·
+  `tools/measure_entry.py`; `PROGRESS.md`.
+- **Follow-ups spawned:** Q37 applied 31 October (P-10.14); T-29's extension to archetype #1
+  (it would fire on GHO's USDC row today); receipt-token reads for DET-90; crvUSD's sUSDe
+  paired-asset note (labels.toml).

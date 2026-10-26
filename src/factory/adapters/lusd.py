@@ -481,8 +481,7 @@ def build(cfg, rpc, http_get=catalog_get):
             bridge_address=b["address"], amount=int(r.one()),
             bridge_type=b["bridge_type"],
             reads={"amount": r.provenance,
-                   "bridge_type": AnalystSupplied(value=b["bridge_type"],
-                                                  source=b["source"],
+                   "bridge_type": AnalystSupplied(source=b["source"],
                                                   date=str(b["date"]))}))
     supply = Supply(
         total_supply=total_supply, supply_ruled=total_supply,

@@ -238,6 +238,44 @@ def absence_evidence(contract: str, method: str, evidence: str, block: int) -> A
     return AbsenceRead(contract=contract, method=method, evidence=evidence, block=block)
 
 
+# E9 (P-10.13): the selector-absence scans crvUSD's registry specifies (FR-18 R10, FR-29
+# freeze_asset A2, FR-30 blacklist_address A2). NAMED IMPLEMENTER DEFAULT: the candidate
+# signatures per family, and one positive-control selector per contract - a scan whose
+# control is not found cannot read that dispatcher and is "inconclusive", never "absent".
+SCAN_FAMILIES = {
+    "FR-18": ("redemption", ("redeem(uint256)", "redeem(uint256,address)",
+                             "redeem(uint256,address,address)", "redeemCollateral(uint256)")),
+    "FR-29": ("freeze_asset", ("freeze(address)", "freeze(address,bool)", "freezeAsset(address)",
+                               "setFrozen(address,bool)", "setReserveFreeze(address,bool)")),
+    "FR-30": ("blacklist_address", ("blacklist(address)", "addToBlacklist(address)",
+                                    "addBlackList(address)", "setBlacklisted(address,bool)",
+                                    "blacklistAddress(address)")),
+}
+
+
+def selector_present(code: str, sig: str) -> bool:
+    """PUSH4 <selector> in the dispatcher (0x63 + four bytes)."""
+    from eth_utils import function_signature_to_4byte_selector
+    return ("63" + function_signature_to_4byte_selector(sig).hex()) in code.lower()
+
+
+def absence_scan(rpc, tag: str, contracts: dict[str, str]) -> tuple[str, str]:
+    """(verdict, evidence) for one FR family over `{address: control signature}`:
+    "absent" (no candidate found, every control found), "present" or "inconclusive"."""
+    _, sigs = SCAN_FAMILIES[tag]
+    found, blind = [], []
+    for addr, control in contracts.items():
+        code = rpc.code(addr)
+        if not selector_present(code, control):
+            blind.append(addr)
+        found += [f"{s}@{addr}" for s in sigs if selector_present(code, s)]
+    verdict = "present" if found else "inconclusive" if blind else "absent"
+    evidence = (f"{tag} selector scan over eth_getCode({', '.join(contracts)}): "
+                f"{'found ' + ', '.join(found) if found else 'none of ' + ', '.join(sigs)}; "
+                f"controls {'not found at ' + ', '.join(blind) if blind else 'found'}")
+    return verdict, evidence
+
+
 @dataclass(frozen=True)
 class AdminRow:
     power: str

@@ -555,6 +555,16 @@ def assemble(cfg: Config, rpc: RpcClient, repo: pathlib.Path, token: str,
         rpc._w3.to_checksum_address(m.address), EIP1967_IMPL_SLOT,
         block_identifier=rb), "big") == 0 for m in markets)
     admin = []
+    # E9 (P-10.13): FR-29 / FR-30 / FR-18's scans; a selector found, or a dispatcher the
+    # scan cannot read, contradicts the registered `none` and stops the run (fail-closed)
+    from factory.reads import absence_scan
+    scans = {}
+    for tag in ("FR-18", "FR-29", "FR-30"):
+        verdict, evidence = absence_scan(rpc, tag, {CRVUSD: "transfer(address,uint256)",
+                                                    cf: "admin()"})
+        if verdict != "absent":
+            raise AssemblyStop(f"E9: {evidence} - the registry expects absence")
+        scans[tag] = evidence
     for p in A1_POWERS:
         if p in ("mint", "set_ceiling", "set_oracle", "set_parameters"):
             # FR-31 (P-3.38): the A5 veto is READ, not left empty. The rows that
@@ -590,7 +600,9 @@ def assemble(cfg: Config, rpc: RpcClient, repo: pathlib.Path, token: str,
                 delay_seconds=0, delay_bucket="none",
                 upgradeability="immutable" if (p == "upgrade" and immutable) else None,
                 provenance=AbsenceRead(contract=cf, method="selector_absence_scan",
-                                       evidence="no matching selector", block=rb)))
+                                       evidence={"freeze_asset": scans["FR-29"],
+                                                 "blacklist_address": scans["FR-30"]}.get(
+                                           p, "no matching selector"), block=rb)))
 
     # ---- per-run pool pass: EXTRACTED to `discovery.py` (P-4.11) ----------
     # The 85 lines that used to sit here now live with the module both adapters
@@ -635,7 +647,7 @@ def assemble(cfg: Config, rpc: RpcClient, repo: pathlib.Path, token: str,
             r5_minimum="n/a", r6_gates=[{"kind": "none", "param": None}],
             r7_capacity="n/a", r8="n/a", r9_legal_claim="no_pure_protocol",
             r10_provenance=AbsenceRead(contract=CRVUSD, method="selector_absence_scan",
-                                       evidence="no holder redemption function", block=rb))],
+                                       evidence=scans["FR-18"], block=rb))],
         admin_surface=admin, lend_markets=lend_rows,
         pools=pool_rows, pool_detectors=detectors,
         offvenue_share=read_share(CRVUSD),
