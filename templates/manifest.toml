@@ -38,7 +38,8 @@ patterns = ['\[[A-Z][A-Z -]+:', 'block N\b', '\bN%', 'P-\d+\.\d+']
 index_only = ['P-\d+\.\d+', '}}']
 
 # DET-80's prose slots, per archetype (A-31, Q46): a slot without `archetype` is
-# archetype #1's (default `cdp`); archetype #2 declares its six (Q31).
+# archetype #1's (default `cdp`); archetype #2 declares three (A-53: with the judge
+# withdrawn, a slot nobody has read is withheld; restoring the judge is Step 11's).
 [[prose_slots]]
 id = "verifiability_narrative"
 [[prose_slots]]
@@ -58,17 +59,8 @@ id = "structural_summary"
 id = "structural_summary"
 archetype = "synthetic"
 [[prose_slots]]
-id = "verifiability_narrative"
-archetype = "synthetic"
-[[prose_slots]]
 id = "stress_opening"
 archetype = "synthetic"
 [[prose_slots]]
 id = "flag_explanations"
-archetype = "synthetic"
-[[prose_slots]]
-id = "admin_surface_narrative"
-archetype = "synthetic"
-[[prose_slots]]
-id = "counterfactual_explanations"
 archetype = "synthetic"

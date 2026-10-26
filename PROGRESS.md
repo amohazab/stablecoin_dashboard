@@ -9978,3 +9978,31 @@ Status: OPEN (opened 2026-10-25, P-10.01)
 - **Artifacts:** `src/factory/chain.py` · `docs/scheduler.md` · `tools/scheduler/run_monthly.cmd`;
   `PROGRESS.md`.
 - **Follow-ups spawned:** Amin registers the USDe task.
+
+## P-10.12 — Archetype-#2 prose slots narrowed (judge ruling)
+
+- **Date:** 2026-10-26
+- **Type:** decision + implementation
+- **Confirmed by:** Amin
+- **Content:**
+  **P-10.11 APPENDED** at `69e28b4`, pushed (draft = slice, `a961f164…`); suite last 423.
+  **RULING:** with the judge withdrawn, archetype #2 declares three prose slots: structural
+  summary, stress opening and flag explanations. The verifiability narrative, admin-surface
+  narrative and counterfactual explanations are dropped for this archetype; the
+  deterministic rows beneath them carry their content. Archetype #1's seven are unchanged,
+  and `withheld[]` stays for any declared slot that fails the guard.
+  **STANDING RULE:** a slot nobody has read is withheld; restoring the judge is a Step-11
+  question.
+  **SIGNED EDIT:** A-53 §1 / DET-80 applied as read back (rubric `3b67085e` → `227c9e92`).
+  `templates/manifest.toml` drops the three synthetic `[[prose_slots]]`;
+  `index_synthetic.html.j2` drops their three `slot()` calls; `slots_synthetic.toml` drops
+  their specs.
+  **STOP A, ruled (b):** no republish. A same-bundle republish auto-resolves the open
+  Level-1 T-28 as `data_correction`, which DET-87 rejects with the bundle unchanged (T-23,
+  Level 2). T-28 (USDe:6) stays open until USDe's run on 4 November resolves it on the new
+  bundle. The live page keeps report `321ca99a` with its withheld notices until then.
+  **PROOFS:** suite **423 passed**.
+- **Artifacts:** `docs/context/rubic_v1.md` (A-53) · `templates/manifest.toml` ·
+  `templates/index_synthetic.html.j2` · `templates/prompts/slots_synthetic.toml` ·
+  `tests/test_usde_report.py`; `PROGRESS.md`.
+- **Follow-ups spawned:** T-28's resolution at USDe's 4 November run; the judge (Step 11).

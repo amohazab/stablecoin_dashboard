@@ -55,9 +55,8 @@ def test_a36_ids_and_a31_declared_slots():
     got = [a["id"] for a in assumptions.build("USDe", rows) if a["required"]]
     assert got == list(assumptions.REQUIRED_SYNTHETIC)
     mf = tomllib.loads((REPO / "templates/manifest.toml").read_text(encoding="utf-8"))
-    assert llm.declared_slots(mf, "synthetic") == [
-        "structural_summary", "verifiability_narrative", "stress_opening", "flag_explanations",
-        "admin_surface_narrative", "counterfactual_explanations"]
+    assert llm.declared_slots(mf, "synthetic") == [                        # A-53 (P-10.12)
+        "structural_summary", "stress_opening", "flag_explanations"]
     assert len(llm.declared_slots(mf, "cdp")) == 7
     assert set(llm.prompts(REPO, "synthetic")["slots"]) == set(llm.declared_slots(mf, "synthetic"))
     assert load(REPO / "config", "USDe").token == "USDe"

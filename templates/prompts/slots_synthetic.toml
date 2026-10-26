@@ -16,20 +16,6 @@ obligations = """- The first paragraph states the single structural fact a reade
 - State no conclusion the rows do not support; no grades, scores or verdicts.
 - One to two paragraphs."""
 
-[slot.verifiability_narrative]
-exact_strings = true             # P-10.10 r4: each value is the page's printed string
-paragraphs = [2, 3]
-page_section = "backing"
-prefixes = ["verif.bar.", "verif.truncated", "verif.staleness.", "verif.t29.", "verif.banner", "verif.reserve_fund.", "tree.node.", "tree.root.backing_value", "tree.root.status_backing", "recon.buffer_onchain", "recon.disclosure_onchain", "recon.gap_share", "recon.not_reconciled_total"]
-obligations = """- Explain that the backing is six disclosure categories held at attested value, name the largest categories with their shares, and say which categories stop at a truncation and why.
-- Say how old the disclosures are, naming the oldest, and what that means for checking the backing.
-- Explain the reserve fund: outside backing, never credited, the first absorber of losses.
-- Explain the on-chain buffer reconciliation: the two sums compared, the gap as a share of backing, and the receipt-token total, which is disclosed, not reconciled.
-- Explain the governance banner row: which rules can change, by whom, with what delay, and that custody sits with custodians under the issuer's discretion.
-- Cite every figure and date exactly as its row's value string: never round, re-format or shorten one (write "118.0 days", never "118 days"; write a date as given, never its year alone).
-- Cite only the figures in `cite_only`, each with exactly that value string, and list in `references_field_ids` the `field_id` given beside each figure you cite; no other field id.
-- Write exactly two or three paragraphs (`paragraph_bound`), separated by a single blank line; never four."""
-
 [slot.stress_opening]
 # P-10.10: one call per stress row; each part carries only that row's own inputs and
 # memo #2 §6's mechanism sentence for it (`part.mechanism`), joined in row order
@@ -71,27 +57,5 @@ obligations = """- For every entry in `open_level1_flags`, explain what fired (u
 - If there are no open flags, write one short paragraph saying no notices are open for this token this run.
 - One short paragraph per open flag."""
 
-[slot.admin_surface_narrative]
-cap = false
-paragraphs = [2, 3]
-page_section = "rules"
-prefixes = ["admin."]
-obligations = """- Explain who holds each power that can change minting, redemption limits, supported assets, custodians or staking parameters, how quickly a change takes effect, and whether anyone can veto it, from the rows.
-- Where several powers share a holder and a delay, state that delay once for the group.
-- Where a power is held through a role, say how many holders the role has.
-- Never claim that no one can alter backing if any row shows a holder of minting, parameter or seizure powers.
-- Two to three paragraphs."""
-
-[slot.counterfactual_explanations]
-cap = false
-paragraphs = [2, 2]
-page_section = "break"
-prefixes = ["cell.S1-n90.cf.", "cell.S1-n90.loss", "cell.S3.cf.", "cell.S3.X", "cell.S3.branch", "cell.S3.depeg_pressure_ratio", "cell.S3.cooldown_s"]
-obligations = """- Write one paragraph per counterfactual line: first the basis unwind on the first day of the funding reversal, then the other branch of the redemption scenario.
-- For the redemption line, state `branch_note` as written: which branch the run took and why, and that the counterfactual is the other case.
-- For each, explain what the line changes and what it does to the row's result, from the rows; where a line carries no computed value, say so and say why.
-- Two paragraphs."""
-
-# P-10.10: the memo's own sentence per trigger, given to that flag's part as `part.rule`
 [slot.flag_explanations.rules]
 T-07 = "Near bound — backing ratio < 101% or reserve fund < 0.5% of supply — Level 1 (memo #2 §8(d))."

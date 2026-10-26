@@ -34,7 +34,6 @@
 <p class="prose">{{ sw.reserve_fund_line }} <span title="verif.reserve_fund.disclosed_usd">{{ c('verif.reserve_fund.disclosed_usd') }}</span></p>
 <p class="prose">{{ governance }}</p>
 <p class="prose">{{ v('verif.banner') }}</p>
-{{ slot('verifiability_narrative') }}
 </section>
 
 <section id="break">
@@ -63,7 +62,6 @@
 <li>{{ w.counterfactual['cf.basis_unwind_day0'] }}: {{ v('cell.S1-n90.cf.cf.basis_unwind_day0.literal') }}</li>
 <li>{{ w.counterfactual['cf.cooldown_branch'] }}: {{ v('cell.S3.cf.cf.cooldown_branch.branch') }}, redemptions {{ c('cell.S3.cf.cf.cooldown_branch.X') }}, depeg-pressure ratio {{ v('cell.S3.cf.cf.cooldown_branch.value_counterfactual') }}</li>
 </ul>
-{{ slot('counterfactual_explanations') }}
 </section>
 
 <section id="rules">
@@ -71,7 +69,6 @@
 <ul class="plain">{% for s in power_sentences %}<li>{{ s }}</li>{% endfor %}</ul>
 <h3>{{ sw.redemption_title }}</h3>
 <p class="prose" title="redemption.r2_who redemption.r8">{{ sw.redemption_line.format(r2_words=v('redemption.r2_words'), r8=(v('redemption.r8') | replace('_', ' '))) }}</p>
-{{ slot('admin_surface_narrative') }}
 </section>
 
 <section id="check">
