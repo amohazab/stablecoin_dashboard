@@ -9951,3 +9951,30 @@ Status: OPEN (opened 2026-10-25, P-10.01)
   · tests; `PROGRESS.md`.
 - **Follow-ups spawned:** judge: restore or replace (close); the DET-22 / stabilizer-rows
   ruling.
+
+## P-10.11 — USDe scheduled run and deployment
+
+- **Date:** 2026-10-26
+- **Type:** implementation
+- **Confirmed by:** Amin
+- **Content:**
+  **P-10.10 APPENDED** at `e576fa1`, pushed (draft = slice, `44c7b073…`); suite last 423.
+  **SCHEDULED RUN (Q36):** USDe is the fourth monthly task, day 4 at 01:00, in the same form
+  as the three CDP tasks:
+  - `factory.chain` `TOKENS` gains USDe; the chain runs run → tree → stress → report `--llm`
+    → behavioral → site → commit → push, under the same quarantine and stale-page rules;
+  - `docs/scheduler.md`: five tasks, the USDe row, day 4 and the `USDe` argument;
+  - `run_monthly.cmd` is token-generic (`%1`); only its comment names USDe.
+  **REGISTRATION:** the CDP tasks are registered by hand in Task Scheduler (`scheduler.md`);
+  USDe's task XML is crvUSD's exported, with day 4 and argument `USDe` only. Amin runs
+  `schtasks /create /tn "stablecoin monthly USDe" /xml <path>\task_usde.xml`.
+  **DRY RUN** (scratch copy; the chain refuses a dirty tree): `chain monthly USDe
+  20261026T121504Z (dry run)`, six stages planned, `exit 0`, no alert written.
+  **DEPLOYMENT:** the `pages` workflow publishes `out/site` on any push to master that changes
+  `out/site/**`. `e576fa1` deployed it:
+  https://amohazab.github.io/stablecoin_dashboard/USDe/index.html returns 200 and serves
+  report `321ca99a`.
+  **PROOFS:** suite **423 passed**.
+- **Artifacts:** `src/factory/chain.py` · `docs/scheduler.md` · `tools/scheduler/run_monthly.cmd`;
+  `PROGRESS.md`.
+- **Follow-ups spawned:** Amin registers the USDe task.

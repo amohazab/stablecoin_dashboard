@@ -1,7 +1,7 @@
 # Unattended runs on the laptop (Step 8 phase B)
 
 The pipeline runs by itself through Windows Task Scheduler and the local Ollama model
-(P-8.04). Four tasks are needed: one weekly, and three monthly tasks (one token per night).
+(P-8.04). Five tasks are needed: one weekly, and four monthly tasks (one token per night).
 
 ## What runs
 
@@ -11,6 +11,7 @@ The pipeline runs by itself through Windows Task Scheduler and the local Ollama 
 | stablecoin monthly crvUSD | day 1, 01:00 | crvUSD: run → tree → stress → report, then the weekly steps |
 | stablecoin monthly GHO | day 2, 01:00 | the same for GHO |
 | stablecoin monthly LUSD | day 3, 01:00 | the same for LUSD |
+| stablecoin monthly USDe | day 4, 01:00 | the same for USDe (Q36, P-10.11) |
 
 Each monthly task ends with the site build, commit and push, so the site updates as each token
 lands. A push that changes `out/site/` deploys the site to GitHub Pages; other pushes deploy
@@ -41,11 +42,11 @@ Before the first run, check the chain without running anything (no model, no pus
 4. **Triggers** tab → **New…**:
    - weekly: **Weekly**, start today at **03:00:00**, recur every 1 week, tick **Sunday**;
    - monthly: **Monthly**, start at **01:00:00**, Months: **Select all months**, Days: **1**
-     (crvUSD), **2** (GHO) or **3** (LUSD). OK.
+     (crvUSD), **2** (GHO), **3** (LUSD) or **4** (USDe). OK.
 5. **Actions** tab → **New…** → Action **Start a program**:
    - Program/script: `D:\projects\stable_dashboard\tools\scheduler\run_weekly.cmd`
      (monthly: `...\run_monthly.cmd`)
-   - Add arguments: nothing for weekly; `crvUSD`, `GHO` or `LUSD` for the monthly tasks
+   - Add arguments: nothing for weekly; `crvUSD`, `GHO`, `LUSD` or `USDe` for the monthly tasks
    - Start in: `D:\projects\stable_dashboard`. OK.
 6. **Conditions** tab: untick **Wake the computer to run this task**. "Start the task only if
    the computer is on AC power" is ticked by default: keep it and leave the laptop plugged in

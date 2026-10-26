@@ -37,7 +37,7 @@ import subprocess
 import sys
 from collections.abc import Callable
 
-TOKENS = ("crvUSD", "GHO", "LUSD")
+TOKENS = ("crvUSD", "GHO", "LUSD", "USDe")        # USDe: the fourth monthly task (Q36, P-10.11)
 STALE_LOCK_S = 12 * 3600
 # any `NAME_KEY=value` or `NAME_URL=value` assignment with a value (the export scan's rule,
 # widened); the values themselves are compared for the three keys the pipeline reads
