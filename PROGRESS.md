@@ -10079,3 +10079,26 @@ Status: OPEN (opened 2026-10-25, P-10.01)
 - **Artifacts:** chain commits `ecf7131` `416d2f9` `e834298` `1d5e20b`; `59d8c6e` `225d524`
   `008415d`; `PROGRESS.md`.
 - **Follow-ups spawned:** the GHO sUSDe page line (USDe link wording).
+
+## P-10.15 — Benchmark note (Q35)
+
+- **Date:** 2026-10-27
+- **Type:** decision + implementation
+- **Confirmed by:** Amin
+- **Content:**
+  **P-10.14 APPENDED** at `c1f9410`, pushed (draft = slice, `edb822d0…`); suite last 424.
+  **NOTE:** `docs/context/benchmark-usde.md` (stamp `2d7fd7d8`, 43 lines), signed as read back.
+  It sets report `7b2604e7` (block 26285908) against LlamaRisk's Aave X Layer assessment
+  (2026-10-12) and S&P's Stablecoin Stability Assessment (2026-01-14, score only). It is
+  not a publishing gate (Q35).
+  - **Agree:** the backing ratio (≈ 1:1), the 20,000,000 USDe per-block redemption cap,
+    and the RWA share.
+  - **Differ by data:** backing, three allocation shares and the bridge escrow (the
+    snapshot dates differ, and the escrow figure in the assessment is undated).
+  - **Differ by method:** crypto basis (no separate equity / RWA basis category) and S&P's
+    qualitative score against the report's no-grade rule (DET-88).
+  - **No counterpart:** the three stress headlines, disclosure age and the reconciliation
+    gap.
+  No figure is computed for the note; no divergence points to a pipeline defect.
+- **Artifacts:** `docs/context/benchmark-usde.md`; `PROGRESS.md`.
+- **Follow-ups spawned:** none.
