@@ -69,3 +69,11 @@ def test_counts_line_form():
            "not_applicable": [{"entry_id": "DET-03"}, {"entry_id": "DET-07"}]}
     assert counts_line("USDe", rec) == "2 evaluated, 2 not applicable (archetype #2), 1 new"
     assert counts_line("LUSD", {"results": rec["results"][1:]}) == "1 evaluated"
+
+
+def test_det89_ignores_a_leading_currency_sign_like_the_guard():
+    # P-10.14b: DET-89 and the guard (P-10.10 r5) agree on currency signs
+    from factory.validate.harness import _figure_allowed
+    assert _figure_allowed("$0.88", {"0.88"})
+    assert not _figure_allowed("$0.89", {"0.88"})
+    assert _figure_allowed("$62.1M", {"$62.1M"}) and _figure_allowed("0.88", {"0.88"})

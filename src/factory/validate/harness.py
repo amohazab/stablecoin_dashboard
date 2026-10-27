@@ -3318,6 +3318,13 @@ def _identifiers(s: str) -> list[str]:
     return [*_SNAKE.findall(s), *_CAMEL.findall(s)]
 
 
+def _figure_allowed(tok: str, allowed: set[str]) -> bool:
+    """P-10.14b: DET-89 ignores a leading currency sign when matching a page figure to the
+    formatter's strings, exactly as the generation guard does since P-10.10 r5
+    (`llm.number_tokens`): "$0.88" matches a printed "0.88"; "$0.89" does not."""
+    return tok in allowed or (tok.startswith("$") and tok[1:] in allowed)
+
+
 def det_89(b: Bundle, t: VerifiabilityTree, r: StressReport, page: dict) -> str:
     """Rendered-figure formatting and units (D-9), S3. (i) The display rule is
     emitted with the template (thousands ","; 2 decimals >= 1k; 4 below 1).
@@ -3393,7 +3400,7 @@ def det_89(b: Bundle, t: VerifiabilityTree, r: StressReport, page: dict) -> str:
         # not figures
         html = re.sub(r"<code\b[^>]*>.*?</code>", " ", html, flags=re.S)
         for tok in _num_tokens(_page_text(html)):
-            if tok not in allowed:
+            if not _figure_allowed(tok, allowed):
                 stray[f"{name}:{tok}"] = stray.get(f"{name}:{tok}", 0) + 1
     if stray:
         problems.append(f"{len(stray)} figure string(s) not printed by fmt: "
