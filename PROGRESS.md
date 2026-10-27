@@ -59,7 +59,7 @@ OPEN (scoped at P-8.01: local-model (Ollama) scheduled runs, not built).
 Status: DONE (opened 2026-09-14; done-condition met 2026-09-15, P-9.03).
 
 ## Step 10 — USDe as token #4
-Status: OPEN (opened 2026-10-25, P-10.01)
+Status: Step 10 COMPLETE — 2026-10-27 (opened 2026-10-25, P-10.01; closed P-10.16)
 
 ## P-3.01 — Block 0.1 anomaly dispositions; Python stack ruling; checksum task
 - **Date:** 2026-09-03
@@ -10102,3 +10102,52 @@ Status: OPEN (opened 2026-10-25, P-10.01)
   No figure is computed for the note; no divergence points to a pipeline defect.
 - **Artifacts:** `docs/context/benchmark-usde.md`; `PROGRESS.md`.
 - **Follow-ups spawned:** none.
+
+## P-10.16 — Step 10 CLOSED
+
+- **Date:** 2026-10-27
+- **Type:** verification
+- **Confirmed by:** Amin
+- **Content:**
+  **P-10.15 APPENDED** at `6b710c5`, pushed (draft = slice, `bfa78744…`); suite last 424.
+  **Q34 DONE-CONDITION, line by line:**
+  - (1) USDe page live: https://amohazab.github.io/stablecoin_dashboard/USDe/index.html
+    returns 200 with report `7b2604e7`; the index card shows "synthetic dollar
+    (archetype #2)". **Met.**
+  - (2) One forced run of the day-4 task: "stablecoin monthly USDe" last ran 2026-10-27
+    20:42, result 0 (`20261027T184234Z-monthly.log`, `e834298` USDe published). **Met.**
+  - (3) Amin's light sample, `tools/light_sample_check.py --usde 26285908` (USDe mode added
+    by ruling (a)): FR-U03 `totalSupply` 4567732299219064312523503861, FR-U06
+    `balanceOf(sUSDe)` 1189771757280884619319027371 and FR-U04 `cooldownDuration` 86400,
+    each rpc = bundle; "ALL MATCHED to the unit". **Met (Amin).**
+  - (4) Disclosure snapshot: sha256 of `out/disclosures/USDe/26285908.json` is `8881a578…`,
+    equal to the bundle's pinned `raw_positions_hash` (Q42); MATCH. **Met (Amin).**
+  - (5) The 4 November run is recorded later, not awaited (the task's next run is
+    2026-11-04 01:00).
+  **STEP 10 DELIVERED:**
+  - memo #2 (synthetic) and the USDe intake sheet;
+  - rubric amendments A-28–A-53, with DET-90 registered (`len(CHECKS)` 97) and the §1
+    archetype marker with dispatch;
+  - the USDe adapter (37 FR-U reads, `DisclosureSnapshot` provenance);
+  - the synthetic tree and the three-row stress;
+  - the archetype-#2 report page, published with T-07 only;
+  - the fourth scheduled task (day 4);
+  - the benchmark note (`docs/context/benchmark-usde.md`).
+  **AS-COUNTED SUMMARY, P-10.01–P-10.15:**
+  - Design layer: the Q17 / D3 / D16 / F1 / F3 wordings corrected at P-10.02; the 24
+    October note was not a repo record (P-10.01).
+  - Builder: the `unreg` and suite misses (P-10.04); a rehearsal through
+    `evaluate_harness` (P-10.09); the machine-wide `taskkill`, now rule 10 (P-10.10); r5's
+    guard change without DET-89 (P-10.14b).
+  **CARRIED FORWARD:**
+  - judge: restore or replace;
+  - T-29's extension to archetype #1;
+  - receipt-token reads for DET-90;
+  - crvUSD's sUSDe paired-asset note;
+  - GHO's page naming the USDe link for its sUSDe node.
+  **STATUS:** Step 10's line reads "Status: Step 10 COMPLETE — 2026-10-27 (opened
+  2026-10-25, P-10.01; closed P-10.16)". Tag `v1.1` (annotated, v1's form): "Step 10
+  closed: archetype #2 (USDe)".
+- **Artifacts:** `tools/light_sample_check.py` (USDe mode); `PROGRESS.md` (this entry, Step
+  10 status line); tag `v1.1`.
+- **Follow-ups spawned:** the five carried-forward items.

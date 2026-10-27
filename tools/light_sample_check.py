@@ -4,6 +4,7 @@ B-11d: the sheets and blocks are read from the newest stress-<run_block>.md file
 
 Run from the repo root (reads ETH_RPC_URL from .env or the environment):
     python tools/light_sample_check.py
+    python tools/light_sample_check.py --usde 26285908     (USDe, P-10.16)
 
 Parses the first get_dy line of §4 in each new spot-check sheet, calls get_dy(i, j, dx)
 at run_block with the block pinned in the JSON-RPC body, decodes the first 32-byte word
@@ -70,8 +71,52 @@ def eth_call(url, to, data, block):
     return resp["result"]
 
 
+# P-10.16 (Q34, ruling (a)): USDe's three pinned reads. The call (contract, function,
+# argument, block) comes from the run sheet out/spotcheck/USDe/<block>.md; the value the
+# run recorded comes from the committed bundle out/bundles/USDe/<block>.json (the sheet
+# lists calls, not values). Selectors precomputed (stdlib only, no keccak).
+USDE_READS = {"FR-U03": ("totalSupply()", "18160ddd"),
+              "FR-U06": ("balanceOf(address)", "70a08231"),
+              "FR-U04": ("cooldownDuration()", "35269315")}
+SHEET_ROW = re.compile(r"^\| (FR-U0[346]) \| `(0x[0-9a-fA-F]{40})` \| `([^`]+)` \| ([^|]+) \| (\d+) \|",
+                       re.M)
+
+
+def usde_check(url: str, block: int) -> bool:
+    sheet = os.path.join("out", "spotcheck", "USDe", f"{block}.md")
+    bundle = os.path.join("out", "bundles", "USDe", f"{block}.json")
+    for p in (sheet, bundle):
+        if not os.path.exists(p):
+            print(f"USDe: not found: {p}")
+            return False
+    reads = json.load(open(bundle, encoding="utf-8"))["synthetic"]["reads"]
+    rows = {m.group(1): m.groups()[1:] for m in SHEET_ROW.finditer(
+        open(sheet, encoding="utf-8").read())}
+    ok_all = True
+    for tag, (fn, sel) in USDE_READS.items():
+        contract, sheet_fn, arg, blk = rows[tag]
+        if sheet_fn != fn or int(blk) != block:
+            print(f"USDe {tag}: sheet row reads {sheet_fn} @ {blk}, expected {fn} @ {block}")
+            ok_all = False
+            continue
+        data = "0x" + sel + (arg.strip().lower()[2:].rjust(64, "0") if arg.strip() != "—" else "")
+        got = int(eth_call(url, contract, data, block)[2:66], 16)
+        expected = int(reads[tag]["value"])
+        ok = got == expected
+        ok_all &= ok
+        print(f"USDe @{block} {tag} {contract} {fn}" + (f"({arg.strip()})" if arg.strip() != "—" else ""))
+        print(f"   bundle   = {expected}")
+        print(f"   rpc      = {got}   [{'MATCH' if ok else 'MISMATCH'}]")
+    return ok_all
+
+
 def main():
     url = rpc_url()
+    if len(sys.argv) == 3 and sys.argv[1] == "--usde":
+        ok = usde_check(url, int(sys.argv[2]))
+        print("\nALL MATCHED to the unit" if ok else
+              "\nAt least one mismatch — do not confirm; paste this output to the design chat")
+        return
     ok_all = True
     SHEETS, BLOCKS = latest_sheets()
     for token, path in SHEETS.items():
