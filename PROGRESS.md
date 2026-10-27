@@ -10040,3 +10040,42 @@ Status: OPEN (opened 2026-10-25, P-10.01)
 - **Follow-ups spawned:** Q37 applied 31 October (P-10.14); T-29's extension to archetype #1
   (it would fire on GHO's USDC row today); receipt-token reads for DET-90; crvUSD's sUSDe
   paired-asset note (labels.toml).
+
+## P-10.14 — Q37 applied; off-schedule November chains
+
+- **Date:** 2026-10-27
+- **Type:** implementation
+- **Confirmed by:** Amin
+- **Content:**
+  **P-10.12 / P-10.13 APPENDED** at `7c951ea` / `4955f0d`, pushed (drafts = slices,
+  `81be5060…` / `5f743724…`); suite last 423.
+  **P-10.14a `59d8c6e`:** Q37 applied with the builder rather than the patch, so the three
+  `intake_trigger` lines carry the real date (2026-10-27); otherwise identical to
+  `q37.patch`. Sheet `45614b2b`, rubric `833a0be7`.
+  **P-10.14b `225d524`:** DET-89 ignores a leading currency sign, as the guard has since
+  P-10.10 r5. As-counted: r5 changed the guard without its check, so LUSD's first run
+  (`ebe62d4`, 26285656) was `blocked_S3` with T-28 L2 (DET-89, `$0.88/$0.93/$0.97` in
+  `member2_opening`). Suite at commit 387 / 32 failed / 5 errors, all pre-existing from
+  P-10.14a.
+  **P-10.14c `008415d`:** recorded fixtures re-stamped to `45614b2b` in tmp copies and in
+  memory; the two pins and test_b9 moved; suite 424 passed.
+  **RUNS** (`factory.chain` monthly):
+  - **crvUSD** 26284576, `0a14f96a`, T-28 L1 (DET-80, counterfactual slot missing) — `ecf7131`.
+  - **GHO** 26285165, `2a374170`, T-20 / T-02 / T-28 L1 — `416d2f9`. Two earlier attempts
+    (26284835, 26284919) were killed by Claude Code's memory reaper in the report stage and
+    moved to `out/rehearsal/GHO/`; the published run came from Task Scheduler.
+  - **USDe** 26285908, `7b2604e7`, T-07 L1 only, 62 of 62 evaluated pass — `e834298`.
+  - **LUSD** 26285969, `b12b9e5e`, T-28 L1 (DET-80: `member1_opening` text outside its
+    block) — `1d5e20b`.
+  **RESOLUTIONS:** LUSD T-28 L2 (fired 10-27) and L1 (fired 10-02) → `data_correction`
+  10-27; USDe:6 T-28 L1 → `data_correction` 10-27; USDe T-23 L2 → `template_change` 10-26.
+  No Level-2 entry open on any token.
+  **FLAG:** GHO's sUSDe node reads "depth truncated at sUSDe; node's own backing not analyzed
+  by this pipeline", the generic truncation line. Its tree label is `recurses_truncated`,
+  but the page does not name the USDe link.
+  **PROOFS:** four index pages live (200) with the new report hashes; methodology counts:
+  crvUSD / GHO / LUSD "90 evaluated", USDe "62 evaluated, 29 not applicable (archetype #2),
+  1 new"; suite **424 passed**.
+- **Artifacts:** chain commits `ecf7131` `416d2f9` `e834298` `1d5e20b`; `59d8c6e` `225d524`
+  `008415d`; `PROGRESS.md`.
+- **Follow-ups spawned:** the GHO sUSDe page line (USDe link wording).
