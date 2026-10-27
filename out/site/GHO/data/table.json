@@ -250,7 +250,7 @@
    "section": "header",
    "source_path": "bundle/header/run_block",
    "unit": "block",
-   "value": 26100308
+   "value": 26285165
   },
   {
    "denominator": null,
@@ -260,7 +260,7 @@
    "section": "header",
    "source_path": "bundle/header/block_timestamp",
    "unit": "unix_s",
-   "value": 1790891927
+   "value": 1793117555
   },
   {
    "denominator": null,
@@ -270,7 +270,7 @@
    "section": "header",
    "source_path": "bundle/header/sheet_hash",
    "unit": "hash",
-   "value": "29682310"
+   "value": "45614b2b"
   },
   {
    "denominator": null,
@@ -280,7 +280,7 @@
    "section": "header",
    "source_path": "bundle/header/bundle_hash",
    "unit": "hash",
-   "value": "2187b1c9c931baad4fcb742db45e96808d328a62fb24dbd3db5b37f374ecb83a"
+   "value": "a5823f7b7815fe8134daa614ceb85505c186fc1879a191cd8f367150e1817776"
   },
   {
    "denominator": null,
@@ -310,7 +310,7 @@
    "section": "header",
    "source_path": "tree/tree_hash",
    "unit": "hash",
-   "value": "e2c792ad7088b7d48ca765507fd54ae215e69c3610a841f5482af9f0936746ac"
+   "value": "ab73f7c8eec00e1fbb39919cd37f5cf5c3bdd4f71e6b0d0f588126bec08e0a3e"
   },
   {
    "denominator": null,
@@ -320,7 +320,7 @@
    "section": "header",
    "source_path": "stress/header/stress_hash",
    "unit": "hash",
-   "value": "4b5b8b21239feb9ee1b17d24f8d3071ca6c6cd5ded085e618e461658955d048d"
+   "value": "f090606ae5927208c2e50e4841ca4991c480c7c2be2cd3f9bcbf37db92d31505"
   },
   {
    "denominator": "backing_value",
@@ -330,7 +330,7 @@
    "section": "verifiability",
    "source_path": "tree/bars/[name=terminal]/share",
    "unit": "ratio",
-   "value": "0.3301829801334466838528022524"
+   "value": "0.3156167501137551018626969200"
   },
   {
    "denominator": "backing_value",
@@ -340,7 +340,7 @@
    "section": "verifiability",
    "source_path": "tree/bars/[name=terminal_other_layer]/share",
    "unit": "ratio",
-   "value": "0.3847246537513981195896667469"
+   "value": "0.3704431518621920782332261924"
   },
   {
    "denominator": "backing_value",
@@ -350,7 +350,7 @@
    "section": "verifiability",
    "source_path": "tree/bars/[name=disclosure_dependent]/share",
    "unit": "ratio",
-   "value": "0.2850923661151551965575310007"
+   "value": "0.3139400980240528199040768876"
   },
   {
    "denominator": "backing_value",
@@ -360,7 +360,7 @@
    "section": "verifiability",
    "source_path": "tree/truncated_share",
    "unit": "ratio",
-   "value": "0.06344765888777053613972567377"
+   "value": "0.03187070364809132675388810252"
   },
   {
    "denominator": "backing_value",
@@ -370,7 +370,7 @@
    "section": "verifiability",
    "source_path": "tree/truncated_nodes/[address=0x14d60e7fdc0d71d8611742720e4c50e7a974020c]/share",
    "unit": "ratio",
-   "value": "0.01038394156859287400666007208"
+   "value": "2.086217124136570210998748951E-8"
   },
   {
    "denominator": null,
@@ -390,7 +390,7 @@
    "section": "verifiability",
    "source_path": "tree/truncated_nodes/[address=0x43415eb6ff9db7e26a15b704e7a3edce97d31c4e]/share",
    "unit": "ratio",
-   "value": "0.009235653764599185284398804536"
+   "value": "0.006722736860883202214475687905"
   },
   {
    "denominator": null,
@@ -410,7 +410,7 @@
    "section": "verifiability",
    "source_path": "tree/truncated_nodes/[address=0x5a0f93d040de44e78f251b03c43be9cf317dcf64]/share",
    "unit": "ratio",
-   "value": "0.04380657102981008528491769793"
+   "value": "0.01878124735297855832324808670"
   },
   {
    "denominator": null,
@@ -430,7 +430,7 @@
    "section": "verifiability",
    "source_path": "tree/truncated_nodes/[address=0x6b175474e89094c44da98b954eedeac495271d0f]/share",
    "unit": "ratio",
-   "value": "0.000009588148720120054564247699041"
+   "value": "0.00001098638966529641964025321439"
   },
   {
    "denominator": null,
@@ -450,7 +450,7 @@
    "section": "verifiability",
    "source_path": "tree/truncated_nodes/[address=0x83f20f44975d03b1b09e64809b757c47f942beea]/share",
    "unit": "ratio",
-   "value": "1.932581951249274754251089487E-7"
+   "value": "2.210562859313294188530337452E-7"
   },
   {
    "denominator": null,
@@ -464,13 +464,33 @@
   },
   {
    "denominator": "backing_value",
+   "field_id": "verif.truncated.0x9d39a5de30e57443bff2a8307a4256c8797a3497.share",
+   "label": "truncated: sUSDe",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/truncated_nodes/[address=0x9d39a5de30e57443bff2a8307a4256c8797a3497]/share",
+   "unit": "ratio",
+   "value": "0.006342105733835491495734315436"
+  },
+  {
+   "denominator": null,
+   "field_id": "verif.truncated.0x9d39a5de30e57443bff2a8307a4256c8797a3497.reason",
+   "label": "truncated reason: sUSDe",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/truncated_nodes/[address=0x9d39a5de30e57443bff2a8307a4256c8797a3497]/reason",
+   "unit": "literal",
+   "value": "depth truncated at sUSDe; node's own backing not analyzed by this pipeline"
+  },
+  {
+   "denominator": "backing_value",
    "field_id": "verif.truncated.0xdc035d45d973e3ec169d2276ddab16f1e407384f.share",
    "label": "truncated: USDS",
    "owner_entry": "DET-17",
    "section": "verifiability",
    "source_path": "tree/truncated_nodes/[address=0xdc035d45d973e3ec169d2276ddab16f1e407384f]/share",
    "unit": "ratio",
-   "value": "0.00001171111785314658170942641978"
+   "value": "0.00001338539227160560566879624072"
   },
   {
    "denominator": null,
@@ -510,7 +530,7 @@
    "section": "verifiability",
    "source_path": "tree/staleness/weighted_days",
    "unit": "days",
-   "value": "22.02525982512098330856185692"
+   "value": "57.23288370014777609113410773"
   },
   {
    "denominator": null,
@@ -530,7 +550,7 @@
    "section": "verifiability",
    "source_path": "tree/staleness/companion",
    "unit": "literal",
-   "value": "6.3% of backing depth-truncated — staleness not assessed"
+   "value": "3.2% of backing depth-truncated — staleness not assessed"
   },
   {
    "denominator": null,
@@ -550,7 +570,7 @@
    "section": "verifiability",
    "source_path": "tree/staleness/worst/days",
    "unit": "days",
-   "value": 93
+   "value": 119
   },
   {
    "denominator": "backing_value",
@@ -560,7 +580,7 @@
    "section": "verifiability",
    "source_path": "tree/staleness/worst/share",
    "unit": "ratio",
-   "value": "0.04072191745322924975766204533"
+   "value": "0.1266722564802753915449381780"
   },
   {
    "denominator": null,
@@ -570,7 +590,7 @@
    "section": "verifiability",
    "source_path": "tree/staleness/D/[address=0x2260fac5e5542a773aa44fbcfedf7c193bc2c599]/last_disclosure_date",
    "unit": "date",
-   "value": "2026-10-01"
+   "value": "2026-10-27"
   },
   {
    "denominator": null,
@@ -590,7 +610,7 @@
    "section": "verifiability",
    "source_path": "tree/staleness/D/[address=0x2260fac5e5542a773aa44fbcfedf7c193bc2c599]/share",
    "unit": "ratio",
-   "value": "0.1364061372312746652072471078"
+   "value": "0.1194194713064383586813202370"
   },
   {
    "denominator": null,
@@ -610,7 +630,7 @@
    "section": "verifiability",
    "source_path": "tree/staleness/D/[address=0x7bc3485026ac48b6cf9baf0a377477fff5703af8]/staleness_days",
    "unit": "days",
-   "value": 93
+   "value": 119
   },
   {
    "denominator": "backing_value",
@@ -620,37 +640,7 @@
    "section": "verifiability",
    "source_path": "tree/staleness/D/[address=0x7bc3485026ac48b6cf9baf0a377477fff5703af8]/share",
    "unit": "ratio",
-   "value": "0.04072191745322924975766204533"
-  },
-  {
-   "denominator": null,
-   "field_id": "verif.staleness.0x9d39a5de30e57443bff2a8307a4256c8797a3497.last_disclosure_date",
-   "label": "sUSDe last disclosure date",
-   "owner_entry": "DET-18",
-   "section": "verifiability",
-   "source_path": "tree/staleness/D/[address=0x9d39a5de30e57443bff2a8307a4256c8797a3497]/last_disclosure_date",
-   "unit": "date",
-   "value": "2026-08-26"
-  },
-  {
-   "denominator": null,
-   "field_id": "verif.staleness.0x9d39a5de30e57443bff2a8307a4256c8797a3497.staleness_days",
-   "label": "sUSDe staleness days",
-   "owner_entry": "DET-18",
-   "section": "verifiability",
-   "source_path": "tree/staleness/D/[address=0x9d39a5de30e57443bff2a8307a4256c8797a3497]/staleness_days",
-   "unit": "days",
-   "value": 36
-  },
-  {
-   "denominator": "backing_value",
-   "field_id": "verif.staleness.0x9d39a5de30e57443bff2a8307a4256c8797a3497.share",
-   "label": "sUSDe share",
-   "owner_entry": "DET-18",
-   "section": "verifiability",
-   "source_path": "tree/staleness/D/[address=0x9d39a5de30e57443bff2a8307a4256c8797a3497]/share",
-   "unit": "ratio",
-   "value": "0.005537055430060177412996900665"
+   "value": "0.1266722564802753915449381780"
   },
   {
    "denominator": null,
@@ -670,7 +660,7 @@
    "section": "verifiability",
    "source_path": "tree/staleness/D/[address=0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48]/staleness_days",
    "unit": "days",
-   "value": 62
+   "value": 88
   },
   {
    "denominator": "backing_value",
@@ -680,7 +670,7 @@
    "section": "verifiability",
    "source_path": "tree/staleness/D/[address=0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48]/share",
    "unit": "ratio",
-   "value": "0.009322177786386581400788021746"
+   "value": "0.007510686644498770024953751488"
   },
   {
    "denominator": null,
@@ -690,7 +680,7 @@
    "section": "verifiability",
    "source_path": "tree/staleness/D/[address=0xbe9895146f7af43049ca1c1ae358b0541ea49704]/last_disclosure_date",
    "unit": "date",
-   "value": "2026-10-01"
+   "value": "2026-10-27"
   },
   {
    "denominator": null,
@@ -710,7 +700,7 @@
    "section": "verifiability",
    "source_path": "tree/staleness/D/[address=0xbe9895146f7af43049ca1c1ae358b0541ea49704]/share",
    "unit": "ratio",
-   "value": "0.0002670801666249010310956407273"
+   "value": "0.0001028970074667379470965635634"
   },
   {
    "denominator": null,
@@ -720,7 +710,7 @@
    "section": "verifiability",
    "source_path": "tree/staleness/D/[address=0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf]/last_disclosure_date",
    "unit": "date",
-   "value": "2026-10-01"
+   "value": "2026-10-27"
   },
   {
    "denominator": null,
@@ -740,7 +730,7 @@
    "section": "verifiability",
    "source_path": "tree/staleness/D/[address=0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf]/share",
    "unit": "ratio",
-   "value": "0.02597813565326587439065924810"
+   "value": "0.02492957957545437600477621016"
   },
   {
    "denominator": null,
@@ -760,7 +750,7 @@
    "section": "verifiability",
    "source_path": "tree/staleness/D/[address=0xd4fa2d31b7968e448877f69a96de69f5de8cd23e]/staleness_days",
    "unit": "days",
-   "value": 62
+   "value": 88
   },
   {
    "denominator": "backing_value",
@@ -770,7 +760,7 @@
    "section": "verifiability",
    "source_path": "tree/staleness/D/[address=0xd4fa2d31b7968e448877f69a96de69f5de8cd23e]/share",
    "unit": "ratio",
-   "value": "6.293404817633255510323868383E-11"
+   "value": "7.211797564762531664464179500E-11"
   },
   {
    "denominator": null,
@@ -790,7 +780,7 @@
    "section": "verifiability",
    "source_path": "tree/staleness/D/[address=0xdac17f958d2ee523a2206206994597c13d831ec7]/staleness_days",
    "unit": "days",
-   "value": 93
+   "value": 119
   },
   {
    "denominator": "backing_value",
@@ -800,7 +790,7 @@
    "section": "verifiability",
    "source_path": "tree/staleness/D/[address=0xdac17f958d2ee523a2206206994597c13d831ec7]/share",
    "unit": "ratio",
-   "value": "0.003412203443609163041023807466"
+   "value": "0.003434503289709883299478528206"
   },
   {
    "denominator": null,
@@ -850,7 +840,7 @@
    "section": "verifiability",
    "source_path": "tree/nodes/[address=0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0]/share",
    "unit": "ratio",
-   "value": "0.3280561993957959975253999631"
+   "value": "0.3116998101223117427560674632"
   },
   {
    "denominator": null,
@@ -890,127 +880,7 @@
    "section": "verifiability",
    "source_path": "tree/nodes/[address=0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2]/share",
    "unit": "ratio",
-   "value": "0.2305640924468873905463373008"
-  },
-  {
-   "denominator": null,
-   "field_id": "tree.node.0x2260fac5e5542a773aa44fbcfedf7c193bc2c599.symbol",
-   "label": "node",
-   "owner_entry": "DET-17",
-   "section": "verifiability",
-   "source_path": "tree/nodes/[address=0x2260fac5e5542a773aa44fbcfedf7c193bc2c599]/symbol",
-   "unit": "literal",
-   "value": "WBTC"
-  },
-  {
-   "denominator": null,
-   "field_id": "tree.node.0x2260fac5e5542a773aa44fbcfedf7c193bc2c599.label",
-   "label": "node label",
-   "owner_entry": "DET-17",
-   "section": "verifiability",
-   "source_path": "tree/nodes/[address=0x2260fac5e5542a773aa44fbcfedf7c193bc2c599]/label",
-   "unit": "literal",
-   "value": "recurses"
-  },
-  {
-   "denominator": null,
-   "field_id": "tree.node.0x2260fac5e5542a773aa44fbcfedf7c193bc2c599.bar",
-   "label": "backing class of the node",
-   "owner_entry": "DET-17",
-   "section": "verifiability",
-   "source_path": "wording/tree/node_bar/recurses",
-   "unit": "literal",
-   "value": "disclosure_dependent"
-  },
-  {
-   "denominator": "backing_value",
-   "field_id": "tree.node.0x2260fac5e5542a773aa44fbcfedf7c193bc2c599.share",
-   "label": "WBTC share of backing",
-   "owner_entry": "DET-17",
-   "section": "verifiability",
-   "source_path": "tree/nodes/[address=0x2260fac5e5542a773aa44fbcfedf7c193bc2c599]/share",
-   "unit": "ratio",
-   "value": "0.1364061372312746652072471078"
-  },
-  {
-   "denominator": null,
-   "field_id": "tree.node.0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9.symbol",
-   "label": "node",
-   "owner_entry": "DET-17",
-   "section": "verifiability",
-   "source_path": "tree/nodes/[address=0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9]/symbol",
-   "unit": "literal",
-   "value": "AAVE"
-  },
-  {
-   "denominator": null,
-   "field_id": "tree.node.0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9.label",
-   "label": "node label",
-   "owner_entry": "DET-17",
-   "section": "verifiability",
-   "source_path": "tree/nodes/[address=0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9]/label",
-   "unit": "literal",
-   "value": "terminal"
-  },
-  {
-   "denominator": null,
-   "field_id": "tree.node.0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9.bar",
-   "label": "backing class of the node",
-   "owner_entry": "DET-17",
-   "section": "verifiability",
-   "source_path": "wording/tree/node_bar/terminal",
-   "unit": "literal",
-   "value": "terminal"
-  },
-  {
-   "denominator": "backing_value",
-   "field_id": "tree.node.0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9.share",
-   "label": "AAVE share of backing",
-   "owner_entry": "DET-17",
-   "section": "verifiability",
-   "source_path": "tree/nodes/[address=0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9]/share",
-   "unit": "ratio",
-   "value": "0.09581842059298088007506458970"
-  },
-  {
-   "denominator": null,
-   "field_id": "tree.node.0x5a0f93d040de44e78f251b03c43be9cf317dcf64.symbol",
-   "label": "node",
-   "owner_entry": "DET-17",
-   "section": "verifiability",
-   "source_path": "tree/nodes/[address=0x5a0f93d040de44e78f251b03c43be9cf317dcf64]/symbol",
-   "unit": "literal",
-   "value": "JAAA"
-  },
-  {
-   "denominator": null,
-   "field_id": "tree.node.0x5a0f93d040de44e78f251b03c43be9cf317dcf64.label",
-   "label": "node label",
-   "owner_entry": "DET-17",
-   "section": "verifiability",
-   "source_path": "tree/nodes/[address=0x5a0f93d040de44e78f251b03c43be9cf317dcf64]/label",
-   "unit": "literal",
-   "value": "recurses_truncated"
-  },
-  {
-   "denominator": null,
-   "field_id": "tree.node.0x5a0f93d040de44e78f251b03c43be9cf317dcf64.bar",
-   "label": "backing class of the node",
-   "owner_entry": "DET-17",
-   "section": "verifiability",
-   "source_path": "wording/tree/node_bar/recurses_truncated",
-   "unit": "literal",
-   "value": "disclosure_dependent"
-  },
-  {
-   "denominator": "backing_value",
-   "field_id": "tree.node.0x5a0f93d040de44e78f251b03c43be9cf317dcf64.share",
-   "label": "JAAA share of backing",
-   "owner_entry": "DET-17",
-   "section": "verifiability",
-   "source_path": "tree/nodes/[address=0x5a0f93d040de44e78f251b03c43be9cf317dcf64]/share",
-   "unit": "ratio",
-   "value": "0.04380657102981008528491769793"
+   "value": "0.2276352459081568937033437290"
   },
   {
    "denominator": null,
@@ -1050,31 +920,31 @@
    "section": "verifiability",
    "source_path": "tree/nodes/[address=0x7bc3485026ac48b6cf9baf0a377477fff5703af8]/share",
    "unit": "ratio",
-   "value": "0.04072191745322924975766204533"
+   "value": "0.1266722564802753915449381780"
   },
   {
    "denominator": null,
-   "field_id": "tree.node.0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf.symbol",
+   "field_id": "tree.node.0x2260fac5e5542a773aa44fbcfedf7c193bc2c599.symbol",
    "label": "node",
    "owner_entry": "DET-17",
    "section": "verifiability",
-   "source_path": "tree/nodes/[address=0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf]/symbol",
+   "source_path": "tree/nodes/[address=0x2260fac5e5542a773aa44fbcfedf7c193bc2c599]/symbol",
    "unit": "literal",
-   "value": "cbBTC"
+   "value": "WBTC"
   },
   {
    "denominator": null,
-   "field_id": "tree.node.0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf.label",
+   "field_id": "tree.node.0x2260fac5e5542a773aa44fbcfedf7c193bc2c599.label",
    "label": "node label",
    "owner_entry": "DET-17",
    "section": "verifiability",
-   "source_path": "tree/nodes/[address=0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf]/label",
+   "source_path": "tree/nodes/[address=0x2260fac5e5542a773aa44fbcfedf7c193bc2c599]/label",
    "unit": "literal",
    "value": "recurses"
   },
   {
    "denominator": null,
-   "field_id": "tree.node.0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf.bar",
+   "field_id": "tree.node.0x2260fac5e5542a773aa44fbcfedf7c193bc2c599.bar",
    "label": "backing class of the node",
    "owner_entry": "DET-17",
    "section": "verifiability",
@@ -1084,53 +954,53 @@
   },
   {
    "denominator": "backing_value",
-   "field_id": "tree.node.0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf.share",
-   "label": "cbBTC share of backing",
+   "field_id": "tree.node.0x2260fac5e5542a773aa44fbcfedf7c193bc2c599.share",
+   "label": "WBTC share of backing",
    "owner_entry": "DET-17",
    "section": "verifiability",
-   "source_path": "tree/nodes/[address=0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf]/share",
+   "source_path": "tree/nodes/[address=0x2260fac5e5542a773aa44fbcfedf7c193bc2c599]/share",
    "unit": "ratio",
-   "value": "0.02597813565326587439065924810"
+   "value": "0.1194194713064383586813202370"
   },
   {
    "denominator": null,
-   "field_id": "tree.node.0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee.symbol",
+   "field_id": "tree.node.0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9.symbol",
    "label": "node",
    "owner_entry": "DET-17",
    "section": "verifiability",
-   "source_path": "tree/nodes/[address=0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee]/symbol",
+   "source_path": "tree/nodes/[address=0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9]/symbol",
    "unit": "literal",
-   "value": "weETH"
+   "value": "AAVE"
   },
   {
    "denominator": null,
-   "field_id": "tree.node.0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee.label",
+   "field_id": "tree.node.0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9.label",
    "label": "node label",
    "owner_entry": "DET-17",
    "section": "verifiability",
-   "source_path": "tree/nodes/[address=0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee]/label",
+   "source_path": "tree/nodes/[address=0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9]/label",
    "unit": "literal",
-   "value": "terminal_other_layer"
+   "value": "terminal"
   },
   {
    "denominator": null,
-   "field_id": "tree.node.0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee.bar",
+   "field_id": "tree.node.0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9.bar",
    "label": "backing class of the node",
    "owner_entry": "DET-17",
    "section": "verifiability",
-   "source_path": "wording/tree/node_bar/terminal_other_layer",
+   "source_path": "wording/tree/node_bar/terminal",
    "unit": "literal",
-   "value": "terminal_other_layer"
+   "value": "terminal"
   },
   {
    "denominator": "backing_value",
-   "field_id": "tree.node.0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee.share",
-   "label": "weETH share of backing",
+   "field_id": "tree.node.0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9.share",
+   "label": "AAVE share of backing",
    "owner_entry": "DET-17",
    "section": "verifiability",
-   "source_path": "tree/nodes/[address=0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee]/share",
+   "source_path": "tree/nodes/[address=0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9]/share",
    "unit": "ratio",
-   "value": "0.02428037439701285790127171319"
+   "value": "0.08449923859841861795845756312"
   },
   {
    "denominator": null,
@@ -1170,31 +1040,111 @@
    "section": "verifiability",
    "source_path": "tree/nodes/[address=0x18084fba666a33d37592fa2633fd49a74dd93a88]/share",
    "unit": "ratio",
-   "value": "0.02305963512256187190404705146"
+   "value": "0.02541222077930083944497451792"
   },
   {
    "denominator": null,
-   "field_id": "tree.node.0x14d60e7fdc0d71d8611742720e4c50e7a974020c.symbol",
+   "field_id": "tree.node.0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf.symbol",
    "label": "node",
    "owner_entry": "DET-17",
    "section": "verifiability",
-   "source_path": "tree/nodes/[address=0x14d60e7fdc0d71d8611742720e4c50e7a974020c]/symbol",
+   "source_path": "tree/nodes/[address=0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf]/symbol",
    "unit": "literal",
-   "value": "USCC"
+   "value": "cbBTC"
   },
   {
    "denominator": null,
-   "field_id": "tree.node.0x14d60e7fdc0d71d8611742720e4c50e7a974020c.label",
+   "field_id": "tree.node.0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf.label",
    "label": "node label",
    "owner_entry": "DET-17",
    "section": "verifiability",
-   "source_path": "tree/nodes/[address=0x14d60e7fdc0d71d8611742720e4c50e7a974020c]/label",
+   "source_path": "tree/nodes/[address=0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf]/label",
+   "unit": "literal",
+   "value": "recurses"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.node.0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf.bar",
+   "label": "backing class of the node",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "wording/tree/node_bar/recurses",
+   "unit": "literal",
+   "value": "disclosure_dependent"
+  },
+  {
+   "denominator": "backing_value",
+   "field_id": "tree.node.0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf.share",
+   "label": "cbBTC share of backing",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/nodes/[address=0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf]/share",
+   "unit": "ratio",
+   "value": "0.02492957957545437600477621016"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.node.0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee.symbol",
+   "label": "node",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/nodes/[address=0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee]/symbol",
+   "unit": "literal",
+   "value": "weETH"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.node.0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee.label",
+   "label": "node label",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/nodes/[address=0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee]/label",
+   "unit": "literal",
+   "value": "terminal_other_layer"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.node.0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee.bar",
+   "label": "backing class of the node",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "wording/tree/node_bar/terminal_other_layer",
+   "unit": "literal",
+   "value": "terminal_other_layer"
+  },
+  {
+   "denominator": "backing_value",
+   "field_id": "tree.node.0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee.share",
+   "label": "weETH share of backing",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/nodes/[address=0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee]/share",
+   "unit": "ratio",
+   "value": "0.02412547764118283629356833549"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.node.0x5a0f93d040de44e78f251b03c43be9cf317dcf64.symbol",
+   "label": "node",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/nodes/[address=0x5a0f93d040de44e78f251b03c43be9cf317dcf64]/symbol",
+   "unit": "literal",
+   "value": "JAAA"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.node.0x5a0f93d040de44e78f251b03c43be9cf317dcf64.label",
+   "label": "node label",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/nodes/[address=0x5a0f93d040de44e78f251b03c43be9cf317dcf64]/label",
    "unit": "literal",
    "value": "recurses_truncated"
   },
   {
    "denominator": null,
-   "field_id": "tree.node.0x14d60e7fdc0d71d8611742720e4c50e7a974020c.bar",
+   "field_id": "tree.node.0x5a0f93d040de44e78f251b03c43be9cf317dcf64.bar",
    "label": "backing class of the node",
    "owner_entry": "DET-17",
    "section": "verifiability",
@@ -1204,13 +1154,13 @@
   },
   {
    "denominator": "backing_value",
-   "field_id": "tree.node.0x14d60e7fdc0d71d8611742720e4c50e7a974020c.share",
-   "label": "USCC share of backing",
+   "field_id": "tree.node.0x5a0f93d040de44e78f251b03c43be9cf317dcf64.share",
+   "label": "JAAA share of backing",
    "owner_entry": "DET-17",
    "section": "verifiability",
-   "source_path": "tree/nodes/[address=0x14d60e7fdc0d71d8611742720e4c50e7a974020c]/share",
+   "source_path": "tree/nodes/[address=0x5a0f93d040de44e78f251b03c43be9cf317dcf64]/share",
    "unit": "ratio",
-   "value": "0.01038394156859287400666007208"
+   "value": "0.01878124735297855832324808670"
   },
   {
    "denominator": null,
@@ -1250,7 +1200,7 @@
    "section": "verifiability",
    "source_path": "tree/nodes/[address=0xae78736cd615f374d3085123a210448e74fc6393]/share",
    "unit": "ratio",
-   "value": "0.009328444836027392258948019156"
+   "value": "0.009205643319396659738615875781"
   },
   {
    "denominator": null,
@@ -1290,7 +1240,7 @@
    "section": "verifiability",
    "source_path": "tree/nodes/[address=0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48]/share",
    "unit": "ratio",
-   "value": "0.009322177786386581400788021746"
+   "value": "0.007510686644498770024953751488"
   },
   {
    "denominator": null,
@@ -1330,7 +1280,7 @@
    "section": "verifiability",
    "source_path": "tree/nodes/[address=0x43415eb6ff9db7e26a15b704e7a3edce97d31c4e]/share",
    "unit": "ratio",
-   "value": "0.009235653764599185284398804536"
+   "value": "0.006722736860883202214475687905"
   },
   {
    "denominator": null,
@@ -1350,7 +1300,7 @@
    "section": "verifiability",
    "source_path": "tree/nodes/[address=0x9d39a5de30e57443bff2a8307a4256c8797a3497]/label",
    "unit": "literal",
-   "value": "recurses"
+   "value": "recurses_truncated"
   },
   {
    "denominator": null,
@@ -1358,7 +1308,7 @@
    "label": "backing class of the node",
    "owner_entry": "DET-17",
    "section": "verifiability",
-   "source_path": "wording/tree/node_bar/recurses",
+   "source_path": "wording/tree/node_bar/recurses_truncated",
    "unit": "literal",
    "value": "disclosure_dependent"
   },
@@ -1370,7 +1320,7 @@
    "section": "verifiability",
    "source_path": "tree/nodes/[address=0x9d39a5de30e57443bff2a8307a4256c8797a3497]/share",
    "unit": "ratio",
-   "value": "0.005537055430060177412996900665"
+   "value": "0.006342105733835491495734315436"
   },
   {
    "denominator": null,
@@ -1410,7 +1360,7 @@
    "section": "verifiability",
    "source_path": "tree/nodes/[address=0x514910771af9ca656af840dff83e8264ecf986ca]/share",
    "unit": "ratio",
-   "value": "0.003800467093578413231400361851"
+   "value": "0.003482265607179590200895627818"
   },
   {
    "denominator": null,
@@ -1450,7 +1400,7 @@
    "section": "verifiability",
    "source_path": "tree/nodes/[address=0xdac17f958d2ee523a2206206994597c13d831ec7]/share",
    "unit": "ratio",
-   "value": "0.003412203443609163041023807466"
+   "value": "0.003434503289709883299478528206"
   },
   {
    "denominator": null,
@@ -1490,7 +1440,7 @@
    "section": "verifiability",
    "source_path": "tree/nodes/[address=0xbe9895146f7af43049ca1c1ae358b0541ea49704]/share",
    "unit": "ratio",
-   "value": "0.0002670801666249010310956407273"
+   "value": "0.0001028970074667379470965635634"
   },
   {
    "denominator": null,
@@ -1530,7 +1480,7 @@
    "section": "verifiability",
    "source_path": "tree/nodes/[address=0xdc035d45d973e3ec169d2276ddab16f1e407384f]/share",
    "unit": "ratio",
-   "value": "0.00001171111785314658170942641978"
+   "value": "0.00001338539227160560566879624072"
   },
   {
    "denominator": null,
@@ -1570,7 +1520,7 @@
    "section": "verifiability",
    "source_path": "tree/nodes/[address=0x6b175474e89094c44da98b954eedeac495271d0f]/share",
    "unit": "ratio",
-   "value": "0.000009588148720120054564247699041"
+   "value": "0.00001098638966529641964025321439"
   },
   {
    "denominator": null,
@@ -1610,7 +1560,47 @@
    "section": "verifiability",
    "source_path": "tree/nodes/[address=0x83f20f44975d03b1b09e64809b757c47f942beea]/share",
    "unit": "ratio",
-   "value": "1.932581951249274754251089487E-7"
+   "value": "2.210562859313294188530337452E-7"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.node.0x14d60e7fdc0d71d8611742720e4c50e7a974020c.symbol",
+   "label": "node",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/nodes/[address=0x14d60e7fdc0d71d8611742720e4c50e7a974020c]/symbol",
+   "unit": "literal",
+   "value": "USCC"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.node.0x14d60e7fdc0d71d8611742720e4c50e7a974020c.label",
+   "label": "node label",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/nodes/[address=0x14d60e7fdc0d71d8611742720e4c50e7a974020c]/label",
+   "unit": "literal",
+   "value": "recurses_truncated"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.node.0x14d60e7fdc0d71d8611742720e4c50e7a974020c.bar",
+   "label": "backing class of the node",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "wording/tree/node_bar/recurses_truncated",
+   "unit": "literal",
+   "value": "disclosure_dependent"
+  },
+  {
+   "denominator": "backing_value",
+   "field_id": "tree.node.0x14d60e7fdc0d71d8611742720e4c50e7a974020c.share",
+   "label": "USCC share of backing",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/nodes/[address=0x14d60e7fdc0d71d8611742720e4c50e7a974020c]/share",
+   "unit": "ratio",
+   "value": "2.086217124136570210998748951E-8"
   },
   {
    "denominator": null,
@@ -1650,7 +1640,7 @@
    "section": "verifiability",
    "source_path": "tree/nodes/[address=0xd4fa2d31b7968e448877f69a96de69f5de8cd23e]/share",
    "unit": "ratio",
-   "value": "6.293404817633255510323868383E-11"
+   "value": "7.211797564762531664464179500E-11"
   },
   {
    "denominator": null,
@@ -1910,7 +1900,7 @@
    "section": "supply",
    "source_path": "tree/root/backing_value",
    "unit": "value_scale_units",
-   "value": 55161952879197472
+   "value": 48264222182373643
   },
   {
    "denominator": null,
@@ -1980,7 +1970,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m1/pre/ratio",
    "unit": "ratio",
-   "value": "1.270959883828790662140944908"
+   "value": "1.199753301741538981242970357"
   },
   {
    "denominator": null,
@@ -1990,7 +1980,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m1/post/ratio",
    "unit": "ratio",
-   "value": "1.797895773679737434888113951"
+   "value": "1.759215220441293533541237965"
   },
   {
    "denominator": null,
@@ -2000,7 +1990,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m1/pre/share_below_100",
    "unit": "ratio",
-   "value": "0.4028097106673276037970668870"
+   "value": "0.4495539129635117103166625836"
   },
   {
    "denominator": null,
@@ -2010,7 +2000,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m1/post/share_below_100",
    "unit": "ratio",
-   "value": "0.4028097106673276037970668870"
+   "value": "0.4495539129635117103166625836"
   },
   {
    "denominator": null,
@@ -2020,7 +2010,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m1/gap",
    "unit": "ratio",
-   "value": "0.526935889850946772747169043"
+   "value": "0.559461918699754552298267608"
   },
   {
    "denominator": null,
@@ -2030,7 +2020,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m2/bad_debt",
    "unit": "base_units",
-   "value": 7269853525622670000000000
+   "value": 5033058351836250000000000
   },
   {
    "denominator": "supply_ruled",
@@ -2040,7 +2030,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m2/pct_supply",
    "unit": "ratio",
-   "value": "0.01040036269760038626609442060"
+   "value": "0.007200369602054721030042918455"
   },
   {
    "denominator": null,
@@ -2050,7 +2040,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m3/forced_sell_volume",
    "unit": "base_units",
-   "value": 7269853525622670000000000
+   "value": 5033058351836250000000000
   },
   {
    "denominator": null,
@@ -2060,7 +2050,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m3/exit_depth",
    "unit": "base_units",
-   "value": 22952874137419570838007654
+   "value": 61969038856732086024291513
   },
   {
    "denominator": "exit_depth",
@@ -2070,7 +2060,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m3/ratio",
    "unit": "ratio",
-   "value": "0.3167295512578438322988377506"
+   "value": "0.08121891907138200272427633094"
   },
   {
    "denominator": null,
@@ -2080,7 +2070,7 @@
    "section": "stress (Member 2)",
    "source_path": "stress/cells/[id=M2-t0.93-lp0]/m3/forced_sell_volume",
    "unit": "base_units",
-   "value": 24353332566962450000000000
+   "value": 62891523277412110000000000
   },
   {
    "denominator": null,
@@ -2090,7 +2080,7 @@
    "section": "stress (Member 2)",
    "source_path": "stress/cells/[id=M2-t0.93-lp0]/m3/exit_depth",
    "unit": "base_units",
-   "value": 481779591623570838007654
+   "value": 735151843276086024291513
   },
   {
    "denominator": "exit_depth",
@@ -2100,7 +2090,7 @@
    "section": "stress (Member 2)",
    "source_path": "stress/cells/[id=M2-t0.93-lp0]/m3/ratio",
    "unit": "ratio",
-   "value": "50.54870108734380594126622515"
+   "value": "85.54902480710127235441262423"
   },
   {
    "denominator": null,
@@ -2120,7 +2110,7 @@
    "section": "mechanism state",
    "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m4/collateral_sellable",
    "unit": "base_units",
-   "value": 40151656842929400000000000
+   "value": 35425708104834070000000000
   },
   {
    "denominator": null,
@@ -2140,7 +2130,7 @@
    "section": "mechanism state",
    "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m4/exit_depth_cell",
    "unit": "base_units",
-   "value": 22952874137419570838007654
+   "value": 61969038856732086024291513
   },
   {
    "denominator": null,
@@ -2250,7 +2240,7 @@
    "section": "mechanism state",
    "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m4/gho_sourceable",
    "unit": "base_units",
-   "value": 286345491603118721679634522
+   "value": 248181862705077673049806193
   },
   {
    "denominator": null,
@@ -2260,7 +2250,7 @@
    "section": "mechanism state",
    "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m4/gsm_mint_headroom",
    "unit": "base_units",
-   "value": 285469153779813690239268493
+   "value": 247571183222096501179475922
   },
   {
    "denominator": null,
@@ -2280,7 +2270,7 @@
    "section": "stress (Member 2)",
    "source_path": "stress/cells/[id=M2-t0.93-lp0]/counterfactual_lines/[id=H2_freezer]/value_primary",
    "unit": "base_units",
-   "value": 481779591623570838007654
+   "value": 735151843276086024291513
   },
   {
    "denominator": null,
@@ -2290,7 +2280,7 @@
    "section": "stress (Member 2)",
    "source_path": "stress/cells/[id=M2-t0.93-lp0]/counterfactual_lines/[id=H2_freezer]/value_counterfactual",
    "unit": "base_units",
-   "value": 22952874137419570838007654
+   "value": 61969038856732086024291513
   },
   {
    "denominator": null,
@@ -2320,7 +2310,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s20-d0-lp0]/m1/post/ratio",
    "unit": "ratio",
-   "value": "2.097301671601225889727429019"
+   "value": "1.942642179010866315940562707"
   },
   {
    "denominator": null,
@@ -2330,7 +2320,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s20-d0-lp0]/m2/bad_debt",
    "unit": "base_units",
-   "value": 216115617656000000000000
+   "value": 32962726552520000000000
   },
   {
    "denominator": "exit_depth",
@@ -2340,7 +2330,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s20-d0-lp0]/m3/ratio",
    "unit": "ratio",
-   "value": "0.009415623349045922536837216161"
+   "value": "0.0005319225077659737160739034854"
   },
   {
    "denominator": null,
@@ -2350,7 +2340,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s20-d0-lp0]/m3/exit_depth",
    "unit": "base_units",
-   "value": 22952874137419570838007654
+   "value": 61969038856732086024291513
   },
   {
    "denominator": null,
@@ -2360,7 +2350,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s20-d0-lp30]/m1/post/ratio",
    "unit": "ratio",
-   "value": "2.097301671601225889727429019"
+   "value": "1.942642179010866315940562707"
   },
   {
    "denominator": null,
@@ -2370,7 +2360,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s20-d0-lp30]/m2/bad_debt",
    "unit": "base_units",
-   "value": 216115617656000000000000
+   "value": 32962726552520000000000
   },
   {
    "denominator": "exit_depth",
@@ -2380,7 +2370,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s20-d0-lp30]/m3/ratio",
    "unit": "ratio",
-   "value": "0.009592038412274598314644680767"
+   "value": "0.0005355374815667436211853719718"
   },
   {
    "denominator": null,
@@ -2390,7 +2380,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s20-d0-lp30]/m3/exit_depth",
    "unit": "base_units",
-   "value": 22530728961577588373760434
+   "value": 61550736759051440813248327
   },
   {
    "denominator": null,
@@ -2400,7 +2390,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s20-d0-lp60]/m1/post/ratio",
    "unit": "ratio",
-   "value": "2.097301671601225889727429019"
+   "value": "1.942642179010866315940562707"
   },
   {
    "denominator": null,
@@ -2410,7 +2400,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s20-d0-lp60]/m2/bad_debt",
    "unit": "base_units",
-   "value": 216115617656000000000000
+   "value": 32962726552520000000000
   },
   {
    "denominator": "exit_depth",
@@ -2420,7 +2410,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s20-d0-lp60]/m3/ratio",
    "unit": "ratio",
-   "value": "0.009617494030633765674969506588"
+   "value": "0.0005383085765121609835817275785"
   },
   {
    "denominator": null,
@@ -2430,7 +2420,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s20-d0-lp60]/m3/exit_depth",
    "unit": "base_units",
-   "value": 22471094545796000000000000
+   "value": 61233887013456000000000000
   },
   {
    "denominator": null,
@@ -2440,7 +2430,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s35-d0-lp0]/m1/post/ratio",
    "unit": "ratio",
-   "value": "1.854613154536405636150812718"
+   "value": "1.969534256671274499805029646"
   },
   {
    "denominator": null,
@@ -2450,7 +2440,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s35-d0-lp0]/m2/bad_debt",
    "unit": "base_units",
-   "value": 1167875110048870000000000
+   "value": 134126006861970000000000
   },
   {
    "denominator": "exit_depth",
@@ -2460,7 +2450,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s35-d0-lp0]/m3/ratio",
    "unit": "ratio",
-   "value": "0.05088143223618817488737370786"
+   "value": "0.002164403536612203711793504109"
   },
   {
    "denominator": null,
@@ -2470,7 +2460,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s35-d0-lp0]/m3/exit_depth",
    "unit": "base_units",
-   "value": 22952874137419570838007654
+   "value": 61969038856732086024291513
   },
   {
    "denominator": null,
@@ -2480,7 +2470,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s35-d0-lp30]/m1/post/ratio",
    "unit": "ratio",
-   "value": "1.854613154536405636150812718"
+   "value": "1.969534256671274499805029646"
   },
   {
    "denominator": null,
@@ -2490,7 +2480,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s35-d0-lp30]/m2/bad_debt",
    "unit": "base_units",
-   "value": 1167875110048870000000000
+   "value": 134126006861970000000000
   },
   {
    "denominator": "exit_depth",
@@ -2500,7 +2490,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s35-d0-lp30]/m3/ratio",
    "unit": "ratio",
-   "value": "0.05183476806456137283117799953"
+   "value": "0.002179112938761791315347886877"
   },
   {
    "denominator": null,
@@ -2510,7 +2500,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s35-d0-lp30]/m3/exit_depth",
    "unit": "base_units",
-   "value": 22530728961577588373760434
+   "value": 61550736759051440813248327
   },
   {
    "denominator": null,
@@ -2520,7 +2510,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s35-d0-lp60]/m1/post/ratio",
    "unit": "ratio",
-   "value": "1.854613154536405636150812718"
+   "value": "1.969534256671274499805029646"
   },
   {
    "denominator": null,
@@ -2530,7 +2520,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s35-d0-lp60]/m2/bad_debt",
    "unit": "base_units",
-   "value": 1167875110048870000000000
+   "value": 134126006861970000000000
   },
   {
    "denominator": "exit_depth",
@@ -2540,7 +2530,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s35-d0-lp60]/m3/ratio",
    "unit": "ratio",
-   "value": "0.05197232861393312367567670850"
+   "value": "0.002190388580631768995148371300"
   },
   {
    "denominator": null,
@@ -2550,7 +2540,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s35-d0-lp60]/m3/exit_depth",
    "unit": "base_units",
-   "value": 22471094545796000000000000
+   "value": 61233887013456000000000000
   },
   {
    "denominator": null,
@@ -2560,7 +2550,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m1/post/ratio",
    "unit": "ratio",
-   "value": "1.797895773679737434888113951"
+   "value": "1.759215220441293533541237965"
   },
   {
    "denominator": null,
@@ -2570,7 +2560,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m2/bad_debt",
    "unit": "base_units",
-   "value": 7269853525622670000000000
+   "value": 5033058351836250000000000
   },
   {
    "denominator": "exit_depth",
@@ -2580,7 +2570,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m3/ratio",
    "unit": "ratio",
-   "value": "0.3167295512578438322988377506"
+   "value": "0.08121891907138200272427633094"
   },
   {
    "denominator": null,
@@ -2590,7 +2580,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m3/exit_depth",
    "unit": "base_units",
-   "value": 22952874137419570838007654
+   "value": 61969038856732086024291513
   },
   {
    "denominator": null,
@@ -2600,7 +2590,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s50-d0-lp30]/m1/post/ratio",
    "unit": "ratio",
-   "value": "1.797895773679737434888113951"
+   "value": "1.759215220441293533541237965"
   },
   {
    "denominator": null,
@@ -2610,7 +2600,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s50-d0-lp30]/m2/bad_debt",
    "unit": "base_units",
-   "value": 7269853525622670000000000
+   "value": 5033058351836250000000000
   },
   {
    "denominator": "exit_depth",
@@ -2620,7 +2610,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s50-d0-lp30]/m3/ratio",
    "unit": "ratio",
-   "value": "0.3226639288067508285929247407"
+   "value": "0.08177088718757059645390676494"
   },
   {
    "denominator": null,
@@ -2630,7 +2620,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s50-d0-lp30]/m3/exit_depth",
    "unit": "base_units",
-   "value": 22530728961577588373760434
+   "value": 61550736759051440813248327
   },
   {
    "denominator": null,
@@ -2640,7 +2630,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s50-d0-lp60]/m1/post/ratio",
    "unit": "ratio",
-   "value": "1.797895773679737434888113951"
+   "value": "1.759215220441293533541237965"
   },
   {
    "denominator": null,
@@ -2650,7 +2640,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s50-d0-lp60]/m2/bad_debt",
    "unit": "base_units",
-   "value": 7269853525622670000000000
+   "value": 5033058351836250000000000
   },
   {
    "denominator": "exit_depth",
@@ -2660,7 +2650,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s50-d0-lp60]/m3/ratio",
    "unit": "ratio",
-   "value": "0.3235202233165250519059682973"
+   "value": "0.08219400396271181482693969468"
   },
   {
    "denominator": null,
@@ -2670,7 +2660,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s50-d0-lp60]/m3/exit_depth",
    "unit": "base_units",
-   "value": 22471094545796000000000000
+   "value": 61233887013456000000000000
   },
   {
    "denominator": null,
@@ -2680,7 +2670,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s70-d0-lp0]/m1/post/ratio",
    "unit": "ratio",
-   "value": "1.646254685468007249022415692"
+   "value": "1.669183529157089600082632439"
   },
   {
    "denominator": null,
@@ -2690,7 +2680,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s70-d0-lp0]/m2/bad_debt",
    "unit": "base_units",
-   "value": 37569934187059720000000000
+   "value": 35275696248723580000000000
   },
   {
    "denominator": "exit_depth",
@@ -2700,7 +2690,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s70-d0-lp0]/m3/ratio",
    "unit": "ratio",
-   "value": "1.636829181484085885947423113"
+   "value": "0.5692471095167124653516261481"
   },
   {
    "denominator": null,
@@ -2710,7 +2700,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s70-d0-lp0]/m3/exit_depth",
    "unit": "base_units",
-   "value": 22952874137419570838007654
+   "value": 61969038856732086024291513
   },
   {
    "denominator": null,
@@ -2720,7 +2710,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s70-d0-lp30]/m1/post/ratio",
    "unit": "ratio",
-   "value": "1.646254685468007249022415692"
+   "value": "1.669183529157089600082632439"
   },
   {
    "denominator": null,
@@ -2730,7 +2720,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s70-d0-lp30]/m2/bad_debt",
    "unit": "base_units",
-   "value": 37569934187059720000000000
+   "value": 35275696248723580000000000
   },
   {
    "denominator": "exit_depth",
@@ -2740,7 +2730,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s70-d0-lp30]/m3/ratio",
    "unit": "ratio",
-   "value": "1.667497498688524249718477799"
+   "value": "0.5731157433064528958757072973"
   },
   {
    "denominator": null,
@@ -2750,7 +2740,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s70-d0-lp30]/m3/exit_depth",
    "unit": "base_units",
-   "value": 22530728961577588373760434
+   "value": 61550736759051440813248327
   },
   {
    "denominator": null,
@@ -2760,7 +2750,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s70-d0-lp60]/m1/post/ratio",
    "unit": "ratio",
-   "value": "1.646254685468007249022415692"
+   "value": "1.669183529157089600082632439"
   },
   {
    "denominator": null,
@@ -2770,7 +2760,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s70-d0-lp60]/m2/bad_debt",
    "unit": "base_units",
-   "value": 37569934187059720000000000
+   "value": 35275696248723580000000000
   },
   {
    "denominator": "exit_depth",
@@ -2780,7 +2770,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s70-d0-lp60]/m3/ratio",
    "unit": "ratio",
-   "value": "1.671922749935137593941872246"
+   "value": "0.5760812838971308524621376273"
   },
   {
    "denominator": null,
@@ -2790,7 +2780,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s70-d0-lp60]/m3/exit_depth",
    "unit": "base_units",
-   "value": 22471094545796000000000000
+   "value": 61233887013456000000000000
   },
   {
    "denominator": null,
@@ -2800,7 +2790,7 @@
    "section": "exit liquidity",
    "source_path": "stress/exit_depth/sensitivity_rows/[k=80]/depth_at_2pct",
    "unit": "base_units",
-   "value": 481779591623570838007654
+   "value": 735151843276086024291513
   },
   {
    "denominator": "frozen_set_tvl",
@@ -2820,7 +2810,7 @@
    "section": "exit liquidity",
    "source_path": "stress/exit_depth/sensitivity_rows/[k=90]/depth_at_2pct",
    "unit": "base_units",
-   "value": 481779591623570838007654
+   "value": 735151843276086024291513
   },
   {
    "denominator": "frozen_set_tvl",
@@ -2840,7 +2830,7 @@
    "section": "exit liquidity",
    "source_path": "stress/exit_depth/sensitivity_rows/[k=95]/depth_at_2pct",
    "unit": "base_units",
-   "value": 481779591623570838007654
+   "value": 735151843276086024291513
   },
   {
    "denominator": "frozen_set_tvl",
@@ -2890,7 +2880,7 @@
    "section": "exit liquidity",
    "source_path": "stress/exit_depth/depth_curve/[s=0.005]/total",
    "unit": "base_units",
-   "value": 22868657905853472237153579
+   "value": 61885139619309392212209236
   },
   {
    "denominator": null,
@@ -2900,7 +2890,7 @@
    "section": "exit liquidity",
    "source_path": "stress/exit_depth/depth_curve/[s=0.005]/pool_depth",
    "unit": "base_units",
-   "value": 397563360057472237153579
+   "value": 651252605853392212209236
   },
   {
    "denominator": null,
@@ -2910,7 +2900,7 @@
    "section": "exit liquidity",
    "source_path": "stress/exit_depth/depth_curve/[s=0.005]/gsm_contribution",
    "unit": "base_units",
-   "value": 22471094545796000000000000
+   "value": 61233887013456000000000000
   },
   {
    "denominator": "price_impact",
@@ -2930,7 +2920,7 @@
    "section": "exit liquidity",
    "source_path": "stress/exit_depth/depth_curve/[s=0.01]/total",
    "unit": "base_units",
-   "value": 22917749191255874005007440
+   "value": 61934238691382741281625467
   },
   {
    "denominator": null,
@@ -2940,7 +2930,7 @@
    "section": "exit liquidity",
    "source_path": "stress/exit_depth/depth_curve/[s=0.01]/pool_depth",
    "unit": "base_units",
-   "value": 446654645459874005007440
+   "value": 700351677926741281625467
   },
   {
    "denominator": null,
@@ -2950,7 +2940,7 @@
    "section": "exit liquidity",
    "source_path": "stress/exit_depth/depth_curve/[s=0.01]/gsm_contribution",
    "unit": "base_units",
-   "value": 22471094545796000000000000
+   "value": 61233887013456000000000000
   },
   {
    "denominator": "price_impact",
@@ -2970,7 +2960,7 @@
    "section": "exit liquidity",
    "source_path": "stress/exit_depth/depth_curve/[s=0.02]/total",
    "unit": "base_units",
-   "value": 22952874137419570838007654
+   "value": 61969038856732086024291513
   },
   {
    "denominator": null,
@@ -2980,7 +2970,7 @@
    "section": "exit liquidity",
    "source_path": "stress/exit_depth/depth_curve/[s=0.02]/pool_depth",
    "unit": "base_units",
-   "value": 481779591623570838007654
+   "value": 735151843276086024291513
   },
   {
    "denominator": null,
@@ -2990,7 +2980,7 @@
    "section": "exit liquidity",
    "source_path": "stress/exit_depth/depth_curve/[s=0.02]/gsm_contribution",
    "unit": "base_units",
-   "value": 22471094545796000000000000
+   "value": 61233887013456000000000000
   },
   {
    "denominator": "price_impact",
@@ -3010,7 +3000,7 @@
    "section": "exit liquidity",
    "source_path": "stress/exit_depth/depth_curve/[s=0.05]/total",
    "unit": "base_units",
-   "value": 22984983483613722916280782
+   "value": 62000803521049568034089971
   },
   {
    "denominator": null,
@@ -3020,7 +3010,7 @@
    "section": "exit liquidity",
    "source_path": "stress/exit_depth/depth_curve/[s=0.05]/pool_depth",
    "unit": "base_units",
-   "value": 513888937817722916280782
+   "value": 766916507593568034089971
   },
   {
    "denominator": null,
@@ -3030,7 +3020,7 @@
    "section": "exit liquidity",
    "source_path": "stress/exit_depth/depth_curve/[s=0.05]/gsm_contribution",
    "unit": "base_units",
-   "value": 22471094545796000000000000
+   "value": 61233887013456000000000000
   },
   {
    "denominator": null,
@@ -3050,7 +3040,7 @@
    "section": "exit liquidity",
    "source_path": "stress/exit_depth/gsm_venues/[gsm=0x3a3868898305f04bec7fea77becff04c13444112]/balance",
    "unit": "base_units",
-   "value": 34716000000000000
+   "value": 34817000000000000
   },
   {
    "denominator": null,
@@ -3080,7 +3070,7 @@
    "section": "exit liquidity",
    "source_path": "stress/exit_depth/gsm_venues/[gsm=0x882285e62656b9623af136ce3078c6bdcc33f5e3]/balance",
    "unit": "base_units",
-   "value": 22471094511080000000000000
+   "value": 61233886978639000000000000
   },
   {
    "denominator": null,
@@ -3150,7 +3140,7 @@
    "section": "exit liquidity",
    "source_path": "bundle/offvenue_share/dex_liquidity_total_discovered",
    "unit": "usd_whole",
-   "value": 35378938
+   "value": 26571350
   },
   {
    "denominator": null,
@@ -3160,7 +3150,7 @@
    "section": "exit liquidity",
    "source_path": "bundle/offvenue_share/curve_mainnet_liquidity",
    "unit": "usd_whole",
-   "value": 2481162
+   "value": 2431041
   },
   {
    "denominator": "dex_liquidity_total_discovered",
@@ -3170,7 +3160,7 @@
    "section": "exit liquidity",
    "source_path": "bundle/offvenue_share/x",
    "unit": "ratio",
-   "value": "0.9298689519736290557958523232"
+   "value": "0.9085089391393361647037128336"
   },
   {
    "denominator": null,
@@ -3180,7 +3170,7 @@
    "section": "exit liquidity",
    "source_path": "bundle/offvenue_share/literal",
    "unit": "literal",
-   "value": "93.0% of discovered DEX liquidity lies outside modeled venues"
+   "value": "90.9% of discovered DEX liquidity lies outside modeled venues"
   },
   {
    "denominator": null,
@@ -3200,7 +3190,7 @@
    "section": "exit liquidity",
    "source_path": "bundle/offvenue_share/date",
    "unit": "date",
-   "value": "2026-10-01"
+   "value": "2026-10-27"
   },
   {
    "denominator": null,
@@ -6715,7 +6705,7 @@
    "value": "n/a — archetype #1 holds no off-chain counterparties. WBTC custodian captured in §4 look-through."
   }
  ],
- "run_block": 26100308,
- "table_hash": "8d5d764b5dc8bc873e4a6bb151bc5d2d6565fea773a88d0bd8564f1184f7df0b",
+ "run_block": 26285165,
+ "table_hash": "568a63b89ccb041fcc604f6057761b3031b81f1463fdf0442646812bd4c78b5a",
  "token": "GHO"
 }

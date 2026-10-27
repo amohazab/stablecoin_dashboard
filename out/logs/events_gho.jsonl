@@ -23,3 +23,4 @@
 {"date":"2026-10-01","level":2,"resolution_date":"2026-10-01","resolution_type":"template_change","token":"GHO","trigger":"T-28","type":"quarantine"}
 {"bundle_hash":"2187b1c9c931baad4fcb742db45e96808d328a62fb24dbd3db5b37f374ecb83a","date":"2026-10-01","token":"GHO","type":"published"}
 {"date":"2026-10-27","set_file_hash":"062b5a0c","sheet_hash":"45614b2b","source":"P-10.14 — Q37 signed edit (P-10.13): GHO's sUSDe node row to the memo §4.1 analyzed-set link (sUSDe wraps USDe); rubric header re-stamp","token":"GHO","type":"intake_trigger"}
+{"bundle_hash":"a5823f7b7815fe8134daa614ceb85505c186fc1879a191cd8f367150e1817776","date":"2026-10-27","token":"GHO","type":"published"}
