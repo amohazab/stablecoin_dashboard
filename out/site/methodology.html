@@ -27,7 +27,7 @@
 
 <section>
 <h2>Gates, and why their log is public</h2>
-<p class="prose">A gate is a check that must pass before a report is published. A minor finding publishes with a visible notice; a serious one withholds the report, except where a recorded ruling published a page regardless. The two cases on this site are stated under Open notices. Every time a gate fires, a public log records the date, the token, what kind of check fired, how serious it was, and how it was resolved. Anyone can say their work is checked; a log of checks stopping reports is the evidence. The log below holds 41 entries.</p>
+<p class="prose">A gate is a check that must pass before a report is published. A minor finding publishes with a visible notice; a serious one withholds the report, except where a recorded ruling published a page regardless. The two cases on this site are stated under Open notices. Every time a gate fires, a public log records the date, the token, what kind of check fired, how serious it was, and how it was resolved. Anyone can say their work is checked; a log of checks stopping reports is the evidence. The log below holds 43 entries.</p>
 <p class="prose">The written summaries on each page come from a local language model under a guard that only lets through figures printed in the data table; no second model reviews them. When a draft does not pass that guard, its section shows a notice in place of the summary and the page still publishes, so the figures stay current. The deterministic checks run on every page.</p>
 </section>
 
@@ -106,7 +106,7 @@
 <tr><th>token</th><th>archetype</th><th>block</th><th>report</th><th class="num">checks passed</th><th>rubric rows</th><th>outcome</th><th>open log entries</th><th>gate record</th></tr>
 <tr><td><a href="crvUSD/index.html">crvUSD</a></td><td>collateralised debt position (archetype #1)</td><td>26284576</td><td><code title="0a14f96a037ff6b8842bd25b664871874b2bf80d19be702d6846c1072b1e2f21">0a14f96a</code></td><td class="num">89 of 90 evaluated, 6 not evaluated (judge withdrawn)</td><td>90 evaluated</td><td><code>published</code></td><td><code>crvUSD:17</code> T-28</td><td><a href="https://github.com/amohazab/stablecoin_dashboard/blob/master/out/evaluation/crvUSD/26284576.json">committed record</a></td></tr>
 <tr><td><a href="GHO/index.html">GHO</a></td><td>collateralised debt position (archetype #1)</td><td>26285165</td><td><code title="2a37417006e02f004b47078768f0ff6eff980f9bf69b8f6bc8b910edfc001a34">2a374170</code></td><td class="num">89 of 90 evaluated, 6 not evaluated (judge withdrawn)</td><td>90 evaluated</td><td><code>published</code></td><td><code>GHO:9</code> T-02, <code>GHO:10</code> T-20, <code>GHO:17</code> T-28</td><td><a href="https://github.com/amohazab/stablecoin_dashboard/blob/master/out/evaluation/GHO/26285165.json">committed record</a></td></tr>
-<tr><td><a href="LUSD/index.html">LUSD</a></td><td>collateralised debt position (archetype #1)</td><td>26107477</td><td><code title="ba9b2bb87138655e43907ea7fd7b6233e34e33c8be41c5c5ce690f8d66fbdecb">ba9b2bb8</code></td><td class="num">89 of 90 evaluated, 6 not evaluated (judge withdrawn)</td><td>90 evaluated</td><td><code>published</code></td><td><code>LUSD:17</code> T-28</td><td><a href="https://github.com/amohazab/stablecoin_dashboard/blob/master/out/evaluation/LUSD/26107477.json">committed record</a></td></tr>
+<tr><td><a href="LUSD/index.html">LUSD</a></td><td>collateralised debt position (archetype #1)</td><td>26107477</td><td><code title="ba9b2bb87138655e43907ea7fd7b6233e34e33c8be41c5c5ce690f8d66fbdecb">ba9b2bb8</code></td><td class="num">89 of 90 evaluated, 6 not evaluated (judge withdrawn)</td><td>90 evaluated</td><td><code>published</code></td><td><code>LUSD:21</code> T-28</td><td><a href="https://github.com/amohazab/stablecoin_dashboard/blob/master/out/evaluation/LUSD/26107477.json">committed record</a></td></tr>
 <tr><td><a href="USDe/index.html">USDe</a></td><td>synthetic dollar (archetype #2)</td><td>26275087</td><td><code title="321ca99aac237b8dd5a59d1cff879ae999fbd9caa23e1e423843968e3424132e">321ca99a</code></td><td class="num">61 of 62 evaluated, 6 not evaluated (judge withdrawn)</td><td>62 evaluated, 29 not applicable (archetype #2), 1 new</td><td><code>published</code></td><td><code>USDe:4</code> T-07, <code>USDe:6</code> T-28</td><td><a href="https://github.com/amohazab/stablecoin_dashboard/blob/master/out/evaluation/USDe/26275087.json">committed record</a></td></tr>
 
 </table>
@@ -116,12 +116,12 @@
 <details>
 <summary>Sources for the behavioral tier</summary>
 <ul class="plain"><li><code>/rwa/{address}?chain=eth&amp;hours=168</code>: the depeg snapshot, its seven-day history, DEX liquidity (total and depth tier) and the Ethereum DEX pools list</li><li><code>/rwa/hci?chain=eth&amp;pageSize=500</code>: holder concentration, matched by contract address</li><li><code>/rwa/supply/{symbol}</code>: the net supply change over 7, 30 and 90 days, used only when the returned row&#39;s Ethereum address is the token&#39;s</li></ul>
-<p class="prose">Latest snapshot per token, committed trimmed to the fields the page uses (and the undocumented cost-to-move pair, stored only), with the sha256 of every full response: <a href="https://github.com/amohazab/stablecoin_dashboard/blob/master/out/behavioral/crvUSD/20261027T173958Z.json"><code>out/behavioral/crvUSD/20261027T173958Z.json</code></a> · <a href="https://github.com/amohazab/stablecoin_dashboard/blob/master/out/behavioral/GHO/20261027T173958Z.json"><code>out/behavioral/GHO/20261027T173958Z.json</code></a> · <a href="https://github.com/amohazab/stablecoin_dashboard/blob/master/out/behavioral/LUSD/20261027T173958Z.json"><code>out/behavioral/LUSD/20261027T173958Z.json</code></a> · <a href="https://github.com/amohazab/stablecoin_dashboard/blob/master/out/behavioral/USDe/20261027T173958Z.json"><code>out/behavioral/USDe/20261027T173958Z.json</code></a>. Each token page's block is rebuilt from its snapshot when the site is built (rubric amendment A-20).</p>
+<p class="prose">Latest snapshot per token, committed trimmed to the fields the page uses (and the undocumented cost-to-move pair, stored only), with the sha256 of every full response: <a href="https://github.com/amohazab/stablecoin_dashboard/blob/master/out/behavioral/crvUSD/20261027T181455Z.json"><code>out/behavioral/crvUSD/20261027T181455Z.json</code></a> · <a href="https://github.com/amohazab/stablecoin_dashboard/blob/master/out/behavioral/GHO/20261027T181455Z.json"><code>out/behavioral/GHO/20261027T181455Z.json</code></a> · <a href="https://github.com/amohazab/stablecoin_dashboard/blob/master/out/behavioral/LUSD/20261027T181455Z.json"><code>out/behavioral/LUSD/20261027T181455Z.json</code></a> · <a href="https://github.com/amohazab/stablecoin_dashboard/blob/master/out/behavioral/USDe/20261027T181455Z.json"><code>out/behavioral/USDe/20261027T181455Z.json</code></a>. Each token page's block is rebuilt from its snapshot when the site is built (rubric amendment A-20).</p>
 <p class="prose">Holder-concentration history is not offered by Webacy&#39;s API: its OpenAPI specification (v1.7.3) has no history endpoint or parameter for /rwa/hci, so no concentration chart is drawn.</p>
 </details>
 
 <details>
-<summary>The public log (41 rows)</summary>
+<summary>The public log (43 rows)</summary>
 <table class="striped">
 <tr><th>entry</th><th>date</th><th>token</th><th>category</th><th>trigger</th><th class="num">level</th><th>resolution type</th><th>resolution date</th><th>status</th></tr>
 <tr class="log-row"><td><code>crvUSD:10</code></td><td>2026-09-14</td><td>crvUSD</td><td>gate failure</td><td>T-28</td><td class="num">2</td><td>—</td><td>—</td><td>resolved by crvUSD:23</td></tr>
@@ -159,15 +159,17 @@
 <tr class="log-row"><td><code>LUSD:9</code></td><td>2026-09-14</td><td>LUSD</td><td>gate failure</td><td>T-28</td><td class="num">2</td><td>template change</td><td>2026-09-14</td><td>resolution of LUSD:7</td></tr>
 <tr class="log-row"><td><code>LUSD:10</code></td><td>2026-09-14</td><td>LUSD</td><td>judge instability</td><td>T-24</td><td class="num">2</td><td>template change</td><td>2026-09-14</td><td>resolution of LUSD:8</td></tr>
 <tr class="log-row"><td><code>LUSD:16</code></td><td>2026-10-02</td><td>LUSD</td><td>gate failure</td><td>T-28</td><td class="num">2</td><td>—</td><td>—</td><td>resolved by LUSD:18</td></tr>
-<tr class="log-row"><td><code>LUSD:17</code></td><td>2026-10-02</td><td>LUSD</td><td>gate failure</td><td>T-28</td><td class="num">1</td><td>—</td><td>—</td><td>open</td></tr>
+<tr class="log-row"><td><code>LUSD:17</code></td><td>2026-10-02</td><td>LUSD</td><td>gate failure</td><td>T-28</td><td class="num">1</td><td>—</td><td>—</td><td>resolved by LUSD:22</td></tr>
 <tr class="log-row"><td><code>LUSD:18</code></td><td>2026-10-02</td><td>LUSD</td><td>gate failure</td><td>T-28</td><td class="num">2</td><td>template change</td><td>2026-10-02</td><td>resolution of LUSD:16</td></tr>
+<tr class="log-row"><td><code>LUSD:21</code></td><td>2026-10-27</td><td>LUSD</td><td>gate failure</td><td>T-28</td><td class="num">2</td><td>—</td><td>—</td><td>open</td></tr>
+<tr class="log-row"><td><code>LUSD:22</code></td><td>2026-10-02</td><td>LUSD</td><td>gate failure</td><td>T-28</td><td class="num">1</td><td>data correction</td><td>2026-10-27</td><td>resolution of LUSD:17</td></tr>
 <tr class="log-row"><td><code>USDe:4</code></td><td>2026-10-26</td><td>USDe</td><td>mechanism near bound</td><td>T-07</td><td class="num">1</td><td>—</td><td>—</td><td>open</td></tr>
 <tr class="log-row"><td><code>USDe:6</code></td><td>2026-10-26</td><td>USDe</td><td>gate failure</td><td>T-28</td><td class="num">1</td><td>—</td><td>—</td><td>open</td></tr>
 <tr class="log-row"><td><code>USDe:9</code></td><td>2026-10-26</td><td>USDe</td><td>gate integrity</td><td>T-23</td><td class="num">2</td><td>—</td><td>—</td><td>resolved by USDe:10</td></tr>
 <tr class="log-row"><td><code>USDe:10</code></td><td>2026-10-26</td><td>USDe</td><td>gate integrity</td><td>T-23</td><td class="num">2</td><td>template change</td><td>2026-10-26</td><td>resolution of USDe:9</td></tr>
 
 </table>
-<p class="meta">41 rows, one per quarantine line in the token logs.</p>
+<p class="meta">43 rows, one per quarantine line in the token logs.</p>
 </details>
 
 <nav class="links">
