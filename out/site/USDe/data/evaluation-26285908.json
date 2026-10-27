@@ -1,0 +1,827 @@
+{
+ "bundle_hash": "40321167d1cf8a70396ef2da3077e98fa86855fec791b895e504f2d5e86914c7",
+ "generation": [
+  {
+   "calls": [
+    {
+     "digest": "c97eb11d70b1acdc88af01eef566c1fe4f7fbe93eb1afc06871132f293ff425a",
+     "done_reason": "stop",
+     "eval_count": 137,
+     "eval_duration": 17642903000,
+     "input_hash": "cf668ed51c126211c67be1694f2323b6b4b192714d890f052edcb1ad613d8d22",
+     "model": "qwen3.5:9b",
+     "num_ctx": 32768,
+     "num_predict": 2000,
+     "ollama_version": "0.40.4",
+     "prompt_eval_count": 3273,
+     "prompt_eval_duration": 71936617000,
+     "prompt_hash": "93847c307fd88bd6af95f4a2ea029989e8e5d93c8333d82fec03b5b9836691cc",
+     "sampling": {
+      "seed": 0,
+      "temperature": 0
+     },
+     "think": false,
+     "total_duration": 97745945300,
+     "wall_s": 99.8
+    }
+   ],
+   "digest": "c97eb11d70b1acdc88af01eef566c1fe4f7fbe93eb1afc06871132f293ff425a",
+   "done_reason": "stop",
+   "eval_count": 137,
+   "eval_duration": 17642903000,
+   "input_hash": "cf668ed51c126211c67be1694f2323b6b4b192714d890f052edcb1ad613d8d22",
+   "model": "qwen3.5:9b",
+   "num_ctx": 32768,
+   "num_predict": 2000,
+   "ollama_version": "0.40.4",
+   "pass": 1,
+   "prompt_eval_count": 3273,
+   "prompt_eval_duration": 71936617000,
+   "prompt_hash": "93847c307fd88bd6af95f4a2ea029989e8e5d93c8333d82fec03b5b9836691cc",
+   "reasks": 0,
+   "references_added": [],
+   "references_field_ids": [
+    "verif.bar.disclosure_dependent",
+    "stress.headline.row1",
+    "cell.S1-n90.post_loss_ratio",
+    "stress.headline.row2",
+    "cell.S2-a.post_loss_ratio",
+    "stress.headline.row3"
+   ],
+   "rejected": [],
+   "sampling": {
+    "seed": 0,
+    "temperature": 0
+   },
+   "slot": "structural_summary",
+   "text": "This token's backing is held off-chain by its issuer and can only be checked through the issuer's disclosures, so all of it sits in the disclosure-dependent class. The three stress rows show that S1-n90 leaves a post loss ratio of 100.1%, S2-a leaves a post loss ratio of 89.5%, and S3 shows a depeg pressure ratio of 0.",
+   "think": false,
+   "total_duration": 97745945300,
+   "wall_s": 99.8
+  },
+  {
+   "calls": [
+    {
+     "digest": "c97eb11d70b1acdc88af01eef566c1fe4f7fbe93eb1afc06871132f293ff425a",
+     "done_reason": "stop",
+     "eval_count": 113,
+     "eval_duration": 14204044000,
+     "input_hash": "12a6b8a6db164f185f68b488294d0a427bd8a8c83634753d8715f3103a861dbd",
+     "model": "qwen3.5:9b",
+     "num_ctx": 32768,
+     "num_predict": 2000,
+     "ollama_version": "0.40.4",
+     "prompt_eval_count": 1923,
+     "prompt_eval_duration": 42095770000,
+     "prompt_hash": "93847c307fd88bd6af95f4a2ea029989e8e5d93c8333d82fec03b5b9836691cc",
+     "sampling": {
+      "seed": 0,
+      "temperature": 0
+     },
+     "think": false,
+     "total_duration": 56379575900,
+     "wall_s": 58.4
+    },
+    {
+     "digest": "c97eb11d70b1acdc88af01eef566c1fe4f7fbe93eb1afc06871132f293ff425a",
+     "done_reason": "stop",
+     "eval_count": 207,
+     "eval_duration": 26600556000,
+     "input_hash": "7cf4ee635533b9404fbee4e7450bfa19e87dd837bcfa33fcd8ea735b960c9e1e",
+     "model": "qwen3.5:9b",
+     "num_ctx": 32768,
+     "num_predict": 2000,
+     "ollama_version": "0.40.4",
+     "prompt_eval_count": 2255,
+     "prompt_eval_duration": 31681693000,
+     "prompt_hash": "93847c307fd88bd6af95f4a2ea029989e8e5d93c8333d82fec03b5b9836691cc",
+     "sampling": {
+      "seed": 0,
+      "temperature": 0
+     },
+     "think": false,
+     "total_duration": 58302757300,
+     "wall_s": 60.4
+    },
+    {
+     "digest": "c97eb11d70b1acdc88af01eef566c1fe4f7fbe93eb1afc06871132f293ff425a",
+     "done_reason": "stop",
+     "eval_count": 110,
+     "eval_duration": 13980663000,
+     "input_hash": "03dd969af94e746ec09c089135d6980a04475c2389b542347a18a2138a77177b",
+     "model": "qwen3.5:9b",
+     "num_ctx": 32768,
+     "num_predict": 2000,
+     "ollama_version": "0.40.4",
+     "prompt_eval_count": 1901,
+     "prompt_eval_duration": 17178389000,
+     "prompt_hash": "93847c307fd88bd6af95f4a2ea029989e8e5d93c8333d82fec03b5b9836691cc",
+     "sampling": {
+      "seed": 0,
+      "temperature": 0
+     },
+     "think": false,
+     "total_duration": 31174594100,
+     "wall_s": 33.2
+    }
+   ],
+   "digest": "c97eb11d70b1acdc88af01eef566c1fe4f7fbe93eb1afc06871132f293ff425a",
+   "eval_count": 430,
+   "model": "qwen3.5:9b",
+   "num_ctx": 32768,
+   "num_predict": 2000,
+   "ollama_version": "0.40.4",
+   "parts": [
+    {
+     "part": {
+      "index": 0,
+      "mechanism": "The hedge earns funding; a sustained negative rate is the loss that fits a basis book.",
+      "of": 3,
+      "row": "Row 1 funding reversal"
+     },
+     "reasks": 0,
+     "text": "The hedge earns funding; a sustained negative rate is the loss that fits a basis book. For Row 1 funding reversal, the S1-n90 loss is $46.8M and the S1-n90 reserve fund absorbed is $46.8M, leaving an S1-n90 post loss ratio of 100.1%."
+    },
+    {
+     "part": {
+      "index": 1,
+      "mechanism": "Backing sits at named custodians and venues; losing one is the failure custody concentration implies.",
+      "of": 3,
+      "row": "Row 2 venue loss"
+     },
+     "reasks": 0,
+     "text": "Backing sits at named custodians and venues; losing one is the failure custody concentration implies. A loss of $544.4M at Copper leaves a post-loss ratio of 89.5% after the reserve fund absorbs $62.1M, while a separate loss of $147.4M at Binance leaves a post-loss ratio of 98.2% after the same reserve fund absorbs $62.1M."
+    },
+    {
+     "part": {
+      "index": 2,
+      "mechanism": "Redemption is whitelisted and rate-capped; a run tests the liquid buffer and the exit pools together.",
+      "of": 3,
+      "row": "Row 3 redemptions"
+     },
+     "reasks": 0,
+     "text": "This shock tests the liquid buffer and the exit pools together because redemption is whitelisted and rate-capped. The run triggers redemptions of $608.1M against a capacity to redeem of $834.1M, leaving an exit depth of $20.9M and a depeg-pressure ratio of 0."
+    }
+   ],
+   "pass": 1,
+   "prompt_eval_count": 6079,
+   "prompt_hash": "93847c307fd88bd6af95f4a2ea029989e8e5d93c8333d82fec03b5b9836691cc",
+   "reasks": 0,
+   "references_field_ids": [
+    "cell.S1-n90.loss",
+    "cell.S1-n90.rf_absorbed",
+    "cell.S1-n90.post_loss_ratio",
+    "cell.S2-a.loss",
+    "cell.S2-a.post_loss_ratio",
+    "cell.S2-a.location",
+    "cell.S2-a.location_total",
+    "cell.S2-a.rf_absorbed",
+    "cell.S2-b.loss",
+    "cell.S2-b.post_loss_ratio",
+    "cell.S2-b.exchange",
+    "cell.S2-b.rf_absorbed",
+    "cell.S3.X",
+    "cell.S3.capacity_redeem",
+    "cell.S3.exit_depth_2pct",
+    "cell.S3.depeg_pressure_ratio"
+   ],
+   "rejected": [],
+   "sampling": {
+    "seed": 0,
+    "temperature": 0
+   },
+   "slot": "stress_opening",
+   "text": "The hedge earns funding; a sustained negative rate is the loss that fits a basis book. For Row 1 funding reversal, the S1-n90 loss is $46.8M and the S1-n90 reserve fund absorbed is $46.8M, leaving an S1-n90 post loss ratio of 100.1%.\n\nBacking sits at named custodians and venues; losing one is the failure custody concentration implies. A loss of $544.4M at Copper leaves a post-loss ratio of 89.5% after the reserve fund absorbs $62.1M, while a separate loss of $147.4M at Binance leaves a post-loss ratio of 98.2% after the same reserve fund absorbs $62.1M.\n\nThis shock tests the liquid buffer and the exit pools together because redemption is whitelisted and rate-capped. The run triggers redemptions of $608.1M against a capacity to redeem of $834.1M, leaving an exit depth of $20.9M and a depeg-pressure ratio of 0.",
+   "think": false
+  },
+  {
+   "calls": [
+    {
+     "digest": "c97eb11d70b1acdc88af01eef566c1fe4f7fbe93eb1afc06871132f293ff425a",
+     "done_reason": "stop",
+     "eval_count": 145,
+     "eval_duration": 18122549000,
+     "input_hash": "d3412e9ce27efeac1e81daa8205f84e546504dff56efaaf91d9a0b7c4ce30dfe",
+     "model": "qwen3.5:9b",
+     "num_ctx": 32768,
+     "num_predict": 2000,
+     "ollama_version": "0.40.4",
+     "prompt_eval_count": 2040,
+     "prompt_eval_duration": 45220482000,
+     "prompt_hash": "93847c307fd88bd6af95f4a2ea029989e8e5d93c8333d82fec03b5b9836691cc",
+     "sampling": {
+      "seed": 0,
+      "temperature": 0
+     },
+     "think": false,
+     "total_duration": 63402003600,
+     "wall_s": 65.5
+    }
+   ],
+   "digest": "c97eb11d70b1acdc88af01eef566c1fe4f7fbe93eb1afc06871132f293ff425a",
+   "eval_count": 145,
+   "model": "qwen3.5:9b",
+   "num_ctx": 32768,
+   "num_predict": 2000,
+   "ollama_version": "0.40.4",
+   "parts": [
+    {
+     "part": {
+      "comparisons": [
+       "reserve fund 1.36% of supply, above its 0.50% floor",
+       "backing 100.08% of supply, below its 101.00% floor"
+      ],
+      "flag": "USDe:4",
+      "index": 0,
+      "of": 1,
+      "rule": "Near bound — backing ratio < 101% or reserve fund < 0.5% of supply — Level 1 (memo #2 §8(d))."
+     },
+     "reasks": 0,
+     "text": "The notice for USDe:4 fired because the mechanism is near a bound, as stated in its literal meaning. The backing ratio sits at 100.08%, which falls below the 101.00% floor shown in the data. At the same time, the reserve fund stands at 1.36% of supply, also below its 0.50% floor. A reader should take this as a signal that two separate metrics have dropped beneath their required limits."
+    }
+   ],
+   "pass": 1,
+   "prompt_eval_count": 2040,
+   "prompt_hash": "93847c307fd88bd6af95f4a2ea029989e8e5d93c8333d82fec03b5b9836691cc",
+   "reasks": 0,
+   "references_field_ids": [
+    "near_bound.backing_ratio",
+    "near_bound.reserve_fund_ratio",
+    "near_bound.backing_ratio_bound",
+    "near_bound.reserve_fund_ratio_bound"
+   ],
+   "rejected": [],
+   "sampling": {
+    "seed": 0,
+    "temperature": 0
+   },
+   "slot": "flag_explanations",
+   "text": "The notice for USDe:4 fired because the mechanism is near a bound, as stated in its literal meaning. The backing ratio sits at 100.08%, which falls below the 101.00% floor shown in the data. At the same time, the reserve fund stands at 1.36% of supply, also below its 0.50% floor. A reader should take this as a signal that two separate metrics have dropped beneath their required limits.",
+   "think": false
+  }
+ ],
+ "judge": [
+  {
+   "not_evaluated": "judge withdrawn (P-8.05): the local model failed the Q13 control",
+   "pass": 1
+  }
+ ],
+ "llm": {
+  "backend": "ollama",
+  "digest": "c97eb11d70b1acdc88af01eef566c1fe4f7fbe93eb1afc06871132f293ff425a",
+  "model": "qwen3.5:9b",
+  "version": "0.40.4"
+ },
+ "not_applicable": [
+  {
+   "entry_id": "DET-03",
+   "reason": "archetype #2"
+  },
+  {
+   "entry_id": "DET-07",
+   "reason": "archetype #2"
+  },
+  {
+   "entry_id": "DET-20",
+   "reason": "archetype #2"
+  },
+  {
+   "entry_id": "DET-21",
+   "reason": "archetype #2"
+  },
+  {
+   "entry_id": "DET-71",
+   "reason": "archetype #2"
+  },
+  {
+   "entry_id": "DET-82",
+   "reason": "archetype #2"
+  },
+  {
+   "entry_id": "DET-06",
+   "reason": "archetype #2"
+  },
+  {
+   "entry_id": "DET-28",
+   "reason": "archetype #2"
+  },
+  {
+   "entry_id": "DET-05",
+   "reason": "archetype #2"
+  },
+  {
+   "entry_id": "DET-35",
+   "reason": "archetype #2"
+  },
+  {
+   "entry_id": "DET-50",
+   "reason": "archetype #2"
+  },
+  {
+   "entry_id": "DET-45",
+   "reason": "archetype #2"
+  },
+  {
+   "entry_id": "DET-26",
+   "reason": "archetype #2"
+  },
+  {
+   "entry_id": "DET-27",
+   "reason": "archetype #2"
+  },
+  {
+   "entry_id": "DET-23c",
+   "reason": "archetype #2"
+  },
+  {
+   "entry_id": "DET-25",
+   "reason": "archetype #2"
+  },
+  {
+   "entry_id": "DET-37",
+   "reason": "archetype #2"
+  },
+  {
+   "entry_id": "DET-38",
+   "reason": "archetype #2"
+  },
+  {
+   "entry_id": "DET-39",
+   "reason": "archetype #2"
+  },
+  {
+   "entry_id": "DET-40",
+   "reason": "archetype #2"
+  },
+  {
+   "entry_id": "DET-41",
+   "reason": "archetype #2"
+  },
+  {
+   "entry_id": "DET-42",
+   "reason": "archetype #2"
+  },
+  {
+   "entry_id": "DET-43",
+   "reason": "archetype #2"
+  },
+  {
+   "entry_id": "DET-48",
+   "reason": "archetype #2"
+  },
+  {
+   "entry_id": "DET-49",
+   "reason": "archetype #2"
+  },
+  {
+   "entry_id": "DET-46",
+   "reason": "archetype #2"
+  },
+  {
+   "entry_id": "DET-47",
+   "reason": "archetype #2"
+  },
+  {
+   "entry_id": "DET-51",
+   "reason": "archetype #2"
+  },
+  {
+   "entry_id": "DET-36",
+   "reason": "archetype #2"
+  }
+ ],
+ "outcome": "published",
+ "pass2_skipped": null,
+ "pipeline_version": "0.1.0",
+ "publication": null,
+ "report_hash": "7b2604e7a3caa45043ec97d853db66aead99bee0361e3eb41353daa7703f185d",
+ "results": [
+  {
+   "entry_id": "DET-02",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S0"
+  },
+  {
+   "entry_id": "DET-12",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S0"
+  },
+  {
+   "entry_id": "DET-77",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S0"
+  },
+  {
+   "entry_id": "DET-83",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S1"
+  },
+  {
+   "entry_id": "DET-86",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S1"
+  },
+  {
+   "entry_id": "DET-01",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S1"
+  },
+  {
+   "entry_id": "DET-04",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S1"
+  },
+  {
+   "entry_id": "DET-33",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S1"
+  },
+  {
+   "entry_id": "DET-55",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S1"
+  },
+  {
+   "entry_id": "DET-61",
+   "result": "pass",
+   "scope_condition": "T-07 (L1)",
+   "stage": "S1"
+  },
+  {
+   "entry_id": "DET-62",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S1"
+  },
+  {
+   "entry_id": "DET-63",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S1"
+  },
+  {
+   "entry_id": "DET-65",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S1"
+  },
+  {
+   "entry_id": "DET-66",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S1"
+  },
+  {
+   "entry_id": "DET-68",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S1"
+  },
+  {
+   "entry_id": "DET-08",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S1"
+  },
+  {
+   "entry_id": "DET-10",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S1"
+  },
+  {
+   "entry_id": "DET-29a",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S1"
+  },
+  {
+   "entry_id": "DET-76e",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S1"
+  },
+  {
+   "entry_id": "DET-90",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S1"
+  },
+  {
+   "entry_id": "DET-52",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S1"
+  },
+  {
+   "entry_id": "DET-14",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-19",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-70",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-11",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-16",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-22",
+   "result": "pass",
+   "scope_condition": "no stabilizer operations: slice 0, ceiling 0 (R-9)",
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-34",
+   "result": "pass",
+   "scope_condition": "1 above-floor non-F rows reasoned; below_dust_floor at freeze is the set file's (freeze.build_freeze)",
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-67",
+   "result": "pass",
+   "scope_condition": "1 paths derive exactly",
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-72",
+   "result": "pass",
+   "scope_condition": "1 on-chain paths consistent",
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-15",
+   "result": "pass",
+   "scope_condition": "residual 0 = 0 named causes 0 + unexplained 0 (0.000000% of supply_ruled)",
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-32",
+   "result": "pass",
+   "scope_condition": "X 0.218977 (36226293 / 46383127), no trigger; fetched 2026-10-27",
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-24",
+   "result": "pass",
+   "scope_condition": "DET-24(a) asserted as provenance, not value equality: `pool_composition_at_block` does not exist on the bundle (R-B2.5)",
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-29bc",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-30",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-31",
+   "result": "pass",
+   "scope_condition": null,
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-69",
+   "result": "pass",
+   "scope_condition": "marked == consumed == ['set_ceiling', 'set_parameters']",
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-32-lineage",
+   "result": "pass",
+   "scope_condition": "no offvenue_* in 0 cell lineages or exit_depth reads",
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-44",
+   "result": "pass",
+   "scope_condition": "6 cells; row 1 and row 3 lines present (A-45)",
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-84",
+   "result": "pass",
+   "scope_condition": "516 rows replay from their owners; table_hash 9c3f888d",
+   "stage": "S2"
+  },
+  {
+   "entry_id": "DET-14cd",
+   "result": "pass",
+   "scope_condition": "3 segments printed, sum 100.0",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "DET-22-S3",
+   "result": "pass",
+   "scope_condition": "slice row, ceiling bound, 0 operation row(s)",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "DET-29c",
+   "result": "pass",
+   "scope_condition": "K90 share 1; one-liner printed",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "DET-17",
+   "result": "pass",
+   "scope_condition": "three bars in order; 2 truncated reason(s)",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "DET-18",
+   "result": "pass",
+   "scope_condition": "D = 4 node(s)",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "DET-53",
+   "result": "pass",
+   "scope_condition": "4 rows rendered; four literals present; capacity lineage entries: 0",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "DET-54",
+   "result": "pass",
+   "scope_condition": "attested value; buffer label rows at par",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "DET-56",
+   "result": "pass",
+   "scope_condition": "archetype-#2 scope-out sentences printed",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "DET-57",
+   "result": "pass",
+   "scope_condition": "8 required IDs (A-36)",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "DET-73",
+   "result": "pass",
+   "scope_condition": "10 audits; bounty; lmc yes; staleness_date 2026-10-25; enumeration",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "DET-74",
+   "result": "pass",
+   "scope_condition": "class I 2 value(s) dated; class D dates printed; class S absent (M1 is a memo tag)",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "DET-79",
+   "result": "pass",
+   "scope_condition": "17 literals, 4 patterns, 0 matches",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "DET-88",
+   "result": "pass",
+   "scope_condition": "no grade, score, letter or verdict field",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "DET-89",
+   "result": "pass",
+   "scope_condition": "display rule emitted; decimals() read; every figure a fmt output",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "DET-12-S3",
+   "result": "pass",
+   "scope_condition": "1 trigger(s) on the flags line; log entries on the printed table",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "DET-58",
+   "result": "pass",
+   "scope_condition": "1 open Level-1 entr(ies) flagged",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "DET-59",
+   "result": "pass",
+   "scope_condition": "no open Level 2/3 entry; no banner",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "DET-60",
+   "result": "pass",
+   "scope_condition": "5 quarantine line(s); every fired trigger has one entry",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "DET-87",
+   "result": "pass",
+   "scope_condition": "manifest hashes present; 2 resolution(s) evidenced",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "DET-80",
+   "result": "pass",
+   "scope_condition": "3 slots present and bounded",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "LLM-01",
+   "result": "not_evaluated",
+   "scope_condition": "judge withdrawn (P-8.05): the local model failed the Q13 control",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "LLM-02",
+   "result": "not_evaluated",
+   "scope_condition": "judge withdrawn (P-8.05): the local model failed the Q13 control",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "LLM-03",
+   "result": "not_evaluated",
+   "scope_condition": "judge withdrawn (P-8.05): the local model failed the Q13 control",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "LLM-04",
+   "result": "not_evaluated",
+   "scope_condition": "judge withdrawn (P-8.05): the local model failed the Q13 control",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "LLM-05",
+   "result": "not_evaluated",
+   "scope_condition": "judge withdrawn (P-8.05): the local model failed the Q13 control",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "LLM-06",
+   "result": "not_evaluated",
+   "scope_condition": "judge withdrawn (P-8.05): the local model failed the Q13 control",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "DET-85",
+   "result": "pass",
+   "scope_condition": "66 results, no error",
+   "stage": "S3"
+  },
+  {
+   "entry_id": "DET-13",
+   "result": "pass",
+   "scope_condition": "(a)-(e), (g) hold over 67 results; (f) vacuous: DET-09 unregistered (A-16)",
+   "stage": "S3"
+  }
+ ],
+ "revision_cause": [],
+ "revision_count": 0,
+ "rubric_hash": "833a0be7",
+ "run_block": 26285908,
+ "sheet_hash": "a2e270cd",
+ "slots_missing": [],
+ "stress_hash": "79404880a345e268aa06bbc267b0e81b37f7400b63ba9eca9bdc8b947bfca89b",
+ "table_hash": "9c3f888de89782a6ab6c14daa682430a3dc249568809be48ae6344c9c9192997",
+ "template_hash": "3b41febec0120819698d78a3b44bbe2637b42d795af56e0b37f246a198c73482",
+ "token": "USDe",
+ "tree_hash": "1e021bc7ff4370dd9b824fb75526efc15d6741835bfe486314eb6d2855f32cfb",
+ "triggers": [
+  {
+   "level": 1,
+   "source_entry": "DET-61",
+   "trigger": "T-07"
+  }
+ ],
+ "unregistered": []
+}

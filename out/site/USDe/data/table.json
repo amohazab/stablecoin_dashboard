@@ -106,7 +106,7 @@
    "section": "header",
    "source_path": "bundle/header/run_block",
    "unit": "block",
-   "value": 26275087
+   "value": 26285908
   },
   {
    "denominator": null,
@@ -116,7 +116,7 @@
    "section": "header",
    "source_path": "bundle/header/block_timestamp",
    "unit": "unix_s",
-   "value": 1792996307
+   "value": 1793126483
   },
   {
    "denominator": null,
@@ -136,7 +136,7 @@
    "section": "header",
    "source_path": "bundle/header/bundle_hash",
    "unit": "hash",
-   "value": "f7814ee9f41a773f7dee8c18df23aaa9b2268d3269e3a399c9c597935086c674"
+   "value": "40321167d1cf8a70396ef2da3077e98fa86855fec791b895e504f2d5e86914c7"
   },
   {
    "denominator": null,
@@ -166,7 +166,7 @@
    "section": "header",
    "source_path": "tree/tree_hash",
    "unit": "hash",
-   "value": "ef278abd27fab9d49ea769472f1616d9619bdbe139af7acd4d06374fddec1856"
+   "value": "1e021bc7ff4370dd9b824fb75526efc15d6741835bfe486314eb6d2855f32cfb"
   },
   {
    "denominator": null,
@@ -176,7 +176,7 @@
    "section": "header",
    "source_path": "stress/header/stress_hash",
    "unit": "hash",
-   "value": "9bf648293d9b34e33b746389a29a2c7c91e1e534c4dde47c1f2afee8dc063a22"
+   "value": "79404880a345e268aa06bbc267b0e81b37f7400b63ba9eca9bdc8b947bfca89b"
   },
   {
    "denominator": null,
@@ -186,7 +186,7 @@
    "section": "header",
    "source_path": "bundle/synthetic/reads/FR-U21/value/as_of",
    "unit": "literal",
-   "value": "2026-10-26T05:59:53.000000Z"
+   "value": "2026-10-27T14:59:03.000000Z"
   },
   {
    "denominator": null,
@@ -236,7 +236,7 @@
    "section": "verifiability",
    "source_path": "tree/truncated_share",
    "unit": "ratio",
-   "value": "0.4060444619680709234467460642"
+   "value": "0.3916956725594045796418258493"
   },
   {
    "denominator": "backing_value",
@@ -246,7 +246,7 @@
    "section": "verifiability",
    "source_path": "tree/truncated_nodes/[category=DeFi Lending]/share",
    "unit": "ratio",
-   "value": "0.3440472940175386944673222887"
+   "value": "0.3294791051843665608043383555"
   },
   {
    "denominator": null,
@@ -266,7 +266,7 @@
    "section": "verifiability",
    "source_path": "tree/truncated_nodes/[category=RWA]/share",
    "unit": "ratio",
-   "value": "0.06199716795053222897942377553"
+   "value": "0.06221656737503801883748749373"
   },
   {
    "denominator": null,
@@ -306,7 +306,7 @@
    "section": "verifiability",
    "source_path": "tree/staleness/weighted_days",
    "unit": "days",
-   "value": "70.86933155339508488374144754"
+   "value": "72.17759485785674235595309714"
   },
   {
    "denominator": null,
@@ -326,7 +326,7 @@
    "section": "verifiability",
    "source_path": "tree/staleness/companion",
    "unit": "literal",
-   "value": "40.6% of backing depth-truncated — staleness not assessed"
+   "value": "39.2% of backing depth-truncated — staleness not assessed"
   },
   {
    "denominator": null,
@@ -346,7 +346,7 @@
    "section": "verifiability",
    "source_path": "tree/staleness/worst/days",
    "unit": "days",
-   "value": 118
+   "value": 119
   },
   {
    "denominator": "backing_value",
@@ -356,7 +356,7 @@
    "section": "verifiability",
    "source_path": "tree/staleness/worst/share",
    "unit": "ratio",
-   "value": "0.2794215882003820501244970912"
+   "value": "0.2882788030682074321049954956"
   },
   {
    "denominator": null,
@@ -376,7 +376,7 @@
    "section": "verifiability",
    "source_path": "tree/staleness/D/[category=Crypto Basis]/staleness_days",
    "unit": "days",
-   "value": 29
+   "value": 30
   },
   {
    "denominator": "backing_value",
@@ -386,7 +386,7 @@
    "section": "verifiability",
    "source_path": "tree/staleness/D/[category=Crypto Basis]/share",
    "unit": "ratio",
-   "value": "0.1499705393849060144360308602"
+   "value": "0.1549404235628186507372198774"
   },
   {
    "denominator": null,
@@ -406,7 +406,7 @@
    "section": "verifiability",
    "source_path": "tree/staleness/D/[category=Equity and RWA Basis]/staleness_days",
    "unit": "days",
-   "value": 29
+   "value": 30
   },
   {
    "denominator": "backing_value",
@@ -416,7 +416,7 @@
    "section": "verifiability",
    "source_path": "tree/staleness/D/[category=Equity and RWA Basis]/share",
    "unit": "ratio",
-   "value": "0.01109543155358797671622600823"
+   "value": "0.01113128384963025043041354381"
   },
   {
    "denominator": null,
@@ -436,7 +436,7 @@
    "section": "verifiability",
    "source_path": "tree/staleness/D/[category=Institutional Lending]/staleness_days",
    "unit": "days",
-   "value": 29
+   "value": 30
   },
   {
    "denominator": "backing_value",
@@ -446,7 +446,7 @@
    "section": "verifiability",
    "source_path": "tree/staleness/D/[category=Institutional Lending]/share",
    "unit": "ratio",
-   "value": "0.1534679788930530352764999762"
+   "value": "0.1539538169599390870855452340"
   },
   {
    "denominator": null,
@@ -466,7 +466,7 @@
    "section": "verifiability",
    "source_path": "tree/staleness/D/[category=Liquid Stables]/staleness_days",
    "unit": "days",
-   "value": 118
+   "value": 119
   },
   {
    "denominator": "backing_value",
@@ -476,7 +476,7 @@
    "section": "verifiability",
    "source_path": "tree/staleness/D/[category=Liquid Stables]/share",
    "unit": "ratio",
-   "value": "0.2794215882003820501244970912"
+   "value": "0.2882788030682074321049954956"
   },
   {
    "denominator": null,
@@ -506,7 +506,7 @@
    "section": "verifiability",
    "source_path": "tree/synthetic/t29/0/age_days",
    "unit": "days",
-   "value": 29
+   "value": 30
   },
   {
    "denominator": null,
@@ -546,7 +546,7 @@
    "section": "verifiability",
    "source_path": "tree/synthetic/t29/1/age_days",
    "unit": "days",
-   "value": 29
+   "value": 30
   },
   {
    "denominator": null,
@@ -586,7 +586,7 @@
    "section": "verifiability",
    "source_path": "tree/synthetic/t29/2/age_days",
    "unit": "days",
-   "value": 29
+   "value": 30
   },
   {
    "denominator": null,
@@ -626,7 +626,7 @@
    "section": "verifiability",
    "source_path": "tree/synthetic/t29/3/age_days",
    "unit": "days",
-   "value": 118
+   "value": 119
   },
   {
    "denominator": null,
@@ -686,7 +686,7 @@
    "section": "verifiability",
    "source_path": "tree/nodes/[category=DeFi Lending]/share",
    "unit": "ratio",
-   "value": "0.3440472940175386944673222887"
+   "value": "0.3294791051843665608043383555"
   },
   {
    "denominator": null,
@@ -696,7 +696,7 @@
    "section": "verifiability",
    "source_path": "bundle/synthetic/reads/FR-U20/value/DeFi Lending",
    "unit": "usd",
-   "value": 1577881694
+   "value": 1506358970
   },
   {
    "denominator": null,
@@ -736,7 +736,7 @@
    "section": "verifiability",
    "source_path": "tree/nodes/[category=Liquid Stables]/share",
    "unit": "ratio",
-   "value": "0.2794215882003820501244970912"
+   "value": "0.2882788030682074321049954956"
   },
   {
    "denominator": null,
@@ -746,57 +746,7 @@
    "section": "verifiability",
    "source_path": "bundle/synthetic/reads/FR-U20/value/Liquid Stables",
    "unit": "usd",
-   "value": 1281493029
-  },
-  {
-   "denominator": null,
-   "field_id": "tree.node.institutional_lending.symbol",
-   "label": "disclosure category",
-   "owner_entry": "DET-17",
-   "section": "verifiability",
-   "source_path": "tree/nodes/[category=Institutional Lending]/symbol",
-   "unit": "literal",
-   "value": "Institutional Lending"
-  },
-  {
-   "denominator": null,
-   "field_id": "tree.node.institutional_lending.label",
-   "label": "node label",
-   "owner_entry": "DET-17",
-   "section": "verifiability",
-   "source_path": "tree/nodes/[category=Institutional Lending]/label",
-   "unit": "literal",
-   "value": "recurses"
-  },
-  {
-   "denominator": null,
-   "field_id": "tree.node.institutional_lending.bar",
-   "label": "backing class of the node",
-   "owner_entry": "DET-17",
-   "section": "verifiability",
-   "source_path": "wording/tree/node_bar/recurses",
-   "unit": "literal",
-   "value": "disclosure_dependent"
-  },
-  {
-   "denominator": "backing_value",
-   "field_id": "tree.node.institutional_lending.share",
-   "label": "Institutional Lending share of backing",
-   "owner_entry": "DET-17",
-   "section": "verifiability",
-   "source_path": "tree/nodes/[category=Institutional Lending]/share",
-   "unit": "ratio",
-   "value": "0.1534679788930530352764999762"
-  },
-  {
-   "denominator": null,
-   "field_id": "tree.node.institutional_lending.usd",
-   "label": "Institutional Lending attested value",
-   "owner_entry": "DET-17",
-   "section": "verifiability",
-   "source_path": "bundle/synthetic/reads/FR-U20/value/Institutional Lending",
-   "unit": "usd",
-   "value": 703840195
+   "value": 1317993627
   },
   {
    "denominator": null,
@@ -836,7 +786,7 @@
    "section": "verifiability",
    "source_path": "tree/nodes/[category=Crypto Basis]/share",
    "unit": "ratio",
-   "value": "0.1499705393849060144360308602"
+   "value": "0.1549404235628186507372198774"
   },
   {
    "denominator": null,
@@ -846,7 +796,57 @@
    "section": "verifiability",
    "source_path": "bundle/synthetic/reads/FR-U20/value/Crypto Basis",
    "unit": "usd",
-   "value": 687800116
+   "value": 708378447
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.node.institutional_lending.symbol",
+   "label": "disclosure category",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/nodes/[category=Institutional Lending]/symbol",
+   "unit": "literal",
+   "value": "Institutional Lending"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.node.institutional_lending.label",
+   "label": "node label",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/nodes/[category=Institutional Lending]/label",
+   "unit": "literal",
+   "value": "recurses"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.node.institutional_lending.bar",
+   "label": "backing class of the node",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "wording/tree/node_bar/recurses",
+   "unit": "literal",
+   "value": "disclosure_dependent"
+  },
+  {
+   "denominator": "backing_value",
+   "field_id": "tree.node.institutional_lending.share",
+   "label": "Institutional Lending share of backing",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/nodes/[category=Institutional Lending]/share",
+   "unit": "ratio",
+   "value": "0.1539538169599390870855452340"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.node.institutional_lending.usd",
+   "label": "Institutional Lending attested value",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "bundle/synthetic/reads/FR-U20/value/Institutional Lending",
+   "unit": "usd",
+   "value": 703867740
   },
   {
    "denominator": null,
@@ -886,7 +886,7 @@
    "section": "verifiability",
    "source_path": "tree/nodes/[category=RWA]/share",
    "unit": "ratio",
-   "value": "0.06199716795053222897942377553"
+   "value": "0.06221656737503801883748749373"
   },
   {
    "denominator": null,
@@ -896,7 +896,7 @@
    "section": "verifiability",
    "source_path": "bundle/synthetic/reads/FR-U20/value/RWA",
    "unit": "usd",
-   "value": 284333573
+   "value": 284450464
   },
   {
    "denominator": null,
@@ -936,7 +936,7 @@
    "section": "verifiability",
    "source_path": "tree/nodes/[category=Equity and RWA Basis]/share",
    "unit": "ratio",
-   "value": "0.01109543155358797671622600823"
+   "value": "0.01113128384963025043041354381"
   },
   {
    "denominator": null,
@@ -946,7 +946,7 @@
    "section": "verifiability",
    "source_path": "bundle/synthetic/reads/FR-U20/value/Equity and RWA Basis",
    "unit": "usd",
-   "value": 50886255
+   "value": 50891571
   },
   {
    "denominator": null,
@@ -1535,7 +1535,7 @@
    "section": "verifiability",
    "source_path": "tree/synthetic/reserve_fund/disclosed_usd",
    "unit": "usd",
-   "value": "62067738.34583983"
+   "value": "62060759.35194229"
   },
   {
    "denominator": null,
@@ -1695,7 +1695,7 @@
    "section": "supply",
    "source_path": "bundle/supply/total_supply",
    "unit": "base_units",
-   "value": 4587084755138508992523503861
+   "value": 4567732299219064312523503861
   },
   {
    "denominator": null,
@@ -1705,7 +1705,7 @@
    "section": "supply",
    "source_path": "bundle/supply/supply_ruled",
    "unit": "base_units",
-   "value": 4587084755138508992523503861
+   "value": 4567732299219064312523503861
   },
   {
    "denominator": null,
@@ -1715,7 +1715,7 @@
    "section": "supply",
    "source_path": "bundle/supply/origination_sum",
    "unit": "base_units",
-   "value": 4587084755138508992523503861
+   "value": 4567732299219064312523503861
   },
   {
    "denominator": null,
@@ -1755,7 +1755,7 @@
    "section": "supply",
    "source_path": "tree/synthetic/supply_classes/staked",
    "unit": "base_units",
-   "value": 1185895473093937867929423056
+   "value": 1189771757280884619319027371
   },
   {
    "denominator": null,
@@ -1765,7 +1765,7 @@
    "section": "supply",
    "source_path": "tree/synthetic/supply_classes/cooling",
    "unit": "base_units",
-   "value": 7833952598906553020802686
+   "value": 10852429644546058583169129
   },
   {
    "denominator": null,
@@ -1775,7 +1775,7 @@
    "section": "supply",
    "source_path": "tree/synthetic/supply_classes/bridged_escrow",
    "unit": "base_units",
-   "value": 2132277546836481471165449406
+   "value": 2124582255406831471165449406
   },
   {
    "denominator": null,
@@ -1785,7 +1785,7 @@
    "section": "supply",
    "source_path": "tree/synthetic/supply_classes/free_float",
    "unit": "base_units",
-   "value": 1261077782609183100407828713
+   "value": 1242525856886802163455857955
   },
   {
    "denominator": null,
@@ -1805,7 +1805,7 @@
    "section": "supply",
    "source_path": "bundle/supply/bridge_disclosure",
    "unit": "literal",
-   "value": "one lock_and_mint escrow, the OFT adapter, holds 2132277546836481471165449406 USDe inside totalSupply (Q20)"
+   "value": "one lock_and_mint escrow, the OFT adapter, holds 2124582255406831471165449406 USDe inside totalSupply (Q20)"
   },
   {
    "denominator": null,
@@ -1815,7 +1815,7 @@
    "section": "supply",
    "source_path": "tree/root/backing_value",
    "unit": "usd",
-   "value": 4586234862
+   "value": 4571940819
   },
   {
    "denominator": null,
@@ -1835,7 +1835,7 @@
    "section": "supply",
    "source_path": "tree/root/backed_supply",
    "unit": "base_units",
-   "value": 4587084755138508992523503861
+   "value": 4567732299219064312523503861
   },
   {
    "denominator": null,
@@ -1855,7 +1855,7 @@
    "section": "supply",
    "source_path": "tree/synthetic/status_backing_usd",
    "unit": "usd",
-   "value": "4588774288.12"
+   "value": "4571565339.86"
   },
   {
    "denominator": null,
@@ -1865,7 +1865,7 @@
    "section": "supply",
    "source_path": "difference:tree/root/backing_value|tree/synthetic/status_backing_usd",
    "unit": "usd",
-   "value": "-2539426.12"
+   "value": "375479.14"
   },
   {
    "denominator": null,
@@ -1905,7 +1905,7 @@
    "section": "mechanism state",
    "source_path": "gate/DET-61/backing_ratio",
    "unit": "ratio",
-   "value": "1.000368323907596948533629736"
+   "value": "1.000839156147918522821438336"
   },
   {
    "denominator": "supply_ruled",
@@ -1925,7 +1925,7 @@
    "section": "mechanism state",
    "source_path": "gate/DET-61/reserve_fund_ratio",
    "unit": "ratio",
-   "value": "0.01353097700588827860170107490"
+   "value": "0.01358677682633736852342802560"
   },
   {
    "denominator": "supply_ruled",
@@ -1945,7 +1945,7 @@
    "section": "verifiability",
    "source_path": "gate/DET-90/buffer_onchain",
    "unit": "usd",
-   "value": "697923051.649266257778726948"
+   "value": "718240416.416879257778726948"
   },
   {
    "denominator": null,
@@ -1955,7 +1955,7 @@
    "section": "verifiability",
    "source_path": "gate/DET-90/disclosure_onchain",
    "unit": "usd",
-   "value": "896379333"
+   "value": "917870804"
   },
   {
    "denominator": null,
@@ -1965,7 +1965,7 @@
    "section": "verifiability",
    "source_path": "gate/DET-90/gap",
    "unit": "usd",
-   "value": "198456281.350733742221273052"
+   "value": "199630387.583120742221273052"
   },
   {
    "denominator": null,
@@ -1975,7 +1975,7 @@
    "section": "verifiability",
    "source_path": "gate/DET-90/not_reconciled_total",
    "unit": "usd",
-   "value": "613359964"
+   "value": "565541320"
   },
   {
    "denominator": "backing",
@@ -1985,7 +1985,7 @@
    "section": "verifiability",
    "source_path": "gate/DET-90/gap_share",
    "unit": "ratio",
-   "value": "0.04324821158986235080440495397"
+   "value": "0.04366784082522470081042405272"
   },
   {
    "denominator": "backing",
@@ -1995,7 +1995,7 @@
    "section": "verifiability",
    "source_path": "gate/DET-90/buffer_share",
    "unit": "ratio",
-   "value": "0.1520935674382890958366815745"
+   "value": "0.1571103906476976467035259784"
   },
   {
    "denominator": null,
@@ -2005,7 +2005,7 @@
    "section": "verifiability",
    "source_path": "gate/DET-90/not_reconciled/DeFi Lending",
    "unit": "usd",
-   "value": "613359964"
+   "value": "565541320"
   },
   {
    "denominator": null,
@@ -2025,7 +2025,7 @@
    "section": "stress",
    "source_path": "stress/synthetic/inputs/basis",
    "unit": "usd",
-   "value": "738686371"
+   "value": "759270018"
   },
   {
    "denominator": "per_year",
@@ -2045,7 +2045,7 @@
    "section": "stress",
    "source_path": "stress/synthetic/inputs/backing",
    "unit": "usd",
-   "value": "4588774288.12"
+   "value": "4571565339.86"
   },
   {
    "denominator": null,
@@ -2055,7 +2055,7 @@
    "section": "stress",
    "source_path": "stress/synthetic/inputs/reserve_fund",
    "unit": "usd",
-   "value": "62067738.34583983"
+   "value": "62060759.35194229"
   },
   {
    "denominator": null,
@@ -2065,7 +2065,7 @@
    "section": "stress",
    "source_path": "stress/synthetic/inputs/supply_ruled",
    "unit": "usd",
-   "value": "4587084755.138508992523503861"
+   "value": "4567732299.219064312523503861"
   },
   {
    "denominator": null,
@@ -2085,7 +2085,7 @@
    "section": "stress",
    "source_path": "stress/synthetic/inputs/reference_point/value_pct",
    "unit": "ratio",
-   "value": "0.12058389774444533"
+   "value": "0.1067937945567834"
   },
   {
    "denominator": null,
@@ -2155,7 +2155,7 @@
    "section": "stress",
    "source_path": "stress/synthetic/cells/[id=S1-n30]/loss",
    "unit": "usd",
-   "value": "15178487.07534246575342465753"
+   "value": "15601438.72602739726027397260"
   },
   {
    "denominator": null,
@@ -2165,7 +2165,7 @@
    "section": "stress",
    "source_path": "stress/synthetic/cells/[id=S1-n30]/post_loss_backing",
    "unit": "usd",
-   "value": "4588774288.12"
+   "value": "4571565339.86"
   },
   {
    "denominator": "supply_ruled",
@@ -2175,7 +2175,7 @@
    "section": "stress",
    "source_path": "stress/synthetic/cells/[id=S1-n30]/post_loss_ratio",
    "unit": "ratio",
-   "value": "1.000368323907596948533629736"
+   "value": "1.000839156147918522821438336"
   },
   {
    "denominator": null,
@@ -2185,7 +2185,7 @@
    "section": "stress",
    "source_path": "min:stress/synthetic/cells/[id=S1-n30]/loss|stress/synthetic/inputs/reserve_fund",
    "unit": "usd",
-   "value": "15178487.07534246575342465753"
+   "value": "15601438.72602739726027397260"
   },
   {
    "denominator": null,
@@ -2225,7 +2225,7 @@
    "section": "stress",
    "source_path": "stress/synthetic/cells/[id=S1-n90]/loss",
    "unit": "usd",
-   "value": "45535461.22602739726027397260"
+   "value": "46804316.17808219178082191781"
   },
   {
    "denominator": null,
@@ -2235,7 +2235,7 @@
    "section": "stress",
    "source_path": "stress/synthetic/cells/[id=S1-n90]/post_loss_backing",
    "unit": "usd",
-   "value": "4588774288.12"
+   "value": "4571565339.86"
   },
   {
    "denominator": "supply_ruled",
@@ -2245,7 +2245,7 @@
    "section": "stress",
    "source_path": "stress/synthetic/cells/[id=S1-n90]/post_loss_ratio",
    "unit": "ratio",
-   "value": "1.000368323907596948533629736"
+   "value": "1.000839156147918522821438336"
   },
   {
    "denominator": null,
@@ -2255,7 +2255,7 @@
    "section": "stress",
    "source_path": "min:stress/synthetic/cells/[id=S1-n90]/loss|stress/synthetic/inputs/reserve_fund",
    "unit": "usd",
-   "value": "45535461.22602739726027397260"
+   "value": "46804316.17808219178082191781"
   },
   {
    "denominator": null,
@@ -2295,7 +2295,7 @@
    "section": "stress",
    "source_path": "stress/synthetic/cells/[id=S1-n180]/loss",
    "unit": "usd",
-   "value": "91070922.45205479452054794521"
+   "value": "93608632.35616438356164383562"
   },
   {
    "denominator": null,
@@ -2305,7 +2305,7 @@
    "section": "stress",
    "source_path": "stress/synthetic/cells/[id=S1-n180]/post_loss_backing",
    "unit": "usd",
-   "value": "4559771104.013785035479452055"
+   "value": "4540017466.855777906438356164"
   },
   {
    "denominator": "supply_ruled",
@@ -2315,7 +2315,7 @@
    "section": "stress",
    "source_path": "stress/synthetic/cells/[id=S1-n180]/post_loss_ratio",
    "unit": "ratio",
-   "value": "0.9940455316213359982645644415"
+   "value": "0.9939324744648400797677593749"
   },
   {
    "denominator": null,
@@ -2325,7 +2325,7 @@
    "section": "stress",
    "source_path": "min:stress/synthetic/cells/[id=S1-n180]/loss|stress/synthetic/inputs/reserve_fund",
    "unit": "usd",
-   "value": "62067738.34583983"
+   "value": "62060759.35194229"
   },
   {
    "denominator": null,
@@ -2355,7 +2355,7 @@
    "section": "stress",
    "source_path": "stress/synthetic/cells/[id=S2-a]/loss",
    "unit": "usd",
-   "value": "543867247"
+   "value": "544380601"
   },
   {
    "denominator": null,
@@ -2365,7 +2365,7 @@
    "section": "stress",
    "source_path": "stress/synthetic/cells/[id=S2-a]/post_loss_backing",
    "unit": "usd",
-   "value": "4106974779.46583983"
+   "value": "4089245498.21194229"
   },
   {
    "denominator": "supply_ruled",
@@ -2375,7 +2375,7 @@
    "section": "stress",
    "source_path": "stress/synthetic/cells/[id=S2-a]/post_loss_ratio",
    "unit": "ratio",
-   "value": "0.8953344005395051751577321502"
+   "value": "0.8952463126858533466722918744"
   },
   {
    "denominator": null,
@@ -2395,7 +2395,7 @@
    "section": "stress",
    "source_path": "stress/synthetic/cells/[id=S2-a]/location_total",
    "unit": "usd",
-   "value": "543867247"
+   "value": "544380601"
   },
   {
    "denominator": null,
@@ -2405,7 +2405,7 @@
    "section": "stress",
    "source_path": "min:stress/synthetic/cells/[id=S2-a]/loss|stress/synthetic/inputs/reserve_fund",
    "unit": "usd",
-   "value": "62067738.34583983"
+   "value": "62060759.35194229"
   },
   {
    "denominator": null,
@@ -2415,7 +2415,7 @@
    "section": "stress",
    "source_path": "stress/synthetic/cells/[id=S2-b]/loss",
    "unit": "usd",
-   "value": "141374845.80"
+   "value": "147379991.70"
   },
   {
    "denominator": null,
@@ -2425,7 +2425,7 @@
    "section": "stress",
    "source_path": "stress/synthetic/cells/[id=S2-b]/post_loss_backing",
    "unit": "usd",
-   "value": "4509467180.66583983"
+   "value": "4486246107.51194229"
   },
   {
    "denominator": "supply_ruled",
@@ -2435,7 +2435,7 @@
    "section": "stress",
    "source_path": "stress/synthetic/cells/[id=S2-b]/post_loss_ratio",
    "unit": "ratio",
-   "value": "0.9830791060954954021650306674"
+   "value": "0.9821604712427973182277414418"
   },
   {
    "denominator": null,
@@ -2455,7 +2455,7 @@
    "section": "stress",
    "source_path": "stress/synthetic/cells/[id=S2-b]/notional",
    "unit": "usd",
-   "value": "471249486"
+   "value": "491266639"
   },
   {
    "denominator": null,
@@ -2465,7 +2465,7 @@
    "section": "stress",
    "source_path": "min:stress/synthetic/cells/[id=S2-b]/loss|stress/synthetic/inputs/reserve_fund",
    "unit": "usd",
-   "value": "62067738.34583983"
+   "value": "62060759.35194229"
   },
   {
    "denominator": null,
@@ -2475,7 +2475,7 @@
    "section": "stress",
    "source_path": "stress/synthetic/cells/[id=S3]/X",
    "unit": "usd",
-   "value": "611743313.9257802420843129422"
+   "value": "608074403.5419216956937213316"
   },
   {
    "denominator": null,
@@ -2485,7 +2485,7 @@
    "section": "stress",
    "source_path": "stress/synthetic/cells/[id=S3]/free_float",
    "unit": "usd",
-   "value": "1261077782.609183100407828713"
+   "value": "1242525856.886802163455857955"
   },
   {
    "denominator": null,
@@ -2495,7 +2495,7 @@
    "section": "stress",
    "source_path": "stress/synthetic/cells/[id=S3]/staked",
    "unit": "usd",
-   "value": "1185895473.093937867929423056"
+   "value": "1189771757.280884619319027371"
   },
   {
    "denominator": null,
@@ -2525,7 +2525,7 @@
    "section": "stress",
    "source_path": "stress/synthetic/cells/[id=S3]/capacity_redeem",
    "unit": "usd",
-   "value": "751293106"
+   "value": "834141568"
   },
   {
    "denominator": null,
@@ -2535,7 +2535,7 @@
    "section": "stress",
    "source_path": "stress/synthetic/cells/[id=S3]/stablecoin_collateral",
    "unit": "usd",
-   "value": "751293106"
+   "value": "834141568"
   },
   {
    "denominator": null,
@@ -2555,7 +2555,7 @@
    "section": "stress",
    "source_path": "stress/synthetic/cells/[id=S3]/exit_depth_2pct",
    "unit": "usd",
-   "value": "20952993.05439503376411448"
+   "value": "20870040.956079487007451179"
   },
   {
    "denominator": null,
@@ -2585,7 +2585,7 @@
    "section": "stress",
    "source_path": "stress/synthetic/cells/[id=S3]/counterfactual_lines/[id=cf.cooldown_branch]/X",
    "unit": "usd",
-   "value": "315269445.6522957751019571782"
+   "value": "310631464.2217005408639644888"
   },
   {
    "denominator": null,
@@ -2605,7 +2605,7 @@
    "section": "stress",
    "source_path": "stress/synthetic/cells/[id=S3]/k_rows/[k=80]/depth_at_2pct",
    "unit": "usd",
-   "value": "20952993.05439503376411448"
+   "value": "20870040.956079487007451179"
   },
   {
    "denominator": null,
@@ -2625,7 +2625,7 @@
    "section": "stress",
    "source_path": "stress/synthetic/cells/[id=S3]/k_rows/[k=90]/depth_at_2pct",
    "unit": "usd",
-   "value": "20952993.05439503376411448"
+   "value": "20870040.956079487007451179"
   },
   {
    "denominator": null,
@@ -2645,7 +2645,7 @@
    "section": "stress",
    "source_path": "stress/synthetic/cells/[id=S3]/k_rows/[k=95]/depth_at_2pct",
    "unit": "usd",
-   "value": "20952993.05439503376411448"
+   "value": "20870040.956079487007451179"
   },
   {
    "denominator": null,
@@ -2745,7 +2745,7 @@
    "section": "exit liquidity",
    "source_path": "stress/exit_depth/sensitivity_rows/[k=80]/depth_at_2pct",
    "unit": "base_units",
-   "value": 20952993054395033764114480
+   "value": 20870040956079487007451179
   },
   {
    "denominator": "frozen_set_tvl",
@@ -2765,7 +2765,7 @@
    "section": "exit liquidity",
    "source_path": "stress/exit_depth/sensitivity_rows/[k=90]/depth_at_2pct",
    "unit": "base_units",
-   "value": 20952993054395033764114480
+   "value": 20870040956079487007451179
   },
   {
    "denominator": "frozen_set_tvl",
@@ -2785,7 +2785,7 @@
    "section": "exit liquidity",
    "source_path": "stress/exit_depth/sensitivity_rows/[k=95]/depth_at_2pct",
    "unit": "base_units",
-   "value": 20952993054395033764114480
+   "value": 20870040956079487007451179
   },
   {
    "denominator": "frozen_set_tvl",
@@ -2815,7 +2815,7 @@
    "section": "exit liquidity",
    "source_path": "stress/exit_depth/depth_curve/[s=0.005]/total",
    "unit": "base_units",
-   "value": 16235904410399205951067765
+   "value": 16162903189197209883679287
   },
   {
    "denominator": "price_impact",
@@ -2835,7 +2835,7 @@
    "section": "exit liquidity",
    "source_path": "stress/exit_depth/depth_curve/[s=0.01]/total",
    "unit": "base_units",
-   "value": 18843321771648671278210966
+   "value": 18759944782782301193240339
   },
   {
    "denominator": "price_impact",
@@ -2855,7 +2855,7 @@
    "section": "exit liquidity",
    "source_path": "stress/exit_depth/depth_curve/[s=0.02]/total",
    "unit": "base_units",
-   "value": 20952993054395033764114480
+   "value": 20870040956079487007451179
   },
   {
    "denominator": "price_impact",
@@ -2875,7 +2875,7 @@
    "section": "exit liquidity",
    "source_path": "stress/exit_depth/depth_curve/[s=0.05]/total",
    "unit": "base_units",
-   "value": 22978655046166844936231920
+   "value": 22894756380578679096873483
   },
   {
    "denominator": null,
@@ -2925,7 +2925,7 @@
    "section": "exit liquidity",
    "source_path": "bundle/pools/[address=0x5dc1bf6f1e983c0b21efb003c105133736fa0743]/tvl_at_par",
    "unit": "usd_whole",
-   "value": 34251632
+   "value": 34250970
   },
   {
    "denominator": null,
@@ -2935,7 +2935,7 @@
    "section": "exit liquidity",
    "source_path": "bundle/offvenue_share/dex_liquidity_total_discovered",
    "unit": "usd_whole",
-   "value": 46438269
+   "value": 46383127
   },
   {
    "denominator": null,
@@ -2945,7 +2945,7 @@
    "section": "exit liquidity",
    "source_path": "bundle/offvenue_share/curve_mainnet_liquidity",
    "unit": "usd_whole",
-   "value": 36218484
+   "value": 36226293
   },
   {
    "denominator": "dex_liquidity_total_discovered",
@@ -2955,7 +2955,7 @@
    "section": "exit liquidity",
    "source_path": "bundle/offvenue_share/x",
    "unit": "ratio",
-   "value": "0.2200724794457777915882265121"
+   "value": "0.2189769137384808057464517215"
   },
   {
    "denominator": null,
@@ -2965,7 +2965,7 @@
    "section": "exit liquidity",
    "source_path": "bundle/offvenue_share/literal",
    "unit": "literal",
-   "value": "22.0% of discovered DEX liquidity lies outside modeled venues"
+   "value": "21.9% of discovered DEX liquidity lies outside modeled venues"
   },
   {
    "denominator": null,
@@ -2985,7 +2985,7 @@
    "section": "exit liquidity",
    "source_path": "bundle/offvenue_share/date",
    "unit": "date",
-   "value": "2026-10-26"
+   "value": "2026-10-27"
   },
   {
    "denominator": null,
@@ -3578,7 +3578,7 @@
    "section": "oracle table",
    "source_path": "bundle/synthetic/reads/FR-U28/value/PYUSD/answer",
    "unit": "decimal8",
-   "value": 99996324
+   "value": 99982407
   },
   {
    "denominator": null,
@@ -3588,7 +3588,7 @@
    "section": "oracle table",
    "source_path": "bundle/synthetic/reads/FR-U28/value/PYUSD/updated_at",
    "unit": "unix_s",
-   "value": 1792958315
+   "value": 1793044751
   },
   {
    "denominator": null,
@@ -3598,7 +3598,7 @@
    "section": "oracle table",
    "source_path": "bundle/synthetic/reads/FR-U28/value/RLUSD/answer",
    "unit": "decimal8",
-   "value": 100005588
+   "value": 100002517
   },
   {
    "denominator": null,
@@ -3608,7 +3608,7 @@
    "section": "oracle table",
    "source_path": "bundle/synthetic/reads/FR-U28/value/RLUSD/updated_at",
    "unit": "unix_s",
-   "value": 1792990583
+   "value": 1793077007
   },
   {
    "denominator": null,
@@ -3618,7 +3618,7 @@
    "section": "oracle table",
    "source_path": "bundle/synthetic/reads/FR-U28/value/USDC/answer",
    "unit": "decimal8",
-   "value": 99982308
+   "value": 99963000
   },
   {
    "denominator": null,
@@ -3628,7 +3628,7 @@
    "section": "oracle table",
    "source_path": "bundle/synthetic/reads/FR-U28/value/USDC/updated_at",
    "unit": "unix_s",
-   "value": 1792964807
+   "value": 1793047619
   },
   {
    "denominator": null,
@@ -3638,7 +3638,7 @@
    "section": "oracle table",
    "source_path": "bundle/synthetic/reads/FR-U28/value/USDG/answer",
    "unit": "decimal8",
-   "value": 99996499
+   "value": 99986774
   },
   {
    "denominator": null,
@@ -3648,7 +3648,7 @@
    "section": "oracle table",
    "source_path": "bundle/synthetic/reads/FR-U28/value/USDG/updated_at",
    "unit": "unix_s",
-   "value": 1792958843
+   "value": 1793045267
   },
   {
    "denominator": null,
@@ -3658,7 +3658,7 @@
    "section": "oracle table",
    "source_path": "bundle/synthetic/reads/FR-U28/value/USDT/answer",
    "unit": "decimal8",
-   "value": 99872000
+   "value": 99842395
   },
   {
    "denominator": null,
@@ -3668,7 +3668,7 @@
    "section": "oracle table",
    "source_path": "bundle/synthetic/reads/FR-U28/value/USDT/updated_at",
    "unit": "unix_s",
-   "value": 1792939475
+   "value": 1793112335
   },
   {
    "denominator": null,
@@ -3678,7 +3678,7 @@
    "section": "oracle table",
    "source_path": "bundle/synthetic/reads/FR-U28/value/USDtb/answer",
    "unit": "decimal8",
-   "value": 99966337
+   "value": 99958286
   },
   {
    "denominator": null,
@@ -3688,7 +3688,7 @@
    "section": "oracle table",
    "source_path": "bundle/synthetic/reads/FR-U28/value/USDtb/updated_at",
    "unit": "unix_s",
-   "value": 1792959731
+   "value": 1793046155
   },
   {
    "denominator": null,
@@ -4855,7 +4855,7 @@
    "section": "audit",
    "source_path": "bundle/synthetic/reads/FR-U36/value/location_totals/Ceffu",
    "unit": "usd",
-   "value": "471249486"
+   "value": "491266639"
   },
   {
    "denominator": null,
@@ -4865,7 +4865,7 @@
    "section": "audit",
    "source_path": "bundle/synthetic/reads/FR-U36/value/location_totals/Copper",
    "unit": "usd",
-   "value": "543867247"
+   "value": "544380601"
   },
   {
    "denominator": null,
@@ -4875,7 +4875,7 @@
    "section": "audit",
    "source_path": "bundle/synthetic/reads/FR-U36/value/location_totals/HRP",
    "unit": "usd",
-   "value": "23888367"
+   "value": "23941378"
   },
   {
    "denominator": null,
@@ -4885,7 +4885,7 @@
    "section": "audit",
    "source_path": "bundle/synthetic/reads/FR-U36/value/exchange_notional/Binance",
    "unit": "usd",
-   "value": "471249486"
+   "value": "491266639"
   },
   {
    "denominator": null,
@@ -4895,7 +4895,7 @@
    "section": "audit",
    "source_path": "bundle/synthetic/reads/FR-U36/value/exchange_notional/Bybit",
    "unit": "usd",
-   "value": "86319228"
+   "value": "86539267"
   },
   {
    "denominator": null,
@@ -4905,7 +4905,7 @@
    "section": "audit",
    "source_path": "bundle/synthetic/reads/FR-U36/value/exchange_notional/CDE",
    "unit": "usd",
-   "value": "23888367"
+   "value": "23941378"
   },
   {
    "denominator": null,
@@ -4915,7 +4915,7 @@
    "section": "audit",
    "source_path": "bundle/synthetic/reads/FR-U36/value/exchange_notional/Deribit",
    "unit": "usd",
-   "value": "18932784"
+   "value": "18941217"
   },
   {
    "denominator": null,
@@ -4925,7 +4925,7 @@
    "section": "audit",
    "source_path": "bundle/synthetic/reads/FR-U36/value/exchange_notional/Okx",
    "unit": "usd",
-   "value": "138256674"
+   "value": "138541556"
   },
   {
    "denominator": null,
@@ -5308,7 +5308,7 @@
    "value": "2026-10-25"
   }
  ],
- "run_block": 26275087,
- "table_hash": "8caa2a58b0674ea6c35308e2613929f4946646c23988f9e8f7c124cbdd30b9a8",
+ "run_block": 26285908,
+ "table_hash": "9c3f888de89782a6ab6c14daa682430a3dc249568809be48ae6344c9c9192997",
  "token": "USDe"
 }
