@@ -1,0 +1,12 @@
+{
+ "bundle_hash": "efa1448ec84dae38ce70fe59289f334d67ea785d33a25a8c6f1c5f22a33778c5",
+ "pipeline_version": "0.1.0",
+ "report_hash": "b12b9e5e4541ba13e1cacb6d8e37fe45bdad999f3bd907f61bb3e92fccc17ca1",
+ "run_block": 26285969,
+ "sheet_hash": "45614b2b",
+ "stress_hash": "092f1212edff26dd93def19db82965455e7fcf114b125e2366c5579d35b3c142",
+ "table_hash": "9b3c7a89b117ae420f33152cb49954df8c5797f7db4b4b517e76cb15936cbc7e",
+ "template_hash": "3b41febec0120819698d78a3b44bbe2637b42d795af56e0b37f246a198c73482",
+ "token": "LUSD",
+ "tree_hash": "7e288398f9ba294e36a039898cf6c1bca17f6a78124a29e14bb6c81160427e51"
+}
