@@ -192,7 +192,7 @@
    "section": "header",
    "source_path": "bundle/header/run_block",
    "unit": "block",
-   "value": 26143168
+   "value": 26284576
   },
   {
    "denominator": null,
@@ -202,7 +202,7 @@
    "section": "header",
    "source_path": "bundle/header/block_timestamp",
    "unit": "unix_s",
-   "value": 1791408131
+   "value": 1793110487
   },
   {
    "denominator": null,
@@ -212,7 +212,7 @@
    "section": "header",
    "source_path": "bundle/header/sheet_hash",
    "unit": "hash",
-   "value": "29682310"
+   "value": "45614b2b"
   },
   {
    "denominator": null,
@@ -222,7 +222,7 @@
    "section": "header",
    "source_path": "bundle/header/bundle_hash",
    "unit": "hash",
-   "value": "4421ee609cae487053c23cd0ee797f31c6d48a5891e54c28831422d45166f0fd"
+   "value": "855421531bbd7b8a4ac44f31db123c2a9a878096bd872a4a662745b49eb04224"
   },
   {
    "denominator": null,
@@ -252,7 +252,7 @@
    "section": "header",
    "source_path": "tree/tree_hash",
    "unit": "hash",
-   "value": "29e27568943f553459dbe92cdba0d418518378ce497047503ff39dcfd6386753"
+   "value": "2f1cc3dbcf4db83ab61d24062d1378f36d8f81ce28e58a3af36ad51f9eb51aa8"
   },
   {
    "denominator": null,
@@ -262,7 +262,7 @@
    "section": "header",
    "source_path": "stress/header/stress_hash",
    "unit": "hash",
-   "value": "6d4ea39eaf9c760c43f5770cc7239b64e3237d007c1f9ca95b7bdb7f4f899e5b"
+   "value": "e9f54f47367649569872fe3652cc61eead46bcfbc56fc3747328e0ed8effadf4"
   },
   {
    "denominator": "backing_value",
@@ -272,7 +272,7 @@
    "section": "verifiability",
    "source_path": "tree/bars/[name=terminal]/share",
    "unit": "ratio",
-   "value": "0.03718292582294360003018405453"
+   "value": "0.04316121845037105659286917360"
   },
   {
    "denominator": "backing_value",
@@ -282,7 +282,7 @@
    "section": "verifiability",
    "source_path": "tree/bars/[name=terminal_other_layer]/share",
    "unit": "ratio",
-   "value": "0.5299499941513081159859326643"
+   "value": "0.4931791602867546001743215437"
   },
   {
    "denominator": "backing_value",
@@ -292,7 +292,7 @@
    "section": "verifiability",
    "source_path": "tree/bars/[name=disclosure_dependent]/share",
    "unit": "ratio",
-   "value": "0.4328670800257482839838832811"
+   "value": "0.4636596212628743432328092827"
   },
   {
    "denominator": "backing_value",
@@ -382,7 +382,7 @@
    "section": "verifiability",
    "source_path": "tree/staleness/worst/share",
    "unit": "ratio",
-   "value": "0.3049483024647578397153414643"
+   "value": "0.3369391999375143095246623210"
   },
   {
    "denominator": null,
@@ -392,7 +392,7 @@
    "section": "verifiability",
    "source_path": "tree/staleness/D/[address=0x2260fac5e5542a773aa44fbcfedf7c193bc2c599]/last_disclosure_date",
    "unit": "date",
-   "value": "2026-10-07"
+   "value": "2026-10-27"
   },
   {
    "denominator": null,
@@ -412,7 +412,7 @@
    "section": "verifiability",
    "source_path": "tree/staleness/D/[address=0x2260fac5e5542a773aa44fbcfedf7c193bc2c599]/share",
    "unit": "ratio",
-   "value": "0.3049483024647578397153414643"
+   "value": "0.3369391999375143095246623210"
   },
   {
    "denominator": null,
@@ -422,7 +422,7 @@
    "section": "verifiability",
    "source_path": "tree/staleness/D/[address=0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf]/last_disclosure_date",
    "unit": "date",
-   "value": "2026-10-07"
+   "value": "2026-10-27"
   },
   {
    "denominator": null,
@@ -442,7 +442,7 @@
    "section": "verifiability",
    "source_path": "tree/staleness/D/[address=0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf]/share",
    "unit": "ratio",
-   "value": "0.1279187582403103230967067598"
+   "value": "0.1267203992612037924165936282"
   },
   {
    "denominator": null,
@@ -452,7 +452,7 @@
    "section": "verifiability",
    "source_path": "tree/staleness/D/[address=0x8236a87084f8b84306f72007f36f2618a5634494]/last_disclosure_date",
    "unit": "date",
-   "value": "2026-10-07"
+   "value": "2026-10-27"
   },
   {
    "denominator": null,
@@ -472,7 +472,7 @@
    "section": "verifiability",
    "source_path": "tree/staleness/D/[address=0x8236a87084f8b84306f72007f36f2618a5634494]/share",
    "unit": "ratio",
-   "value": "1.932068012117183505700956303E-8"
+   "value": "2.206415624129155333351524004E-8"
   },
   {
    "denominator": null,
@@ -483,46 +483,6 @@
    "source_path": "tree/banner",
    "unit": "literal",
    "value": "Verifiability conditional on: mint — dao_governance + 1–7d; set_oracle — dao_governance + 1–7d"
-  },
-  {
-   "denominator": null,
-   "field_id": "tree.node.0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0.symbol",
-   "label": "node",
-   "owner_entry": "DET-17",
-   "section": "verifiability",
-   "source_path": "tree/nodes/[address=0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0]/symbol",
-   "unit": "literal",
-   "value": "wstETH"
-  },
-  {
-   "denominator": null,
-   "field_id": "tree.node.0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0.label",
-   "label": "node label",
-   "owner_entry": "DET-17",
-   "section": "verifiability",
-   "source_path": "tree/nodes/[address=0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0]/label",
-   "unit": "literal",
-   "value": "terminal_other_layer"
-  },
-  {
-   "denominator": null,
-   "field_id": "tree.node.0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0.bar",
-   "label": "backing class of the node",
-   "owner_entry": "DET-17",
-   "section": "verifiability",
-   "source_path": "wording/tree/node_bar/terminal_other_layer",
-   "unit": "literal",
-   "value": "terminal_other_layer"
-  },
-  {
-   "denominator": "backing_value",
-   "field_id": "tree.node.0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0.share",
-   "label": "wstETH share of backing",
-   "owner_entry": "DET-17",
-   "section": "verifiability",
-   "source_path": "tree/nodes/[address=0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0]/share",
-   "unit": "ratio",
-   "value": "0.3886231025216404980827541696"
   },
   {
    "denominator": null,
@@ -562,7 +522,47 @@
    "section": "verifiability",
    "source_path": "tree/nodes/[address=0x2260fac5e5542a773aa44fbcfedf7c193bc2c599]/share",
    "unit": "ratio",
-   "value": "0.3049483024647578397153414643"
+   "value": "0.3369391999375143095246623210"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.node.0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0.symbol",
+   "label": "node",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/nodes/[address=0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0]/symbol",
+   "unit": "literal",
+   "value": "wstETH"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.node.0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0.label",
+   "label": "node label",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/nodes/[address=0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0]/label",
+   "unit": "literal",
+   "value": "terminal_other_layer"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.node.0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0.bar",
+   "label": "backing class of the node",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "wording/tree/node_bar/terminal_other_layer",
+   "unit": "literal",
+   "value": "terminal_other_layer"
+  },
+  {
+   "denominator": "backing_value",
+   "field_id": "tree.node.0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0.share",
+   "label": "wstETH share of backing",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/nodes/[address=0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0]/share",
+   "unit": "ratio",
+   "value": "0.3220539111180768469555840445"
   },
   {
    "denominator": null,
@@ -602,7 +602,7 @@
    "section": "verifiability",
    "source_path": "tree/nodes/[address=0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf]/share",
    "unit": "ratio",
-   "value": "0.1279187582403103230967067598"
+   "value": "0.1267203992612037924165936282"
   },
   {
    "denominator": null,
@@ -642,7 +642,7 @@
    "section": "verifiability",
    "source_path": "tree/nodes/[address=0x18084fba666a33d37592fa2633fd49a74dd93a88]/share",
    "unit": "ratio",
-   "value": "0.07271349556011092826806583254"
+   "value": "0.09186013560777520272730622467"
   },
   {
    "denominator": null,
@@ -682,47 +682,7 @@
    "section": "verifiability",
    "source_path": "tree/nodes/[address=0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2]/share",
    "unit": "ratio",
-   "value": "0.03718292582294360003018405453"
-  },
-  {
-   "denominator": null,
-   "field_id": "tree.node.0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee.symbol",
-   "label": "node",
-   "owner_entry": "DET-17",
-   "section": "verifiability",
-   "source_path": "tree/nodes/[address=0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee]/symbol",
-   "unit": "literal",
-   "value": "weETH"
-  },
-  {
-   "denominator": null,
-   "field_id": "tree.node.0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee.label",
-   "label": "node label",
-   "owner_entry": "DET-17",
-   "section": "verifiability",
-   "source_path": "tree/nodes/[address=0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee]/label",
-   "unit": "literal",
-   "value": "terminal_other_layer"
-  },
-  {
-   "denominator": null,
-   "field_id": "tree.node.0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee.bar",
-   "label": "backing class of the node",
-   "owner_entry": "DET-17",
-   "section": "verifiability",
-   "source_path": "wording/tree/node_bar/terminal_other_layer",
-   "unit": "literal",
-   "value": "terminal_other_layer"
-  },
-  {
-   "denominator": "backing_value",
-   "field_id": "tree.node.0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee.share",
-   "label": "weETH share of backing",
-   "owner_entry": "DET-17",
-   "section": "verifiability",
-   "source_path": "tree/nodes/[address=0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee]/share",
-   "unit": "ratio",
-   "value": "0.03681359170174727923123425972"
+   "value": "0.04316121845037105659286917360"
   },
   {
    "denominator": null,
@@ -762,7 +722,47 @@
    "section": "verifiability",
    "source_path": "tree/nodes/[address=0xac3e018457b222d93114458476f3e3416abbe38f]/share",
    "unit": "ratio",
-   "value": "0.03179980436780941040387840241"
+   "value": "0.04082221931138798031553655652"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.node.0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee.symbol",
+   "label": "node",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/nodes/[address=0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee]/symbol",
+   "unit": "literal",
+   "value": "weETH"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.node.0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee.label",
+   "label": "node label",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/nodes/[address=0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee]/label",
+   "unit": "literal",
+   "value": "terminal_other_layer"
+  },
+  {
+   "denominator": null,
+   "field_id": "tree.node.0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee.bar",
+   "label": "backing class of the node",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "wording/tree/node_bar/terminal_other_layer",
+   "unit": "literal",
+   "value": "terminal_other_layer"
+  },
+  {
+   "denominator": "backing_value",
+   "field_id": "tree.node.0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee.share",
+   "label": "weETH share of backing",
+   "owner_entry": "DET-17",
+   "section": "verifiability",
+   "source_path": "tree/nodes/[address=0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee]/share",
+   "unit": "ratio",
+   "value": "0.03844289424951457017589471808"
   },
   {
    "denominator": null,
@@ -802,7 +802,7 @@
    "section": "verifiability",
    "source_path": "tree/nodes/[address=0x8236a87084f8b84306f72007f36f2618a5634494]/share",
    "unit": "ratio",
-   "value": "1.932068012117183505700956303E-8"
+   "value": "2.206415624129155333351524004E-8"
   },
   {
    "denominator": null,
@@ -972,7 +972,7 @@
    "section": "supply",
    "source_path": "bundle/supply/origination_sum",
    "unit": "base_units",
-   "value": 95408964648216598216587145
+   "value": 87622301893923887124701528
   },
   {
    "denominator": null,
@@ -982,7 +982,7 @@
    "section": "supply",
    "source_path": "bundle/supply/residual",
    "unit": "base_units",
-   "value": 2009400240333617756055856426
+   "value": 2017186903087910467147742043
   },
   {
    "denominator": null,
@@ -992,7 +992,7 @@
    "section": "supply",
    "source_path": "bundle/supply/residual_unexplained",
    "unit": "base_units",
-   "value": -9237481342130149
+   "value": -24561249354544543
   },
   {
    "denominator": "supply_ruled",
@@ -1002,7 +1002,7 @@
    "section": "supply",
    "source_path": "bundle/supply/stabilizer_over_supply",
    "unit": "ratio",
-   "value": "0.009778250595021045125273751907"
+   "value": "0.008505747818116408343192463258"
   },
   {
    "denominator": null,
@@ -1022,7 +1022,7 @@
    "section": "supply",
    "source_path": "bundle/supply/residual_unexplained_abs",
    "unit": "base_units",
-   "value": 9237481342130149
+   "value": 24561249354544543
   },
   {
    "denominator": null,
@@ -1082,7 +1082,7 @@
    "section": "supply",
    "source_path": "bundle/supply/residual_causes/[address=0x100daa78fc509db39ef7d04de0c1abd299f4c6ce]/amount",
    "unit": "base_units",
-   "value": 120081161682522471415656744
+   "value": 126532291213109239889744759
   },
   {
    "denominator": null,
@@ -1102,7 +1102,7 @@
    "section": "supply",
    "source_path": "bundle/supply/residual_causes/[address=0x1c91da0223c763d2e0173243eadaa0a2ea47e704]/amount",
    "unit": "base_units",
-   "value": 44018932714785003883812722
+   "value": 43728681363595631009704040
   },
   {
    "denominator": null,
@@ -1142,7 +1142,7 @@
    "section": "supply",
    "source_path": "bundle/supply/residual_causes/[address=0x26de7861e213a5351f6ed767d00e0839930e9ee1]/amount",
    "unit": "base_units",
-   "value": 30000000009237481342130149
+   "value": 30000000024561249354544543
   },
   {
    "denominator": null,
@@ -1222,7 +1222,7 @@
    "section": "supply",
    "source_path": "bundle/supply/residual_causes/[address=0x4e59541306910ad6dc1dac0ac9dfb29bd9f15c67]/amount",
    "unit": "base_units",
-   "value": 180174563325379977685645353
+   "value": 179670369037541933068172548
   },
   {
    "denominator": null,
@@ -1322,7 +1322,7 @@
    "section": "supply",
    "source_path": "bundle/supply/residual_causes/[address=0x652aea6b22310c89dcc506710cad24d2dba56b11]/amount",
    "unit": "base_units",
-   "value": 16774129557632713997955962
+   "value": 16752032699111440193824109
   },
   {
    "denominator": null,
@@ -1382,7 +1382,7 @@
    "section": "supply",
    "source_path": "bundle/supply/residual_causes/[address=0x8472a9a7632b173c8cf3a86d3afec50c35548e76]/amount",
    "unit": "base_units",
-   "value": 4917116350531863255744
+   "value": 137704538975402778522185
   },
   {
    "denominator": null,
@@ -1482,7 +1482,7 @@
    "section": "supply",
    "source_path": "bundle/supply/residual_causes/[address=0xa920de414ea4ab66b97da1bfe9e6eca7d4219635]/amount",
    "unit": "base_units",
-   "value": 197371654469067598257522703
+   "value": 197150324883673626110038045
   },
   {
    "denominator": null,
@@ -1582,7 +1582,7 @@
    "section": "supply",
    "source_path": "bundle/supply/residual_causes/[address=0xec0820efafc41d8943ee8de495fc9ba8495b15cf]/amount",
    "unit": "base_units",
-   "value": 48058012173068369834958967
+   "value": 47371521406379477256696509
   },
   {
    "denominator": null,
@@ -1602,7 +1602,7 @@
    "section": "supply",
    "source_path": "bundle/supply/residual_causes/[address=0xf8c786b1064889ffd3c8a08b48d5e0c159f4cbe3]/amount",
    "unit": "base_units",
-   "value": 38848221155830483829300382
+   "value": 39096954248349286481818305
   },
   {
    "denominator": null,
@@ -1622,7 +1622,7 @@
    "section": "supply",
    "source_path": "bundle/supply/residual_causes/[address=0xfb726f57d251ab5c731e5c64ed4f5f94351ef9f3]/amount",
    "unit": "base_units",
-   "value": 114418648138980605287747849
+   "value": 117097023697174430359221543
   },
   {
    "denominator": null,
@@ -1672,7 +1672,7 @@
    "section": "supply",
    "source_path": "tree/residual_cause_families/0/total",
    "unit": "base_units",
-   "value": 1060650000009237481342130149
+   "value": 1060650000024561249354544543
   },
   {
    "denominator": null,
@@ -1702,7 +1702,7 @@
    "section": "supply",
    "source_path": "tree/residual_cause_families/1/total",
    "unit": "base_units",
-   "value": 645331592194637150768108577
+   "value": 650439879390736036788520500
   },
   {
    "denominator": null,
@@ -1732,7 +1732,7 @@
    "section": "supply",
    "source_path": "tree/residual_cause_families/2/total",
    "unit": "base_units",
-   "value": 303418648138980605287747849
+   "value": 306097023697174430359221543
   },
   {
    "denominator": null,
@@ -1752,7 +1752,7 @@
    "section": "supply",
    "source_path": "tree/root/backing_value",
    "unit": "value_scale_units",
-   "value": 155274037
+   "value": 135967130
   },
   {
    "denominator": null,
@@ -1772,7 +1772,7 @@
    "section": "supply",
    "source_path": "tree/root/backed_supply",
    "unit": "base_units",
-   "value": 95408964648216598216587145
+   "value": 87622301893923887124701528
   },
   {
    "denominator": null,
@@ -1792,7 +1792,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m1/pre/ratio",
    "unit": "ratio",
-   "value": "1.037597723659720207746443547"
+   "value": "0.9751103690972541921190712430"
   },
   {
    "denominator": null,
@@ -1802,7 +1802,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m1/post/ratio",
    "unit": "ratio",
-   "value": "1.227128950069489183712727742"
+   "value": "1.199830184503822715306203190"
   },
   {
    "denominator": null,
@@ -1812,7 +1812,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m1/pre/share_below_100",
    "unit": "ratio",
-   "value": "6.443684022580473593159679872E-7"
+   "value": "5.906767210531791634594348444E-7"
   },
   {
    "denominator": null,
@@ -1822,7 +1822,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m1/post/share_below_100",
    "unit": "ratio",
-   "value": "6.443684022580473593159679872E-7"
+   "value": "5.906767210531791634594348444E-7"
   },
   {
    "denominator": null,
@@ -1832,7 +1832,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m1/gap",
    "unit": "ratio",
-   "value": "0.189531226409768975966284195"
+   "value": "0.2247198154065685231871319470"
   },
   {
    "denominator": null,
@@ -1842,7 +1842,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m2/bad_debt",
    "unit": "base_units",
-   "value": 6275376898052247258
+   "value": 4415172766235792630
   },
   {
    "denominator": "supply_ruled",
@@ -1852,7 +1852,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m2/pct_supply",
    "unit": "ratio",
-   "value": "2.981446908916576676745813040E-9"
+   "value": "2.097659377289685488193658415E-9"
   },
   {
    "denominator": null,
@@ -1862,7 +1862,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m3/forced_sell_volume",
    "unit": "base_units",
-   "value": 6275376898052247258
+   "value": 4415172766235792630
   },
   {
    "denominator": null,
@@ -1872,7 +1872,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m3/exit_depth",
    "unit": "base_units",
-   "value": 25651705251939694086983013
+   "value": 17019075486914733288343356
   },
   {
    "denominator": "exit_depth",
@@ -1882,7 +1882,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m3/ratio",
    "unit": "ratio",
-   "value": "2.446378061972205435296257748E-7"
+   "value": "2.594249475907452940603294746E-7"
   },
   {
    "denominator": null,
@@ -1902,7 +1902,7 @@
    "section": "stress (Member 2)",
    "source_path": "stress/cells/[id=M2-t0.93-lp0]/m3/exit_depth",
    "unit": "base_units",
-   "value": 23717541255819323347316164
+   "value": 15687539150773271834421048
   },
   {
    "denominator": "exit_depth",
@@ -1942,7 +1942,7 @@
    "section": "mechanism state",
    "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m4/burn_capacity",
    "unit": "base_units",
-   "value": 20581351861019394712252151
+   "value": 17902976302825569640778457
   },
   {
    "denominator": null,
@@ -1975,7 +1975,7 @@
    "section": "mechanism state",
    "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m4/effective",
    "unit": "base_units",
-   "value": 80668475920558418881747849
+   "value": 81870232546320268579221543
   },
   {
    "denominator": null,
@@ -1985,7 +1985,7 @@
    "section": "mechanism state",
    "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m4/exit_depth_cell",
    "unit": "base_units",
-   "value": 25651705251939694086983013
+   "value": 17019075486914733288343356
   },
   {
    "denominator": null,
@@ -1995,7 +1995,7 @@
    "section": "mechanism state",
    "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m4/is_killed/0x338cb2d827112d989a861cde87cd9ffd913a1f9d/allowed",
    "unit": "base_units",
-   "value": 3214277513408467314000000
+   "value": 3143962326149801820000000
   },
   {
    "denominator": null,
@@ -2055,7 +2055,7 @@
    "section": "mechanism state",
    "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m4/is_killed/0x338cb2d827112d989a861cde87cd9ffd913a1f9d/max_ratio",
    "unit": "base_units",
-   "value": 357141945934274146
+   "value": 349329147349977980
   },
   {
    "denominator": null,
@@ -2075,7 +2075,7 @@
    "section": "mechanism state",
    "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m4/is_killed/0x3fa20eaa107de08b38a8734063d605d5842fe09c/allowed",
    "unit": "base_units",
-   "value": 16071387567042336570000000
+   "value": 15719811630749009100000000
   },
   {
    "denominator": null,
@@ -2135,7 +2135,7 @@
    "section": "mechanism state",
    "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m4/is_killed/0x3fa20eaa107de08b38a8734063d605d5842fe09c/max_ratio",
    "unit": "base_units",
-   "value": 357141945934274146
+   "value": 349329147349977980
   },
   {
    "denominator": null,
@@ -2215,7 +2215,7 @@
    "section": "mechanism state",
    "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m4/is_killed/0x53876b157decf04389eed66c7c29d73863f8c50b/max_ratio",
    "unit": "base_units",
-   "value": 357141945934274146
+   "value": 349329147349977980
   },
   {
    "denominator": null,
@@ -2235,7 +2235,7 @@
    "section": "mechanism state",
    "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m4/is_killed/0x9201da0d97caaaff53f01b2fb56767c7072de340/allowed",
    "unit": "base_units",
-   "value": 48214162701127009710000000
+   "value": 47159434892247027300000000
   },
   {
    "denominator": null,
@@ -2295,7 +2295,7 @@
    "section": "mechanism state",
    "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m4/is_killed/0x9201da0d97caaaff53f01b2fb56767c7072de340/max_ratio",
    "unit": "base_units",
-   "value": 357141945934274146
+   "value": 349329147349977980
   },
   {
    "denominator": null,
@@ -2315,7 +2315,7 @@
    "section": "mechanism state",
    "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m4/is_killed/0xfb726f57d251ab5c731e5c64ed4f5f94351ef9f3/allowed",
    "unit": "base_units",
-   "value": 13168648138980605287747849
+   "value": 15847023697174430359221543
   },
   {
    "denominator": null,
@@ -2325,7 +2325,7 @@
    "section": "mechanism state",
    "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m4/is_killed/0xfb726f57d251ab5c731e5c64ed4f5f94351ef9f3/balance",
    "unit": "base_units",
-   "value": 114418648138980605287747849
+   "value": 117097023697174430359221543
   },
   {
    "denominator": null,
@@ -2345,7 +2345,7 @@
    "section": "mechanism state",
    "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m4/is_killed/0xfb726f57d251ab5c731e5c64ed4f5f94351ef9f3/debt",
    "unit": "base_units",
-   "value": 20581351861019394712252151
+   "value": 17902976302825569640778457
   },
   {
    "denominator": null,
@@ -2385,7 +2385,7 @@
    "section": "mechanism state",
    "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m4/is_killed/0xfb726f57d251ab5c731e5c64ed4f5f94351ef9f3/r",
    "unit": "base_units",
-   "value": 152454458229773294
+   "value": 132614639280189404
   },
   {
    "denominator": null,
@@ -2405,7 +2405,7 @@
    "section": "mechanism state",
    "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m4/naive",
    "unit": "base_units",
-   "value": 303418648138980605287747849
+   "value": 306097023697174430359221543
   },
   {
    "denominator": null,
@@ -2415,7 +2415,7 @@
    "section": "mechanism state",
    "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m4/oracle_spot_gap/0x100daa78fc509db39ef7d04de0c1abd299f4c6ce",
    "unit": "ratio",
-   "value": "0.04154158557326947366119904240"
+   "value": "0.0009518455371614653884014973430"
   },
   {
    "denominator": null,
@@ -2425,7 +2425,7 @@
    "section": "mechanism state",
    "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m4/oracle_spot_gap/0x1c91da0223c763d2e0173243eadaa0a2ea47e704",
    "unit": "ratio",
-   "value": "0.2351304716467860789134916878"
+   "value": "0.1449240549354655459435747620"
   },
   {
    "denominator": null,
@@ -2435,7 +2435,7 @@
    "section": "mechanism state",
    "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m4/oracle_spot_gap/0x4e59541306910ad6dc1dac0ac9dfb29bd9f15c67",
    "unit": "ratio",
-   "value": "-0.05700779438681933236801879991"
+   "value": "0.02378986731344324415548457124"
   },
   {
    "denominator": null,
@@ -2445,7 +2445,7 @@
    "section": "mechanism state",
    "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m4/oracle_spot_gap/0x652aea6b22310c89dcc506710cad24d2dba56b11",
    "unit": "ratio",
-   "value": "0.6693434734490954632595042512"
+   "value": "0.05707284822283453549884793948"
   },
   {
    "denominator": null,
@@ -2455,7 +2455,7 @@
    "section": "mechanism state",
    "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m4/oracle_spot_gap/0x8472a9a7632b173c8cf3a86d3afec50c35548e76",
    "unit": "ratio",
-   "value": "1.690431472322919038774580215"
+   "value": "1.200277766423106711480957776"
   },
   {
    "denominator": null,
@@ -2465,7 +2465,7 @@
    "section": "mechanism state",
    "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m4/oracle_spot_gap/0x8aca5a776a878ea1f8967e70a23b8563008f58ef",
    "unit": "ratio",
-   "value": "0.2402054161766967485960290738"
+   "value": "0.1303926584151421280909244078"
   },
   {
    "denominator": null,
@@ -2475,7 +2475,7 @@
    "section": "mechanism state",
    "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m4/oracle_spot_gap/0xa920de414ea4ab66b97da1bfe9e6eca7d4219635",
    "unit": "ratio",
-   "value": "-0.01488832878900838284132197156"
+   "value": "-0.007134832365694179176554428879"
   },
   {
    "denominator": null,
@@ -2485,7 +2485,7 @@
    "section": "mechanism state",
    "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m4/oracle_spot_gap/0xec0820efafc41d8943ee8de495fc9ba8495b15cf",
    "unit": "ratio",
-   "value": "0.3740078303803659370666117984"
+   "value": "0.1039809540324168707616231953"
   },
   {
    "denominator": null,
@@ -2495,7 +2495,7 @@
    "section": "mechanism state",
    "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m4/oracle_spot_gap/0xf8c786b1064889ffd3c8a08b48d5e0c159f4cbe3",
    "unit": "ratio",
-   "value": "-0.03357555461433562037787538056"
+   "value": "-0.02726729296130579421844296672"
   },
   {
    "denominator": null,
@@ -2545,7 +2545,7 @@
    "section": "mechanism state",
    "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m4/paired_units_held/0xfb726f57d251ab5c731e5c64ed4f5f94351ef9f3",
    "unit": "base_units",
-   "value": 20030957352836080401595903
+   "value": 17420833071622279290886131
   },
   {
    "denominator": null,
@@ -2595,7 +2595,7 @@
    "section": "mechanism state",
    "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m4/pegkeeper_lp_share/0xfb726f57d251ab5c731e5c64ed4f5f94351ef9f3",
    "unit": "ratio",
-   "value": "0.6030771087844227840469563883"
+   "value": "0.6344528051103508964971383321"
   },
   {
    "denominator": null,
@@ -2675,7 +2675,7 @@
    "section": "mechanism state",
    "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m4/stabilizer_debt_post_cell",
    "unit": "base_units",
-   "value": 20581351861019394712252151
+   "value": 17902976302825569640778457
   },
   {
    "denominator": null,
@@ -2685,7 +2685,7 @@
    "section": "mechanism state",
    "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m4/utilization_post_cell",
    "unit": "ratio",
-   "value": "0.06352269092907220590201281173"
+   "value": "0.05525609970007891864437795370"
   },
   {
    "denominator": null,
@@ -2745,7 +2745,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s50-d0-lp0]/counterfactual_lines/[id=H1_kill]/value_primary",
    "unit": "base_units",
-   "value": 6275376898052247258
+   "value": 4415172766235792630
   },
   {
    "denominator": null,
@@ -2755,7 +2755,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s50-d0-lp0]/counterfactual_lines/[id=H1_kill]/value_counterfactual",
    "unit": "base_units",
-   "value": 6275376898052247258
+   "value": 4415172766235792630
   },
   {
    "denominator": null,
@@ -2795,7 +2795,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s50-d0-lp0]/counterfactual_lines/[id=EMA_lag]/value_counterfactual",
    "unit": "base_units",
-   "value": 29276363801725186627009605
+   "value": 30569942567702410576825379
   },
   {
    "denominator": null,
@@ -2825,7 +2825,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s20-d0-lp0]/m1/post/ratio",
    "unit": "ratio",
-   "value": "1.662174764851872956520026266"
+   "value": "1.567039951153698273227154409"
   },
   {
    "denominator": null,
@@ -2835,7 +2835,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s20-d0-lp0]/m2/bad_debt",
    "unit": "base_units",
-   "value": 5424572766764594292
+   "value": 3697396138561373348
   },
   {
    "denominator": "exit_depth",
@@ -2845,7 +2845,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s20-d0-lp0]/m3/ratio",
    "unit": "ratio",
-   "value": "2.114702595202479445313216302E-7"
+   "value": "2.172501168705755533189836175E-7"
   },
   {
    "denominator": null,
@@ -2855,7 +2855,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s20-d0-lp0]/m3/exit_depth",
    "unit": "base_units",
-   "value": 25651705251939694086983013
+   "value": 17019075486914733288343356
   },
   {
    "denominator": null,
@@ -2865,7 +2865,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s20-d0-lp30]/m1/post/ratio",
    "unit": "ratio",
-   "value": "1.662174764851872956520026266"
+   "value": "1.567039951153698273227154409"
   },
   {
    "denominator": null,
@@ -2875,7 +2875,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s20-d0-lp30]/m2/bad_debt",
    "unit": "base_units",
-   "value": 5424572766764594292
+   "value": 3697396138561373348
   },
   {
    "denominator": "exit_depth",
@@ -2885,7 +2885,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s20-d0-lp30]/m3/ratio",
    "unit": "ratio",
-   "value": "7.627584250740277648074146371E-7"
+   "value": "7.916757624377590662495819484E-7"
   },
   {
    "denominator": null,
@@ -2895,7 +2895,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s20-d0-lp30]/m3/exit_depth",
    "unit": "base_units",
-   "value": 7111783480121015847412429
+   "value": 4670341462995161180761944
   },
   {
    "denominator": null,
@@ -2905,7 +2905,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s20-d0-lp60]/m1/post/ratio",
    "unit": "ratio",
-   "value": "1.662174764851872956520026266"
+   "value": "1.567039951153698273227154409"
   },
   {
    "denominator": null,
@@ -2915,7 +2915,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s20-d0-lp60]/m2/bad_debt",
    "unit": "base_units",
-   "value": 5424572766764594292
+   "value": 3697396138561373348
   },
   {
    "denominator": "exit_depth",
@@ -2945,7 +2945,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s35-d0-lp0]/m1/post/ratio",
    "unit": "ratio",
-   "value": "1.394266435074331520774379716"
+   "value": "1.340476630907083388976560161"
   },
   {
    "denominator": null,
@@ -2955,7 +2955,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s35-d0-lp0]/m2/bad_debt",
    "unit": "base_units",
-   "value": 6259448595960757555
+   "value": 4415172766235792630
   },
   {
    "denominator": "exit_depth",
@@ -2965,7 +2965,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s35-d0-lp0]/m3/ratio",
    "unit": "ratio",
-   "value": "2.440168610423059298372408846E-7"
+   "value": "2.594249475907452940603294746E-7"
   },
   {
    "denominator": null,
@@ -2975,7 +2975,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s35-d0-lp0]/m3/exit_depth",
    "unit": "base_units",
-   "value": 25651705251939694086983013
+   "value": 17019075486914733288343356
   },
   {
    "denominator": null,
@@ -2985,7 +2985,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s35-d0-lp30]/m1/post/ratio",
    "unit": "ratio",
-   "value": "1.394266435074331520774379716"
+   "value": "1.340476630907083388976560161"
   },
   {
    "denominator": null,
@@ -2995,7 +2995,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s35-d0-lp30]/m2/bad_debt",
    "unit": "base_units",
-   "value": 6259448595960757555
+   "value": 4415172766235792630
   },
   {
    "denominator": "exit_depth",
@@ -3005,7 +3005,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s35-d0-lp30]/m3/ratio",
    "unit": "ratio",
-   "value": "8.801517387948156777233918994E-7"
+   "value": "9.453640170036464581288888821E-7"
   },
   {
    "denominator": null,
@@ -3015,7 +3015,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s35-d0-lp30]/m3/exit_depth",
    "unit": "base_units",
-   "value": 7111783480121015847412429
+   "value": 4670341462995161180761944
   },
   {
    "denominator": null,
@@ -3025,7 +3025,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s35-d0-lp60]/m1/post/ratio",
    "unit": "ratio",
-   "value": "1.394266435074331520774379716"
+   "value": "1.340476630907083388976560161"
   },
   {
    "denominator": null,
@@ -3035,7 +3035,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s35-d0-lp60]/m2/bad_debt",
    "unit": "base_units",
-   "value": 6259448595960757555
+   "value": 4415172766235792630
   },
   {
    "denominator": "exit_depth",
@@ -3065,7 +3065,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m1/post/ratio",
    "unit": "ratio",
-   "value": "1.227128950069489183712727742"
+   "value": "1.199830184503822715306203190"
   },
   {
    "denominator": null,
@@ -3075,7 +3075,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m2/bad_debt",
    "unit": "base_units",
-   "value": 6275376898052247258
+   "value": 4415172766235792630
   },
   {
    "denominator": "exit_depth",
@@ -3085,7 +3085,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m3/ratio",
    "unit": "ratio",
-   "value": "2.446378061972205435296257748E-7"
+   "value": "2.594249475907452940603294746E-7"
   },
   {
    "denominator": null,
@@ -3095,7 +3095,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s50-d0-lp0]/m3/exit_depth",
    "unit": "base_units",
-   "value": 25651705251939694086983013
+   "value": 17019075486914733288343356
   },
   {
    "denominator": null,
@@ -3105,7 +3105,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s50-d0-lp30]/m1/post/ratio",
    "unit": "ratio",
-   "value": "1.227128950069489183712727742"
+   "value": "1.199830184503822715306203190"
   },
   {
    "denominator": null,
@@ -3115,7 +3115,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s50-d0-lp30]/m2/bad_debt",
    "unit": "base_units",
-   "value": 6275376898052247258
+   "value": 4415172766235792630
   },
   {
    "denominator": "exit_depth",
@@ -3125,7 +3125,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s50-d0-lp30]/m3/ratio",
    "unit": "ratio",
-   "value": "8.823914445080186706687230024E-7"
+   "value": "9.453640170036464581288888821E-7"
   },
   {
    "denominator": null,
@@ -3135,7 +3135,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s50-d0-lp30]/m3/exit_depth",
    "unit": "base_units",
-   "value": 7111783480121015847412429
+   "value": 4670341462995161180761944
   },
   {
    "denominator": null,
@@ -3145,7 +3145,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s50-d0-lp60]/m1/post/ratio",
    "unit": "ratio",
-   "value": "1.227128950069489183712727742"
+   "value": "1.199830184503822715306203190"
   },
   {
    "denominator": null,
@@ -3155,7 +3155,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s50-d0-lp60]/m2/bad_debt",
    "unit": "base_units",
-   "value": 6275376898052247258
+   "value": 4415172766235792630
   },
   {
    "denominator": "exit_depth",
@@ -3185,7 +3185,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s70-d0-lp0]/m1/post/ratio",
    "unit": "ratio",
-   "value": "1.125510938940578221053922424"
+   "value": "1.121480205378595447251572430"
   },
   {
    "denominator": null,
@@ -3195,7 +3195,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s70-d0-lp0]/m2/bad_debt",
    "unit": "base_units",
-   "value": 6275376898052247258
+   "value": 4415172766235792630
   },
   {
    "denominator": "exit_depth",
@@ -3205,7 +3205,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s70-d0-lp0]/m3/ratio",
    "unit": "ratio",
-   "value": "2.446378061972205435296257748E-7"
+   "value": "2.594249475907452940603294746E-7"
   },
   {
    "denominator": null,
@@ -3215,7 +3215,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s70-d0-lp0]/m3/exit_depth",
    "unit": "base_units",
-   "value": 25651705251939694086983013
+   "value": 17019075486914733288343356
   },
   {
    "denominator": null,
@@ -3225,7 +3225,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s70-d0-lp30]/m1/post/ratio",
    "unit": "ratio",
-   "value": "1.125510938940578221053922424"
+   "value": "1.121480205378595447251572430"
   },
   {
    "denominator": null,
@@ -3235,7 +3235,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s70-d0-lp30]/m2/bad_debt",
    "unit": "base_units",
-   "value": 6275376898052247258
+   "value": 4415172766235792630
   },
   {
    "denominator": "exit_depth",
@@ -3245,7 +3245,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s70-d0-lp30]/m3/ratio",
    "unit": "ratio",
-   "value": "8.823914445080186706687230024E-7"
+   "value": "9.453640170036464581288888821E-7"
   },
   {
    "denominator": null,
@@ -3255,7 +3255,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s70-d0-lp30]/m3/exit_depth",
    "unit": "base_units",
-   "value": 7111783480121015847412429
+   "value": 4670341462995161180761944
   },
   {
    "denominator": null,
@@ -3265,7 +3265,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s70-d0-lp60]/m1/post/ratio",
    "unit": "ratio",
-   "value": "1.125510938940578221053922424"
+   "value": "1.121480205378595447251572430"
   },
   {
    "denominator": null,
@@ -3275,7 +3275,7 @@
    "section": "stress (Member 1)",
    "source_path": "stress/cells/[id=M1-s70-d0-lp60]/m2/bad_debt",
    "unit": "base_units",
-   "value": 6275376898052247258
+   "value": 4415172766235792630
   },
   {
    "denominator": "exit_depth",
@@ -3305,7 +3305,7 @@
    "section": "exit liquidity",
    "source_path": "stress/exit_depth/sensitivity_rows/[k=80]/depth_at_2pct",
    "unit": "base_units",
-   "value": 25651705251939694086983013
+   "value": 17019075486914733288343356
   },
   {
    "denominator": "frozen_set_tvl",
@@ -3315,7 +3315,7 @@
    "section": "exit liquidity",
    "source_path": "stress/exit_depth/sensitivity_rows/[k=80]/share_of_F",
    "unit": "ratio",
-   "value": "0.9590456188117834851608703167"
+   "value": "0.9533560567962611404862475874"
   },
   {
    "denominator": null,
@@ -3325,7 +3325,7 @@
    "section": "exit liquidity",
    "source_path": "stress/exit_depth/sensitivity_rows/[k=90]/depth_at_2pct",
    "unit": "base_units",
-   "value": 25651705251939694086983013
+   "value": 17019075486914733288343356
   },
   {
    "denominator": "frozen_set_tvl",
@@ -3335,7 +3335,7 @@
    "section": "exit liquidity",
    "source_path": "stress/exit_depth/sensitivity_rows/[k=90]/share_of_F",
    "unit": "ratio",
-   "value": "0.9590456188117834851608703167"
+   "value": "0.9533560567962611404862475874"
   },
   {
    "denominator": null,
@@ -3345,7 +3345,7 @@
    "section": "exit liquidity",
    "source_path": "stress/exit_depth/sensitivity_rows/[k=95]/depth_at_2pct",
    "unit": "base_units",
-   "value": 26847461050517301806400715
+   "value": 17785269933221740818069276
   },
   {
    "denominator": "frozen_set_tvl",
@@ -3395,7 +3395,7 @@
    "section": "exit liquidity",
    "source_path": "stress/exit_depth/depth_curve/[s=0.005]/total",
    "unit": "base_units",
-   "value": 21928305374400784174743744
+   "value": 13810754927260075680600786
   },
   {
    "denominator": null,
@@ -3405,7 +3405,7 @@
    "section": "exit liquidity",
    "source_path": "stress/exit_depth/depth_curve/[s=0.005]/pool_depth",
    "unit": "base_units",
-   "value": 21928305374400784174743744
+   "value": 13810754927260075680600786
   },
   {
    "denominator": null,
@@ -3435,7 +3435,7 @@
    "section": "exit liquidity",
    "source_path": "stress/exit_depth/depth_curve/[s=0.01]/total",
    "unit": "base_units",
-   "value": 24101454885110672362024350
+   "value": 15677909376467802648467157
   },
   {
    "denominator": null,
@@ -3445,7 +3445,7 @@
    "section": "exit liquidity",
    "source_path": "stress/exit_depth/depth_curve/[s=0.01]/pool_depth",
    "unit": "base_units",
-   "value": 24101454885110672362024350
+   "value": 15677909376467802648467157
   },
   {
    "denominator": null,
@@ -3475,7 +3475,7 @@
    "section": "exit liquidity",
    "source_path": "stress/exit_depth/depth_curve/[s=0.02]/total",
    "unit": "base_units",
-   "value": 25651705251939694086983013
+   "value": 17019075486914733288343356
   },
   {
    "denominator": null,
@@ -3485,7 +3485,7 @@
    "section": "exit liquidity",
    "source_path": "stress/exit_depth/depth_curve/[s=0.02]/pool_depth",
    "unit": "base_units",
-   "value": 25651705251939694086983013
+   "value": 17019075486914733288343356
   },
   {
    "denominator": null,
@@ -3515,7 +3515,7 @@
    "section": "exit liquidity",
    "source_path": "stress/exit_depth/depth_curve/[s=0.05]/total",
    "unit": "base_units",
-   "value": 27064631921306213552162569
+   "value": 18233294974484914001652310
   },
   {
    "denominator": null,
@@ -3525,7 +3525,7 @@
    "section": "exit liquidity",
    "source_path": "stress/exit_depth/depth_curve/[s=0.05]/pool_depth",
    "unit": "base_units",
-   "value": 27064631921306213552162569
+   "value": 18233294974484914001652310
   },
   {
    "denominator": null,
@@ -3565,7 +3565,7 @@
    "section": "exit liquidity",
    "source_path": "stress/exit_depth/concentration/share_of_exit_depth",
    "unit": "ratio",
-   "value": "0.5763639116218358844519867173"
+   "value": "0.7447550541794385213985060612"
   },
   {
    "denominator": null,
@@ -3595,7 +3595,7 @@
    "section": "exit liquidity",
    "source_path": "bundle/offvenue_share/dex_liquidity_total_discovered",
    "unit": "usd_whole",
-   "value": 337476314
+   "value": 291758743
   },
   {
    "denominator": null,
@@ -3605,7 +3605,7 @@
    "section": "exit liquidity",
    "source_path": "bundle/offvenue_share/curve_mainnet_liquidity",
    "unit": "usd_whole",
-   "value": 337356672
+   "value": 291658859
   },
   {
    "denominator": "dex_liquidity_total_discovered",
@@ -3615,7 +3615,7 @@
    "section": "exit liquidity",
    "source_path": "bundle/offvenue_share/x",
    "unit": "ratio",
-   "value": "0.0003545196952696360195518788"
+   "value": "0.0003423513515754350504587964"
   },
   {
    "denominator": null,
@@ -3645,7 +3645,7 @@
    "section": "exit liquidity",
    "source_path": "bundle/offvenue_share/date",
    "unit": "date",
-   "value": "2026-10-07"
+   "value": "2026-10-27"
   },
   {
    "denominator": null,
@@ -3685,7 +3685,7 @@
    "section": "stress (Member 2)",
    "source_path": "stress/assumptions/m2_curves/0.88/0.005",
    "unit": "base_units",
-   "value": 18812794012556945639568326
+   "value": 11665643772844349544634914
   },
   {
    "denominator": null,
@@ -3695,7 +3695,7 @@
    "section": "stress (Member 2)",
    "source_path": "stress/assumptions/m2_curves/0.88/0.01",
    "unit": "base_units",
-   "value": 20869656527488225188287904
+   "value": 13461554712147066545703379
   },
   {
    "denominator": null,
@@ -3705,7 +3705,7 @@
    "section": "stress (Member 2)",
    "source_path": "stress/assumptions/m2_curves/0.88/0.02",
    "unit": "base_units",
-   "value": 22337325813926330955317446
+   "value": 14738202858355762500539480
   },
   {
    "denominator": null,
@@ -3715,7 +3715,7 @@
    "section": "stress (Member 2)",
    "source_path": "stress/assumptions/m2_curves/0.88/0.05",
    "unit": "base_units",
-   "value": 23674275686571864027219864
+   "value": 15902170430143087676760269
   },
   {
    "denominator": null,
@@ -3725,7 +3725,7 @@
    "section": "stress (Member 2)",
    "source_path": "stress/assumptions/m2_curves/0.93/0.005",
    "unit": "base_units",
-   "value": 20110858230564811650309517
+   "value": 12561035889205258627530228
   },
   {
    "denominator": null,
@@ -3735,7 +3735,7 @@
    "section": "stress (Member 2)",
    "source_path": "stress/assumptions/m2_curves/0.93/0.01",
    "unit": "base_units",
-   "value": 22215124189800755824292938
+   "value": 14385304729343550975720829
   },
   {
    "denominator": null,
@@ -3745,7 +3745,7 @@
    "section": "stress (Member 2)",
    "source_path": "stress/assumptions/m2_curves/0.93/0.02",
    "unit": "base_units",
-   "value": 23717541255819323347316164
+   "value": 15687539150773271834421048
   },
   {
    "denominator": null,
@@ -3755,7 +3755,7 @@
    "section": "stress (Member 2)",
    "source_path": "stress/assumptions/m2_curves/0.93/0.05",
    "unit": "base_units",
-   "value": 25087095432969486741442998
+   "value": 16873621621743514255665959
   },
   {
    "denominator": null,
@@ -3765,7 +3765,7 @@
    "section": "stress (Member 2)",
    "source_path": "stress/assumptions/m2_curves/0.97/0.005",
    "unit": "base_units",
-   "value": 21134941687531566621450353
+   "value": 13275290874782170955180180
   },
   {
    "denominator": null,
@@ -3775,7 +3775,7 @@
    "section": "stress (Member 2)",
    "source_path": "stress/assumptions/m2_curves/0.97/0.01",
    "unit": "base_units",
-   "value": 23293429745482873389649156
+   "value": 15128266340689884534162243
   },
   {
    "denominator": null,
@@ -3785,7 +3785,7 @@
    "section": "stress (Member 2)",
    "source_path": "stress/assumptions/m2_curves/0.97/0.02",
    "unit": "base_units",
-   "value": 24823506687822259654763868
+   "value": 16447368840270313585330749
   },
   {
    "denominator": null,
@@ -3795,7 +3795,7 @@
    "section": "stress (Member 2)",
    "source_path": "stress/assumptions/m2_curves/0.97/0.05",
    "unit": "base_units",
-   "value": 26217172753053823510359006
+   "value": 17650643704484080074664401
   },
   {
    "denominator": null,
@@ -3805,7 +3805,7 @@
    "section": "mechanism state",
    "source_path": "stress/mechanism/effective_headroom",
    "unit": "base_units",
-   "value": 80668475920558418881747849
+   "value": 81870232546320268579221543
   },
   {
    "denominator": null,
@@ -3815,7 +3815,7 @@
    "section": "mechanism state",
    "source_path": "stress/mechanism/naive_headroom",
    "unit": "base_units",
-   "value": 303418648138980605287747849
+   "value": 306097023697174430359221543
   },
   {
    "denominator": null,
@@ -3825,7 +3825,7 @@
    "section": "mechanism state",
    "source_path": "stress/mechanism/burn_capacity",
    "unit": "base_units",
-   "value": 20581351861019394712252151
+   "value": 17902976302825569640778457
   },
   {
    "denominator": null,
@@ -4434,7 +4434,7 @@
    "section": "assumptions",
    "source_path": "stress/assumptions/ema_lag_readings",
    "unit": "literal",
-   "value": "M1-s50-d0-lp0: m1.post 1.227128 primary vs 0.833447 under EMA_lag; M1-s70-d0-lp0: m1.post 1.125510 primary vs 0.372156 under EMA_lag"
+   "value": "M1-s50-d0-lp0: m1.post 1.199830 primary vs 0.759273 under EMA_lag; M1-s70-d0-lp0: m1.post 1.121480 primary vs 0.365074 under EMA_lag"
   },
   {
    "denominator": null,
@@ -5518,7 +5518,7 @@
    "section": "supply",
    "source_path": "tree/stabilizer_slice/debt",
    "unit": "base_units",
-   "value": 20581351861019394712252151
+   "value": 17902976302825569640778457
   },
   {
    "denominator": null,
@@ -5588,7 +5588,7 @@
    "section": "supply",
    "source_path": "bundle/stabilizer/operations/[operation_address=0xfb726f57d251ab5c731e5c64ed4f5f94351ef9f3]/utilization",
    "unit": "ratio",
-   "value": "0.1524544582297732941648307481"
+   "value": "0.1326146392801894047465070889"
   },
   {
    "denominator": null,
@@ -5598,7 +5598,7 @@
    "section": "supply",
    "source_path": "bundle/stabilizer/operations/[operation_address=0xfb726f57d251ab5c731e5c64ed4f5f94351ef9f3]/net_non_self_referential_value",
    "unit": "base_units",
-   "value": 10035540325752001177592557
+   "value": 9015251962217805726291282
   },
   {
    "denominator": null,
@@ -5951,7 +5951,7 @@
    "value": "n/a — archetype #1 holds no off-chain counterparties. WBTC custodian captured in §4 look-through."
   }
  ],
- "run_block": 26143168,
- "table_hash": "ccbfd7c938133689af4b7ab0841d4b3eb6b938e5efac328780d2d5abae19bba1",
+ "run_block": 26284576,
+ "table_hash": "75b6ed5f3527c884f1bba97b8160478d32c38c5c207de2081c3b069ed86e0a46",
  "token": "crvUSD"
 }
