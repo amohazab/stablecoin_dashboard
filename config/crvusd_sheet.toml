@@ -1,10 +1,10 @@
 # DERIVED MIRROR - NOT AUTHORITATIVE (P-3.04 binding).
 # Source of truth: docs/context/intake-sheets-cdp.md, crvUSD section.
-# Derived from sheet version sha256_first8 = 29682310.
+# Derived from sheet version sha256_first8 = 45614b2b.
 # DET-77's sheet_hash check binds this mirror to that source; drift is caught
 # mechanically, never trusted away. Regenerated, never hand-patched.
 schema_version = 1
-sheet_hash = "29682310"
+sheet_hash = "45614b2b"
 
 near_bound_threshold = 0.80
 counterparties = "n/a — archetype #1 holds no off-chain counterparties. WBTC custodian captured in §4 look-through."

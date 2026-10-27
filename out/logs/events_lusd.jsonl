@@ -17,3 +17,4 @@
 {"date":"2026-10-02","level":1,"resolution_date":null,"resolution_type":null,"token":"LUSD","trigger":"T-28","type":"quarantine"}
 {"date":"2026-10-02","level":2,"resolution_date":"2026-10-02","resolution_type":"template_change","token":"LUSD","trigger":"T-28","type":"quarantine"}
 {"bundle_hash":"0ab3ea7cf50bb03d6e48b044c2c24a190a4aab3e2bd7208196e6cb5ac6b6164f","date":"2026-10-02","token":"LUSD","type":"published"}
+{"date":"2026-10-27","set_file_hash":"8bebc8a0","sheet_hash":"45614b2b","source":"P-10.14 — Q37 signed edit (P-10.13): GHO's sUSDe node row to the memo §4.1 analyzed-set link (sUSDe wraps USDe); rubric header re-stamp","token":"LUSD","type":"intake_trigger"}

@@ -1,10 +1,10 @@
 # DERIVED MIRROR - NOT AUTHORITATIVE (P-3.04 binding).
 # Source of truth: docs/context/intake-sheets-cdp.md, GHO section.
-# Derived from sheet version sha256_first8 = 29682310.
+# Derived from sheet version sha256_first8 = 45614b2b.
 # DET-77's sheet_hash check binds this mirror to that source; drift is caught
 # mechanically, never trusted away. Regenerated, never hand-patched.
 schema_version = 1
-sheet_hash = "29682310"
+sheet_hash = "45614b2b"
 
 near_bound_threshold = 0.80
 counterparties = "n/a — archetype #1 holds no off-chain counterparties. WBTC custodian captured in §4 look-through."
@@ -16,7 +16,7 @@ m4_fields = ["gho_sourceable", "collateral_sellable", "gsm_mint_headroom", "bind
 # bias_table[] date - the P-6.07 signed edit's; the sheet table has no date column (P-7.01 R8).
 bias_table_date = 2026-09-14
 
-# disclosure[] - DET-76(e), 6 node-table rows; owner: the sheet (C-8).
+# disclosure[] - DET-76(e), 5 node-table rows; owner: the sheet (C-8).
 
 [[disclosure]]
 row_key = "aWBTC → WBTC"
@@ -52,13 +52,6 @@ memo_row = "cbBTC / custodial BTC"
 disclosure_cadence = "continuous — Chainlink PoR feed (Ethereum) + Coinbase PoR page, near-real-time refresh"
 last_disclosure_date = "per-run read of the Ethereum PoR feed `updatedAt`"
 source = "ANALYST-SUPPLIED 2026-09-13: the crvUSD section's cbBTC form (2026-09-03) applied to the same asset; feed 0xcbe87dc0cf9d807848a3e703b01a90b28ecfb2a7, heartbeat 86400"
-
-[[disclosure]]
-row_key = "sUSDe"
-memo_row = "memo §4.5 via P-3.24 R-2 (Ethena off-chain attestations)"
-disclosure_cadence = "monthly custodian attestations (Copper, Ceffu, Kraken Custody) + weekly PoR since 2026-01"
-last_disclosure_date = "2026-08-26"
-source = "ANALYST-SUPPLIED 2026-09-13: As of 23:59 UTC August 26th 2026 — ethena.fi/blog/custodian-attestations-of-assets-backing-usde-august-3"
 
 [[disclosure_inherit]]
 symbol = "waEthUSDC"
