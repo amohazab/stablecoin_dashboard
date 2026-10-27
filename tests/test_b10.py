@@ -49,7 +49,11 @@ def test_every_row_replays_and_the_committed_table_matches(built):
                 "DET-68", "DET-73", "DET-32"} <= {row["owner_entry"] for row in doc["rows"]}, t
         committed = json.loads((REPO / f"out/report/{t}/{doc['run_block']}/table.json")
                                .read_text(encoding="utf-8"))
-        assert committed["table_hash"] == doc["table_hash"], t
+        # P-10.14c: the recorded bundle is re-stamped to the current sheet, so the rebuild
+        # equals the committed table in every row except `header.sheet_hash`
+        diff = [(a["field_id"], a["value"], b["value"])
+                for a, b in zip(committed["rows"], doc["rows"], strict=True) if a != b]
+        assert diff == [("header.sheet_hash", "29682310", "45614b2b")], t
     gho = {row["field_id"]: row for row in built["GHO"]["doc"]["rows"]}
     assert gho["supply.off_mainnet.share"]["denominator"] == "supply_ruled"
     assert gho["exit.offvenue.x"]["value"].startswith("0.9243")     # B-11d run, live fetch
@@ -60,8 +64,9 @@ def _det84(token, doc):
     from factory.stress import load_inputs
     inp = load_inputs(REPO, token)
     blk = doc["run_block"]                        # P-8.06: the table's own (recorded) block
-    inp["bundle"] = Bundle.model_validate_json((REPO / f"out/bundles/{token}/{blk}.json")
-                                               .read_text(encoding="utf-8"))
+    from tests.llm_fake import restamp_bundle  # P-10.14c: the current sheet stamp
+    inp["bundle"] = restamp_bundle(Bundle.model_validate_json(
+        (REPO / f"out/bundles/{token}/{blk}.json").read_text(encoding="utf-8")), inp["cfg"])
     inp["tree"] = VerifiabilityTree.model_validate_json(
         (REPO / f"out/trees/{token}/{blk}.json").read_text(encoding="utf-8"))
     s = StressReport.model_validate_json((REPO / f"out/stress/{token}/{blk}.json")

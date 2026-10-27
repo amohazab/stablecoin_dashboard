@@ -55,8 +55,9 @@ def inputs():
         inp = load_inputs(REPO, tok)
         # P-8.06: the recorded block, not the token's newest run
         from factory.schema import Bundle, VerifiabilityTree
-        inp["bundle"] = Bundle.model_validate_json((REPO / f"out/bundles/{tok}/{blk}.json")
-                                                   .read_text(encoding="utf-8"))
+        from tests.llm_fake import restamp_bundle  # P-10.14c: the current sheet stamp
+        inp["bundle"] = restamp_bundle(Bundle.model_validate_json(
+            (REPO / f"out/bundles/{tok}/{blk}.json").read_text(encoding="utf-8")), inp["cfg"])
         inp["tree"] = VerifiabilityTree.model_validate_json(
             (REPO / f"out/trees/{tok}/{blk}.json").read_text(encoding="utf-8"))
         s = StressReport.model_validate_json((REPO / f"out/stress/{tok}/{blk}.json")

@@ -67,8 +67,8 @@ def test_audit_blocks_parse_as_signed():
 def test_disclosure_rows_join_to_addresses():
     g = load(REPO / "config", "GHO")
     sym = {g.labels[a].symbol: d for a, d in g.disclosures.items()}
-    assert set(sym) == {"WBTC", "USDC", "USDT", "cbETH", "cbBTC", "sUSDe",
-                        "waEthUSDC", "waEthUSDT"}
+    # P-10.14a (Q37): GHO's sUSDe node is the memo §4.1 analyzed-set link, no disclosure row
+    assert set(sym) == {"WBTC", "USDC", "USDT", "cbETH", "cbBTC", "waEthUSDC", "waEthUSDT"}
     assert sym["waEthUSDT"]["last_disclosure_date"] == "2026-06-30"
     assert sym["waEthUSDT"]["inherited_from"] == "USDT"
     assert len(load(REPO / "config", "crvUSD").disclosures) == 3

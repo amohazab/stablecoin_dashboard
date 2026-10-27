@@ -36,7 +36,9 @@ def recorded_lines(text: str) -> str:
         if not ln.strip():
             continue
         d = _json.loads(ln)
-        if max(d.get("date") or "", d.get("resolution_date") or "") <= RECORDED_DATE:
+        # P-10.14c: an intake_trigger is the sheet's own history, kept with the re-stamp
+        last = max(d.get("date") or "", d.get("resolution_date") or "")
+        if last <= RECORDED_DATE or d.get("type") == "intake_trigger":
             keep.append(ln)
     return "\n".join(keep) + ("\n" if keep else "")
 
@@ -71,6 +73,32 @@ def pin_to_recorded(root: pathlib.Path) -> pathlib.Path:
             if f.exists():
                 f.write_text(recorded_lines(f.read_text(encoding="utf-8")), encoding="utf-8",
                              newline="")
+    return restamp(root)
+
+
+def restamp_bundle(bundle, cfg):
+    """P-10.14c: an in-memory recorded bundle, re-stamped to the current mirror's sheet."""
+    head = bundle.header.model_copy(update={"sheet_hash": cfg.sheet["sheet_hash"]})
+    return bundle.model_copy(update={"header": head})
+
+
+def restamp(root: pathlib.Path) -> pathlib.Path:
+    """P-10.14c: the recorded bundles carry the sheet stamp of their day (29682310); the
+    sheet moved to 45614b2b at P-10.14a (Q37). In the tmp copy only, each recorded bundle's
+    `header.sheet_hash` is re-stamped to the current mirror's, so the report stage folds
+    the recorded state against the current sheet; the committed bundles are untouched."""
+    import json
+    import tomllib
+    for tok, blk in RECORDED.items():
+        mirror = tomllib.loads((root / f"config/{tok.lower()}_sheet.toml")
+                               .read_text(encoding="utf-8"))["sheet_hash"]
+        p = root / "out/bundles" / tok / f"{blk}.json"
+        if p.exists():
+            raw = p.read_text(encoding="utf-8")
+            old = json.loads(raw)["header"]["sheet_hash"]
+            if old != mirror:
+                p.write_text(raw.replace(f'"sheet_hash":"{old}"', f'"sheet_hash":"{mirror}"', 1),
+                             encoding="utf-8", newline="")
     return root
 
 

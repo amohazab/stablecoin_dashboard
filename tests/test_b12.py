@@ -192,7 +192,12 @@ def test_det59(runs):
 def test_det60(runs):
     page = runs["GHO"][3]
     assert "every fired trigger has one entry" in call(det_60, runs, "GHO", fresh(page))
-    extra = fresh(page, log_raw=[*page["log_raw"][:-1], {**page["log_raw"][-1], "check": "x"}])
+    # P-10.14c: the pinned log now ends on Q37's intake_trigger; the stray field goes on the
+    # last quarantine line, which DET-60 reads
+    q = max(i for i, x in enumerate(page["log_raw"]) if x.get("type") == "quarantine")
+    raw = [*page["log_raw"]]
+    raw[q] = {**raw[q], "check": "x"}
+    extra = fresh(page, log_raw=raw)
     with pytest.raises(Level3, match="fields"):
         call(det_60, runs, "GHO", extra)
     unlogged = fresh(page, record_triggers=[*page["record_triggers"],

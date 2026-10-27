@@ -326,7 +326,7 @@ def test_the_mirrors_carry_m4_and_bias_and_retire_member2_target():
     from factory.config import load
     for token, n in (("crvUSD", 18), ("GHO", 9), ("LUSD", 9)):
         cfg = load(REPO / "config", token)
-        assert cfg.sheet["sheet_hash"] == "29682310"      # B-11d stamp (P-7.08)
+        assert cfg.sheet["sheet_hash"] == "45614b2b"      # Q37 stamp (P-10.14a)
         assert len(cfg.m4_fields) == n
         assert len(cfg.bias_table) == 9
         assert {str(r["date"]) for r in cfg.bias_table} == {"2026-09-14"}   # B-11d edit C
