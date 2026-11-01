@@ -16,15 +16,15 @@
    "ids": []
   }
  },
- "behavioral_as_of": "2026-10-27",
+ "behavioral_as_of": "2026-11-01",
  "behavioral_status": {
-  "fetched_at": "2026-10-27T19:18:15+00:00",
+  "fetched_at": "2026-11-01T18:45:53+00:00",
   "notes": {
    "crvUSD": "holderConcentration.top30 not reported by Webacy"
   },
   "ok": true,
   "reason": null,
-  "snapshot_stamp": "20261027T191732Z"
+  "snapshot_stamp": "20261101T184519Z"
  },
  "branch": "master",
  "log_rows": 46,
@@ -33,43 +33,43 @@
   "GHO": {
    "behavioral": {
     "age_days": 0,
-    "as_of": "2026-10-27",
-    "block_sha256": "c146fd871ef0d454daf42250c2ff9bbb9b7b2080e483386bce7cad08892847d2",
+    "as_of": "2026-11-01",
+    "block_sha256": "e6f47a6da3bbbd3047d3e958b1cf9021b3b259ebceca79b1826b682bd1935c4b",
     "captions": [
-     "7-day max |deviation|: 21.4 bp",
-     "Share of liquidity among the 10 Ethereum pools Webacy lists, $7.5M",
+     "7-day max |deviation|: 29.6 bp",
+     "Share of liquidity among the 10 Ethereum pools Webacy lists, $25.6M",
      "Net supply change, per Webacy",
-     "Share of supply held, 8,093 holders"
+     "Share of supply held, 8,127 holders"
     ],
     "daggers": 0,
     "depeg_stale": false,
-    "donut_caption": "Share of liquidity among the 10 Ethereum pools Webacy lists, $7.5M",
+    "donut_caption": "Share of liquidity among the 10 Ethereum pools Webacy lists, $25.6M",
     "donut_excluded": 0,
     "donut_slices": 6,
-    "fetched": "2026-10-27 19:17",
-    "fetched_at": "2026-10-27T19:17:50+00:00",
+    "fetched": "2026-11-01 18:45",
+    "fetched_at": "2026-11-01T18:45:33+00:00",
     "hci_found": true,
     "hci_page": 1,
     "hci_stale": false,
     "holder_bar": true,
-    "holder_caption": "Share of supply held, 8,093 holders",
+    "holder_caption": "Share of supply held, 8,127 holders",
     "holder_segments": [
-     "0.9%",
-     "0.2%",
-     "98.9%"
+     "1.1%",
+     "0.3%",
+     "98.7%"
     ],
     "liquidity_exceeds_supply": false,
     "liquidity_shown": true,
     "markets": 10,
-    "max_abs_bp": "21.4",
+    "max_abs_bp": "29.6",
     "notes": [],
     "notes_line": [],
-    "snapshot": "out/behavioral/GHO/20261027T191732Z.json",
-    "snapshot_sha256": "6fd040029782d657a78ef21f626674922f5d6c48a4eb8afdc8c09ede71f802c3",
+    "snapshot": "out/behavioral/GHO/20261101T184519Z.json",
+    "snapshot_sha256": "9f7c5a4028743c7d52add345763e22b84ff320f86c76546c422c247810ac251a",
     "state": "rendered",
     "suffixes": [],
     "supply_bars": 3,
-    "supply_base": "$698.0M",
+    "supply_base": "$698.1M",
     "supply_caption": "Net supply change, per Webacy",
     "supply_not_shown": null,
     "supply_shown": true,
@@ -83,7 +83,7 @@
    "report_hash": "2a37417006e02f004b47078768f0ff6eff980f9bf69b8f6bc8b910edfc001a34",
    "rewrites": {
     "index.html": {
-     "after": "2a19b4acdd7cd687975cd18a00732a546c263550b844e574018b66e1bdf9276e",
+     "after": "d89ac09815206332976e6ee1061415473e1f6f226911f00e84126f43d6f4f186",
      "before": "7239a32aadcbe8950e4e4be6fb81922bbc2f3627fc1ec47454cadd6d52af8bc2",
      "substitutions": [
       {
@@ -107,7 +107,7 @@
        "old": "<h2 class=\"specialists\">Detail for specialists</h2>\n<p class=\"meta\">behavioral tier: pending</p>\n"
       },
       {
-       "new": "<behavioral block, sha256 c146fd871ef0d454daf42250c2ff9bbb9b7b2080e483386bce7cad08892847d2><section id=\"check\">",
+       "new": "<behavioral block, sha256 e6f47a6da3bbbd3047d3e958b1cf9021b3b259ebceca79b1826b682bd1935c4b><section id=\"check\">",
        "old": "<section id=\"check\">"
       }
      ]
@@ -118,41 +118,41 @@
   "LUSD": {
    "behavioral": {
     "age_days": 0,
-    "as_of": "2026-10-27",
-    "block_sha256": "e370147dcb4a5af701d9e06f68ce172fefddbf77059ea8a5f39dc0759e134881",
+    "as_of": "2026-11-01",
+    "block_sha256": "662abc20de55d3b3afd42d59e7d3295623fe191fa2a24ff60e2544883974c94e",
     "captions": [
-     "7-day max |deviation|: 90.8 bp",
+     "7-day max |deviation|: 570.0 bp",
      "Net supply change, per Webacy",
-     "Share of supply held, 8,736 holders"
+     "Share of supply held, 8,733 holders"
     ],
     "daggers": 0,
     "depeg_stale": false,
     "donut_excluded": 0,
     "donut_slices": 0,
-    "fetched": "2026-10-27 19:17",
-    "fetched_at": "2026-10-27T19:17:59+00:00",
+    "fetched": "2026-11-01 18:45",
+    "fetched_at": "2026-11-01T18:45:39+00:00",
     "hci_found": true,
     "hci_page": 1,
     "hci_stale": false,
     "holder_bar": true,
-    "holder_caption": "Share of supply held, 8,736 holders",
+    "holder_caption": "Share of supply held, 8,733 holders",
     "holder_segments": [
-     "25.8%",
-     "9.7%",
-     "64.5%"
+     "28.2%",
+     "10.0%",
+     "61.8%"
     ],
     "liquidity_exceeds_supply": false,
     "liquidity_shown": false,
     "markets": 0,
-    "max_abs_bp": "90.8",
+    "max_abs_bp": "570.0",
     "notes": [],
     "notes_line": [],
-    "snapshot": "out/behavioral/LUSD/20261027T191732Z.json",
-    "snapshot_sha256": "311688670783f6ac848b68d8c069b18930e938b78c58c74d4bf4729c7eaf72c0",
+    "snapshot": "out/behavioral/LUSD/20261101T184519Z.json",
+    "snapshot_sha256": "61fb2d4417cc080bece5dd6bedcee87fd2781a5df1219a434972d199209d3316",
     "state": "rendered",
     "suffixes": [],
     "supply_bars": 3,
-    "supply_base": "$25.9M",
+    "supply_base": "$26.5M",
     "supply_caption": "Net supply change, per Webacy",
     "supply_not_shown": null,
     "supply_shown": true,
@@ -166,7 +166,7 @@
    "report_hash": "b12b9e5e4541ba13e1cacb6d8e37fe45bdad999f3bd907f61bb3e92fccc17ca1",
    "rewrites": {
     "index.html": {
-     "after": "c33c68982b50ff299e936b574fde9fe59c152250e3c3fba3b4a2e14b3c79dbcb",
+     "after": "48dae8efb90d98b38d33f71a8edfc64ed19372cc0b79a1a432c0974117e363da",
      "before": "d9245c04476d98830511849e1a86f2b904d23996ff4dd8a7362690fa0b52807b",
      "substitutions": [
       {
@@ -190,7 +190,7 @@
        "old": "<h2 class=\"specialists\">Detail for specialists</h2>\n<p class=\"meta\">behavioral tier: pending</p>\n"
       },
       {
-       "new": "<behavioral block, sha256 e370147dcb4a5af701d9e06f68ce172fefddbf77059ea8a5f39dc0759e134881><section id=\"check\">",
+       "new": "<behavioral block, sha256 662abc20de55d3b3afd42d59e7d3295623fe191fa2a24ff60e2544883974c94e><section id=\"check\">",
        "old": "<section id=\"check\">"
       }
      ]
@@ -201,43 +201,43 @@
   "USDe": {
    "behavioral": {
     "age_days": 0,
-    "as_of": "2026-10-27",
-    "block_sha256": "c048fdca5a51289f490dc032e3e59253fa91484a288fe7077d52bae9d8a847ae",
+    "as_of": "2026-11-01",
+    "block_sha256": "7747f43d0d9a4fbae56f9b34f4de6bd02698a2b65d79d1308b35f3b39397374b",
     "captions": [
-     "7-day max |deviation|: 12.6 bp",
-     "Share of liquidity among the 10 Ethereum pools Webacy lists, $26.7M",
+     "7-day max |deviation|: 29.7 bp",
+     "Share of liquidity among the 10 Ethereum pools Webacy lists, $26.5M",
      "Net supply change, per Webacy",
-     "Share of supply held, 47,750 holders"
+     "Share of supply held, 47,171 holders"
     ],
     "daggers": 0,
     "depeg_stale": false,
-    "donut_caption": "Share of liquidity among the 10 Ethereum pools Webacy lists, $26.7M",
+    "donut_caption": "Share of liquidity among the 10 Ethereum pools Webacy lists, $26.5M",
     "donut_excluded": 0,
     "donut_slices": 6,
-    "fetched": "2026-10-27 19:18",
-    "fetched_at": "2026-10-27T19:18:07+00:00",
+    "fetched": "2026-11-01 18:45",
+    "fetched_at": "2026-11-01T18:45:46+00:00",
     "hci_found": true,
     "hci_page": 1,
     "hci_stale": false,
     "holder_bar": true,
-    "holder_caption": "Share of supply held, 47,750 holders",
+    "holder_caption": "Share of supply held, 47,171 holders",
     "holder_segments": [
-     "4.8%",
-     "0.2%",
-     "95.0%"
+     "5.4%",
+     "0.3%",
+     "94.3%"
     ],
     "liquidity_exceeds_supply": false,
     "liquidity_shown": true,
     "markets": 10,
-    "max_abs_bp": "12.6",
+    "max_abs_bp": "29.7",
     "notes": [],
     "notes_line": [],
-    "snapshot": "out/behavioral/USDe/20261027T191732Z.json",
-    "snapshot_sha256": "dd15acc35ce9bf4d8055ae08e34f755ee0cca4fec789fe8feec0345bd6555528",
+    "snapshot": "out/behavioral/USDe/20261101T184519Z.json",
+    "snapshot_sha256": "f66f890362130d34c1f0021971f1cce8e10db146744837e8017e3839f15734ab",
     "state": "rendered",
     "suffixes": [],
     "supply_bars": 3,
-    "supply_base": "$4.7B",
+    "supply_base": "$4.6B",
     "supply_caption": "Net supply change, per Webacy",
     "supply_not_shown": null,
     "supply_shown": true,
@@ -251,7 +251,7 @@
    "report_hash": "7b2604e7a3caa45043ec97d853db66aead99bee0361e3eb41353daa7703f185d",
    "rewrites": {
     "index.html": {
-     "after": "a757e6a3d714990bdae61bf18a9f3a33bb4fbbce400a85dae8257b41566a5d06",
+     "after": "1c51fd7ed74ab1f56127c1b12eb5b15bc1a5898a805bfd687fd5f3f7ba2af22a",
      "before": "03094c231e29186f910d05ffd1778f2433caeb9f4bd75834545145368fa6bccb",
      "substitutions": [
       {
@@ -275,7 +275,7 @@
        "old": "<h2 class=\"specialists\">Detail for specialists</h2>\n<p class=\"meta\">behavioral tier: pending</p>\n"
       },
       {
-       "new": "<behavioral block, sha256 c048fdca5a51289f490dc032e3e59253fa91484a288fe7077d52bae9d8a847ae><section id=\"check\">",
+       "new": "<behavioral block, sha256 7747f43d0d9a4fbae56f9b34f4de6bd02698a2b65d79d1308b35f3b39397374b><section id=\"check\">",
        "old": "<section id=\"check\">"
       }
      ]
@@ -286,20 +286,20 @@
   "crvUSD": {
    "behavioral": {
     "age_days": 0,
-    "as_of": "2026-10-27",
-    "block_sha256": "dff82610316088cb7c27f1ffb653189c2463f508fb88d1b05f35ee1840e3be28",
+    "as_of": "2026-11-01",
+    "block_sha256": "58591c154b2a390139e341c1d64d84f8958ec70b7f3c16865cc53400777a87dc",
     "captions": [
-     "7-day max |deviation|: 19.8 bp",
-     "Share of liquidity among the 10 Ethereum pools Webacy lists, $126.4M",
+     "7-day max |deviation|: 37.4 bp",
+     "Share of liquidity among the 10 Ethereum pools Webacy lists, $154.6M",
      "Net supply change, per Webacy"
     ],
     "daggers": 0,
     "depeg_stale": false,
-    "donut_caption": "Share of liquidity among the 10 Ethereum pools Webacy lists, $126.4M",
+    "donut_caption": "Share of liquidity among the 10 Ethereum pools Webacy lists, $154.6M",
     "donut_excluded": 0,
     "donut_slices": 6,
-    "fetched": "2026-10-27 19:17",
-    "fetched_at": "2026-10-27T19:17:40+00:00",
+    "fetched": "2026-11-01 18:45",
+    "fetched_at": "2026-11-01T18:45:26+00:00",
     "hci_found": true,
     "hci_page": 1,
     "hci_stale": false,
@@ -308,15 +308,15 @@
     "liquidity_exceeds_supply": false,
     "liquidity_shown": true,
     "markets": 10,
-    "max_abs_bp": "19.8",
+    "max_abs_bp": "37.4",
     "notes": [],
     "notes_line": [],
-    "snapshot": "out/behavioral/crvUSD/20261027T191732Z.json",
-    "snapshot_sha256": "795a7292107b49acdebcdd9458ec75f0847378df787c3ca89b0b2cf9f01a6b22",
+    "snapshot": "out/behavioral/crvUSD/20261101T184519Z.json",
+    "snapshot_sha256": "af240d6c385c122502ed6e70a2d144eb0e06f157bd461c46631d316349b11fff",
     "state": "rendered",
     "suffixes": [],
     "supply_bars": 3,
-    "supply_base": "$242.5M",
+    "supply_base": "$230.8M",
     "supply_caption": "Net supply change, per Webacy",
     "supply_not_shown": null,
     "supply_shown": true,
@@ -330,7 +330,7 @@
    "report_hash": "0a14f96a037ff6b8842bd25b664871874b2bf80d19be702d6846c1072b1e2f21",
    "rewrites": {
     "index.html": {
-     "after": "ebf124636a8ab2bd8bd1b8ae7ba9085251855c32285069f6d1115ff88b7779f4",
+     "after": "e925a28024be5781d383cc2a05001def1d2ae6986a0fbbb68c0eb50705b5c146",
      "before": "b8e23da0688a14bb16d31e602e00cba30cf9b57be8264fd2b4d1fafcc2647059",
      "substitutions": [
       {
@@ -354,7 +354,7 @@
        "old": "<h2 class=\"specialists\">Detail for specialists</h2>\n<p class=\"meta\">behavioral tier: pending</p>\n"
       },
       {
-       "new": "<behavioral block, sha256 dff82610316088cb7c27f1ffb653189c2463f508fb88d1b05f35ee1840e3be28><section id=\"check\">",
+       "new": "<behavioral block, sha256 58591c154b2a390139e341c1d64d84f8958ec70b7f3c16865cc53400777a87dc><section id=\"check\">",
        "old": "<section id=\"check\">"
       }
      ]
