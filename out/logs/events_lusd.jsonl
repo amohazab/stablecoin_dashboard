@@ -23,3 +23,5 @@
 {"date":"2026-10-27","level":1,"resolution_date":null,"resolution_type":null,"token":"LUSD","trigger":"T-28","type":"quarantine"}
 {"date":"2026-10-27","level":2,"resolution_date":"2026-10-27","resolution_type":"data_correction","token":"LUSD","trigger":"T-28","type":"quarantine"}
 {"bundle_hash":"efa1448ec84dae38ce70fe59289f334d67ea785d33a25a8c6f1c5f22a33778c5","date":"2026-10-27","token":"LUSD","type":"published"}
+{"date":"2026-10-27","level":1,"resolution_date":"2026-11-02","resolution_type":"data_correction","token":"LUSD","trigger":"T-28","type":"quarantine"}
+{"bundle_hash":"3f466abe7c29808bc56f159b083f92485359c38819c38ba826ed8be8d75eb986","date":"2026-11-02","token":"LUSD","type":"published"}
